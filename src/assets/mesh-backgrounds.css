@@ -1,0 +1,83 @@
+/* AI-Style Ambient Mesh Backgrounds */
+
+.nano-mesh-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background-color: var(--background);
+}
+
+.nano-mesh-bg::before,
+.nano-mesh-bg::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background-size: 100% 100%;
+    opacity: 0.15;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Light Mode Mesh (Teal/Purple soft abstract) */
+.light .nano-mesh-bg::before {
+    background-image:
+        radial-gradient(ellipse at 20% 40%, rgba(52, 211, 153, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 60%, rgba(139, 92, 246, 0.3) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 10%, rgba(56, 189, 248, 0.3) 0%, transparent 60%);
+    animation: nano-drift 30s ease-in-out infinite alternate;
+}
+
+/* Dark Mode Mesh (Deep Space / Neon Teal / Velvet Purple) */
+.dark .nano-mesh-bg::before {
+    background-image:
+        radial-gradient(ellipse at 15% 35%, rgba(52, 211, 153, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% -10%, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+    animation: nano-drift 40s ease-in-out infinite alternate-reverse;
+}
+
+.dark .nano-mesh-bg::after {
+    background-image:
+        radial-gradient(ellipse at 70% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 80%, rgba(52, 211, 153, 0.08) 0%, transparent 60%);
+    animation: nano-drift-slow 60s ease-in-out infinite alternate;
+}
+
+
+@keyframes nano-drift {
+    0% {
+        transform: rotate(0deg) scale(1) translate(0%, 0%);
+    }
+
+    50% {
+        transform: rotate(5deg) scale(1.05) translate(-2%, 3%);
+    }
+
+    100% {
+        transform: rotate(-3deg) scale(1) translate(3%, -2%);
+    }
+}
+
+@keyframes nano-drift-slow {
+    0% {
+        transform: rotate(0deg) scale(1) translate(0%, 0%);
+    }
+
+    50% {
+        transform: rotate(-8deg) scale(1.1) translate(4%, -1%);
+    }
+
+    100% {
+        transform: rotate(5deg) scale(1) translate(-2%, 4%);
+    }
+}
+
+/* Base App Wrapper Overlay to enforce depth */
+.app-wrapper {
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+}

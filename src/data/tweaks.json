@@ -1,0 +1,182 @@
+[
+    {
+        "id": "DisableSysMain",
+        "name": "Disable SysMain (Superfetch)",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from pre-loading apps into RAM.",
+        "educationalContext": {
+            "howItWorks": "Analyzes app usage and pre-loads them to memory.",
+            "pros": "Saves CPU overhead on ultra-fast NVMe drives.",
+            "cons": "Will drastically slow down HDD loading times."
+        },
+        "execution": {
+            "code": "Stop-Service -Name 'SysMain' -Force -ErrorAction SilentlyContinue; Set-Service -Name 'SysMain' -StartupType Disabled",
+            "revertCode": "Set-Service -Name 'SysMain' -StartupType Automatic; Start-Service -Name 'SysMain' -ErrorAction SilentlyContinue"
+        },
+        "validationCmd": "Get-Service -Name 'SysMain' | Select-Object -ExpandProperty Status"
+    },
+    {
+        "id": "DisableSearchIndexer",
+        "name": "Disable Windows Search Indexer",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Stops constant background file scanning for search index.",
+        "educationalContext": {
+            "howItWorks": "Constantly reads drives in the background to build a search index.",
+            "pros": "Saves CPU and disk I/O. Use 'Everything' app instead.",
+            "cons": "Start menu and Explorer search will be slower."
+        },
+        "execution": {
+            "code": "Stop-Service -Name 'WSearch' -Force -ErrorAction SilentlyContinue; Set-Service -Name 'WSearch' -StartupType Disabled",
+            "revertCode": "Set-Service -Name 'WSearch' -StartupType Automatic; Start-Service -Name 'WSearch' -ErrorAction SilentlyContinue"
+        },
+        "validationCmd": "Get-Service -Name 'WSearch' | Select-Object -ExpandProperty Status"
+    },
+    {
+        "id": "SystemResponsiveness",
+        "name": "Optimize System Responsiveness",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Gives 90% CPU priority to foreground apps instead of 80%.",
+        "educationalContext": {
+            "howItWorks": "Changes how Windows divides CPU time between foreground (games) and background tasks.",
+            "pros": "Reduces micro-stutters in games.",
+            "cons": "Background tasks/downloads may be slightly slower."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'SystemResponsiveness' -Value 10 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'SystemResponsiveness' -Value 20 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile').SystemResponsiveness"
+    },
+    {
+        "id": "GamePriority",
+        "name": "Increase Game CPU/GPU Priority",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Ensures games get maximum hardware scheduling priority.",
+        "educationalContext": {
+            "howItWorks": "Explicitly tells Windows how to prioritize processes registered as 'Games'.",
+            "pros": "Games get higher CPU/GPU priority and scheduling preference.",
+            "cons": "Background apps like Discord might stutter under heavy load."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'GPU Priority' -Value 8 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Priority' -Value 6 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Scheduling Category' -Value 'High' -Type String -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'GPU Priority' -Value 2 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Priority' -Value 2 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Scheduling Category' -Value 'Medium' -Type String -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games').Priority"
+    },
+    {
+        "id": "DisableFSO",
+        "name": "Disable Full-Screen Optimizations",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Allows true exclusive fullscreen mode in games by forcing GameDVR to back off.",
+        "educationalContext": {
+            "howItWorks": "FSO forces games into a borderless window. This tweak disables that.",
+            "pros": "Reduces input latency by 1-5ms. Better for competitive gaming.",
+            "cons": "Alt-Tab may be slower. Some modern DX12 games actually perform worse."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_FSEBehaviorMode' -Value 2 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_HonorUserFSEBehaviorMode' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_FSEBehavior' -Value 2 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_FSEBehaviorMode' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_HonorUserFSEBehaviorMode' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\System\\GameConfigStore' -Name 'GameDVR_FSEBehavior' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\System\\GameConfigStore').GameDVR_FSEBehaviorMode"
+    },
+    {
+        "id": "DisableGameDVR",
+        "name": "Disable Game DVR Background Recording",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Xbox Game Bar from recording in the background.",
+        "educationalContext": {
+            "howItWorks": "Windows constantly records the last X seconds of gameplay using GPU encoders.",
+            "pros": "Saves 5-10% GPU performance. Eliminates random micro-stutters.",
+            "cons": "You won't be able to use Xbox DVR 'Record that' clip sharing."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -Name 'AppCaptureEnabled' -Value 0 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR' -Name 'AllowGameDVR' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -Name 'AppCaptureEnabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR' -Name 'AllowGameDVR' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR').AppCaptureEnabled"
+    },
+    {
+        "id": "DisableTelemetry",
+        "name": "Reduce Telemetry to Basic",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Minimizes diagnostic data sent to Microsoft.",
+        "educationalContext": {
+            "howItWorks": "Sets Windows data collection policy to Level 1 (Basic/Required).",
+            "pros": "Enhances privacy and reduces background network activity.",
+            "cons": "Microsoft gets less crash data to fix potential OS bugs."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Name 'AllowTelemetry' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Name 'AllowTelemetry' -Value 3 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection').AllowTelemetry"
+    },
+    {
+        "id": "DisableNetworkThrottling",
+        "name": "Disable Network Throttling",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes bandwidth limits during multimedia playback.",
+        "educationalContext": {
+            "howItWorks": "Windows limits network to ~10Mbps while playing video/audio to prevent stuttering. This removes the limit.",
+            "pros": "Provides maximum unrestricted download speeds.",
+            "cons": "None for modern gigabit local networks."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'NetworkThrottlingIndex' -Value 0xFFFFFFFF -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'NetworkThrottlingIndex' -Value 10 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile').NetworkThrottlingIndex"
+    },
+    {
+        "id": "DisableNagle",
+        "name": "Disable Nagle's Algorithm",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sends network packets immediately instead of batching.",
+        "educationalContext": {
+            "howItWorks": "Sets TcpAckFrequency and TcpNoDelay to 1 for all active network adapters.",
+            "pros": "Reduces ping/latency in online games by preventing packet buffering.",
+            "cons": "Slightly increases network overhead, but negligible today."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($adapter in $adapters) { $tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -Value 1 -Type DWord -Force -EA SilentlyContinue } }",
+            "revertCode": "$tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Remove-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -EA SilentlyContinue; Remove-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -EA SilentlyContinue }"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableCoreParking",
+        "name": "Disable CPU Core Parking",
+        "category": "Power",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Keeps all CPU cores active instead of allowing them to sleep.",
+        "educationalContext": {
+            "howItWorks": "Changes the hidden power plan setting CPMINCORES to 100%.",
+            "pros": "Eliminates latency penalty from waking up sleeping cores. Great for high-end gaming.",
+            "cons": "Significantly increases idle thermals and power draw."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100; powercfg -setactive scheme_current",
+            "revertCode": "powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 5; powercfg -setactive scheme_current"
+        },
+        "validationCmd": ""
+    }
+]

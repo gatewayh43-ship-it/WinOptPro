@@ -1,0 +1,231 @@
+import { ShieldAlert, Zap, Cpu, Activity, HardDrive, Wifi, Sparkles, ChevronRight, PlayCircle, Trophy } from "lucide-react";
+import { motion } from "framer-motion";
+
+// System Score Circular Progress Component
+const SystemScore = ({ score }: { score: number }) => {
+    const radius = 45;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (score / 100) * circumference;
+
+    // Determine color based on score
+    const colorClass = score >= 90 ? "text-emerald-400" : score >= 75 ? "text-blue-400" : score >= 60 ? "text-yellow-400" : "text-red-400";
+    const dropShadowClass = score >= 90 ? "drop-shadow-[0_0_15px_rgba(52,211,153,0.6)]" : score >= 75 ? "drop-shadow-[0_0_15px_rgba(96,165,250,0.6)]" : "drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]";
+
+    return (
+        <div className="relative flex items-center justify-center w-32 h-32 md:w-36 md:h-36">
+            <svg className="w-full h-full transform -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                {/* Background Circle */}
+                <circle
+                    className="text-white/5 dark:text-white/10 stroke-current"
+                    strokeWidth="8"
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    fill="transparent"
+                ></circle>
+                {/* Progress Circle */}
+                <motion.circle
+                    className={`${colorClass} stroke-current transition-all duration-1000 ease-out`}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    cx="50"
+                    cy="50"
+                    r={radius}
+                    fill="transparent"
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    style={{ strokeDasharray: circumference, filter: 'url(#glow)' }}
+                ></motion.circle>
+
+                {/* SVG Filter for actual stroke glow */}
+                <defs>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+            </svg>
+            <div className={`absolute flex flex-col items-center justify-center ${dropShadowClass}`}>
+                <span className="text-3xl md:text-4xl font-black font-heading tracking-tighter text-foreground">{score}</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Vitals</span>
+            </div>
+        </div>
+    );
+};
+
+const BentoCard = ({ children, delay, className = "" }: { children: React.ReactNode, delay: number, className?: string }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+        className={`bento-card p-6 ${className}`}
+    >
+        {children}
+    </motion.div>
+);
+
+const BlinkistIcon = ({ icon: Icon, colorClass }: { icon: any, colorClass: string }) => (
+    <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${colorClass}`}>
+        <Icon className="w-5 h-5" strokeWidth={2} />
+    </div>
+);
+
+export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => void; setView?: (v: string) => void }) {
+    return (
+        <div className="space-y-6 pb-12 mix-blend-plus-lighter relative z-10">
+
+            {/* Hero Banner (Webflow Dark style) */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="relative overflow-hidden rounded-[24px] bg-card border border-border p-10 shadow-[var(--bento-shadow)]"
+            >
+                <div className="absolute inset-0 bg-noise opacity-50 mix-blend-overlay"></div>
+                <div className="absolute top-0 right-0 p-8 opacity-30 pointer-events-none">
+                    <Sparkles className="w-48 h-48 text-primary blur-2xl mix-blend-plus-lighter" />
+                </div>
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="max-w-xl">
+                        <div className="inline-flex items-center space-x-2 bg-white/[0.04] border border-white/[0.08] px-3 py-1.5 rounded-full mb-6 backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                            <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-widest leading-none mt-0.5">Live Telemetry Active</span>
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-3 font-heading">
+                            System <span className="text-gradient">Engine</span>
+                        </h2>
+                        <p className="text-sm sm:text-[15px] text-slate-400/90 max-w-lg leading-relaxed font-medium">
+                            Hardware mapping engaged. Dynamic tuning active across all vital cores and network stacks.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 items-center mt-6 md:mt-0 w-full md:w-auto">
+                        {onTriggerGuide && (
+                            <button
+                                onClick={onTriggerGuide}
+                                className="btn-tactile w-full sm:w-auto relative group overflow-hidden bg-black/5 dark:bg-white/[0.05] hover:bg-black/10 dark:hover:bg-white/[0.1] border border-border text-foreground px-5 py-3 rounded-full font-semibold flex justify-center items-center shadow-lg"
+                            >
+                                <PlayCircle className="w-5 h-5 mr-2 text-primary transition-colors" />
+                                <span className="text-[13px] tracking-wide">Interactive Guide</span>
+                            </button>
+                        )}
+
+                        <button className="btn-tactile w-full sm:w-auto relative group overflow-hidden bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold shadow-lg dark:bg-white dark:text-[#0A0A0E] dark:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-white flex justify-center items-center">
+                            <span className="relative z-10 flex items-center text-sm">
+                                <Zap className="w-4 h-4 mr-2" fill="currentColor" /> Quick Scan
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Gamified System Vitals Dashboard Layer */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* Main Score Widget */}
+                <BentoCard delay={0.05} className="lg:col-span-1 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                    {/* Background Ambient Glow Based on Score */}
+                    <div className="absolute inset-0 bg-emerald-500/5 blur-3xl opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none"></div>
+
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 relative z-10">System Health Score</h3>
+                    <SystemScore score={92} />
+
+                    <div className="mt-8 flex items-center bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border relative z-10">
+                        <Trophy className="w-4 h-4 text-yellow-400 mr-2" />
+                        <span className="text-xs font-semibold text-slate-300">Top 5% Optimal Performance</span>
+                    </div>
+                </BentoCard>
+
+                {/* Sub-Metrics Grid */}
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <BentoCard delay={0.1}>
+                        <div className="flex justify-between items-start mb-6">
+                            <BlinkistIcon icon={Cpu} colorClass="bg-blue-500/10 text-blue-400 border border-blue-500/20" />
+                            <span className="flex items-center text-[11px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1 rounded-full border border-red-400/20">
+                                <Activity className="w-3 h-3 mr-1" /> High Load
+                            </span>
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processor</p>
+                        <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">AMD Ryzen 7 7800X3D</h3>
+                        <div className="flex items-baseline justify-between mt-auto">
+                            <p className="text-3xl font-black text-foreground tracking-tighter">
+                                68<span className="text-lg text-slate-400 font-medium">°C</span>
+                            </p>
+                            <p className="text-sm font-semibold text-blue-500 dark:text-blue-400">4.8 GHz</p>
+                        </div>
+                    </BentoCard>
+
+                    <BentoCard delay={0.15}>
+                        <div className="flex justify-between items-start mb-6">
+                            <BlinkistIcon icon={Activity} colorClass="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" />
+                            <span className="flex items-center text-[11px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full border border-emerald-400/20">
+                                Optimal
+                            </span>
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">System Memory</p>
+                        <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">32GB DDR5 6000MHz</h3>
+                        <div className="flex items-baseline justify-between mt-auto">
+                            <p className="text-3xl font-black text-foreground tracking-tighter">
+                                18<span className="text-lg text-slate-400 font-medium">%</span>
+                            </p>
+                            <p className="text-sm font-semibold text-emerald-500 dark:text-emerald-400">5.8 GB Used</p>
+                        </div>
+                    </BentoCard>
+
+                    <BentoCard delay={0.2} className="relative overflow-hidden group">
+                        <div className="absolute right-0 bottom-0 opacity-10 blur-xl w-32 h-32 bg-purple-500 rounded-full pointer-events-none group-hover:opacity-20 transition-opacity"></div>
+                        <div className="flex justify-between items-start mb-6 relative z-10">
+                            <BlinkistIcon icon={HardDrive} colorClass="bg-purple-500/10 text-purple-400 border border-purple-500/20" />
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1 relative z-10">Primary Drive</p>
+                        <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate relative z-10">Samsung 990 PRO</h3>
+                        <div className="flex items-baseline justify-between mt-auto relative z-10">
+                            <p className="text-3xl font-black text-foreground tracking-tighter">
+                                42<span className="text-lg text-slate-400 font-medium">°C</span>
+                            </p>
+                            <p className="text-sm font-semibold text-purple-500 dark:text-purple-400">SMART OK</p>
+                        </div>
+                    </BentoCard>
+
+                    <BentoCard delay={0.25}>
+                        <div className="flex justify-between items-start mb-6">
+                            <BlinkistIcon icon={Wifi} colorClass="bg-orange-500/10 text-orange-400 border border-orange-500/20" />
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Network Adaptor</p>
+                        <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">Intel 2.5GbE</h3>
+                        <div className="flex items-baseline justify-between mt-auto">
+                            <p className="text-2xl font-black text-foreground tracking-tighter">
+                                12<span className="text-sm text-slate-400 font-medium ml-1">ms ping</span>
+                            </p>
+                            <p className="text-sm font-semibold text-orange-500 dark:text-orange-400">2.4 Gbps</p>
+                        </div>
+                    </BentoCard>
+                </div>
+            </div>
+
+            {/* Grid layer 2 - Alert Banner */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="bento-card relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between p-1 group cursor-pointer"
+            onClick={() => setView?.("privacy")}
+            >
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <div className="flex items-center space-x-5 p-5 relative z-10 w-full">
+                    <BlinkistIcon icon={ShieldAlert} colorClass="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.2)]" />
+                    <div className="flex-1">
+                        <h3 className="text-base font-bold text-foreground mb-0.5">Privacy Intervention Recommended</h3>
+                        <p className="text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                            Diagnostic tracking is active. Deploy countermeasures to secure OS telemetry output.
+                        </p>
+                    </div>
+                    <div className="hidden md:flex bg-white/5 group-hover:bg-white/10 p-2 rounded-full border border-white/10 transition-all group-hover:translate-x-0.5">
+                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-foreground transition-colors" />
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+}
