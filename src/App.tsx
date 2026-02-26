@@ -8,6 +8,7 @@ import { ProfilesPage } from "./pages/ProfilesPage";
 import { StartupPage } from "./pages/StartupPage";
 import { StoragePage } from "./pages/StoragePage";
 import { ProcessPage } from "./pages/ProcessPage";
+import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -45,7 +46,7 @@ function App() {
     dashboard: <Dashboard onTriggerGuide={() => setShowOnboarding(true)} setView={setCurrentView} />,
     performance: <TweaksPage categoryTitle="Performance" />,
     privacy: <TweaksPage categoryTitle="Privacy" />,
-    network: <TweaksPage categoryTitle="Network" />,
+    network_tweaks: <TweaksPage categoryTitle="Network" />,
     tools: <TweaksPage categoryTitle="Tools" />,
     gaming: <TweaksPage categoryTitle="Gaming" />,
     power: <TweaksPage categoryTitle="Power" />,
@@ -57,6 +58,7 @@ function App() {
     startup: <StartupPage />,
     storage: <StoragePage />,
     processes: <ProcessPage />,
+    network: <NetworkAnalyzerPage />,
     settings: <SettingsPage />,
     profiles: <ProfilesPage />,
   };

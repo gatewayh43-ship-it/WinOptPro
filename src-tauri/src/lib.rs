@@ -1,4 +1,5 @@
 mod db;
+mod network;
 mod process;
 mod security;
 mod startup;
@@ -43,6 +44,9 @@ pub fn run() {
             // Process
             process::get_processes,
             process::kill_process,
+            // Network
+            network::get_network_interfaces,
+            network::ping_host,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity } from "lucide-react";
+import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
 
@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
     { id: "performance", label: "Performance", icon: perfIcon },
     { id: "privacy", label: "Privacy", icon: privIcon },
     { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
-    { id: "network", label: "Network", icon: netIcon },
+    { id: "network_tweaks", label: "Network", icon: netIcon },
     { id: "power", label: "Power", lucideIcon: BatteryMedium },
     { id: "debloat", label: "Debloat", lucideIcon: Trash2 },
     { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
@@ -39,6 +39,7 @@ const mainNavItems: NavItem[] = [
 
 const utilNavItems: NavItem[] = [
     { id: "processes", label: "Process Manager", lucideIcon: Activity },
+    { id: "network", label: "Network Analyzer", lucideIcon: Network },
     { id: "startup", label: "Startup Apps", lucideIcon: Power },
     { id: "storage", label: "Storage Optimizer", lucideIcon: HardDrive },
     { id: "profiles", label: "Profiles", lucideIcon: Layers },
