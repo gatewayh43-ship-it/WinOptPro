@@ -1,4 +1,5 @@
 mod db;
+mod process;
 mod security;
 mod startup;
 mod storage;
@@ -39,6 +40,9 @@ pub fn run() {
             // Storage
             storage::scan_junk_files,
             storage::execute_cleanup,
+            // Process
+            process::get_processes,
+            process::kill_process,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

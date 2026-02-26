@@ -7,6 +7,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { ProfilesPage } from "./pages/ProfilesPage";
 import { StartupPage } from "./pages/StartupPage";
 import { StoragePage } from "./pages/StoragePage";
+import { ProcessPage } from "./pages/ProcessPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -55,6 +56,7 @@ function App() {
     history: <HistoryPage />,
     startup: <StartupPage />,
     storage: <StoragePage />,
+    processes: <ProcessPage />,
     settings: <SettingsPage />,
     profiles: <ProfilesPage />,
   };
