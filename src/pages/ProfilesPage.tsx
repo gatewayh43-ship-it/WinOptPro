@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Shield, Gamepad2, Wifi, Leaf, CheckCircle2, Play } from "lucide-react";
+import { Zap, Shield, Gamepad2, Wifi, Leaf, CheckCircle2, Play, Trash2 } from "lucide-react";
 import tweaksData from "../data/tweaks.json";
 import { useAppStore } from "../store/appStore";
 import { useTweakExecution } from "../hooks/useTweakExecution";
@@ -20,43 +20,52 @@ const BUILT_IN_PROFILES: Profile[] = [
     {
         id: "profile-gaming",
         name: "Gaming Mode",
-        description: "Maximize FPS and minimize system overhead. Disables background services, enables game priority, and optimizes CPU scheduling.",
+        description: "Maximize FPS and minimize system overhead. Disables background services, tuning CPU scheduling, and prioritizes gaming threads.",
         icon: Gamepad2,
-        tweakIds: ["SystemResponsiveness", "GamePriority", "DisableGameDVR", "DisableSysMain"],
+        tweakIds: tweaksData.filter(t => t.category === "Gaming" && t.riskLevel !== "Red").map(t => t.id),
         isBuiltIn: true,
         color: "#8b5cf6",
     },
     {
         id: "profile-privacy",
         name: "Privacy Fortress",
-        description: "Lock down telemetry, disable activity history, and block diagnostic data collection.",
+        description: "Lock down telemetry, disable activity history, block diagnostic data collection, and comprehensively restrict Windows tracking.",
         icon: Shield,
-        tweakIds: ["DisableTelemetry", "DisableActivityHistory", "DisableDiagnosticData"],
+        tweakIds: tweaksData.filter(t => t.category === "Privacy" && t.riskLevel !== "Red").map(t => t.id),
         isBuiltIn: true,
         color: "#f43f5e",
     },
     {
         id: "profile-performance",
-        name: "Maximum Performance",
-        description: "Disable all unnecessary background services and prioritize system responsiveness.",
+        name: "System Speedup",
+        description: "Disable all unnecessary background services, optimize memory, and prioritize foreground UI responsiveness.",
         icon: Zap,
-        tweakIds: ["DisableSysMain", "DisableSearchIndexer", "SystemResponsiveness", "DisableGameDVR"],
+        tweakIds: tweaksData.filter(t => t.category === "Performance" && t.riskLevel !== "Red").map(t => t.id),
         isBuiltIn: true,
         color: "#05cd99",
     },
     {
         id: "profile-network",
         name: "Network Optimizer",
-        description: "Optimize TCP/IP settings, disable Nagle's Algorithm, and tune network adapter for low latency.",
+        description: "Optimize TCP/IP settings, set Cloudflare DNS, disable Nagle's Algorithm, and tune for low latency.",
         icon: Wifi,
-        tweakIds: ["DisableNagle", "OptimizeTCP"],
+        tweakIds: tweaksData.filter(t => t.category === "Network" && t.riskLevel !== "Red").map(t => t.id),
         isBuiltIn: true,
         color: "#f59e0b",
     },
     {
+        id: "profile-debloat",
+        name: "Clean Windows",
+        description: "Remove pre-installed bloatware, telemetry tasks, and unneeded Windows integrations (OneDrive, Xbox, Copilot).",
+        icon: Trash2,
+        tweakIds: tweaksData.filter(t => t.category === "Debloat" && t.riskLevel !== "Red").map(t => t.id),
+        isBuiltIn: true,
+        color: "#3b82f6",
+    },
+    {
         id: "profile-minimal",
         name: "Safe & Minimal",
-        description: "Only apply the safest, Green-rated tweaks. No system trade-offs.",
+        description: "Only apply the safest, Green-rated tweaks across all categories. No system trade-offs.",
         icon: Leaf,
         tweakIds: tweaksData.filter(t => t.riskLevel === "Green").map(t => t.id),
         isBuiltIn: true,
