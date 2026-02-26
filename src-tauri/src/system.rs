@@ -89,7 +89,7 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
             let label = c.label().to_lowercase();
             label.contains("cpu") || label.contains("core") || label.contains("tctl")
         })
-        .map(|c| c.temperature());
+        .and_then(|c| c.temperature());
 
     // RAM info
     let total_mb = sys.total_memory() / (1024 * 1024);

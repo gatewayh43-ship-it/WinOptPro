@@ -1,0 +1,91 @@
+    Checking winoptimizerrevamp v0.1.0 (F:\WinOpt\WinOptimizerRevamp\src-tauri)
+warning: unused import: `KEY_WRITE`
+ --> src\startup.rs:2:70
+  |
+2 | use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE};
+  |                                                                      ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::env`
+ --> src\startup.rs:4:5
+  |
+4 | use std::env;
+  |     ^^^^^^^^
+
+warning: unused import: `std::fs`
+ --> src\startup.rs:5:5
+  |
+5 | use std::fs;
+  |     ^^^^^^^
+
+warning: unused import: `std::path::PathBuf`
+ --> src\startup.rs:6:5
+  |
+6 | use std::path::PathBuf;
+  |     ^^^^^^^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+  --> src\startup.rs:32:24
+   |
+32 |                 if let Ok(command) = value.to_string() {
+   |                        ^^^^^^^^^^^   ----------------- this expression has type `std::string::String`
+   |                        |
+   |                        expected `String`, found `Result<_, _>`
+   |
+   = note: expected struct `std::string::String`
+                found enum `Result<_, _>`
+
+error[E0308]: mismatched types
+  --> src\startup.rs:53:24
+   |
+53 |                 if let Ok(command) = value.to_string() {
+   |                        ^^^^^^^^^^^   ----------------- this expression has type `std::string::String`
+   |                        |
+   |                        expected `String`, found `Result<_, _>`
+   |
+   = note: expected struct `std::string::String`
+                found enum `Result<_, _>`
+
+error[E0308]: mismatched types
+   --> src\system.rs:151:21
+    |
+151 |             temp_c: cpu_temp,
+    |                     ^^^^^^^^ expected `Option<f32>`, found `Option<Option<f32>>`
+    |
+    = note: expected enum `std::option::Option<f32>`
+               found enum `std::option::Option<std::option::Option<f32>>`
+help: consider using `Option::expect` to unwrap the `std::option::Option<std::option::Option<f32>>` value, panicking if the value is an `Option::None`
+    |
+151 |             temp_c: cpu_temp.expect("REASON"),
+    |                             +++++++++++++++++
+
+error[E0599]: no method named `manage` found for mutable reference `&mut tauri::App` in the current scope
+    --> src\lib.rs:18:17
+     |
+  18 |             app.manage(DbState(Mutex::new(conn)));
+     |                 ^^^^^^
+     |
+     = help: items from traits can only be used if the trait is in scope
+help: there is a method `manager` with a similar name, but with different arguments
+    --> C:\Users\User\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-2.10.2\src\lib.rs:1066:5
+     |
+1066 |     fn manager(&self) -> &AppManager<R>;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: trait `Manager` which provides `manage` is implemented but not in scope; perhaps you want to import it
+     |
+   1 + use tauri::Manager;
+     |
+
+warning: unused variable: `is_hklm`
+  --> src\startup.rs:85:16
+   |
+85 |     let (root, is_hklm, name) = if id.starts_with("HKCU_RUN_") {
+   |                ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_is_hklm`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0308, E0599.
+For more information about an error, try `rustc --explain E0308`.
+warning: `winoptimizerrevamp` (lib) generated 5 warnings
+error: could not compile `winoptimizerrevamp` (lib) due to 4 previous errors; 5 warnings emitted

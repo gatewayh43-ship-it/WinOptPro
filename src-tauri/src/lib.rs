@@ -1,10 +1,12 @@
 mod db;
 mod security;
+mod startup;
 mod system;
 mod tweaks;
 
 use db::DbState;
 use std::sync::Mutex;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,6 +32,9 @@ pub fn run() {
             // History
             db::get_tweak_history,
             db::clear_tweak_history,
+            // Startup
+            startup::get_startup_items,
+            startup::set_startup_item_state,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

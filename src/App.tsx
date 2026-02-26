@@ -5,6 +5,7 @@ import { TweaksPage } from "./pages/TweaksPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { ProfilesPage } from "./pages/ProfilesPage";
+import { StartupPage } from "./pages/StartupPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -51,6 +52,7 @@ function App() {
     windowsui: <TweaksPage categoryTitle="Windows UI" />,
     windowsupdate: <TweaksPage categoryTitle="Windows Update" />,
     history: <HistoryPage />,
+    startup: <StartupPage />,
     settings: <SettingsPage />,
     profiles: <ProfilesPage />,
   };
