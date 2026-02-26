@@ -5261,6 +5261,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tokio",
  "uuid",
+ "walkdir",
  "windows 0.58.0",
  "winreg 0.52.0",
 ]

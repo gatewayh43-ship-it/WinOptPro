@@ -1,6 +1,7 @@
 mod db;
 mod security;
 mod startup;
+mod storage;
 mod system;
 mod tweaks;
 
@@ -35,6 +36,9 @@ pub fn run() {
             // Startup
             startup::get_startup_items,
             startup::set_startup_item_state,
+            // Storage
+            storage::scan_junk_files,
+            storage::execute_cleanup,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

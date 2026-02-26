@@ -6,6 +6,7 @@ import { HistoryPage } from "./pages/HistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { ProfilesPage } from "./pages/ProfilesPage";
 import { StartupPage } from "./pages/StartupPage";
+import { StoragePage } from "./pages/StoragePage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -53,6 +54,7 @@ function App() {
     windowsupdate: <TweaksPage categoryTitle="Windows Update" />,
     history: <HistoryPage />,
     startup: <StartupPage />,
+    storage: <StoragePage />,
     settings: <SettingsPage />,
     profiles: <ProfilesPage />,
   };
