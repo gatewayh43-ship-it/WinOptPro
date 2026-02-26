@@ -178,5 +178,1787 @@
             "revertCode": "powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 5; powercfg -setactive scheme_current"
         },
         "validationCmd": ""
+    },
+    {
+        "id": "DisableActivityHistory",
+        "name": "Disable Activity History",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from tracking your app usage and browsing activity.",
+        "educationalContext": {
+            "howItWorks": "Windows collects a timeline of apps, files, and websites you use. This disables that.",
+            "pros": "Stops Microsoft from building a timeline of your activity.",
+            "cons": "You lose the 'Timeline' feature (press Win+Tab to see past activities)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableActivityFeed' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'PublishUserActivities' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'UploadUserActivities' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableActivityFeed' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'PublishUserActivities' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'UploadUserActivities' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -EA SilentlyContinue).PublishUserActivities"
+    },
+    {
+        "id": "DisableDiagnosticData",
+        "name": "Disable Diagnostic Data Collection",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops the Connected User Experiences and Telemetry service.",
+        "educationalContext": {
+            "howItWorks": "The DiagTrack service sends diagnostic data to Microsoft in the background.",
+            "pros": "Reduces CPU/network usage from background data collection.",
+            "cons": "Microsoft receives no crash data to improve future updates."
+        },
+        "execution": {
+            "code": "Stop-Service -Name 'DiagTrack' -Force -EA SilentlyContinue; Set-Service -Name 'DiagTrack' -StartupType Disabled",
+            "revertCode": "Set-Service -Name 'DiagTrack' -StartupType Automatic; Start-Service -Name 'DiagTrack' -EA SilentlyContinue"
+        },
+        "validationCmd": "Get-Service -Name 'DiagTrack' | Select-Object -ExpandProperty Status"
+    },
+    {
+        "id": "DisableAdvertisingId",
+        "name": "Disable Advertising ID",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from using your advertising ID for targeted ads.",
+        "educationalContext": {
+            "howItWorks": "Windows assigns a unique advertising ID to your profile for cross-app ad targeting.",
+            "pros": "Apps can no longer track you via advertising identifiers.",
+            "cons": "Ads you see may be less relevant (which many consider a benefit)."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -Name 'Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -Name 'Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -EA SilentlyContinue).Enabled"
+    },
+    {
+        "id": "DisableLocationTracking",
+        "name": "Disable Location Tracking",
+        "category": "Privacy",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows and apps from accessing your physical location.",
+        "educationalContext": {
+            "howItWorks": "Disables the Windows Location Framework that provides GPS/WiFi-based positioning to apps.",
+            "pros": "No app or service can determine your physical location.",
+            "cons": "Weather, Maps, Find My Device, and location-based apps will stop working."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -EA SilentlyContinue).DisableLocation"
+    },
+    {
+        "id": "DisableClipboardSync",
+        "name": "Disable Clipboard Cloud Sync",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents your clipboard contents from being uploaded to Microsoft's cloud.",
+        "educationalContext": {
+            "howItWorks": "Windows can sync your clipboard across devices via your Microsoft account. This disables that.",
+            "pros": "Sensitive copied text (passwords, keys) never leaves your device.",
+            "cons": "You lose cross-device paste capability."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableClipboardHistory' -Value 0 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'AllowCrossDeviceClipboard' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableClipboardHistory' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'AllowCrossDeviceClipboard' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -EA SilentlyContinue).EnableClipboardHistory"
+    },
+    {
+        "id": "DisableHPET",
+        "name": "Disable HPET (High Precision Timer)",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Disables High Precision Event Timer to reduce DPC latency.",
+        "educationalContext": {
+            "howItWorks": "HPET is a hardware timer. On some systems it adds latency overhead vs. TSC timer.",
+            "pros": "Can reduce DPC latency by 0.1-0.5ms, reducing micro-stutters in games.",
+            "cons": "Some apps depend on HPET. Extremely system-specific — can cause instability."
+        },
+        "execution": {
+            "code": "bcdedit /deletevalue useplatformclock 2>$null; bcdedit /set useplatformtick yes; bcdedit /set disabledynamictick yes",
+            "revertCode": "bcdedit /deletevalue useplatformtick 2>$null; bcdedit /deletevalue disabledynamictick 2>$null"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "MouseAccelOff",
+        "name": "Disable Mouse Acceleration",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Enables 1:1 raw mouse input by disabling pointer acceleration.",
+        "educationalContext": {
+            "howItWorks": "Sets SmoothMouseXCurve and SmoothMouseYCurve to a linear 1:1 mapping.",
+            "pros": "Consistent aiming in FPS games — your aim matches your hand movement exactly.",
+            "cons": "Desktop navigation may feel slower until you adjust to higher DPI settings."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseSpeed' -Value '0' -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseThreshold1' -Value '0' -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseThreshold2' -Value '0' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseSpeed' -Value '1' -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseThreshold1' -Value '6' -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse' -Name 'MouseThreshold2' -Value '10' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\Control Panel\\Mouse').MouseSpeed"
+    },
+    {
+        "id": "UltimatePowerPlan",
+        "name": "Enable Ultimate Performance Power Plan",
+        "category": "Power",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Activates the hidden Ultimate Performance power plan for maximum throughput.",
+        "educationalContext": {
+            "howItWorks": "Windows hides a power plan designed for workstations that disables power throttling.",
+            "pros": "Eliminates all CPU frequency scaling delays. Maximum responsiveness.",
+            "cons": "Higher power consumption and heat generation. Not recommended for laptops."
+        },
+        "execution": {
+            "code": "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2>$null; powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61",
+            "revertCode": "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+        },
+        "validationCmd": "(powercfg /getactivescheme) -match 'Ultimate'"
+    },
+    {
+        "id": "DisableHibernation",
+        "name": "Disable Hibernation",
+        "category": "Power",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables hibernation and reclaims disk space from hiberfil.sys.",
+        "educationalContext": {
+            "howItWorks": "Hibernation writes your entire RAM to disk (hiberfil.sys). This disables it.",
+            "pros": "Reclaims disk space equal to your RAM size (e.g. 32GB drive space saved).",
+            "cons": "You lose the ability to hibernate. Shutdown/restart still works normally."
+        },
+        "execution": {
+            "code": "powercfg -h off",
+            "revertCode": "powercfg -h on"
+        },
+        "validationCmd": "if (Test-Path $env:SystemDrive\\hiberfil.sys) { 'Enabled' } else { 'Disabled' }"
+    },
+    {
+        "id": "OptimizeTCP",
+        "name": "Optimize TCP/IP Stack",
+        "category": "Network",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Tunes TCP autotuning, ECN, and RSS for maximum throughput.",
+        "educationalContext": {
+            "howItWorks": "Adjusts Windows TCP/IP stack parameters: enables RSS, sets autotuning to normal, enables ECN.",
+            "pros": "Better network throughput and reduced latency on modern hardware.",
+            "cons": "Some older routers or VPNs may not support ECN, causing connectivity issues."
+        },
+        "execution": {
+            "code": "netsh int tcp set global autotuninglevel=normal; netsh int tcp set global ecncapability=enabled; netsh int tcp set global rss=enabled",
+            "revertCode": "netsh int tcp set global autotuninglevel=normal; netsh int tcp set global ecncapability=disabled; netsh int tcp set global rss=enabled"
+        },
+        "validationCmd": "netsh int tcp show global | Select-String 'ECN'"
+    },
+    {
+        "id": "DisableDefragSchedule",
+        "name": "Disable Scheduled Disk Defragmentation",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from automatically defragmenting SSDs on a schedule.",
+        "educationalContext": {
+            "howItWorks": "Windows schedules weekly TRIM/defrag operations even on SSDs.",
+            "pros": "Saves SSD write cycles and prevents background I/O spikes.",
+            "cons": "HDDs may fragment over time without scheduled defrag."
+        },
+        "execution": {
+            "code": "schtasks /Change /TN '\\Microsoft\\Windows\\Defrag\\ScheduledDefrag' /Disable",
+            "revertCode": "schtasks /Change /TN '\\Microsoft\\Windows\\Defrag\\ScheduledDefrag' /Enable"
+        },
+        "validationCmd": "(schtasks /Query /TN '\\Microsoft\\Windows\\Defrag\\ScheduledDefrag' /FO CSV | ConvertFrom-Csv).Status"
+    },
+    {
+        "id": "VisualEffectsPerformance",
+        "name": "Set Visual Effects to Performance",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables all Windows UI animations and visual effects for speed.",
+        "educationalContext": {
+            "howItWorks": "Sets Windows to 'Adjust for best performance' mode, disabling transparency, animations, and shadows.",
+            "pros": "Noticeably faster UI on older hardware. Reduced GPU/CPU load for compositing.",
+            "cons": "The desktop looks significantly less polished — no transparency, shadows, or animations."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 2 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'UserPreferencesMask' -Value ([byte[]](0x90,0x12,0x03,0x80,0x10,0x00,0x00,0x00)) -Type Binary -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects').VisualFXSetting"
+    },
+    {
+        "id": "ClearTempFiles",
+        "name": "Clean Temporary Files",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Deletes Windows temp files, user temp cache, and prefetch data.",
+        "educationalContext": {
+            "howItWorks": "Removes files from %TEMP%, Windows\\Temp, and Prefetch directories.",
+            "pros": "Reclaims disk space. Can fix some app issues caused by stale temp files.",
+            "cons": "Apps may take slightly longer to start next time as caches are rebuilt."
+        },
+        "execution": {
+            "code": "Remove-Item -Path \"$env:TEMP\\*\" -Recurse -Force -EA SilentlyContinue; Remove-Item -Path \"$env:SystemRoot\\Temp\\*\" -Recurse -Force -EA SilentlyContinue; Remove-Item -Path \"$env:SystemRoot\\Prefetch\\*\" -Recurse -Force -EA SilentlyContinue",
+            "revertCode": "Write-Output 'Temp files cannot be restored after deletion.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "FlushDNS",
+        "name": "Flush DNS Cache",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Clears the local DNS resolver cache to fix stale domain lookups.",
+        "educationalContext": {
+            "howItWorks": "Empties Windows' local DNS cache, forcing fresh lookups for all domains.",
+            "pros": "Fixes websites that fail to load due to stale DNS records.",
+            "cons": "Temporary slowdown as DNS cache is rebuilt over the next few minutes."
+        },
+        "execution": {
+            "code": "ipconfig /flushdns; Clear-DnsClientCache",
+            "revertCode": "Write-Output 'DNS cache will repopulate automatically.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "ResetNetworkStack",
+        "name": "Reset Network Stack",
+        "category": "Tools",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Resets Winsock, IP stack, and firewall to default — fixes most network issues.",
+        "educationalContext": {
+            "howItWorks": "Runs netsh commands to reset the TCP/IP stack, Winsock catalog, and Windows Firewall to factory defaults.",
+            "pros": "Fixes VPN remnants, broken adapters, and corrupt network configurations.",
+            "cons": "Requires a reboot. You may need to reconfigure VPN/proxy settings."
+        },
+        "execution": {
+            "code": "netsh winsock reset; netsh int ip reset; netsh advfirewall reset",
+            "revertCode": "Write-Output 'Network stack reset cannot be automatically reverted. Reconfigure manually.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "EnableFirewall",
+        "name": "Ensure Windows Firewall is Active",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Verifies and enables Windows Firewall on all profiles.",
+        "educationalContext": {
+            "howItWorks": "Enables the firewall for Domain, Private, and Public network profiles.",
+            "pros": "Blocks unauthorized inbound traffic. Essential security baseline.",
+            "cons": "Some peer-to-peer applications may need manual firewall rules."
+        },
+        "execution": {
+            "code": "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True",
+            "revertCode": "Write-Output 'Disabling Windows Firewall is not recommended.'"
+        },
+        "validationCmd": "(Get-NetFirewallProfile -Profile Public).Enabled"
+    },
+    {
+        "id": "DisableRemoteDesktop",
+        "name": "Disable Remote Desktop",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents remote connections to your PC via RDP.",
+        "educationalContext": {
+            "howItWorks": "Disables the Remote Desktop Protocol server listening for incoming connections.",
+            "pros": "Closes a common attack vector used by ransomware and hackers.",
+            "cons": "You won't be able to remotely access this PC via RDP."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Type DWord -Force; Disable-NetFirewallRule -DisplayGroup 'Remote Desktop' -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -Value 0 -Type DWord -Force; Enable-NetFirewallRule -DisplayGroup 'Remote Desktop' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections"
+    },
+    {
+        "id": "DisableCortana",
+        "name": "Disable Cortana",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Cortana assistant and prevents it from collecting data.",
+        "educationalContext": {
+            "howItWorks": "Cortana collects voice, typing, and search data. This policy disables it system-wide.",
+            "pros": "Eliminates Microsoft's voice/search data collection. Reduces background CPU.",
+            "cons": "You lose Cortana voice commands and smart search."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortana' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortana' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -EA SilentlyContinue).AllowCortana"
+    },
+    {
+        "id": "DisableErrorReporting",
+        "name": "Disable Windows Error Reporting",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops crash reports from being sent to Microsoft.",
+        "educationalContext": {
+            "howItWorks": "WER collects crash dumps and sends them to Microsoft for analysis.",
+            "pros": "No crash data leaves your machine. Saves bandwidth and CPU.",
+            "cons": "Microsoft cannot analyze crashes to improve driver/OS stability."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Windows Error Reporting' -Name 'Disabled' -Value 1 -Type DWord -Force; Stop-Service -Name 'WerSvc' -Force -EA SilentlyContinue; Set-Service -Name 'WerSvc' -StartupType Disabled",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Windows Error Reporting' -Name 'Disabled' -Value 0 -Type DWord -Force; Set-Service -Name 'WerSvc' -StartupType Manual"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Windows Error Reporting').Disabled"
+    },
+    {
+        "id": "DisableBingSearch",
+        "name": "Disable Bing Search in Start Menu",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Start Menu searches from querying Bing/web results.",
+        "educationalContext": {
+            "howItWorks": "Every Start Menu keystroke is sent to Bing. This disables web search.",
+            "pros": "Faster local-only search. No keystrokes sent to Microsoft.",
+            "cons": "You won't see web results in Start Menu search."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BingSearchEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'CortanaConsent' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BingSearchEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -EA SilentlyContinue).BingSearchEnabled"
+    },
+    {
+        "id": "DisableAppSuggestions",
+        "name": "Disable App Suggestions & Tips",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Microsoft from suggesting apps and showing tips/ads.",
+        "educationalContext": {
+            "howItWorks": "Windows shows 'suggested apps' in Start Menu and lock screen — essentially ads.",
+            "pros": "Removes bloatware suggestions and promotional notifications.",
+            "cons": "You won't see Microsoft's recommended apps (most users see this as a benefit)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SystemPaneSuggestionsEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SilentInstalledAppsEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SoftLandingEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-338388Enabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-310093Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SystemPaneSuggestionsEnabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SilentInstalledAppsEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager').SystemPaneSuggestionsEnabled"
+    },
+    {
+        "id": "DisableTailoredExperiences",
+        "name": "Disable Tailored Experiences",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Microsoft from using your diagnostic data for personalized ads.",
+        "educationalContext": {
+            "howItWorks": "Microsoft uses your usage data to personalize ads, tips, and recommendations.",
+            "pros": "No personalized tracking for advertising purposes.",
+            "cons": "Suggestions in Windows may be less relevant."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy' -Name 'TailoredExperiencesWithDiagnosticDataEnabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy' -Name 'TailoredExperiencesWithDiagnosticDataEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy').TailoredExperiencesWithDiagnosticDataEnabled"
+    },
+    {
+        "id": "DisableHandwritingData",
+        "name": "Disable Handwriting Data Sharing",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from sending handwriting recognition data to Microsoft.",
+        "educationalContext": {
+            "howItWorks": "Windows collects handwriting/typing patterns to improve recognition.",
+            "pros": "Typing/handwriting patterns stay private.",
+            "cons": "Handwriting recognition accuracy may not improve over time."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC' -Name 'PreventHandwritingDataSharing' -Value 1 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\HandwritingErrorReports')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\HandwritingErrorReports' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\HandwritingErrorReports' -Name 'PreventHandwritingErrorReports' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC' -Name 'PreventHandwritingDataSharing' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\HandwritingErrorReports' -Name 'PreventHandwritingErrorReports' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC' -EA SilentlyContinue).PreventHandwritingDataSharing"
+    },
+    {
+        "id": "DisableCameraAccess",
+        "name": "Disable App Camera Access",
+        "category": "Privacy",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents UWP/Store apps from accessing your camera.",
+        "educationalContext": {
+            "howItWorks": "Controls the LetAppsAccessCamera policy for Windows Store apps.",
+            "pros": "No Store app can spy via your webcam without explicit re-enable.",
+            "cons": "Camera won't work in UWP apps (Teams UWP, Camera app). Desktop apps unaffected."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam').Value"
+    },
+    {
+        "id": "DisableMicrophoneAccess",
+        "name": "Disable App Microphone Access",
+        "category": "Privacy",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents UWP/Store apps from accessing your microphone.",
+        "educationalContext": {
+            "howItWorks": "Controls the LetAppsAccessMicrophone policy for Windows Store apps.",
+            "pros": "No Store app can listen via your microphone without re-enabling.",
+            "cons": "Mic won't work in UWP apps. Desktop apps (Discord, Zoom) are unaffected."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone').Value"
+    },
+    {
+        "id": "DisableBackgroundApps",
+        "name": "Disable Background Apps",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents UWP apps from running in the background consuming resources.",
+        "educationalContext": {
+            "howItWorks": "Windows allows Store apps to run background tasks even when not open.",
+            "pros": "Saves CPU, RAM, and battery. Reduces telemetry from background apps.",
+            "cons": "UWP apps won't receive push notifications or update live tiles."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications' -Name 'GlobalUserDisabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BackgroundAppGlobalToggle' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications' -Name 'GlobalUserDisabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BackgroundAppGlobalToggle' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications').GlobalUserDisabled"
+    },
+    {
+        "id": "DisableWiFiSense",
+        "name": "Disable Wi-Fi Sense",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from sharing Wi-Fi passwords and auto-connecting to open networks.",
+        "educationalContext": {
+            "howItWorks": "Wi-Fi Sense shares your saved Wi-Fi passwords with contacts via Microsoft's cloud.",
+            "pros": "Your Wi-Fi credentials stay private and are not uploaded to Microsoft.",
+            "cons": "You can't auto-share Wi-Fi with contacts (most consider this a benefit)."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Name 'AutoConnectAllowedOEM' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Name 'AutoConnectAllowedOEM' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -EA SilentlyContinue).AutoConnectAllowedOEM"
+    },
+    {
+        "id": "RemoveBloatwareApps",
+        "name": "Remove Pre-installed Bloatware",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes common pre-installed Windows apps like Solitaire, News, Weather widgets, etc.",
+        "educationalContext": {
+            "howItWorks": "Uses Get-AppxPackage to uninstall known bloatware provisioned packages.",
+            "pros": "Frees disk space and reduces background processes from unused apps.",
+            "cons": "Removed apps can be reinstalled from the Microsoft Store if needed."
+        },
+        "execution": {
+            "code": "$bloat = @('Microsoft.BingNews','Microsoft.BingWeather','Microsoft.GetHelp','Microsoft.Getstarted','Microsoft.MicrosoftSolitaireCollection','Microsoft.People','Microsoft.PowerAutomate','Microsoft.Todos','Microsoft.WindowsFeedbackHub','Microsoft.ZuneMusic','Microsoft.ZuneVideo','MicrosoftCorporationII.QuickAssist','Microsoft.WindowsMaps','Microsoft.YourPhone','Clipchamp.Clipchamp','Microsoft.MicrosoftOfficeHub','Microsoft.SkypeApp'); foreach ($app in $bloat) { Get-AppxPackage -Name $app -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue; Get-AppxProvisionedPackage -Online -EA SilentlyContinue | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -EA SilentlyContinue }",
+            "revertCode": "Write-Output 'Removed apps can be reinstalled from the Microsoft Store.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "RemoveOneDrive",
+        "name": "Remove OneDrive",
+        "category": "Debloat",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Completely removes Microsoft OneDrive from the system.",
+        "educationalContext": {
+            "howItWorks": "Kills OneDrive, runs the uninstaller, and cleans up leftover folders/registry.",
+            "pros": "Removes cloud sync nags and saves background CPU/network usage.",
+            "cons": "You lose OneDrive cloud sync. Use manual backup or alternative cloud storage."
+        },
+        "execution": {
+            "code": "Stop-Process -Name 'OneDrive' -Force -EA SilentlyContinue; Start-Sleep 2; $x86 = \"$env:SystemRoot\\System32\\OneDriveSetup.exe\"; $x64 = \"$env:SystemRoot\\SysWOW64\\OneDriveSetup.exe\"; if (Test-Path $x64) { & $x64 /uninstall } elseif (Test-Path $x86) { & $x86 /uninstall }; Remove-Item \"$env:USERPROFILE\\OneDrive\" -Recurse -Force -EA SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\OneDrive\" -Recurse -Force -EA SilentlyContinue",
+            "revertCode": "Write-Output 'Reinstall OneDrive from https://onedrive.live.com/download'"
+        },
+        "validationCmd": "if (Get-Process -Name OneDrive -EA SilentlyContinue) { 'Running' } else { 'Removed' }"
+    },
+    {
+        "id": "DisableXboxFeatures",
+        "name": "Disable Xbox Services & Features",
+        "category": "Debloat",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables all Xbox-related background services.",
+        "educationalContext": {
+            "howItWorks": "Stops and disables XboxGipSvc, XblAuthManager, XblGameSave, and XboxNetApiSvc.",
+            "pros": "Saves CPU and RAM from Xbox services you don't use.",
+            "cons": "Xbox Game Pass, Xbox app, and Game Bar features will stop working."
+        },
+        "execution": {
+            "code": "$svcs = @('XboxGipSvc','XblAuthManager','XblGameSave','XboxNetApiSvc'); foreach ($s in $svcs) { Stop-Service -Name $s -Force -EA SilentlyContinue; Set-Service -Name $s -StartupType Disabled -EA SilentlyContinue }",
+            "revertCode": "$svcs = @('XboxGipSvc','XblAuthManager','XblGameSave','XboxNetApiSvc'); foreach ($s in $svcs) { Set-Service -Name $s -StartupType Manual -EA SilentlyContinue }"
+        },
+        "validationCmd": "(Get-Service -Name 'XblAuthManager' -EA SilentlyContinue).Status"
+    },
+    {
+        "id": "RemoveCortanaApp",
+        "name": "Remove Cortana App",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the standalone Cortana app package from Windows.",
+        "educationalContext": {
+            "howItWorks": "Uninstalls the Microsoft.549981C3F5F10 (Cortana) app package.",
+            "pros": "Fully removes Cortana UWP app and its background processes.",
+            "cons": "Cortana voice commands become unavailable (policy disable in Privacy is separate)."
+        },
+        "execution": {
+            "code": "Get-AppxPackage -Name 'Microsoft.549981C3F5F10' -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue; Get-AppxProvisionedPackage -Online -EA SilentlyContinue | Where-Object DisplayName -eq 'Microsoft.549981C3F5F10' | Remove-AppxProvisionedPackage -Online -EA SilentlyContinue",
+            "revertCode": "Write-Output 'Reinstall Cortana from the Microsoft Store.'"
+        },
+        "validationCmd": "if (Get-AppxPackage -Name 'Microsoft.549981C3F5F10' -EA SilentlyContinue) { 'Installed' } else { 'Removed' }"
+    },
+    {
+        "id": "Remove3DAndMixedReality",
+        "name": "Remove 3D Viewer & Mixed Reality",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes 3D Viewer, 3D Builder, Paint 3D, and Mixed Reality Portal.",
+        "educationalContext": {
+            "howItWorks": "Uninstalls 3D/MR packages that most users never open.",
+            "pros": "Reclaims disk space from unused 3D applications.",
+            "cons": "You lose 3D model viewing capabilities (rarely needed)."
+        },
+        "execution": {
+            "code": "$apps = @('Microsoft.Microsoft3DViewer','Microsoft.3DBuilder','Microsoft.MSPaint','Microsoft.MixedReality.Portal','Microsoft.Print3D'); foreach ($app in $apps) { Get-AppxPackage -Name $app -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue }",
+            "revertCode": "Write-Output 'Reinstall removed apps from the Microsoft Store.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableWidgets",
+        "name": "Disable Widgets Board (Win 11)",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the Windows 11 Widgets panel and its background process.",
+        "educationalContext": {
+            "howItWorks": "Sets TaskbarDa policy to 0, preventing the Widgets board from loading.",
+            "pros": "Saves RAM and CPU from the Edge WebView2 process that powers Widgets.",
+            "cons": "You lose the news/weather/stocks widget panel on the taskbar."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).TaskbarDa"
+    },
+    {
+        "id": "DisableTeamsAutostart",
+        "name": "Disable Microsoft Teams Autostart",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Microsoft Teams from launching at startup.",
+        "educationalContext": {
+            "howItWorks": "Disables the Teams Chat icon and removes startup registry entries.",
+            "pros": "Faster boot times and less background RAM usage.",
+            "cons": "Teams won't auto-connect on login. You can still launch it manually."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarMn' -Value 0 -Type DWord -Force; $startupPath = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'; Remove-ItemProperty -Path $startupPath -Name 'com.squirrel.Teams.Teams' -EA SilentlyContinue; Remove-ItemProperty -Path $startupPath -Name 'MicrosoftTeams' -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarMn' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).TaskbarMn"
+    },
+    {
+        "id": "DisableCopilot",
+        "name": "Disable Windows Copilot",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Windows Copilot AI assistant and removes its taskbar button.",
+        "educationalContext": {
+            "howItWorks": "Sets TurnOffWindowsCopilot policy and removes the taskbar Copilot button.",
+            "pros": "No AI sidebar. Saves Edge WebView2 RAM and prevents data collection.",
+            "cons": "You lose the Copilot AI assistant in Windows."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot')) { New-Item -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Name 'TurnOffWindowsCopilot' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowCopilotButton' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Name 'TurnOffWindowsCopilot' -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowCopilotButton' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -EA SilentlyContinue).TurnOffWindowsCopilot"
+    },
+    {
+        "id": "ClassicContextMenu",
+        "name": "Restore Classic Right-Click Menu (Win 11)",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Brings back the full Windows 10 right-click context menu in Windows 11.",
+        "educationalContext": {
+            "howItWorks": "Creates an InprocServer32 override that forces Explorer to use the legacy context menu.",
+            "pros": "All right-click options visible immediately without clicking 'Show more options'.",
+            "cons": "Requires Explorer restart. New Windows 11 context menu extensions won't appear."
+        },
+        "execution": {
+            "code": "New-Item -Path 'HKCU:\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32' -Force -Value '' | Out-Null; Stop-Process -Name explorer -Force -EA SilentlyContinue",
+            "revertCode": "Remove-Item -Path 'HKCU:\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}' -Recurse -Force -EA SilentlyContinue; Stop-Process -Name explorer -Force -EA SilentlyContinue"
+        },
+        "validationCmd": "Test-Path 'HKCU:\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32'"
+    },
+    {
+        "id": "ShowFileExtensions",
+        "name": "Show File Extensions",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Shows file extensions (.exe, .pdf, .docx) for all files.",
+        "educationalContext": {
+            "howItWorks": "Sets HideFileExt to 0 so Windows displays file extensions in Explorer.",
+            "pros": "See exactly what type every file is. Helps identify disguised malware (.pdf.exe).",
+            "cons": "File names look slightly longer. Renaming requires preserving the extension."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'HideFileExt' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'HideFileExt' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').HideFileExt"
+    },
+    {
+        "id": "ShowHiddenFiles",
+        "name": "Show Hidden Files & Folders",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Makes hidden files, folders, and system files visible in Explorer.",
+        "educationalContext": {
+            "howItWorks": "Sets Hidden to 1 and ShowSuperHidden to 1 in Explorer Advanced settings.",
+            "pros": "See all files including AppData, hidden configs, and system files.",
+            "cons": "Explorer shows many system files you normally wouldn't interact with."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Hidden' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowSuperHidden' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Hidden' -Value 2 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowSuperHidden' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').Hidden"
+    },
+    {
+        "id": "TaskbarAlignLeft",
+        "name": "Align Taskbar to Left (Win 11)",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Moves the Windows 11 taskbar icons to the left instead of center.",
+        "educationalContext": {
+            "howItWorks": "Sets TaskbarAl registry value to 0 (left-aligned).",
+            "pros": "Traditional left-aligned taskbar like Windows 10.",
+            "cons": "Purely cosmetic preference — no performance impact."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarAl' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarAl' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').TaskbarAl"
+    },
+    {
+        "id": "VerboseStartup",
+        "name": "Enable Verbose Startup Messages",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Shows detailed status messages during boot, shutdown, logon, and logoff.",
+        "educationalContext": {
+            "howItWorks": "Sets VerboseStatus in the Windows policies to show step-by-step boot messages.",
+            "pros": "Helps diagnose slow boot by showing exactly what's happening.",
+            "cons": "Boot screen shows text instead of the animation spinner."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'VerboseStatus' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'VerboseStatus' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -EA SilentlyContinue).VerboseStatus"
+    },
+    {
+        "id": "DisableDeliveryOptimization",
+        "name": "Disable Delivery Optimization (P2P Updates)",
+        "category": "Windows Update",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from uploading updates to other PCs on the internet.",
+        "educationalContext": {
+            "howItWorks": "Windows shares downloaded updates with other PCs via peer-to-peer, using your bandwidth.",
+            "pros": "Your upload bandwidth is never used to distribute Microsoft updates.",
+            "cons": "Updates may download slightly slower without peer sources."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Config' -Name 'DODownloadMode' -Value 0 -Type DWord -Force -EA SilentlyContinue; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization' -Name 'DODownloadMode' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization' -Name 'DODownloadMode' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization' -EA SilentlyContinue).DODownloadMode"
+    },
+    {
+        "id": "DisableAutoRestart",
+        "name": "Disable Auto-Restart After Updates",
+        "category": "Windows Update",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from automatically restarting your PC after installing updates.",
+        "educationalContext": {
+            "howItWorks": "Sets NoAutoRebootWithLoggedOnUsers policy so Windows waits for you to restart manually.",
+            "pros": "Never lose unsaved work from surprise restarts.",
+            "cons": "You must remember to restart after updates to apply security patches."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU' -Name 'NoAutoRebootWithLoggedOnUsers' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU' -Name 'NoAutoRebootWithLoggedOnUsers' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU' -EA SilentlyContinue).NoAutoRebootWithLoggedOnUsers"
+    },
+    {
+        "id": "DisableDriverUpdates",
+        "name": "Disable Driver Updates via Windows Update",
+        "category": "Windows Update",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows Update from installing driver updates automatically.",
+        "educationalContext": {
+            "howItWorks": "Sets ExcludeWUDriversInQualityUpdate policy to block driver delivery via WU.",
+            "pros": "Prevents broken drivers from being force-installed. Essential for GPU users.",
+            "cons": "You must manually update drivers via manufacturer tools (NVIDIA, AMD, Intel)."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'ExcludeWUDriversInQualityUpdate' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'ExcludeWUDriversInQualityUpdate' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -EA SilentlyContinue).ExcludeWUDriversInQualityUpdate"
+    },
+    {
+        "id": "PauseUpdates35Days",
+        "name": "Pause Windows Updates for 35 Days",
+        "category": "Windows Update",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Pauses all Windows updates for the maximum allowed 35-day period.",
+        "educationalContext": {
+            "howItWorks": "Sets the FlightSettingsMaxPauseDays and PauseUpdatesStartTime in Windows Update settings.",
+            "pros": "No updates interrupt your workflow for over a month.",
+            "cons": "You miss security patches during the pause. Re-apply after 35 days."
+        },
+        "execution": {
+            "code": "$pauseDate = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ'); $resumeDate = (Get-Date).AddDays(35).ToString('yyyy-MM-ddTHH:mm:ssZ'); Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseUpdatesExpiryTime' -Value $resumeDate -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseQualityUpdatesStartTime' -Value $pauseDate -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseFeatureUpdatesStartTime' -Value $pauseDate -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseUpdatesExpiryTime' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseQualityUpdatesStartTime' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -Name 'PauseFeatureUpdatesStartTime' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings' -EA SilentlyContinue).PauseUpdatesExpiryTime"
+    },
+    {
+        "id": "SecurityOnlyUpdates",
+        "name": "Security-Only Updates (Delay Feature Updates)",
+        "category": "Windows Update",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Defers feature updates by 365 days, allowing only security patches.",
+        "educationalContext": {
+            "howItWorks": "Sets DeferFeatureUpdatesPeriodInDays to 365 via Group Policy.",
+            "pros": "You get security fixes but avoid potentially unstable feature updates for a year.",
+            "cons": "You'll be on an older Windows version. Some new features won't be available."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'DeferFeatureUpdates' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'DeferFeatureUpdatesPeriodInDays' -Value 365 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'DeferFeatureUpdates' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'DeferFeatureUpdatesPeriodInDays' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -EA SilentlyContinue).DeferFeatureUpdatesPeriodInDays"
+    },
+    {
+        "id": "DisableSMBv1",
+        "name": "Disable SMBv1 Protocol",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the legacy SMBv1 protocol exploited by WannaCry and other ransomware.",
+        "educationalContext": {
+            "howItWorks": "SMBv1 is a 30-year-old file sharing protocol with known critical vulnerabilities.",
+            "pros": "Eliminates the attack vector used by WannaCry, NotPetya, and EternalBlue.",
+            "cons": "Very old NAS devices or XP-era machines may not connect for file sharing."
+        },
+        "execution": {
+            "code": "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force; Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart -EA SilentlyContinue",
+            "revertCode": "Set-SmbServerConfiguration -EnableSMB1Protocol $true -Force"
+        },
+        "validationCmd": "(Get-SmbServerConfiguration).EnableSMB1Protocol"
+    },
+    {
+        "id": "DisableWindowsScriptHost",
+        "name": "Disable Windows Script Host",
+        "category": "Security",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents .vbs and .js scripts from running — blocks a common malware vector.",
+        "educationalContext": {
+            "howItWorks": "Disables the Windows Script Host engine (wscript.exe / cscript.exe).",
+            "pros": "Blocks VBScript/JScript malware that arrives via email attachments.",
+            "cons": "Legitimate .vbs scripts (login scripts, admin tools) won't execute."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows Script Host\\Settings' -Name 'Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows Script Host\\Settings' -Name 'Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows Script Host\\Settings').Enabled"
+    },
+    {
+        "id": "DisableLockScreenAds",
+        "name": "Disable Lock Screen Ads & Tips",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes Microsoft ads, tips, and 'fun facts' from the lock screen.",
+        "educationalContext": {
+            "howItWorks": "Disables RotatingLockScreenOverlayEnabled and related ContentDeliveryManager keys.",
+            "pros": "Clean lock screen without promotional content.",
+            "cons": "You won't see Windows tips or Bing daily images on the lock screen."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenOverlayEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-338387Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenOverlayEnabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager').RotatingLockScreenOverlayEnabled"
+    },
+    {
+        "id": "DisableAutoplay",
+        "name": "Disable AutoPlay & AutoRun",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents USB drives and CDs from automatically running programs when inserted.",
+        "educationalContext": {
+            "howItWorks": "Disables AutoPlay for all media types, blocking autorun.inf execution.",
+            "pros": "Blocks a major USB malware infection vector.",
+            "cons": "You must manually open USB drives in Explorer instead of auto-launching."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers' -Name 'DisableAutoplay' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -Name 'NoDriveTypeAutoRun' -Value 255 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers' -Name 'DisableAutoplay' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -Name 'NoDriveTypeAutoRun' -Value 91 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers').DisableAutoplay"
+    },
+    {
+        "id": "DisableSpectreMitigations",
+        "name": "Disable Spectre/Meltdown Mitigations",
+        "category": "Security",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Disables CPU vulnerability mitigations for maximum performance at the cost of security.",
+        "educationalContext": {
+            "howItWorks": "Removes kernel-level Spectre V2 and Meltdown patches that add CPU overhead.",
+            "pros": "Can recover 5-30% CPU performance depending on workload and CPU generation.",
+            "cons": "Your system is vulnerable to Spectre/Meltdown side-channel attacks. DANGEROUS."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'FeatureSettingsOverride' -Value 3 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'FeatureSettingsOverrideMask' -Value 3 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'FeatureSettingsOverride' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'FeatureSettingsOverrideMask' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -EA SilentlyContinue).FeatureSettingsOverride"
+    },
+    {
+        "id": "DisableStartupDelay",
+        "name": "Remove Startup App Delay",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the artificial 10-second delay Windows adds before launching startup apps.",
+        "educationalContext": {
+            "howItWorks": "Windows adds a ~10 second delay after logon before running startup programs.",
+            "pros": "Startup apps launch immediately after login, faster overall boot experience.",
+            "cons": "If too many apps start at once, there may be brief system load."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Name 'StartupDelayInMSec' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Force -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -EA SilentlyContinue).StartupDelayInMSec"
+    },
+    {
+        "id": "DisableLastAccessTimestamp",
+        "name": "Disable NTFS Last Access Timestamp",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops NTFS from updating the 'last accessed' timestamp on every file read.",
+        "educationalContext": {
+            "howItWorks": "Every file read writes a timestamp back to disk. This disables that overhead.",
+            "pros": "Reduces SSD/HDD writes significantly, especially for file-heavy workloads.",
+            "cons": "Forensic tools and some backup software rely on last access timestamps."
+        },
+        "execution": {
+            "code": "fsutil behavior set disablelastaccess 1",
+            "revertCode": "fsutil behavior set disablelastaccess 0"
+        },
+        "validationCmd": "fsutil behavior query disablelastaccess"
+    },
+    {
+        "id": "Disable8dot3Naming",
+        "name": "Disable 8.3 Short File Names",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables legacy DOS 8.3 filename generation on NTFS volumes.",
+        "educationalContext": {
+            "howItWorks": "NTFS creates a short 8.3 alias (like PROGRA~1) for every file, adding overhead.",
+            "pros": "Speeds up file creation in directories with many files (10-20% improvement).",
+            "cons": "Very old 16-bit applications may fail to find files."
+        },
+        "execution": {
+            "code": "fsutil 8dot3name set 1",
+            "revertCode": "fsutil 8dot3name set 0"
+        },
+        "validationCmd": "fsutil 8dot3name query"
+    },
+    {
+        "id": "DisablePrintSpooler",
+        "name": "Disable Print Spooler Service",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Stops the Print Spooler service — saves resources and closes the PrintNightmare vector.",
+        "educationalContext": {
+            "howItWorks": "The Print Spooler runs even if you have no printer. It's been a recurring CVE target.",
+            "pros": "Reduces attack surface (PrintNightmare) and saves ~20MB RAM.",
+            "cons": "You cannot print to any printer while this service is disabled."
+        },
+        "execution": {
+            "code": "Stop-Service -Name 'Spooler' -Force -EA SilentlyContinue; Set-Service -Name 'Spooler' -StartupType Disabled",
+            "revertCode": "Set-Service -Name 'Spooler' -StartupType Automatic; Start-Service -Name 'Spooler' -EA SilentlyContinue"
+        },
+        "validationCmd": "Get-Service -Name 'Spooler' | Select-Object -ExpandProperty Status"
+    },
+    {
+        "id": "DisableFaxService",
+        "name": "Disable Fax Service",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the Windows Fax service that nobody uses in the modern era.",
+        "educationalContext": {
+            "howItWorks": "The Fax service sits idle consuming memory, waiting for fax transmissions.",
+            "pros": "Saves resources from an obsolete service.",
+            "cons": "You can't send faxes (you weren't going to)."
+        },
+        "execution": {
+            "code": "Stop-Service -Name 'Fax' -Force -EA SilentlyContinue; Set-Service -Name 'Fax' -StartupType Disabled -EA SilentlyContinue",
+            "revertCode": "Set-Service -Name 'Fax' -StartupType Manual -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-Service -Name 'Fax' -EA SilentlyContinue).Status"
+    },
+    {
+        "id": "DisableContactsAccess",
+        "name": "Disable App Contacts Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your contacts list.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to the Contacts capability via ConsentStore.",
+            "pros": "No app can read your contact list without re-enabling.",
+            "cons": "People/Mail apps won't auto-complete contact names."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts').Value"
+    },
+    {
+        "id": "DisableCalendarAccess",
+        "name": "Disable App Calendar Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from reading your calendar appointments.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to the Calendar capability.",
+            "pros": "Calendar data stays private from third-party apps.",
+            "cons": "Calendar sync apps won't function properly."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments').Value"
+    },
+    {
+        "id": "DisableEmailAccess",
+        "name": "Disable App Email Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from reading your email.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to the Email capability.",
+            "pros": "No app can silently read your email content.",
+            "cons": "Windows Mail app won't function."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\email' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\email' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\email').Value"
+    },
+    {
+        "id": "DisableMessagingAccess",
+        "name": "Disable App Messaging Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from reading or sending SMS/MMS messages.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to the Chat/Messaging capability.",
+            "pros": "No app can read your text messages.",
+            "cons": "Your Phone Companion messaging won't work."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\chat' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\chat' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\chat').Value"
+    },
+    {
+        "id": "DisableNotificationsAccess",
+        "name": "Disable App Notification Access",
+        "category": "Privacy",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your notification history.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to user notifications.",
+            "pros": "No app can read your notifications from other apps.",
+            "cons": "Some apps that aggregate notifications won't function."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userNotificationListener' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userNotificationListener' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userNotificationListener').Value"
+    },
+    {
+        "id": "DisableAccountInfoAccess",
+        "name": "Disable App Account Info Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your Microsoft account name and picture.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to your account information.",
+            "pros": "Apps can't see your name, email, or profile picture.",
+            "cons": "Some personalized app experiences won't work."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation').Value"
+    },
+    {
+        "id": "DisableOnlineSpeechRecognition",
+        "name": "Disable Online Speech Recognition",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from sending your voice data to Microsoft's cloud for processing.",
+        "educationalContext": {
+            "howItWorks": "Disables the cloud-based speech recognition that sends voice to Microsoft servers.",
+            "pros": "Your voice data stays on your device. Offline recognition still works.",
+            "cons": "Speech recognition quality may be lower without cloud processing."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy' -Name 'HasAccepted' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy' -Name 'HasAccepted' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy' -EA SilentlyContinue).HasAccepted"
+    },
+    {
+        "id": "DisableInputPersonalization",
+        "name": "Disable Input Personalization",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from learning your typing patterns and building a user dictionary.",
+        "educationalContext": {
+            "howItWorks": "Windows learns your writing style to improve autocomplete. This data can be shared.",
+            "pros": "Your typing patterns and vocabulary are not collected.",
+            "cons": "Autocomplete and text predictions won't improve over time."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization' -Name 'RestrictImplicitInkCollection' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization' -Name 'RestrictImplicitTextCollection' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization\\TrainedDataStore' -Name 'HarvestContacts' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Personalization\\Settings' -Name 'AcceptedPrivacyPolicy' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization' -Name 'RestrictImplicitInkCollection' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization' -Name 'RestrictImplicitTextCollection' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization').RestrictImplicitTextCollection"
+    },
+    {
+        "id": "DisableFeedback",
+        "name": "Disable Feedback Notifications",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from asking for feedback and sending usage frequency data.",
+        "educationalContext": {
+            "howItWorks": "Sets feedback frequency to Never and disables the Feedback Hub prompts.",
+            "pros": "No more 'Rate your experience' popups or background feedback collection.",
+            "cons": "Microsoft receives less direct user feedback."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'PeriodInNanoSeconds' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'PeriodInNanoSeconds' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -EA SilentlyContinue).NumberOfSIUFInPeriod"
+    },
+    {
+        "id": "DisableAutomaticMaps",
+        "name": "Disable Automatic Map Updates",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from automatically downloading map data in the background.",
+        "educationalContext": {
+            "howItWorks": "Disables the MapsBroker service and auto-update settings.",
+            "pros": "Saves bandwidth and disk space from map data downloads.",
+            "cons": "Windows Maps app won't have up-to-date offline maps."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Maps' -Name 'AutoUpdateEnabled' -Value 0 -Type DWord -Force; Stop-Service -Name 'MapsBroker' -Force -EA SilentlyContinue; Set-Service -Name 'MapsBroker' -StartupType Disabled -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Maps' -Name 'AutoUpdateEnabled' -Value 1 -Type DWord -Force; Set-Service -Name 'MapsBroker' -StartupType Automatic -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\Maps' -EA SilentlyContinue).AutoUpdateEnabled"
+    },
+    {
+        "id": "DisableDefenderSampleSubmission",
+        "name": "Disable Defender Auto Sample Submission",
+        "category": "Security",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows Defender from automatically uploading suspicious files to Microsoft.",
+        "educationalContext": {
+            "howItWorks": "Defender uploads files it considers suspicious to Microsoft's cloud for analysis.",
+            "pros": "Your files never leave your PC. Essential for privacy-sensitive work.",
+            "cons": "New malware detection may be slightly slower without cloud analysis."
+        },
+        "execution": {
+            "code": "Set-MpPreference -SubmitSamplesConsent 2",
+            "revertCode": "Set-MpPreference -SubmitSamplesConsent 1"
+        },
+        "validationCmd": "(Get-MpPreference).SubmitSamplesConsent"
+    },
+    {
+        "id": "DisableSmartScreen",
+        "name": "Disable SmartScreen Filter",
+        "category": "Security",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Disables the SmartScreen filter for apps and web browsing.",
+        "educationalContext": {
+            "howItWorks": "SmartScreen checks downloaded files and URLs against Microsoft's database.",
+            "pros": "No data about your downloads sent to Microsoft. Faster first-run of new apps.",
+            "cons": "You lose protection against known malicious downloads. USE WITH CAUTION."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableSmartScreen' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppHost' -Name 'EnableWebContentEvaluation' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableSmartScreen' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppHost' -Name 'EnableWebContentEvaluation' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -EA SilentlyContinue).EnableSmartScreen"
+    },
+    {
+        "id": "DisableEdgeTelemetry",
+        "name": "Disable Microsoft Edge Telemetry",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Edge browser data collection and telemetry services.",
+        "educationalContext": {
+            "howItWorks": "Disables Edge's MicrosoftEdgeUpdate and telemetry scheduled tasks.",
+            "pros": "Stops Edge from phoning home when you don't use it as your browser.",
+            "cons": "Edge may not auto-update (use Windows Update instead)."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'MetricsReportingEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'SendSiteInfoToImproveServices' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'PersonalizationReportingEnabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'MetricsReportingEnabled' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -Name 'SendSiteInfoToImproveServices' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge' -EA SilentlyContinue).MetricsReportingEnabled"
+    },
+    {
+        "id": "DisableTelemetryScheduledTasks",
+        "name": "Disable Telemetry Scheduled Tasks",
+        "category": "Privacy",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables Windows scheduled tasks that collect and submit telemetry data.",
+        "educationalContext": {
+            "howItWorks": "Disables Microsoft Compatibility Appraiser, ProgramDataUpdater, Proxy, and other telemetry tasks.",
+            "pros": "Eliminates periodic background telemetry collection that spikes CPU usage.",
+            "cons": "Windows compatibility checks and diagnostic data won't run."
+        },
+        "execution": {
+            "code": "$tasks = @('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser','\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater','\\Microsoft\\Windows\\Autochk\\Proxy','\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator','\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip','\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector'); foreach ($t in $tasks) { schtasks /Change /TN $t /Disable 2>$null }",
+            "revertCode": "$tasks = @('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser','\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater','\\Microsoft\\Windows\\Autochk\\Proxy','\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator','\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip'); foreach ($t in $tasks) { schtasks /Change /TN $t /Enable 2>$null }"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableSettingsSync",
+        "name": "Disable Settings Sync",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from syncing your settings, passwords, and themes to Microsoft's cloud.",
+        "educationalContext": {
+            "howItWorks": "Windows syncs theme, password, language, and other settings across devices.",
+            "pros": "Your settings and saved passwords never leave your device.",
+            "cons": "Settings won't sync to other Windows PCs using your Microsoft account."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync' -Name 'SyncPolicy' -Value 5 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\Personalization' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\BrowserSettings' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\Credentials' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync' -Name 'SyncPolicy' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync').SyncPolicy"
+    },
+    {
+        "id": "SetDNSCloudflare",
+        "name": "Set DNS to Cloudflare (1.1.1.1)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets your primary DNS to Cloudflare's 1.1.1.1 and Google's 8.8.8.8 as backup.",
+        "educationalContext": {
+            "howItWorks": "Replaces your ISP's DNS with faster, privacy-focused DNS resolvers.",
+            "pros": "Faster resolution, no ISP DNS logging, blocks some phishing domains.",
+            "cons": "If Cloudflare is down, falls back to Google DNS."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('1.1.1.1','8.8.8.8','1.0.0.1','8.8.4.4') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "EnableStorageSense",
+        "name": "Enable Storage Sense Auto Cleanup",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Enables automatic cleanup of temp files, recycle bin, and downloads when disk is low.",
+        "educationalContext": {
+            "howItWorks": "Storage Sense auto-cleans temp files every 30 days and empties Recycle Bin.",
+            "pros": "Automatically frees disk space without manual intervention.",
+            "cons": "Files in Downloads older than 30 days may be deleted (configurable)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -Name '01' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -Name '04' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -Name '08' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -Name '2048' -Value 30 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -Name '01' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy' -EA SilentlyContinue).'01'"
+    },
+    {
+        "id": "CleanComponentStore",
+        "name": "Clean Windows Component Store",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Runs DISM to clean up superseded Windows update packages and free disk space.",
+        "educationalContext": {
+            "howItWorks": "DISM removes old component store versions that are no longer needed.",
+            "pros": "Can reclaim 1-5GB of disk space from accumulated update leftovers.",
+            "cons": "You cannot uninstall old updates after cleanup. Takes 2-5 minutes."
+        },
+        "execution": {
+            "code": "DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase",
+            "revertCode": "Write-Output 'Component store cleanup cannot be reversed.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableRadiosAccess",
+        "name": "Disable App Radio Control Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from controlling your Bluetooth and Wi-Fi radios.",
+        "educationalContext": {
+            "howItWorks": "Denies UWP apps access to toggle radios (Bluetooth, Wi-Fi) on/off.",
+            "pros": "No app can silently enable Bluetooth or Wi-Fi.",
+            "cons": "Some companion apps may not toggle Bluetooth devices."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\radios' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\radios' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\radios').Value"
+    },
+    {
+        "id": "DisableMeetNow",
+        "name": "Disable Meet Now Taskbar Button",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the 'Meet Now' (Skype) icon from the taskbar system tray.",
+        "educationalContext": {
+            "howItWorks": "Sets HideSCAMeetNow policy to remove the Meet Now camera button.",
+            "pros": "Cleaner taskbar. Removes unused Skype integration.",
+            "cons": "You lose quick access to Skype Meet Now."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -Name 'HideSCAMeetNow' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -Name 'HideSCAMeetNow' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer' -EA SilentlyContinue).HideSCAMeetNow"
+    },
+    {
+        "id": "EnableHWGPUScheduling",
+        "name": "Enable Hardware GPU Scheduling",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Enables hardware-accelerated GPU scheduling for lower input latency.",
+        "educationalContext": {
+            "howItWorks": "Moves GPU memory management from the CPU to the GPU's own scheduling processor.",
+            "pros": "Reduces input latency by 1-3ms. Less CPU overhead for GPU operations.",
+            "cons": "Requires WDDM 2.7+ GPU drivers (NVIDIA 10xx/RTX, AMD RX 5000+). May cause instability on older GPUs."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -Name 'HwSchMode' -Value 2 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -Name 'HwSchMode' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers').HwSchMode"
+    },
+    {
+        "id": "DisablePowerThrottling",
+        "name": "Disable CPU Power Throttling",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Prevents Windows from throttling CPU performance for background efficiency.",
+        "educationalContext": {
+            "howItWorks": "Windows 10+ uses Power Throttling to slow down background apps. This disables it entirely.",
+            "pros": "All processes run at full CPU speed. Eliminates frame drops from throttled threads.",
+            "cons": "Higher power consumption and heat. Not recommended for laptops on battery."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Name 'PowerThrottlingOff' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -EA SilentlyContinue).PowerThrottlingOff"
+    },
+    {
+        "id": "CSRSSHighPriority",
+        "name": "Set CSRSS to High Priority",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Sets the Windows Client/Server Runtime to high priority for smoother input processing.",
+        "educationalContext": {
+            "howItWorks": "CSRSS handles raw input (mouse/keyboard). Higher priority = faster input processing.",
+            "pros": "Measurably reduces mouse input latency in competitive games.",
+            "cons": "Other system processes get less CPU time. Can cause instability on weak CPUs."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'CpuPriorityClass' -Value 4 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'IoPriority' -Value 3 -Type DWord -Force",
+            "revertCode": "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe' -Recurse -Force -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -EA SilentlyContinue).CpuPriorityClass"
+    },
+    {
+        "id": "DisableGameMode",
+        "name": "Disable Windows Game Mode",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables Windows Game Mode which can paradoxically cause stuttering in some games.",
+        "educationalContext": {
+            "howItWorks": "Game Mode is supposed to prioritize games, but its background thread management often causes stutters.",
+            "pros": "Eliminates Game Mode-induced micro-stutters and frame time inconsistencies.",
+            "cons": "You lose Game Mode's automatic background app suppression."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\GameBar' -Name 'AllowAutoGameMode' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\GameBar' -Name 'AllowAutoGameMode' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\GameBar' -Name 'AutoGameModeEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\GameBar' -EA SilentlyContinue).AutoGameModeEnabled"
+    },
+    {
+        "id": "OptimizePrefetcherSSD",
+        "name": "Optimize Prefetcher for SSD",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Sets Prefetcher to application-launch-only mode optimized for SSDs.",
+        "educationalContext": {
+            "howItWorks": "Windows Prefetcher pre-loads app data on boot. On SSDs, only app launch prefetch is useful.",
+            "pros": "Reduces unnecessary SSD writes while keeping app launch optimization.",
+            "cons": "Boot prefetching is disabled (negligible on SSDs)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters' -Name 'EnablePrefetcher' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters' -Name 'EnableSuperfetch' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters' -Name 'EnablePrefetcher' -Value 3 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters' -Name 'EnableSuperfetch' -Value 3 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters').EnablePrefetcher"
+    },
+    {
+        "id": "LargeSystemCache",
+        "name": "Enable Large System Cache",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Configures Windows to use more RAM for file caching — beneficial for 16GB+ systems.",
+        "educationalContext": {
+            "howItWorks": "Tells the memory manager to use more RAM for file system cache instead of limiting it.",
+            "pros": "Faster file I/O and game loading on systems with plenty of RAM.",
+            "cons": "May reduce available RAM for applications on 8GB systems. Only for 16GB+."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'LargeSystemCache' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'LargeSystemCache' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management').LargeSystemCache"
+    },
+    {
+        "id": "DisableAdapterPowerSaving",
+        "name": "Disable Network Adapter Power Saving",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from putting your network adapter to sleep to save power.",
+        "educationalContext": {
+            "howItWorks": "Disables 'Allow the computer to turn off this device to save power' for all network adapters.",
+            "pros": "Eliminates random network disconnects during gaming and high latency spikes.",
+            "cons": "Slightly higher idle power consumption."
+        },
+        "execution": {
+            "code": "Get-NetAdapter -Physical | Get-NetAdapterPowerManagement -EA SilentlyContinue | ForEach-Object { $_.AllowComputerToTurnOffDevice = 'Disabled'; $_ | Set-NetAdapterPowerManagement -EA SilentlyContinue }",
+            "revertCode": "Get-NetAdapter -Physical | Get-NetAdapterPowerManagement -EA SilentlyContinue | ForEach-Object { $_.AllowComputerToTurnOffDevice = 'Enabled'; $_ | Set-NetAdapterPowerManagement -EA SilentlyContinue }"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableConnectedStandby",
+        "name": "Disable Connected Standby",
+        "category": "Power",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Disables Modern Standby (S0ix) and uses classic S3 sleep instead.",
+        "educationalContext": {
+            "howItWorks": "Modern Standby keeps the CPU partially active, often causing battery drain and wake issues.",
+            "pros": "True deep sleep. Eliminates phantom drain and random wake-ups.",
+            "cons": "Instant-on wake-up is disabled. PC takes 2-3 seconds longer to wake."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -Name 'PlatformAoAcOverride' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -Name 'PlatformAoAcOverride' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -EA SilentlyContinue).PlatformAoAcOverride"
+    },
+    {
+        "id": "MMCSSPriority",
+        "name": "Maximize MMCSS Gaming Thread Priority",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Maximizes the Multimedia Class Scheduler priority for gaming threads.",
+        "educationalContext": {
+            "howItWorks": "MMCSS manages thread priorities for multimedia/gaming. This maximizes its effect.",
+            "pros": "Game audio/video threads get maximum scheduling priority.",
+            "cons": "Non-gaming applications may get slightly less CPU time."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'SystemResponsiveness' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Priority' -Value 6 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Scheduling Category' -Value 'High' -Type String -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'SFIO Priority' -Value 'High' -Type String -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile' -Name 'SystemResponsiveness' -Value 20 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games' -Name 'Priority' -Value 2 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile').SystemResponsiveness"
+    },
+    {
+        "id": "DisableXboxGameMonitoring",
+        "name": "Disable Xbox Game Monitoring Service",
+        "category": "Gaming",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the xbgm background monitoring service that tracks game usage.",
+        "educationalContext": {
+            "howItWorks": "The xbgm service monitors game sessions for Xbox integration and telemetry.",
+            "pros": "Removes background monitoring overhead during gaming sessions.",
+            "cons": "Xbox achievements and play time tracking won't update."
+        },
+        "execution": {
+            "code": "schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTask' /Disable 2>$null; schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTaskLogon' /Disable 2>$null; if (Get-Service -Name 'xbgm' -EA SilentlyContinue) { Stop-Service -Name 'xbgm' -Force -EA SilentlyContinue; Set-Service -Name 'xbgm' -StartupType Disabled -EA SilentlyContinue }",
+            "revertCode": "schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTask' /Enable 2>$null; schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTaskLogon' /Enable 2>$null"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "ReduceMenuShowDelay",
+        "name": "Reduce Menu Animation Delay",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Reduces the delay before menus appear from 400ms to 0ms for snappier UI.",
+        "educationalContext": {
+            "howItWorks": "Sets MenuShowDelay registry value to 0, removing the artificial animation pause.",
+            "pros": "Menus and context menus appear instantly. System feels more responsive.",
+            "cons": "Purely visual — menus may feel abrupt without the fade-in."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'MenuShowDelay' -Value '0' -Type String -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'MenuShowDelay' -Value '400' -Type String -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop').MenuShowDelay"
+    },
+    {
+        "id": "Win32PrioritySeparation",
+        "name": "Optimize Foreground App Priority",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Sets Win32PrioritySeparation to 0x26 for optimal foreground app scheduling.",
+        "educationalContext": {
+            "howItWorks": "Controls how Windows distributes CPU time between foreground and background apps.",
+            "pros": "Foreground applications get shorter, more responsive quantum time slices.",
+            "cons": "Background tasks like downloads may be slightly slower."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl' -Name 'Win32PrioritySeparation' -Value 38 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl' -Name 'Win32PrioritySeparation' -Value 2 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl').Win32PrioritySeparation"
+    },
+    {
+        "id": "DisableMemoryIntegrity",
+        "name": "Disable Core Isolation / Memory Integrity",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Disables Virtualization-Based Security memory integrity for 5-10% FPS gain.",
+        "educationalContext": {
+            "howItWorks": "VBS/HVCI uses Hyper-V to verify kernel code integrity, adding overhead to every driver call.",
+            "pros": "Significant FPS improvement (5-10%) in CPU-bound games. Reduces DPC latency.",
+            "cons": "Disables a key security feature. Not recommended for machines handling sensitive data."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -EA SilentlyContinue).Enabled"
+    },
+    {
+        "id": "DisableAeroShake",
+        "name": "Disable Aero Shake",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents shaking a window from minimizing all other windows.",
+        "educationalContext": {
+            "howItWorks": "When you shake a title bar, Windows minimizes everything else. This disables that behavior.",
+            "pros": "No more accidental minimization when dragging windows.",
+            "cons": "You lose the shake-to-minimize gesture."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'DisallowShaking' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'DisallowShaking' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).DisallowShaking"
+    },
+    {
+        "id": "DisableLockScreen",
+        "name": "Disable Lock Screen",
+        "category": "Windows UI",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Skips the lock screen and goes straight to the password/PIN prompt.",
+        "educationalContext": {
+            "howItWorks": "Sets NoLockScreen policy so Windows goes directly to the login prompt.",
+            "pros": "Saves a click/swipe every time you unlock. Faster access.",
+            "cons": "No at-a-glance info (time, notifications) on the lock screen."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization' -Name 'NoLockScreen' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization' -Name 'NoLockScreen' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization' -EA SilentlyContinue).NoLockScreen"
+    },
+    {
+        "id": "ClearPageFileShutdown",
+        "name": "Clear Page File at Shutdown",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Clears the virtual memory page file when Windows shuts down for security.",
+        "educationalContext": {
+            "howItWorks": "The page file can contain sensitive data swapped from RAM. This zeros it out at shutdown.",
+            "pros": "Prevents extracting passwords/keys from the page file on stolen drives.",
+            "cons": "Shutdown takes slightly longer (depends on page file size)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'ClearPageFileAtShutdown' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name 'ClearPageFileAtShutdown' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management').ClearPageFileAtShutdown"
+    },
+    {
+        "id": "EnableLastActiveClick",
+        "name": "Enable Last Active Click (Taskbar)",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Clicking a grouped taskbar icon opens the last used window instead of showing a preview.",
+        "educationalContext": {
+            "howItWorks": "Sets LastActiveClick to 1 so taskbar clicks go directly to the last active window.",
+            "pros": "One click instead of two to switch to your last used instance of an app.",
+            "cons": "You must hover (not click) to see the preview thumbnail."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'LastActiveClick' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'LastActiveClick' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').LastActiveClick"
+    },
+    {
+        "id": "RepairSystemFiles",
+        "name": "Repair System Files (SFC + DISM)",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Runs DISM and SFC to repair corrupted Windows system files.",
+        "educationalContext": {
+            "howItWorks": "DISM repairs the component store, then SFC scans and fixes protected system files.",
+            "pros": "Fixes random crashes, blue screens, and broken features from corrupted files.",
+            "cons": "Takes 5-15 minutes. Requires internet for DISM to download clean files."
+        },
+        "execution": {
+            "code": "DISM /Online /Cleanup-Image /RestoreHealth; sfc /scannow",
+            "revertCode": "Write-Output 'System file repair cannot be reversed (it restores original files).'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableSearchHighlights",
+        "name": "Disable Search Highlights & Web Results",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes Bing web results and trending highlights from Windows Search.",
+        "educationalContext": {
+            "howItWorks": "Disables dynamic content and web integration in the Start Menu search.",
+            "pros": "Faster, cleaner search that only shows local files and apps.",
+            "cons": "You won't see web suggestions or trending topics in search."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings' -Name 'IsDynamicSearchBoxEnabled' -Value 0 -Type DWord -Force; if (!(Test-Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer')) { New-Item -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'DisableSearchBoxSuggestions' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings' -Name 'IsDynamicSearchBoxEnabled' -Value 1 -Type DWord -Force; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'DisableSearchBoxSuggestions' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings').IsDynamicSearchBoxEnabled"
+    },
+    {
+        "id": "DisableRecallAI",
+        "name": "Disable Windows Recall AI",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Windows Recall that continuously screenshots your activity.",
+        "educationalContext": {
+            "howItWorks": "Windows Recall takes periodic screenshots and indexes them with AI. This disables it.",
+            "pros": "Prevents AI from recording everything you do on your PC.",
+            "cons": "You lose the ability to search past activity with natural language."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI')) { New-Item -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Name 'DisableAIDataAnalysis' -Value 1 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Name 'DisableAIDataAnalysis' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Name 'DisableAIDataAnalysis' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -Name 'DisableAIDataAnalysis' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI' -EA SilentlyContinue).DisableAIDataAnalysis"
+    },
+    {
+        "id": "DisablePhoneLink",
+        "name": "Disable Phone Link / Your Phone",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the Phone Link app integration and background service.",
+        "educationalContext": {
+            "howItWorks": "Uninstalls the Your Phone / Phone Link app and blocks its background service.",
+            "pros": "Removes background syncing with your phone that uses CPU and network.",
+            "cons": "You can't mirror Android notifications or texts to your PC."
+        },
+        "execution": {
+            "code": "Get-AppxPackage -Name 'Microsoft.YourPhone' -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableMmx' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableMmx' -EA SilentlyContinue; Write-Output 'Reinstall Phone Link from the Microsoft Store.'"
+        },
+        "validationCmd": "if (Get-AppxPackage -Name 'Microsoft.YourPhone' -EA SilentlyContinue) { 'Installed' } else { 'Removed' }"
+    },
+    {
+        "id": "DisableNotificationCenter",
+        "name": "Disable Notification Center & Tips",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Windows notification popups and tip balloons.",
+        "educationalContext": {
+            "howItWorks": "Disables toast notifications and tip notifications system-wide.",
+            "pros": "No more popup distractions during gaming or focused work.",
+            "cons": "You won't see any app notifications until you re-enable."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_TOASTS_ENABLED' -Value 0 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'DisableNotificationCenter' -Value 1 -Type DWord -Force -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 1 -Type DWord -Force; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'DisableNotificationCenter' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications').ToastEnabled"
+    },
+    {
+        "id": "EnableGPUMSIMode",
+        "name": "Enable GPU MSI Mode (Message Signaled Interrupts)",
+        "category": "Gaming",
+        "riskLevel": "Red",
+        "requiresExpertMode": true,
+        "description": "Enables MSI mode for your GPU, reducing interrupt latency for smoother gaming.",
+        "educationalContext": {
+            "howItWorks": "MSI replaces line-based interrupts with message-based ones, reducing DPC latency.",
+            "pros": "Lower DPC latency (1-3ms reduction). Smoother frame delivery. Reduces micro-stutters.",
+            "cons": "May cause BSODs on unsupported hardware. Research your GPU model first."
+        },
+        "execution": {
+            "code": "$gpuDevice = Get-PnpDevice -Class Display -Status OK | Select-Object -First 1; if ($gpuDevice) { $instanceId = $gpuDevice.InstanceId -replace '\\\\','\\\\'; $path = \"HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\$($gpuDevice.InstanceId)\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\"; if (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Type DWord -Force }",
+            "revertCode": "$gpuDevice = Get-PnpDevice -Class Display -Status OK | Select-Object -First 1; if ($gpuDevice) { $path = \"HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\$($gpuDevice.InstanceId)\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 0 -Type DWord -Force -EA SilentlyContinue }"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableEdgePrelaunch",
+        "name": "Disable Edge Pre-launch & Pre-load",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Microsoft Edge from pre-launching and pre-loading in the background.",
+        "educationalContext": {
+            "howItWorks": "Edge starts background processes at boot even if you use another browser.",
+            "pros": "Saves 100-200MB RAM from Edge processes running in the background.",
+            "cons": "Edge will take 1-2 seconds longer to launch when you do use it."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -Name 'AllowPrelaunch' -Value 0 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\TabPreloader')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\TabPreloader' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\TabPreloader' -Name 'AllowTabPreloading' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -Name 'AllowPrelaunch' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\TabPreloader' -Name 'AllowTabPreloading' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -EA SilentlyContinue).AllowPrelaunch"
     }
 ]

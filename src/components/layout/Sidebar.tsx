@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Command, Moon, Sun, Zap, Settings } from "lucide-react";
+import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
 
@@ -8,27 +8,86 @@ import dashIcon from "../../assets/icons/dashboard-flaticon.svg";
 import perfIcon from "../../assets/icons/performance-flaticon.svg";
 import privIcon from "../../assets/icons/privacy-flaticon.svg";
 import netIcon from "../../assets/icons/network-flaticon.svg";
-import toolsIcon from "../../assets/icons/network-flaticon.svg"; // Fallback to network icon for tools temporarily
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
-    { id: "teal",    color: "#05cd99", label: "Teal" },
-    { id: "rose",    color: "#f43f5e", label: "Rose" },
-    { id: "amber",   color: "#f59e0b", label: "Amber" },
+    { id: "teal", color: "#05cd99", label: "Teal" },
+    { id: "rose", color: "#f43f5e", label: "Rose" },
+    { id: "amber", color: "#f59e0b", label: "Amber" },
     { id: "emerald", color: "#10b981", label: "Emerald" },
 ] as const;
+
+// Nav items grouped by section
+interface NavItem {
+    id: string;
+    label: string;
+    icon?: string;        // SVG asset path
+    lucideIcon?: React.ElementType; // Lucide fallback
+}
+
+const mainNavItems: NavItem[] = [
+    { id: "dashboard", label: "Overview", icon: dashIcon },
+    { id: "performance", label: "Performance", icon: perfIcon },
+    { id: "privacy", label: "Privacy", icon: privIcon },
+    { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
+    { id: "network", label: "Network", icon: netIcon },
+    { id: "power", label: "Power", lucideIcon: BatteryMedium },
+    { id: "debloat", label: "Debloat", lucideIcon: Trash2 },
+    { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
+    { id: "windowsupdate", label: "Updates", lucideIcon: RefreshCcw },
+];
+
+const utilNavItems: NavItem[] = [
+    { id: "profiles", label: "Profiles", lucideIcon: Layers },
+    { id: "history", label: "History", lucideIcon: Clock },
+    { id: "settings", label: "Settings", lucideIcon: Settings },
+];
 
 export function Sidebar({ currentView, setView }: { currentView: string, setView: (s: string) => void }) {
     const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
     const [showColorPicker, setShowColorPicker] = useState(false);
 
-    const navItems = [
-        { id: "dashboard", label: "Overview", icon: dashIcon },
-        { id: "performance", label: "Performance", icon: perfIcon },
-        { id: "privacy", label: "Privacy & Security", icon: privIcon },
-        { id: "tools", label: "Diagnostics", icon: toolsIcon },
-        { id: "settings", label: "Settings", icon: netIcon },
-    ];
+    const renderNavItem = (item: NavItem) => {
+        const isActive = currentView === item.id;
+        return (
+            <button
+                key={item.id}
+                title={item.label}
+                onClick={() => setView(item.id)}
+                className={`relative w-full flex items-center justify-center lg:justify-start space-x-0 lg:space-x-3 px-3 py-2.5 rounded-[12px] transition-all duration-200 group outline-none ${isActive
+                    ? "text-primary bg-primary/10 border border-primary/20"
+                    : "text-slate-500 hover:text-foreground hover:bg-white/5"
+                    }`}
+            >
+                {isActive && (
+                    <motion.div
+                        layoutId="sidebar-active"
+                        className="absolute inset-x-1 lg:inset-x-0 inset-y-0 bg-primary/10 dark:bg-primary/20 rounded-[12px] border border-primary/20"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                )}
+
+                {isActive && (
+                    <motion.div layoutId="sidebar-pip" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" />
+                )}
+
+                <div className="relative z-10 flex items-center justify-center">
+                    {item.icon ? (
+                        <img
+                            src={item.icon}
+                            alt={item.label}
+                            className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-sm"
+                            style={{ filter: isActive ? 'drop-shadow(0 0 4px var(--primary)) brightness(1.2)' : 'grayscale(100%)' }}
+                        />
+                    ) : item.lucideIcon ? (
+                        <item.lucideIcon className={`w-5 h-5 transition-opacity ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`} strokeWidth={1.8} />
+                    ) : null}
+                </div>
+                <span className="hidden lg:block relative z-10 text-[13px] font-medium tracking-wide">{item.label}</span>
+            </button>
+        );
+    };
 
     return (
         <div className="w-[80px] lg:w-[260px] h-full flex flex-col relative z-30 bg-background/80 backdrop-blur-3xl border-r border-border transition-all duration-300">
@@ -42,7 +101,7 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                 </h1>
             </div>
 
-            {/* Search / Command Menu Trigger (Spotify/Discord style) */}
+            {/* Search / Command Menu Trigger */}
             <div className="px-2 lg:px-5 mb-6">
                 <button
                     onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
@@ -56,43 +115,22 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 px-2 lg:px-3 overflow-y-auto custom-scrollbar">
-                <p className="hidden lg:block px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 select-none">System Tuning</p>
-                <nav className="space-y-1">
-                    {navItems.map((item) => {
-                        const iconSrc = item.icon;
-                        const isActive = currentView === item.id;
-                        return (
-                            <button
-                                key={item.id}
-                                title={item.label}
-                                onClick={() => setView(item.id)}
-                                className={`relative w-full flex items-center justify-center lg:justify-start space-x-0 lg:space-x-3 px-3 py-2.5 rounded-[12px] transition-all duration-200 group outline-none ${isActive
-                                    ? "text-primary bg-primary/10 border border-primary/20"
-                                    : "text-slate-500 hover:text-foreground hover:bg-white/5"
-                                    }`}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="sidebar-active"
-                                        className="absolute inset-x-1 lg:inset-x-0 inset-y-0 bg-primary/10 dark:bg-primary/20 rounded-[12px] border border-primary/20"
-                                        initial={false}
-                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                    />
-                                )}
+            <div className="flex-1 px-2 lg:px-3 overflow-y-auto custom-scrollbar space-y-6">
+                {/* System Tuning section */}
+                <div>
+                    <p className="hidden lg:block px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 select-none">System Tuning</p>
+                    <nav className="space-y-1">
+                        {mainNavItems.map(renderNavItem)}
+                    </nav>
+                </div>
 
-                                {isActive && (
-                                    <motion.div layoutId="sidebar-pip" className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" />
-                                )}
-
-                                <div className="relative z-10 flex items-center justify-center">
-                                    <img src={iconSrc as string} alt={item.label} className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-sm filter-primary" style={{ filter: isActive ? 'drop-shadow(0 0 4px var(--primary)) brightness(1.2)' : 'grayscale(100%)' }} />
-                                </div>
-                                <span className="hidden lg:block relative z-10 text-[13px] font-medium tracking-wide">{item.label}</span>
-                            </button>
-                        )
-                    })}
-                </nav>
+                {/* Utilities section */}
+                <div>
+                    <p className="hidden lg:block px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 select-none">Utilities</p>
+                    <nav className="space-y-1">
+                        {utilNavItems.map(renderNavItem)}
+                    </nav>
+                </div>
             </div>
 
             {/* Theme Controls */}
@@ -131,7 +169,7 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                 </div>
             </div>
 
-            {/* Footer User/Status Area */}
+            {/* Footer */}
             <div className="p-2 lg:p-4 pt-0">
                 <div className="relative glass-panel rounded-[14px] p-2 lg:p-3 flex items-center justify-center lg:justify-between hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer border border-border">
                     <div className="flex items-center lg:space-x-3">

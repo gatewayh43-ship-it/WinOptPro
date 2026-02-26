@@ -1,14 +1,15 @@
 # WinOpt Pro — Implementation Plan
+
 > **Living document.** Last updated: 2026-02-25.
 > Stack: Tauri 2 (Rust) · React 19 · TypeScript · Tailwind CSS 4 · Framer Motion · shadcn/ui
-> Repo: https://github.com/gatewayh43-ship-it/WinOptPro
+> Repo: <https://github.com/gatewayh43-ship-it/WinOptPro>
 
 ---
 
 ## Document Status
 
 | Section | Status | Owner | Last Updated |
-|---------|--------|-------|--------------|
+| :------- | :------- | :------- | :------- |
 | Vision & Goals | ✅ Stable | Product | 2026-02-25 |
 | User Stories | ✅ Elaborated | Product | 2026-02-25 |
 | Functional Requirements | ✅ Elaborated | Product | 2026-02-25 |
@@ -24,6 +25,7 @@
 ---
 
 ## Table of Contents
+
 1. [Vision & Goals](#1-vision--goals)
 2. [Personas & User Stories](#2-personas--user-stories)
 3. [Functional Requirements](#3-functional-requirements)
@@ -45,6 +47,7 @@
 WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power users, gamers, and privacy-conscious users. It replaces a fragmented ecosystem of tools (CCleaner, Razer Cortex, MSI Afterburner, Process Hacker) with a single beautiful, safe, and fully reversible tool.
 
 **Core principles:**
+
 - **Safe first** — every change is reversible; no silent failures; no destructive operations without confirmation
 - **Educated decisions** — explain what each change does before it happens; show the exact code that will run
 - **Real data only** — no hardcoded metrics; everything sourced from live WMI/WinAPI queries
@@ -56,10 +59,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 ## 2. Personas & User Stories
 
 ### Persona A — Power User / Tech Enthusiast
+
 > Deep Windows knowledge; seeks maximum performance control and full transparency into system changes.
 
 | ID | User Story | Priority | Status |
-|----|-----------|----------|--------|
+| :--- | :--- | :--- | :--- |
 | US-A1 | As a power user, I want to review detailed technical docs (how it works, pros/cons, exact PowerShell commands) for each tweak before applying so I can make an informed decision. | P0 | ✅ Done (Inspector sidebar) |
 | US-A2 | As a power user, I want to execute multiple tweaks in a single batch deploy with a per-item progress tracker so I can apply comprehensive optimizations efficiently. | P0 | 🔲 Backend missing |
 | US-A3 | As a power user, I want to revert any applied tweak with one click, with a confirmation showing the exact revert command so I can undo safely. | P0 | 🔲 Backend missing |
@@ -70,10 +74,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-A8 | As a power user, I want the Inspector panel to appear as a bottom drawer on small windows so I can use the app regardless of window size. | P0 | ✅ Done |
 
 ### Persona B — Gaming Enthusiast
+
 > Focuses on FPS, latency, and frame time consistency. Sessions are time-critical; optimizations must be instant.
 
 | ID | User Story | Priority | Status |
-|----|-----------|----------|--------|
+| :--- | :--- | :--- | :--- |
 | US-B1 | As a gamer, I want to apply all gaming tweaks (core parking, game priority, FSO, DVR, responsiveness) with a single "Gaming Mode" preset button. | P0 | 🔲 Backend missing |
 | US-B2 | As a gamer, I want real-time FPS, frame time, CPU%, and GPU% in a transparent in-game overlay so I can monitor performance without alt-tabbing. | P1 | 🔲 Not started |
 | US-B3 | As a gamer, I want WinOpt to automatically detect when I launch a game and apply gaming optimizations without me having to open the app. | P1 | 🔲 Not started |
@@ -81,10 +86,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-B5 | As a gamer, I want to see the before/after performance improvement after applying gaming tweaks so I can validate the gains. | P1 | 🔲 Not started |
 
 ### Persona C — Privacy-Conscious User
+
 > Concerned about Windows telemetry, tracking, and Microsoft data collection.
 
 | ID | User Story | Priority | Status |
-|----|-----------|----------|--------|
+| :--- | :--- | :--- | :--- |
 | US-C1 | As a privacy user, I want a one-click Privacy Audit that scans all telemetry settings, tracking services, and firewall rules, and shows me the results as a categorized report. | P0 | 🔲 Not started |
 | US-C2 | As a privacy user, I want a Privacy Score from 0 to 100 so I can understand my current exposure level at a glance. | P0 | 🔲 Not started |
 | US-C3 | As a privacy user, I want to apply all privacy tweaks with a single "Harden Privacy" action after reviewing a full preview of every change. | P0 | 🔲 Backend missing |
@@ -92,10 +98,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-C5 | As a privacy user, I want to click the alert banner on the Dashboard to navigate directly to the Privacy page so I can act on warnings immediately. | P0 | ✅ Done |
 
 ### Persona D — IT Professional / SysAdmin
+
 > Managing multiple machines; needs reproducibility, batch scripting, and compliance documentation.
 
 | ID | User Story | Priority | Status |
-|----|-----------|----------|--------|
+| :--- | :--- | :--- | :--- |
 | US-D1 | As an IT pro, I want to generate a comprehensive system report (hardware, drivers, running services, Windows build, installed software) as a PDF so I can share it with stakeholders. | P1 | 🔲 Not started |
 | US-D2 | As an IT pro, I want to compare my system against CIS Benchmarks or Microsoft Security Baseline and see a compliance percentage with remediation steps. | P2 | 🔲 Not started |
 | US-D3 | As an IT pro, I want to schedule automated maintenance tasks (disk cleanup, temp removal) at off-peak hours so systems stay clean without manual work. | P2 | 🔲 Not started |
@@ -103,10 +110,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-D5 | As an IT pro, I want to see every tweak's exact PowerShell code in the Inspector so I can verify and understand every system change before it runs. | P0 | ✅ Done (Inspector sidebar) |
 
 ### Persona E — Casual User
+
 > Wants a meaningful speed boost without understanding the technical details.
 
 | ID | User Story | Priority | Status |
-|----|-----------|----------|--------|
+| :--- | :--- | :--- | :--- |
 | US-E1 | As a casual user, I want a "Quick Scan" button that automatically identifies and selects all safe (Green-level) tweaks so I can optimize with one click and no risk. | P0 | 🔲 Backend missing |
 | US-E2 | As a casual user, I want the onboarding guide to appear only on my first launch and explain the three key features in simple language. | P0 | ✅ Done |
 | US-E3 | As a casual user, I want filter chips so I can see only Green (safe) tweaks and ignore Yellow and Red ones. | P0 | ✅ Done |
@@ -120,6 +128,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 > **Status key:** ✅ Done · 🔲 Not started · 🔄 In progress · ❌ Blocked
 
 ### FR-01: System Information Retrieval
+
 - **Status:** 🔲 Not started (all hardcoded)
 - Real-time collection every 3s (configurable): CPU temp, usage %, clock speed; RAM used/total; Drive temp + SMART status; Network latency, adapter link speed; uptime; OS version; admin status
 - Source: WMI via Rust Tauri commands (`get_system_vitals`)
@@ -127,6 +136,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - System Health Score must be computed from live data, not hardcoded
 
 ### FR-02: Tweak Execution with Elevation
+
 - **Status:** 🔲 Not started
 - Execute any `execution.code` PowerShell command from `tweaks.json` via Rust backend
 - Before execution: check admin rights; surface UAC prompt if missing
@@ -135,6 +145,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - On timeout: surface error, offer retry or cancel
 
 ### FR-03: Tweak State Validation on Load
+
 - **Status:** 🔲 Not started
 - On page load, run `validationCmd` for every tweak in the active category
 - Render toggle as: ON (green) if validation passes, OFF (grey) if not, UNKNOWN (amber) if cmd empty or query fails
@@ -142,6 +153,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Re-validate after each apply/revert to keep UI in sync
 
 ### FR-04: Tweak Revert / Undo
+
 - **Status:** 🔲 Not started
 - Toggle already-applied tweaks shows confirmation with exact `revertCode`
 - Execute `revertCode` via Rust backend with same elevation logic as apply
@@ -149,6 +161,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - "Revert to timestamp" mode: reverse all tweaks applied after a given point
 
 ### FR-05: Tweak History & Audit Log
+
 - **Status:** 🔲 Not started
 - SQLite table `tweak_history`: id, tweak_id, tweak_name, action, timestamp, duration_ms, command_executed, stdout, stderr, exit_code, status
 - Query via `get_tweak_history(limit, since_timestamp)` Tauri command
@@ -156,6 +169,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Retention: auto-prune entries older than 365 days (configurable)
 
 ### FR-06: Batch Deploy with Progress & Rollback
+
 - **Status:** 🔲 Not started
 - Preview modal: list all N tweaks, risk summary, estimated total time
 - Execution: sequential, with per-item status (pending → running → success/failed)
@@ -163,6 +177,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Rollback: execute all revertCodes in reverse order
 
 ### FR-07: Global State Persistence
+
 - **Status:** 🔲 Not started
 - Applied tweaks survive app restart (persisted via Zustand + localStorage)
 - Selected-but-not-deployed tweaks survive page navigation (Zustand in-memory)
@@ -170,12 +185,14 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Tweak history persisted in SQLite
 
 ### FR-08: Expert Mode
+
 - **Status:** 🔲 Not started
 - Off by default; toggle in Settings with warning confirmation
 - When off: tweaks with `requiresExpertMode: true` hidden; categories show banner counting hidden tweaks
 - When on: Red tweaks visible with red border + "EXPERT" badge
 
 ### FR-09: Onboarding (first run)
+
 - **Status:** ✅ Done
 - Shows only when `localStorage["onboardingComplete"]` is absent
 - 3 steps with mini-app visual mockups (not placeholder shapes)
@@ -184,6 +201,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - "Interactive Guide" button on Dashboard re-opens without clearing flag
 
 ### FR-10: Command Palette
+
 - **Status:** ✅ Mostly done
 - Ctrl+K global shortcut; ESC to close; arrow keys to navigate; Enter to select
 - Semantic synonym matching (lag → network, fps → gaming, tracking → privacy)
@@ -192,6 +210,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Extend: add "Apply all safe tweaks in [category]" quick actions
 
 ### FR-11: Optimization Profiles
+
 - **Status:** 🔲 Not started
 - Built-in read-only presets: Gaming, Productivity, Privacy, Balanced, Battery Saver
 - User can create/rename/delete/duplicate profiles (stored in SQLite)
@@ -199,17 +218,20 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Export as `.winopt` JSON; import from file
 
 ### FR-12: Quick Scan (Dashboard CTA)
+
 - **Status:** 🔲 Backend missing
 - Wire "Quick Scan" button on Dashboard hero
 - Identify all Green-level tweaks not yet applied across all categories
 - Open preview modal listing candidates, then batch deploy on confirm
 
 ### FR-13: Risk Filter Chips
+
 - **Status:** ✅ Done
 - Filter buttons All / Green / Yellow / Red with counts
 - Empty filter state shows "No [risk] tweaks" + clear filter link
 
 ### FR-14: Floating Batch Selection Bar
+
 - **Status:** ✅ Done
 - Appears when ≥1 tweak selected; spring-animated in/out
 - Shows count + risk breakdown (e.g. "2 Green · 1 Yellow")
@@ -217,18 +239,21 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Adds `pb-24` to scroll container so bar never covers content
 
 ### FR-15: Mobile Inspector Drawer
+
 - **Status:** ✅ Done
 - Triggered on tweak click when viewport width < 1024px
 - Slides up from bottom (spring physics); backdrop click closes
 - Drag handle visual; scrollable content; X close button
 
 ### FR-16: Startup Optimizer
+
 - **Status:** 🔲 Not started
 - Enumerate: `HKLM\SOFTWARE\...\Run`, `HKCU\SOFTWARE\...\Run`, Startup folder, auto-start Services, enabled Scheduled Tasks
 - Per-item: name, path, type, estimated startup impact (ms)
 - Toggle disable/enable without deletion; changes recorded in history
 
 ### FR-17: Disk Cleanup & Health
+
 - **Status:** 🔲 Not started
 - Scan: %TEMP%, %LocalAppData%\Temp, Recycle Bin, browser caches, Windows Update cache, thumbnail cache
 - Preview: count + total size before commit
@@ -236,6 +261,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - SMART: health status, temperature, reallocated sector count, remaining life %
 
 ### FR-18: Process Manager
+
 - **Status:** 🔲 Not started
 - List all processes: PID, name, CPU%, RAM MB, Disk I/O, Network kB/s, icon
 - Sort by any column; real-time update every 1s
@@ -243,6 +269,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Search/filter by name; highlight game processes
 
 ### FR-19: Network Analyzer & Optimizer
+
 - **Status:** 🔲 Not started
 - Per-adapter: IP, MAC, link speed, latency to 8.8.8.8 and 1.1.1.1, sent/received bytes
 - Diagnostic: run ping test (100 packets), compute variance, jitter, loss %
@@ -250,6 +277,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Per-process network usage (top 10 by bytes)
 
 ### FR-20: Privacy & Security Audit
+
 - **Status:** 🔲 Not started
 - Scan telemetry registry keys, DiagTrack/dmwappushservice services, firewall outbound rules
 - Privacy Score: 0–100 computed from weighted issue severity
@@ -257,6 +285,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - "Harden Privacy" batch-applies all relevant Privacy tweaks with full preview
 
 ### FR-21: Power Plan Manager
+
 - **Status:** 🔲 Not started
 - List all power plans via `powercfg /list`; show active plan
 - Edit per-plan: CPU min/max %, display timeout, sleep timeout, USB suspend
@@ -264,12 +293,14 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - Battery health report: health %, cycle count, design vs current capacity
 
 ### FR-22: Gaming Optimizer (expanded)
+
 - **Status:** 🔲 Not started (tweaks page done)
 - Auto-detect game launches via process creation events; apply Gaming profile automatically
 - Show in-game overlay: FPS, frame time ms, CPU%, GPU%, network ping; toggle F12
 - GPU info: current clocks, temp, VRAM usage (NVIDIA + AMD)
 
 ### FR-23: Driver Manager
+
 - **Status:** 🔲 Not started
 - Enumerate installed drivers via WMI `Win32_PnPDevice`; show installed version
 - Backup driver before any update via `Export-WindowsDriver`
@@ -280,7 +311,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 ## 4. Non-Functional Requirements
 
 | ID | Requirement | Target | Test Method |
-|----|------------|--------|-------------|
+| :--- | :--- | :--- | :--- |
 | NFR-01 | App cold start time | < 2s | Playwright `startTime` measurement |
 | NFR-02 | Page navigation (with animations) | < 350ms | Vitest timer mock |
 | NFR-03 | Dashboard vitals refresh latency | ≤ 500ms end-to-end | Integration test with mock Tauri |
@@ -306,6 +337,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 ---
 
 ### AC-01: Onboarding — First Run Only
+
 ```gherkin
 Feature: First-time user onboarding
 
@@ -364,6 +396,7 @@ Feature: First-time user onboarding
 ---
 
 ### AC-02: Risk Filter Chips
+
 ```gherkin
 Feature: Tweak list risk level filtering
 
@@ -410,6 +443,7 @@ Feature: Tweak list risk level filtering
 ---
 
 ### AC-03: Floating Batch Selection Bar
+
 ```gherkin
 Feature: Persistent batch selection summary bar
 
@@ -452,6 +486,7 @@ Feature: Persistent batch selection summary bar
 ---
 
 ### AC-04: Mobile Inspector Drawer
+
 ```gherkin
 Feature: Inspector panel accessible at all viewport widths
 
@@ -496,6 +531,7 @@ Feature: Inspector panel accessible at all viewport widths
 ---
 
 ### AC-05: Command Palette Category Grouping
+
 ```gherkin
 Feature: Command palette search with category grouping
 
@@ -543,6 +579,7 @@ Feature: Command palette search with category grouping
 ---
 
 ### AC-06: Color Scheme Picker
+
 ```gherkin
 Feature: Multi-option color scheme selection
 
@@ -578,6 +615,7 @@ Feature: Multi-option color scheme selection
 ---
 
 ### AC-07: Alert Banner Navigation
+
 ```gherkin
 Feature: Dashboard alert banner navigates to Privacy page
 
@@ -603,6 +641,7 @@ Feature: Dashboard alert banner navigates to Privacy page
 ---
 
 ### AC-08: Tweak Execution — Apply (Backend Phase 1)
+
 ```gherkin
 Feature: Execute a single optimization tweak
 
@@ -658,6 +697,7 @@ Feature: Execute a single optimization tweak
 ---
 
 ### AC-09: Tweak Revert (Backend Phase 1)
+
 ```gherkin
 Feature: Undo an applied optimization
 
@@ -693,6 +733,7 @@ Feature: Undo an applied optimization
 ---
 
 ### AC-10: Batch Deploy with Progress & Rollback (Backend Phase 1)
+
 ```gherkin
 Feature: Apply multiple optimizations in one operation
 
@@ -730,6 +771,7 @@ Feature: Apply multiple optimizations in one operation
 ---
 
 ### AC-11: Tweak State Validation on Load (Backend Phase 1)
+
 ```gherkin
 Feature: Display current system state for each tweak
 
@@ -760,6 +802,7 @@ Feature: Display current system state for each tweak
 ---
 
 ### AC-12: Expert Mode (Settings Phase 1)
+
 ```gherkin
 Feature: Gate high-risk tweaks behind expert mode
 
@@ -794,6 +837,7 @@ Feature: Gate high-risk tweaks behind expert mode
 ---
 
 ### AC-13: System Vitals — Live Data (Backend Phase 1)
+
 ```gherkin
 Feature: Dashboard shows real system metrics
 
@@ -834,6 +878,7 @@ Feature: Dashboard shows real system metrics
 ---
 
 ### AC-14: Empty States
+
 ```gherkin
 Feature: Meaningful empty states for all edge cases
 
@@ -860,6 +905,7 @@ Feature: Meaningful empty states for all edge cases
 ## 6. Testing Strategy
 
 ### 6.1 Philosophy
+
 - **Test behaviour, not implementation** — tests assert what users see and interact with, not internal state
 - **Pyramid model** — many unit tests, fewer integration tests, fewest E2E tests
 - **Test doubles for system calls** — all Tauri `invoke()` calls are mocked in unit/integration tests; real system calls only in targeted Rust unit tests
@@ -869,7 +915,7 @@ Feature: Meaningful empty states for all edge cases
 ### 6.2 Test Stack
 
 | Layer | Tool | Scope |
-|-------|------|-------|
+| :--- | :--- | :--- |
 | Unit tests | Vitest + @testing-library/react | Individual components, hooks, utilities |
 | Integration tests | Vitest + @testing-library/react + msw (mock Tauri IPC) | Component interactions, page flows |
 | E2E tests | Playwright | Full app flows in a real browser |
@@ -881,7 +927,7 @@ Feature: Meaningful empty states for all edge cases
 
 ### 6.3 Test File Conventions
 
-```
+```text
 src/
   __tests__/
     components/
@@ -913,6 +959,7 @@ src-tauri/
 ### 6.4 Mocking Strategy
 
 #### Tauri IPC Mock (frontend tests)
+
 ```typescript
 // src/test/mocks/tauri.ts
 // Intercepts all invoke() calls and returns controlled fixtures
@@ -924,6 +971,7 @@ vi.mock('@tauri-apps/api/core', () => ({
 ```
 
 #### System Vitals Fixture
+
 ```typescript
 export const MOCK_SYSTEM_VITALS = {
   cpu: { tempC: 65, usagePct: 42, freqGHz: 4.8, model: 'AMD Ryzen 7 7800X3D' },
@@ -935,6 +983,7 @@ export const MOCK_SYSTEM_VITALS = {
 ```
 
 #### Tweak Execution Mock
+
 ```typescript
 export function mockSuccessfulTweakExecution(tweakId: string) {
   return {
@@ -951,7 +1000,7 @@ export function mockFailedTweakExecution(tweakId: string, reason: string) {
 ### 6.5 Coverage Targets
 
 | Module | Line Coverage Target |
-|--------|---------------------|
+| :--- | :--- |
 | `src/pages/` | ≥ 85% |
 | `src/components/` | ≥ 85% |
 | `src/hooks/` | ≥ 90% |
@@ -987,7 +1036,7 @@ jobs:
 
 ### 7.1 System Layers
 
-```
+```text
 ┌─────────────────────────── REACT FRONTEND ─────────────────────────────┐
 │                                                                         │
 │  Pages: Dashboard · TweaksPage · ProcessManager · StorageOptimizer     │
@@ -1057,6 +1106,7 @@ interface AppState {
 ## 8. Data Models
 
 ### Tweak (tweaks.json — enhanced)
+
 ```typescript
 interface Tweak {
   id: string;
@@ -1076,6 +1126,7 @@ interface Tweak {
 ```
 
 ### SystemVitals
+
 ```typescript
 interface SystemVitals {
   timestamp: number;
@@ -1088,6 +1139,7 @@ interface SystemVitals {
 ```
 
 ### TweakHistoryEntry
+
 ```typescript
 interface TweakHistoryEntry {
   id: string;                         // UUID v4
@@ -1106,6 +1158,7 @@ interface TweakHistoryEntry {
 ```
 
 ### Profile
+
 ```typescript
 interface Profile {
   id: string; name: string; description: string;
@@ -1115,6 +1168,7 @@ interface Profile {
 ```
 
 ### UserSettings
+
 ```typescript
 interface UserSettings {
   theme: 'dark' | 'light';
@@ -1201,7 +1255,7 @@ restore_backup(path, passphrase)   -> Result<(), String>
 ### Module 1: Dashboard
 
 | Feature | Status | AC | Effort |
-|---------|--------|-------|--------|
+| :--- | :--- | :--- | :--- |
 | System Health Score (live) | 🔲 Backend | AC-13 | M |
 | CPU/RAM/Drive/Network bento cards (live) | 🔲 Backend | AC-13 | M |
 | Alert banner → Privacy navigation | ✅ Done | AC-07 | — |
@@ -1212,7 +1266,7 @@ restore_backup(path, passphrase)   -> Result<(), String>
 ### Module 2: Tweaks (all categories)
 
 | Feature | Status | AC | Effort |
-|---------|--------|------|--------|
+| :--- | :--- | :--- | :--- |
 | Tweak list + toggle switches | ✅ Done | AC-03 | — |
 | Inspector sidebar (desktop) | ✅ Done | AC-04 | — |
 | Mobile inspector drawer | ✅ Done | AC-04 | — |
@@ -1230,7 +1284,7 @@ restore_backup(path, passphrase)   -> Result<(), String>
 ### Module 3: Profiles | 4: History | 5: Settings
 
 | Feature | Status | AC | Effort |
-|---------|--------|------|--------|
+| :--- | :--- | :--- | :--- |
 | Built-in presets (Gaming, Privacy, etc.) | 🔲 New | — | M |
 | Custom profile CRUD | 🔲 New | — | M |
 | History timeline page | 🔲 New | AC-09 | M |
@@ -1241,7 +1295,7 @@ restore_backup(path, passphrase)   -> Result<(), String>
 ### Modules 6–14: Future (Phases 2–4)
 
 | Module | Key Features | Status |
-|--------|-------------|--------|
+| :--- | :--- | :--- |
 | Process Inspector | Live process table, priority control, game detection | 🔲 |
 | Startup Manager | Run keys, startup folder, scheduled tasks toggle | 🔲 |
 | Storage Optimizer | Treemap, junk cleanup preview, SMART | 🔲 |
@@ -1257,13 +1311,15 @@ restore_backup(path, passphrase)   -> Result<(), String>
 ## 11. Phased Delivery Plan
 
 ### Phase 0 — UI Polish ✅ Complete
+
 All 10 UI improvements implemented, build passes, committed to GitHub.
 
 ### Phase 1 — Core Functionality (Weeks 1–6)
 
-**Sprint 1 (Weeks 1–2): Rust Backend Foundation**
+#### Sprint 1 (Weeks 1–2): Rust Backend Foundation
+
 | Task | File | Acceptance Criteria |
-|------|------|---------------------|
+| :--- | :--- | :--- |
 | `get_system_vitals` WMI command | `src-tauri/src/system.rs` | AC-13 |
 | `execute_tweak` + `validate_tweak` | `src-tauri/src/tweaks.rs` | AC-08, AC-11 |
 | `is_admin` + `elevate_and_execute` | `src-tauri/src/security.rs` | AC-08 |
@@ -1273,9 +1329,10 @@ All 10 UI improvements implemented, build passes, committed to GitHub.
 | Increase window size (1200×800) | `src-tauri/tauri.conf.json` | NFR-06 |
 | Add Cargo dependencies | `src-tauri/Cargo.toml` | — |
 
-**Sprint 2 (Weeks 3–4): Frontend Wiring + State**
+#### Sprint 2 (Weeks 3–4): Frontend Wiring + State
+
 | Task | File | Acceptance Criteria |
-|------|------|---------------------|
+| :--- | :--- | :--- |
 | Zustand store + persist | `src/store/appStore.ts` | AC-07, AC-03 |
 | `useSystemVitals` polling hook | `src/hooks/useSystemVitals.ts` | AC-13 |
 | `useElevation` hook | `src/hooks/useElevation.ts` | AC-08 |
@@ -1287,9 +1344,10 @@ All 10 UI improvements implemented, build passes, committed to GitHub.
 | Wire Dashboard to live vitals | `src/pages/Dashboard.tsx` | AC-13 |
 | Wire TweaksPage Deploy button | `src/pages/TweaksPage.tsx` | AC-08, AC-11 |
 
-**Sprint 3 (Weeks 5–6): History, Profiles, Settings, Expert Mode**
+#### Sprint 3 (Weeks 5–6): History, Profiles, Settings, Expert Mode
+
 | Task | File | Acceptance Criteria |
-|------|------|---------------------|
+| :--- | :--- | :--- |
 | History page + timeline | `src/pages/HistoryPage.tsx` | AC-09 |
 | Profiles page | `src/pages/ProfilesPage.tsx` | US-A5 |
 | Settings page | `src/pages/SettingsPage.tsx` | AC-12 |
@@ -1316,7 +1374,7 @@ Sprint 12–14: System Report · Backup/Restore · Scheduled Maintenance · Acce
 ### Phase 0 — ✅ Complete
 
 | File | Change |
-|------|--------|
+| :--- | :--- |
 | `src/App.css` | +4 theme color schemes (rose, amber, emerald, violet) |
 | `src/hooks/useTheme.tsx` | Expanded ColorScheme to 6 values |
 | `src/App.tsx` | Fixed onboarding localStorage; setView to Dashboard; better empty state |
@@ -1329,7 +1387,7 @@ Sprint 12–14: System Report · Backup/Restore · Scheduled Maintenance · Acce
 ### Testing Infrastructure — ✅ Complete
 
 | File | Change |
-|------|--------|
+| :--- | :--- |
 | `vitest.config.ts` | Vitest config with jsdom, coverage thresholds, path aliases |
 | `playwright.config.ts` | Playwright config for Chromium E2E |
 | `src/test/setup.ts` | jest-dom matchers + global mock setup |
@@ -1348,7 +1406,7 @@ Sprint 12–14: System Report · Backup/Restore · Scheduled Maintenance · Acce
 ### Phase 1 (Backend + Wiring) — 🔲 Planned
 
 | File | Change Type |
-|------|-------------|
+| :--- | :--- |
 | `src-tauri/Cargo.toml` | +8 dependencies |
 | `src-tauri/tauri.conf.json` | Fix CSP; resize 1200×800 |
 | `src-tauri/src/lib.rs` | Register 30+ Tauri commands |
@@ -1376,7 +1434,7 @@ Sprint 12–14: System Report · Backup/Restore · Scheduled Maintenance · Acce
 ## 13. Risk Register
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
+| :--- | :--- | :--- | :--- |
 | PowerShell command hangs | Medium | High | 30s hard timeout via Rust tokio::time::timeout |
 | Registry write fails silently | High | High | Always run validationCmd post-execute; compare before/after |
 | WMI unavailable on locked-down Windows | Medium | Medium | Graceful fallback to "Unavailable" state; log error |

@@ -2,11 +2,23 @@ import { useState } from "react";
 import tweaksData from "../data/tweaks.json";
 import { Info, AlertTriangle, ShieldCheck, Cpu, Code2, Zap, X, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTweakExecution } from "../hooks/useTweakExecution";
+import { useToast } from "../components/ToastSystem";
+import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
+import { ProgressModal, type ProgressItem } from "../components/ProgressModal";
 
 export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [selectedTweaks, setSelectedTweaks] = useState<string[]>([]);
     const [activeTweak, setActiveTweak] = useState<typeof tweaksData[0] | null>(null);
     const [filterRisk, setFilterRisk] = useState<string>("All");
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [showProgress, setShowProgress] = useState(false);
+    const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
+    const [showFailureActions, setShowFailureActions] = useState(false);
+    const [failedBatchIndex, setFailedBatchIndex] = useState(-1);
+
+    const { applyTweak, rollbackTweaks, isExecuting } = useTweakExecution();
+    const { addToast } = useToast();
 
     const tweaks = tweaksData.filter(t => t.category === categoryTitle);
     const visibleTweaks = tweaks.filter(t => filterRisk === "All" || t.riskLevel === filterRisk);
@@ -19,16 +31,16 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     };
 
     const riskStyles: Record<string, { badge: string, dot: string }> = {
-        Green:  { badge: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" },
-        Yellow: { badge: "text-amber-400 bg-amber-500/10 border-amber-500/20",       dot: "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" },
-        Red:    { badge: "text-red-400 bg-red-500/10 border-red-500/20",             dot: "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]" },
+        Green: { badge: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", dot: "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" },
+        Yellow: { badge: "text-amber-400 bg-amber-500/10 border-amber-500/20", dot: "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" },
+        Red: { badge: "text-red-400 bg-red-500/10 border-red-500/20", dot: "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]" },
     };
 
     const riskFilterStyles: Record<string, { active: string; inactive: string }> = {
-        All:    { active: "bg-primary text-white border-transparent", inactive: "bg-transparent text-slate-500 border-border hover:border-slate-500 hover:text-slate-300" },
-        Green:  { active: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-emerald-500/40 hover:text-emerald-400" },
-        Yellow: { active: "bg-amber-500/20 text-amber-400 border-amber-500/40",       inactive: "bg-transparent text-slate-500 border-border hover:border-amber-500/40 hover:text-amber-400" },
-        Red:    { active: "bg-red-500/20 text-red-400 border-red-500/40",             inactive: "bg-transparent text-slate-500 border-border hover:border-red-500/40 hover:text-red-400" },
+        All: { active: "bg-primary text-white border-transparent", inactive: "bg-transparent text-slate-500 border-border hover:border-slate-500 hover:text-slate-300" },
+        Green: { active: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-emerald-500/40 hover:text-emerald-400" },
+        Yellow: { active: "bg-amber-500/20 text-amber-400 border-amber-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-amber-500/40 hover:text-amber-400" },
+        Red: { active: "bg-red-500/20 text-red-400 border-red-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-red-500/40 hover:text-red-400" },
     };
 
     // Shared inspector content — reused in sidebar and mobile drawer
@@ -126,7 +138,8 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 ? "bg-black/5 dark:bg-white/5 text-slate-400 cursor-not-allowed border-border"
                                 : "bg-primary text-white dark:bg-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] border-transparent"
                                 }`}
-                            disabled={selectedTweaks.length === 0}
+                            disabled={selectedTweaks.length === 0 || isExecuting}
+                            onClick={() => setShowConfirm(true)}
                         >
                             <span className="relative z-10 flex items-center justify-center min-w-[120px]">
                                 {selectedTweaks.length > 0 ? (
@@ -349,12 +362,99 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             Clear
                         </button>
 
-                        <button className="btn-tactile bg-primary text-white dark:bg-white dark:text-black px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-lg whitespace-nowrap">
+                        <button
+                            onClick={() => setShowConfirm(true)}
+                            disabled={isExecuting}
+                            className="btn-tactile bg-primary text-white dark:bg-white dark:text-black px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-lg whitespace-nowrap disabled:opacity-50"
+                        >
                             Deploy <Zap className="w-3.5 h-3.5" fill="currentColor" />
                         </button>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Confirmation Modal */}
+            <ConfirmDeployModal
+                isOpen={showConfirm}
+                tweaks={selectedTweaks.map(id => tweaksData.find(t => t.id === id)!).filter(Boolean)}
+                onCancel={() => setShowConfirm(false)}
+                isExecuting={isExecuting}
+                onConfirm={async () => {
+                    setShowConfirm(false);
+                    const tweaksToApply = selectedTweaks.map(id => tweaksData.find(t => t.id === id)!).filter(Boolean);
+
+                    // Set up progress items
+                    setProgressItems(tweaksToApply.map(t => ({ id: t.id, name: t.name, status: 'pending' as const })));
+                    setShowProgress(true);
+                    setShowFailureActions(false);
+                    setFailedBatchIndex(-1);
+
+                    // Execute sequentially
+                    for (let i = 0; i < tweaksToApply.length; i++) {
+                        const tweak = tweaksToApply[i];
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'running' as const } : item));
+
+                        const result = await applyTweak(tweak);
+
+                        if (result?.success) {
+                            setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'success' as const, result } : item));
+                        } else {
+                            setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'failed' as const, result: result ?? undefined } : item));
+                            setFailedBatchIndex(i);
+                            if (i < tweaksToApply.length - 1) {
+                                setShowFailureActions(true);
+                            }
+                            break;
+                        }
+                    }
+
+                    // Show toast summary
+                    if (failedBatchIndex === -1) {
+                        addToast({ type: 'success', title: `${tweaksToApply.length} tweak${tweaksToApply.length > 1 ? 's' : ''} deployed successfully` });
+                        setSelectedTweaks([]);
+                    } else {
+                        addToast({ type: 'error', title: `Deployment failed on tweak ${failedBatchIndex + 1}/${tweaksToApply.length}` });
+                    }
+                }}
+            />
+
+            {/* Progress Modal */}
+            <ProgressModal
+                isOpen={showProgress}
+                items={progressItems}
+                showFailureActions={showFailureActions}
+                onClose={() => {
+                    setShowProgress(false);
+                    setShowFailureActions(false);
+                }}
+                onRollback={async () => {
+                    setShowFailureActions(false);
+                    const appliedInBatch = selectedTweaks
+                        .slice(0, failedBatchIndex)
+                        .map(id => tweaksData.find(t => t.id === id)!)
+                        .filter(Boolean);
+                    await rollbackTweaks(appliedInBatch);
+                    addToast({ type: 'warning', title: `Rolled back ${appliedInBatch.length} tweak${appliedInBatch.length > 1 ? 's' : ''}` });
+                    setSelectedTweaks([]);
+                    setShowProgress(false);
+                }}
+                onSkipAndContinue={async () => {
+                    setShowFailureActions(false);
+                    const tweaksToApply = selectedTweaks.map(id => tweaksData.find(t => t.id === id)!).filter(Boolean);
+                    // Continue from after the failed index
+                    for (let i = failedBatchIndex + 1; i < tweaksToApply.length; i++) {
+                        const tweak = tweaksToApply[i];
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'running' as const } : item));
+                        const result = await applyTweak(tweak);
+                        if (result?.success) {
+                            setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'success' as const, result } : item));
+                        } else {
+                            setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'failed' as const, result: result ?? undefined } : item));
+                            break;
+                        }
+                    }
+                }}
+            />
         </>
     );
 }

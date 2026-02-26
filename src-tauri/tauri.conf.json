@@ -12,13 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "winoptimizerrevamp",
-        "width": 800,
-        "height": 600
+        "title": "WinOpt Pro",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 640
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: https://asset.localhost"
     }
   },
   "bundle": {
