@@ -62,5 +62,40 @@ export function useProcesses() {
         }
     };
 
-    return { processes, isLoading, error, refresh: fetchProcesses, killProcess };
+    const setProcessPriority = async (pid: number, priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle') => {
+        try {
+            await invoke("set_process_priority", { pid, priority });
+            addToast({
+                type: "success",
+                title: "Priority Updated",
+                message: `Set priority to ${priority} for PID: ${pid}.`
+            });
+            return true;
+        } catch (err) {
+            console.error("Failed to set priority:", err);
+            addToast({
+                type: "error",
+                title: "Access Denied",
+                message: err instanceof Error ? err.message : String(err)
+            });
+            return false;
+        }
+    };
+
+    const openFileLocation = async (pid: number) => {
+        try {
+            await invoke("open_file_location", { pid });
+            return true;
+        } catch (err) {
+            console.error("Failed to open file location:", err);
+            addToast({
+                type: "error",
+                title: "Action Failed",
+                message: err instanceof Error ? err.message : String(err)
+            });
+            return false;
+        }
+    };
+
+    return { processes, isLoading, error, refresh: fetchProcesses, killProcess, setProcessPriority, openFileLocation };
 }

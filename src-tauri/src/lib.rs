@@ -41,9 +41,12 @@ pub fn run() {
             // Storage
             storage::scan_junk_files,
             storage::execute_cleanup,
+            storage::get_disk_health,
             // Process
             process::get_processes,
             process::kill_process,
+            process::set_process_priority,
+            process::open_file_location,
             // Network
             network::get_network_interfaces,
             network::ping_host,

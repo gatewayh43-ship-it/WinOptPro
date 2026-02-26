@@ -6,11 +6,16 @@ export interface NetworkInterface {
     macAddress: string;
     receivedBytes: number;
     transmittedBytes: number;
+    ipV4: string;
 }
 
 export interface PingResult {
     host: string;
     latencyMs: number | null;
+    minMs: number | null;
+    maxMs: number | null;
+    jitterMs: number | null;
+    packetLossPct: number;
     success: boolean;
 }
 

@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import { vi, beforeEach } from "vitest";
 
 // ── Tauri API global mock ────────────────────────────────────────────────────
 // Tauri's IPC bridge is unavailable in jsdom; stub the entire module.
@@ -48,7 +48,7 @@ Object.defineProperty(window, "matchMedia", {
 
 // ── ResizeObserver ────────────────────────────────────────────────────────────
 global.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe() { }
+    unobserve() { }
+    disconnect() { }
 };

@@ -7,7 +7,7 @@ import { vi } from "vitest";
  *   import { tauriHandlers } from "@/test/mocks/tauri";
  *   tauriHandlers["get_system_vitals"] = vi.fn().mockResolvedValue(mockVitals);
  */
-export const tauriHandlers: Record<string, ReturnType<typeof vi.fn>> = {};
+export const tauriHandlers: Record<string, any> = {};
 
 /**
  * Configures the `@tauri-apps/api/core` mock to dispatch calls to tauriHandlers.
@@ -18,7 +18,7 @@ export function setupTauriMock() {
     (invoke as ReturnType<typeof vi.fn>).mockImplementation(
         (cmd: string, args?: unknown) => {
             if (tauriHandlers[cmd]) {
-                return tauriHandlers[cmd](args);
+                return (tauriHandlers[cmd] as any)(args);
             }
             return Promise.resolve(null);
         }

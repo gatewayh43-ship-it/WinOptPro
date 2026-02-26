@@ -17,19 +17,34 @@ export interface CleanupResult {
     errors: string[];
 }
 
+export interface DiskHealth {
+    name: string;
+    status: string;
+    media_type: string;
+    health_status: string;
+}
+
 export function useStorage() {
     const [items, setItems] = useState<CleanupItem[]>([]);
     const [isScanning, setIsScanning] = useState(true);
     const [isCleaning, setIsCleaning] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [diskHealth, setDiskHealth] = useState<DiskHealth[]>([]);
     const { addToast } = useToast();
 
     const scan = useCallback(async () => {
         setIsScanning(true);
         setError(null);
         try {
-            const data = await invoke<CleanupItem[]>("scan_junk_files");
+            const [data, healthData] = await Promise.all([
+                invoke<CleanupItem[]>("scan_junk_files"),
+                invoke<DiskHealth[]>("get_disk_health").catch(e => {
+                    console.error("Failed to fetch disk health:", e);
+                    return [];
+                })
+            ]);
             setItems(data);
+            setDiskHealth(healthData);
         } catch (err) {
             console.error("Failed to scan junk files:", err);
             setError(err instanceof Error ? err.message : String(err));
@@ -84,5 +99,5 @@ export function useStorage() {
         }
     };
 
-    return { items, isScanning, isCleaning, error, scan, executeCleanup };
+    return { items, diskHealth, isScanning, isCleaning, error, scan, executeCleanup };
 }

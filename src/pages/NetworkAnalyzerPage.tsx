@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Network, Activity, ArrowDownToLine, ArrowUpFromLine, SignalHigh, Globe2, AlertCircle } from "lucide-react";
-import { useNetwork } from "../hooks/useNetwork";
+import { useNetwork, PingResult } from "../hooks/useNetwork";
 
 export function NetworkAnalyzerPage() {
     const { interfaces, isLoading, error, pingHost, pinging, pingResult, pingError } = useNetwork();
     const [targetHost, setTargetHost] = useState("8.8.8.8");
+    const [baselinePing, setBaselinePing] = useState<PingResult | null>(null);
 
     const formatBytes = (bytes: number) => {
         if (bytes === 0) return "0 B";
@@ -47,14 +48,22 @@ export function NetworkAnalyzerPage() {
 
                 {/* Ping Tester Widget */}
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="lg:col-span-1 border border-border/50 bg-card rounded-2xl overflow-hidden shadow-sm flex flex-col">
-                    <div className="p-4 border-b border-border/50 bg-white/[0.02]">
+                    <div className="p-4 border-b border-border/50 bg-white/[0.02] flex justify-between items-center">
                         <h3 className="font-bold text-foreground flex items-center gap-2">
                             <Activity className="w-4 h-4 text-primary" />
                             Latency Test
                         </h3>
+                        {baselinePing && (
+                            <button
+                                onClick={() => setBaselinePing(null)}
+                                className="text-[10px] text-slate-500 hover:text-red-400 uppercase font-bold tracking-widest px-2 py-1 rounded bg-white/5 hover:bg-red-500/10 transition-colors"
+                            >
+                                Clear Baseline
+                            </button>
+                        )}
                     </div>
 
-                    <div className="p-5 flex-1 flex flex-col">
+                    <div className="p-5 flex-1 flex flex-col overflow-y-auto">
                         <form onSubmit={handlePing} className="mb-6 relative">
                             <Globe2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                             <input
@@ -87,12 +96,70 @@ export function NetworkAnalyzerPage() {
                                     {pingResult.success && pingResult.latencyMs !== null ? (
                                         <>
                                             <div className="flex items-baseline justify-center gap-1 mb-2">
-                                                <span className={`text-4xl font-black tracking-tighter ${pingResult.latencyMs < 50 ? 'text-green-400' : pingResult.latencyMs < 120 ? 'text-yellow-400' : 'text-red-400'}`}>
-                                                    {pingResult.latencyMs}
+                                                <span className={`text-4xl font-black tracking-tighter ${pingResult.latencyMs !== null && pingResult.latencyMs < 50 ? 'text-green-400' : pingResult.latencyMs !== null && pingResult.latencyMs < 120 ? 'text-yellow-400' : 'text-red-400'}`}>
+                                                    {pingResult.latencyMs !== null ? pingResult.latencyMs.toFixed(0) : "N/A"}
                                                 </span>
-                                                <span className="text-sm font-bold text-slate-500">ms</span>
+                                                <span className="text-sm font-bold text-slate-500">ms avg</span>
                                             </div>
-                                            <p className="text-xs text-slate-400 font-medium">Reply from <span className="font-mono text-white/70">{pingResult.host}</span></p>
+                                            <p className="text-[11px] text-slate-400 font-medium mb-3">Reply from <span className="font-mono text-white/70">{pingResult.host}</span></p>
+
+                                            <div className="grid grid-cols-2 gap-2 w-full mt-2 border-t border-white/5 pt-3">
+                                                <div className="flex flex-col items-center p-2 bg-black/20 rounded-lg">
+                                                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Jitter</span>
+                                                    <span className={`text-[13px] font-bold font-mono ${pingResult.jitterMs !== null && pingResult.jitterMs > 20 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                                        {pingResult.jitterMs !== null ? `${pingResult.jitterMs.toFixed(1)} ms` : "---"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col items-center p-2 bg-black/20 rounded-lg">
+                                                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Loss</span>
+                                                    <span className={`text-[13px] font-bold font-mono ${pingResult.packetLossPct > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                                        {pingResult.packetLossPct}%
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col items-center p-2 bg-black/20 rounded-lg col-span-2 flex-row justify-around">
+                                                    <div className="text-center">
+                                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mx-2">Min</span>
+                                                        <span className="text-[12px] font-mono text-slate-300">{pingResult.minMs !== null ? `${pingResult.minMs.toFixed(0)} ms` : "---"}</span>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mx-2">Max</span>
+                                                        <span className="text-[12px] font-mono text-slate-300">{pingResult.maxMs !== null ? `${pingResult.maxMs.toFixed(0)} ms` : "---"}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 pt-3 border-t border-white/5 w-full flex flex-col gap-2">
+                                                <button
+                                                    onClick={() => setBaselinePing(pingResult)}
+                                                    className="w-full py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold rounded-lg transition-colors border border-white/10"
+                                                >
+                                                    Set as Baseline (Before)
+                                                </button>
+
+                                                {baselinePing && baselinePing !== pingResult && (
+                                                    <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-xl text-left w-full">
+                                                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                            <Activity className="w-3 h-3" /> Comparison vs Baseline
+                                                        </p>
+                                                        <div className="flex justify-between items-center text-xs">
+                                                            <span className="text-slate-400">Lat. Delta:</span>
+                                                            <span className={`font-mono font-bold ${(pingResult.latencyMs || 0) < (baselinePing.latencyMs || 0) ? 'text-green-400' : (pingResult.latencyMs || 0) > (baselinePing.latencyMs || 0) ? 'text-red-400' : 'text-slate-300'}`}>
+                                                                {pingResult.latencyMs !== null && baselinePing.latencyMs !== null
+                                                                    ? `${(pingResult.latencyMs - baselinePing.latencyMs) > 0 ? '+' : ''}${(pingResult.latencyMs - baselinePing.latencyMs).toFixed(1)} ms`
+                                                                    : '---'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-xs mt-1">
+                                                            <span className="text-slate-400">Jitter Delta:</span>
+                                                            <span className={`font-mono font-bold ${(pingResult.jitterMs || 0) < (baselinePing.jitterMs || 0) ? 'text-green-400' : (pingResult.jitterMs || 0) > (baselinePing.jitterMs || 0) ? 'text-red-400' : 'text-slate-300'}`}>
+                                                                {pingResult.jitterMs !== null && baselinePing.jitterMs !== null
+                                                                    ? `${(pingResult.jitterMs - baselinePing.jitterMs) > 0 ? '+' : ''}${(pingResult.jitterMs - baselinePing.jitterMs).toFixed(1)} ms`
+                                                                    : '---'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </>
                                     ) : (
                                         <>
@@ -149,9 +216,12 @@ export function NetworkAnalyzerPage() {
                                                     <Network className="w-5 h-5" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h4 className="text-[15px] font-bold text-foreground truncate">{iface.name}</h4>
+                                                    <h4 className="text-[15px] font-bold text-foreground truncate flex items-center gap-2">
+                                                        {iface.name}
+                                                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">{iface.ipV4 || "No IPv4"}</span>
+                                                    </h4>
                                                     <p className="text-[11px] font-mono text-slate-500 uppercase tracking-wider mt-0.5">
-                                                        {iface.macAddress || "Virtual / Hidden"}
+                                                        MAC: {iface.macAddress || "Virtual / Hidden"}
                                                     </p>
                                                 </div>
                                             </div>

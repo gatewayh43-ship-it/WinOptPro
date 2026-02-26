@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Search, ShieldAlert, Cpu, MemoryStick, X } from "lucide-react";
+import { Activity, Search, ShieldAlert, Cpu, MemoryStick, X, MoreVertical, FolderOpen, AlertTriangle, Gamepad2 } from "lucide-react";
 import { useProcesses, ProcessItem } from "../hooks/useProcesses";
 import { useElevation } from "../hooks/useElevation";
 
@@ -8,7 +8,7 @@ type SortField = 'name' | 'cpu_usage' | 'memory_bytes' | 'pid';
 type SortOrder = 'asc' | 'desc';
 
 export function ProcessPage() {
-    const { processes, isLoading, killProcess } = useProcesses();
+    const { processes, isLoading, killProcess, setProcessPriority, openFileLocation } = useProcesses();
     const { isAdmin } = useElevation();
     const [search, setSearch] = useState("");
 
@@ -17,6 +17,7 @@ export function ProcessPage() {
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
     const [processToKill, setProcessToKill] = useState<ProcessItem | null>(null);
+    const [contextMenuPid, setContextMenuPid] = useState<number | null>(null);
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -76,10 +77,18 @@ export function ProcessPage() {
     const criticalProcesses = ['explorer.exe', 'svchost.exe', 'csrss.exe', 'wininit.exe', 'services.exe', 'lsass.exe', 'smss.exe', 'winlogon.exe', 'System'];
     const isCritical = (name: string) => criticalProcesses.includes(name.toLowerCase());
 
+    const knownGames = ['csgo.exe', 'dota2.exe', 'valorant.exe', 'vgc.exe', 'leagueoflegends.exe', 'overwatch.exe', 'wow.exe', 'ffxiv_dx11.exe', 'destiny2.exe', 'r5apex.exe', 'modernwarfare.exe', 'cyberpunk2077.exe', 'gta5.exe', 'minecraft.exe', 'javaw.exe', 'robloxplayerbeta.exe', 'eldenring.exe', 'bg3.exe', 'helldivers2.exe', 'rdr2.exe', 'rustclient.exe', 'hl2.exe', 'portal2.exe'];
+    const isGame = (name: string) => knownGames.includes(name.toLowerCase());
+
     const confirmKill = async () => {
         if (!processToKill) return;
         await killProcess(processToKill.pid, processToKill.name);
         setProcessToKill(null);
+    };
+
+    const handlePriorityChange = async (pid: number, priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle') => {
+        await setProcessPriority(pid, priority);
+        setContextMenuPid(null);
     };
 
     return (
@@ -191,6 +200,7 @@ export function ProcessPage() {
                         <div className="divide-y divide-border/20">
                             {filteredAndSorted.map(process => {
                                 const critical = isCritical(process.name);
+                                const game = isGame(process.name);
                                 const highCpu = process.cpu_usage > 20;
                                 const highMem = process.memory_bytes > 500 * 1024 * 1024; // 500MB
 
@@ -201,15 +211,68 @@ export function ProcessPage() {
                                             {critical && (
                                                 <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0 select-none">Sys</span>
                                             )}
+                                            {game && (
+                                                <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-widest bg-violet-500/10 text-violet-400 border border-violet-500/20 shrink-0 select-none flex items-center gap-1">
+                                                    <Gamepad2 className="w-3 h-3" /> GAME
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="text-[13px] text-slate-400 font-mono">{process.pid}</div>
                                         <div className={`text-[13px] font-mono text-right ${highCpu ? 'text-amber-400 font-bold' : 'text-slate-300'}`}>
                                             {formatCpu(process.cpu_usage)}
                                         </div>
-                                        <div className={`text-[13px] font-mono text-right ${highMem ? 'text-primary font-bold' : 'text-slate-300'}`}>
-                                            {formatMemory(process.memory_bytes)}
+                                        <div className="text-[13px] font-mono text-right flex items-center justify-end relative">
+                                            <span className={`mr-4 ${highMem ? 'text-primary font-bold' : 'text-slate-300'}`}>
+                                                {formatMemory(process.memory_bytes)}
+                                            </span>
                                         </div>
-                                        <div className="text-right flex justify-end">
+                                        <div className="text-right flex items-center justify-end gap-1">
+                                            <div className="relative">
+                                                <button
+                                                    onClick={() => setContextMenuPid(contextMenuPid === process.pid ? null : process.pid)}
+                                                    className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+                                                    title={`More options for ${process.name}`}
+                                                >
+                                                    <MoreVertical className="w-4 h-4" />
+                                                </button>
+
+                                                {/* Context Menu Dropdown */}
+                                                <AnimatePresence>
+                                                    {contextMenuPid === process.pid && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                                            className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden text-left"
+                                                        >
+                                                            <div className="p-1">
+                                                                <button
+                                                                    onClick={() => { openFileLocation(process.pid); setContextMenuPid(null); }}
+                                                                    className="w-full text-left px-3 py-2 text-[13px] text-slate-300 hover:text-white hover:bg-white/5 rounded-lg flex items-center gap-2 transition-colors"
+                                                                >
+                                                                    <FolderOpen className="w-4 h-4" />
+                                                                    Open file location
+                                                                </button>
+                                                            </div>
+                                                            <div className="border-t border-border/50 my-1" />
+                                                            <div className="p-1">
+                                                                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                                    Set Priority
+                                                                </div>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'Realtime')} className="w-full text-left px-3 py-1.5 text-[13px] text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex justify-between items-center group">
+                                                                    Realtime <AlertTriangle className="w-3 h-3 opacity-0 group-hover:opacity-100" />
+                                                                </button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'High')} className="w-full text-left px-3 py-1.5 text-[13px] text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors">High</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'AboveNormal')} className="w-full text-left px-3 py-1.5 text-[13px] text-amber-400 hover:bg-amber-500/10 rounded-lg transition-colors">Above Normal</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'Normal')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-300 hover:bg-white/5 rounded-lg transition-colors">Normal</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'BelowNormal')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-400 hover:bg-white/5 rounded-lg transition-colors">Below Normal</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'Idle')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-500 hover:bg-white/5 rounded-lg transition-colors">Idle</button>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
                                             <button
                                                 onClick={() => setProcessToKill(process)}
                                                 className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"

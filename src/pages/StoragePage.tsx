@@ -4,7 +4,7 @@ import { HardDrive, RefreshCcw, Trash2, ShieldAlert } from "lucide-react";
 import { useStorage } from "../hooks/useStorage";
 
 export function StoragePage() {
-    const { items, isScanning, isCleaning, error, scan, executeCleanup } = useStorage();
+    const { items, diskHealth, isScanning, isCleaning, error, scan, executeCleanup } = useStorage();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     // Auto-select safe items by default on load
@@ -86,6 +86,25 @@ export function StoragePage() {
                             </p>
                         )}
                     </div>
+
+                    {diskHealth.length > 0 && (
+                        <div className="flex flex-col gap-2 relative z-10 w-full md:w-auto md:min-w-[280px]">
+                            <p className="text-[13px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-left md:text-right">Disk Health Info</p>
+                            <div className="flex flex-col gap-2">
+                                {diskHealth.map((disk, idx) => (
+                                    <div key={idx} className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-xl bg-black/20 border border-white/[0.05]">
+                                        <div className="flex flex-col text-left mr-auto">
+                                            <span className="text-sm font-bold text-foreground truncate max-w-[200px]" title={disk.name}>{disk.name}</span>
+                                            <span className="text-xs text-slate-500 font-mono">{disk.media_type === "3" ? "HDD" : disk.media_type === "4" ? "SSD" : disk.media_type === "5" ? "SCM" : disk.media_type === "Unknown" ? "Unknown" : disk.media_type}</span>
+                                        </div>
+                                        <div className={`px-2.5 py-1 rounded text-xs font-bold tracking-widest uppercase ${disk.health_status === 'Healthy' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                                            {disk.health_status}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </motion.div>
 

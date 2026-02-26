@@ -80,3 +80,65 @@ pub async fn kill_process(pid: u32) -> Result<bool, String> {
 
     Err("Process not found.".to_string())
 }
+
+#[command]
+pub async fn set_process_priority(pid: u32, priority: String) -> Result<bool, String> {
+    // Windows priority class mapping for PowerShell
+    // RealTime, High, AboveNormal, Normal, BelowNormal, Idle
+    
+    // Validate input to prevent injection
+    let valid_priorities = ["RealTime", "High", "AboveNormal", "Normal", "BelowNormal", "Idle"];
+    if !valid_priorities.contains(&priority.as_str()) {
+        return Err("Invalid priority level".to_string());
+    }
+
+    let script = format!("(Get-Process -Id {}).PriorityClass = '{}'", pid, priority);
+    
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        
+        let output = std::process::Command::new("powershell")
+            .args(&["-NoProfile", "-Command", &script])
+            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+            .output()
+            .map_err(|e| format!("Failed to execute powershell: {}", e))?;
+
+        if !output.status.success() {
+            let err = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Access Denied: You may need Admin privileges. ({})", err.trim()));
+        }
+
+        return Ok(true);
+    }
+    
+    #[cfg(not(target_os = "windows"))]
+    Err("Not supported on this OS".to_string())
+}
+
+#[command]
+pub async fn open_file_location(pid: u32) -> Result<bool, String> {
+    let mut sys = System::new_all();
+    sys.refresh_processes(ProcessesToUpdate::All, true);
+    
+    let sys_pid = sysinfo::Pid::from_u32(pid);
+    
+    if let Some(process) = sys.process(sys_pid) {
+        if let Some(exe_path) = process.exe() {
+            #[cfg(target_os = "windows")]
+            {
+                use std::os::windows::process::CommandExt;
+                let _ = std::process::Command::new("explorer")
+                    .arg("/select,")
+                    .arg(exe_path)
+                    .creation_flags(0x08000000)
+                    .spawn();
+                return Ok(true);
+            }
+        } else {
+            return Err("Executable path not available (Admin privileges mapped needed).".to_string());
+        }
+    }
+
+    Err("Process not found or path inaccessible.".to_string())
+}
