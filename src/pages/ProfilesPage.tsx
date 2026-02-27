@@ -5,6 +5,8 @@ import tweaksData from "../data/tweaks.json";
 import { useAppStore } from "../store/appStore";
 import { useTweakExecution } from "../hooks/useTweakExecution";
 import { useToast } from "../components/ToastSystem";
+import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
+import { ProgressModal, type ProgressItem } from "../components/ProgressModal";
 
 interface Profile {
     id: string;
@@ -77,10 +79,18 @@ export function ProfilesPage() {
     const [profiles] = useState<Profile[]>(BUILT_IN_PROFILES);
     const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
     const appliedTweaks = useAppStore((s) => s.appliedTweaks);
-    const { applyTweak, isExecuting } = useTweakExecution();
+    const { applyTweak, rollbackTweaks, isExecuting } = useTweakExecution();
     const { addToast } = useToast();
 
-    const handleApplyProfile = async (profile: Profile) => {
+    // Batch deploy state
+    const [pendingProfile, setPendingProfile] = useState<Profile | null>(null);
+    const [pendingTweaks, setPendingTweaks] = useState<typeof tweaksData>([]);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [showProgress, setShowProgress] = useState(false);
+    const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
+    const [showFailureActions, setShowFailureActions] = useState(false);
+
+    const handleApplyProfile = (profile: Profile) => {
         const tweaksToApply = profile.tweakIds
             .filter(id => !appliedTweaks.includes(id))
             .map(id => tweaksData.find(t => t.id === id))
@@ -91,21 +101,21 @@ export function ProfilesPage() {
             return;
         }
 
-        let successCount = 0;
-        for (const tweak of tweaksToApply) {
-            const result = await applyTweak(tweak);
-            if (result?.success) successCount++;
-            else break;
-        }
+        setPendingProfile(profile);
+        setPendingTweaks(tweaksToApply);
+        setShowConfirm(true);
+    };
 
-        if (successCount === tweaksToApply.length) {
-            addToast({ type: "success", title: `${profile.name} applied (${successCount} tweaks)` });
-        } else {
-            addToast({ type: "warning", title: `Partially applied: ${successCount}/${tweaksToApply.length}` });
-        }
+    const closeBatchModals = () => {
+        setShowConfirm(false);
+        setShowProgress(false);
+        setShowFailureActions(false);
+        setPendingProfile(null);
+        setPendingTweaks([]);
     };
 
     return (
+        <>
         <div className="space-y-6 pb-12">
             {/* Header */}
             <motion.div
@@ -228,5 +238,68 @@ export function ProfilesPage() {
                 })}
             </div>
         </div>
+
+        {/* Profile batch deploy — Confirm modal */}
+        <ConfirmDeployModal
+            isOpen={showConfirm}
+            tweaks={pendingTweaks}
+            onCancel={closeBatchModals}
+            isExecuting={isExecuting}
+            onConfirm={async () => {
+                setShowConfirm(false);
+                setProgressItems(pendingTweaks.map(t => ({ id: t.id, name: t.name, status: "pending" as const })));
+                setShowProgress(true);
+                setShowFailureActions(false);
+
+                for (let i = 0; i < pendingTweaks.length; i++) {
+                    const tweak = pendingTweaks[i];
+                    setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "running" as const } : item));
+                    const result = await applyTweak(tweak);
+                    if (result?.success) {
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "success" as const, result } : item));
+                    } else {
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "failed" as const, result: result ?? undefined } : item));
+                        setShowFailureActions(true);
+                        return;
+                    }
+                }
+                addToast({ type: "success", title: `${pendingProfile?.name} applied (${pendingTweaks.length} tweaks)` });
+            }}
+        />
+
+        {/* Profile batch deploy — Progress modal */}
+        <ProgressModal
+            isOpen={showProgress}
+            items={progressItems}
+            showFailureActions={showFailureActions}
+            onClose={closeBatchModals}
+            onRollback={async () => {
+                setShowFailureActions(false);
+                const applied = progressItems
+                    .filter(i => i.status === "success")
+                    .map(i => tweaksData.find(t => t.id === i.id)!)
+                    .filter(Boolean);
+                await rollbackTweaks(applied);
+                addToast({ type: "warning", title: `Rolled back ${applied.length} tweak${applied.length > 1 ? "s" : ""}` });
+                closeBatchModals();
+            }}
+            onSkipAndContinue={async () => {
+                setShowFailureActions(false);
+                const failedIdx = progressItems.findIndex(i => i.status === "failed");
+                for (let i = failedIdx + 1; i < pendingTweaks.length; i++) {
+                    const tweak = pendingTweaks[i];
+                    setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "running" as const } : item));
+                    const result = await applyTweak(tweak);
+                    if (result?.success) {
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "success" as const, result } : item));
+                    } else {
+                        setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "failed" as const, result: result ?? undefined } : item));
+                        setShowFailureActions(true);
+                        return;
+                    }
+                }
+            }}
+        />
+        </>
     );
 }

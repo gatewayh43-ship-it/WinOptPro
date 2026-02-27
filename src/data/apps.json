@@ -1,0 +1,885 @@
+[
+  {
+    "id": "firefox",
+    "name": "Mozilla Firefox",
+    "description": "Privacy-focused, open-source web browser with tracking protection",
+    "category": "Browsers",
+    "wingetId": "Mozilla.Firefox",
+    "chocoId": "firefox",
+    "website": "https://www.mozilla.org/firefox",
+    "tags": [
+      "privacy",
+      "open-source",
+      "browser"
+    ]
+  },
+  {
+    "id": "brave",
+    "name": "Brave Browser",
+    "description": "Chromium-based browser with built-in ad blocking and privacy shields",
+    "category": "Browsers",
+    "wingetId": "Brave.Brave",
+    "chocoId": "brave",
+    "website": "https://brave.com",
+    "tags": [
+      "privacy",
+      "ad-blocker",
+      "browser"
+    ]
+  },
+  {
+    "id": "vivaldi",
+    "name": "Vivaldi",
+    "description": "Highly customizable Chromium browser with tab stacking and tiling",
+    "category": "Browsers",
+    "wingetId": "VivaldiTechnologies.Vivaldi",
+    "chocoId": "vivaldi",
+    "website": "https://vivaldi.com",
+    "tags": [
+      "customizable",
+      "browser",
+      "power-user"
+    ]
+  },
+  {
+    "id": "librewolf",
+    "name": "LibreWolf",
+    "description": "Privacy-hardened Firefox fork with telemetry stripped and uBlock Origin built-in",
+    "category": "Browsers",
+    "wingetId": "LibreWolf.LibreWolf",
+    "chocoId": "librewolf",
+    "website": "https://librewolf.net",
+    "tags": [
+      "privacy",
+      "open-source",
+      "hardened"
+    ]
+  },
+  {
+    "id": "everything",
+    "name": "Everything Search",
+    "description": "Instant file search engine — finds any file in milliseconds vs Windows Search's minutes",
+    "category": "Utilities",
+    "wingetId": "voidtools.Everything",
+    "chocoId": "everything",
+    "website": "https://www.voidtools.com",
+    "tags": [
+      "search",
+      "files",
+      "essential"
+    ]
+  },
+  {
+    "id": "powertoys",
+    "name": "Microsoft PowerToys",
+    "description": "Power user utilities: FancyZones, PowerRename, Color Picker, Run launcher, and more",
+    "category": "Utilities",
+    "wingetId": "Microsoft.PowerToys",
+    "chocoId": "powertoys",
+    "website": "https://github.com/microsoft/PowerToys",
+    "tags": [
+      "productivity",
+      "window-management",
+      "launcher"
+    ]
+  },
+  {
+    "id": "wiztree",
+    "name": "WizTree",
+    "description": "Fastest disk space analyzer — visualizes what's eating your storage",
+    "category": "Utilities",
+    "wingetId": "AntibodySoftware.WizTree",
+    "chocoId": "wiztree",
+    "website": "https://www.diskanalyzer.com",
+    "tags": [
+      "disk",
+      "space",
+      "analyzer"
+    ]
+  },
+  {
+    "id": "7zip",
+    "name": "7-Zip",
+    "description": "Open-source file archiver with the highest compression ratio",
+    "category": "Utilities",
+    "wingetId": "7zip.7zip",
+    "chocoId": "7zip",
+    "website": "https://www.7-zip.org",
+    "tags": [
+      "compression",
+      "archive",
+      "essential"
+    ]
+  },
+  {
+    "id": "revouninstaller",
+    "name": "Revo Uninstaller",
+    "description": "Deep uninstaller that removes leftover files, folders, and registry entries",
+    "category": "Utilities",
+    "wingetId": "RevoUninstaller.RevoUninstaller",
+    "chocoId": "revo-uninstaller",
+    "website": "https://www.revouninstaller.com",
+    "tags": [
+      "uninstaller",
+      "cleanup",
+      "registry"
+    ]
+  },
+  {
+    "id": "winaerotweaker",
+    "name": "WinAero Tweaker",
+    "description": "All-in-one Windows customization tool for hidden settings Microsoft doesn't expose",
+    "category": "Utilities",
+    "wingetId": "Winaero.Tweaker",
+    "chocoId": "winaero-tweaker",
+    "website": "https://winaero.com/winaero-tweaker/",
+    "tags": [
+      "customization",
+      "tweaker",
+      "ui"
+    ]
+  },
+  {
+    "id": "flowlauncher",
+    "name": "Flow Launcher",
+    "description": "Spotlight-like quick launcher for Windows — search files, apps, web, and run commands",
+    "category": "Utilities",
+    "wingetId": "Flow-Launcher.Flow-Launcher",
+    "chocoId": "flow-launcher",
+    "website": "https://www.flowlauncher.com",
+    "tags": [
+      "launcher",
+      "productivity",
+      "search"
+    ]
+  },
+  {
+    "id": "hwinfo",
+    "name": "HWiNFO64",
+    "description": "The gold standard for hardware monitoring — every sensor, every metric, with logging",
+    "category": "Monitoring",
+    "wingetId": "REALiX.HWiNFO",
+    "chocoId": "hwinfo",
+    "website": "https://www.hwinfo.com",
+    "tags": [
+      "monitoring",
+      "sensors",
+      "logging"
+    ]
+  },
+  {
+    "id": "librehardwaremonitor",
+    "name": "Libre Hardware Monitor",
+    "description": "Open-source fork of OpenHardwareMonitor with modern hardware support",
+    "category": "Monitoring",
+    "wingetId": "LibreHardwareMonitor.LibreHardwareMonitor",
+    "chocoId": "librehardwaremonitor",
+    "website": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+    "tags": [
+      "monitoring",
+      "open-source",
+      "temperature"
+    ]
+  },
+  {
+    "id": "gpuz",
+    "name": "GPU-Z",
+    "description": "Lightweight utility for GPU information: clocks, VRAM, temperature, and BIOS version",
+    "category": "Monitoring",
+    "wingetId": "TechPowerUp.GPU-Z",
+    "chocoId": "gpu-z",
+    "website": "https://www.techpowerup.com/gpuz/",
+    "tags": [
+      "gpu",
+      "monitoring",
+      "info"
+    ]
+  },
+  {
+    "id": "cpuz",
+    "name": "CPU-Z",
+    "description": "Detailed CPU, motherboard, and memory information at a glance",
+    "category": "Monitoring",
+    "wingetId": "CPUID.CPU-Z",
+    "chocoId": "cpu-z",
+    "website": "https://www.cpuid.com/softwares/cpu-z.html",
+    "tags": [
+      "cpu",
+      "monitoring",
+      "info"
+    ]
+  },
+  {
+    "id": "msiafterburner",
+    "name": "MSI Afterburner",
+    "description": "GPU overclocking + on-screen display for FPS, temps, clocks during gameplay",
+    "category": "Monitoring",
+    "wingetId": "Guru3D.Afterburner",
+    "chocoId": "msiafterburner",
+    "website": "https://www.msi.com/Landing/afterburner",
+    "tags": [
+      "overclocking",
+      "monitoring",
+      "osd",
+      "gaming"
+    ]
+  },
+  {
+    "id": "fancontrol",
+    "name": "FanControl",
+    "description": "Advanced fan curve editor — centralized control for all system fans",
+    "category": "Monitoring",
+    "wingetId": "Rem0o.FanControl",
+    "chocoId": "fancontrol",
+    "website": "https://getfancontrol.com",
+    "tags": [
+      "fans",
+      "cooling",
+      "curves"
+    ]
+  },
+  {
+    "id": "crystaldiskinfo",
+    "name": "CrystalDiskInfo",
+    "description": "HDD/SSD health monitor — SMART data, temperature, and drive life remaining",
+    "category": "Monitoring",
+    "wingetId": "CrystalDewWorld.CrystalDiskInfo",
+    "chocoId": "crystaldiskinfo",
+    "website": "https://crystalmark.info/en/software/crystaldiskinfo/",
+    "tags": [
+      "disk",
+      "smart",
+      "health"
+    ]
+  },
+  {
+    "id": "bitwarden",
+    "name": "Bitwarden",
+    "description": "Open-source password manager with cross-platform sync and browser extensions",
+    "category": "Privacy & Security",
+    "wingetId": "Bitwarden.Bitwarden",
+    "chocoId": "bitwarden",
+    "website": "https://bitwarden.com",
+    "tags": [
+      "passwords",
+      "security",
+      "open-source"
+    ]
+  },
+  {
+    "id": "keepassxc",
+    "name": "KeePassXC",
+    "description": "Offline-first, open-source password manager — your vault never leaves your machine",
+    "category": "Privacy & Security",
+    "wingetId": "KeePassXCTeam.KeePassXC",
+    "chocoId": "keepassxc",
+    "website": "https://keepassxc.org",
+    "tags": [
+      "passwords",
+      "offline",
+      "security"
+    ]
+  },
+  {
+    "id": "mullvadvpn",
+    "name": "Mullvad VPN",
+    "description": "Privacy-first VPN — no email required, anonymous account numbers, WireGuard-based",
+    "category": "Privacy & Security",
+    "wingetId": "MullvadVPN.MullvadVPN",
+    "chocoId": "mullvad-app",
+    "website": "https://mullvad.net",
+    "tags": [
+      "vpn",
+      "privacy",
+      "anonymity"
+    ]
+  },
+  {
+    "id": "simplewall",
+    "name": "simplewall",
+    "description": "Lightweight firewall front-end — block any app from accessing the internet",
+    "category": "Privacy & Security",
+    "wingetId": "Henry++.simplewall",
+    "chocoId": "simplewall",
+    "website": "https://www.henrypp.org/product/simplewall",
+    "tags": [
+      "firewall",
+      "privacy",
+      "network"
+    ]
+  },
+  {
+    "id": "vlc",
+    "name": "VLC Media Player",
+    "description": "Plays anything — the universal media player that handles every codec",
+    "category": "Media",
+    "wingetId": "VideoLAN.VLC",
+    "chocoId": "vlc",
+    "website": "https://www.videolan.org",
+    "tags": [
+      "video",
+      "audio",
+      "player"
+    ]
+  },
+  {
+    "id": "foobar2000",
+    "name": "foobar2000",
+    "description": "Lightweight, highly customizable music player for audiophiles",
+    "category": "Media",
+    "wingetId": "PeterPawlowski.foobar2000",
+    "chocoId": "foobar2000",
+    "website": "https://www.foobar2000.org",
+    "tags": [
+      "music",
+      "audio",
+      "player"
+    ]
+  },
+  {
+    "id": "handbrake",
+    "name": "HandBrake",
+    "description": "Open-source video transcoder — convert any video format with hardware acceleration",
+    "category": "Media",
+    "wingetId": "HandBrake.HandBrake",
+    "chocoId": "handbrake",
+    "website": "https://handbrake.fr",
+    "tags": [
+      "video",
+      "transcoding",
+      "encoding"
+    ]
+  },
+  {
+    "id": "obs",
+    "name": "OBS Studio",
+    "description": "Industry-standard open-source streaming and recording software",
+    "category": "Media",
+    "wingetId": "OBSProject.OBSStudio",
+    "chocoId": "obs-studio",
+    "website": "https://obsproject.com",
+    "tags": [
+      "streaming",
+      "recording",
+      "open-source"
+    ]
+  },
+  {
+    "id": "sharex",
+    "name": "ShareX",
+    "description": "Advanced screenshot and screen recording tool with annotation and auto-upload",
+    "category": "Media",
+    "wingetId": "ShareX.ShareX",
+    "chocoId": "sharex",
+    "website": "https://getsharex.com",
+    "tags": [
+      "screenshot",
+      "recording",
+      "productivity"
+    ]
+  },
+  {
+    "id": "davinciresolve",
+    "name": "DaVinci Resolve",
+    "description": "Professional video editing, color grading, and VFX — free and rivals Adobe Premiere",
+    "category": "Media",
+    "wingetId": "Blackmagic.DaVinciResolve",
+    "chocoId": "davinci-resolve",
+    "website": "https://www.blackmagicdesign.com/products/davinciresolve",
+    "tags": [
+      "video-editing",
+      "color-grading",
+      "professional"
+    ]
+  },
+  {
+    "id": "equalizerapo",
+    "name": "Equalizer APO",
+    "description": "System-wide parametric equalizer — transform your headphones with proper EQ",
+    "category": "Media",
+    "wingetId": "jthedering.EqualizerAPO",
+    "chocoId": "equalizerapo",
+    "website": "https://sourceforge.net/projects/equalizerapo/",
+    "tags": [
+      "audio",
+      "equalizer",
+      "enhancement"
+    ]
+  },
+  {
+    "id": "notepadpp",
+    "name": "Notepad++",
+    "description": "Supercharged text editor with syntax highlighting, regex find/replace, and plugins",
+    "category": "Productivity",
+    "wingetId": "Notepad++.Notepad++",
+    "chocoId": "notepadplusplus",
+    "website": "https://notepad-plus-plus.org",
+    "tags": [
+      "text-editor",
+      "coding",
+      "essential"
+    ]
+  },
+  {
+    "id": "vscode",
+    "name": "Visual Studio Code",
+    "description": "The most popular code editor — extensions for every language and workflow",
+    "category": "Productivity",
+    "wingetId": "Microsoft.VisualStudioCode",
+    "chocoId": "vscode",
+    "website": "https://code.visualstudio.com",
+    "tags": [
+      "code-editor",
+      "development",
+      "extensions"
+    ]
+  },
+  {
+    "id": "obsidian",
+    "name": "Obsidian",
+    "description": "Knowledge base and note-taking app using local Markdown files with bi-directional linking",
+    "category": "Productivity",
+    "wingetId": "Obsidian.Obsidian",
+    "chocoId": "obsidian",
+    "website": "https://obsidian.md",
+    "tags": [
+      "notes",
+      "knowledge-base",
+      "markdown"
+    ]
+  },
+  {
+    "id": "thunderbird",
+    "name": "Mozilla Thunderbird",
+    "description": "Open-source email client with calendar, RSS, and chat integration",
+    "category": "Productivity",
+    "wingetId": "Mozilla.Thunderbird",
+    "chocoId": "thunderbird",
+    "website": "https://www.thunderbird.net",
+    "tags": [
+      "email",
+      "calendar",
+      "open-source"
+    ]
+  },
+  {
+    "id": "libreoffice",
+    "name": "LibreOffice",
+    "description": "Free office suite — Writer, Calc, Impress as alternatives to Microsoft Office",
+    "category": "Productivity",
+    "wingetId": "TheDocumentFoundation.LibreOffice",
+    "chocoId": "libreoffice-fresh",
+    "website": "https://www.libreoffice.org",
+    "tags": [
+      "office",
+      "documents",
+      "open-source"
+    ]
+  },
+  {
+    "id": "git",
+    "name": "Git",
+    "description": "Distributed version control system — essential for any developer",
+    "category": "Development",
+    "wingetId": "Git.Git",
+    "chocoId": "git",
+    "website": "https://git-scm.com",
+    "tags": [
+      "version-control",
+      "development",
+      "essential"
+    ]
+  },
+  {
+    "id": "windowsterminal",
+    "name": "Windows Terminal",
+    "description": "Modern terminal with tabs, GPU-accelerated text rendering, and customizable profiles",
+    "category": "Development",
+    "wingetId": "Microsoft.WindowsTerminal",
+    "chocoId": "microsoft-windows-terminal",
+    "website": "https://github.com/microsoft/terminal",
+    "tags": [
+      "terminal",
+      "command-line",
+      "essential"
+    ]
+  },
+  {
+    "id": "python",
+    "name": "Python",
+    "description": "Most popular programming language — essential for scripting, AI, and automation",
+    "category": "Development",
+    "wingetId": "Python.Python.3.12",
+    "chocoId": "python3",
+    "website": "https://www.python.org",
+    "tags": [
+      "programming",
+      "scripting",
+      "ai"
+    ]
+  },
+  {
+    "id": "nodejs",
+    "name": "Node.js LTS",
+    "description": "JavaScript runtime for building web servers, tools, and CLI apps",
+    "category": "Development",
+    "wingetId": "OpenJS.NodeJS.LTS",
+    "chocoId": "nodejs-lts",
+    "website": "https://nodejs.org",
+    "tags": [
+      "javascript",
+      "runtime",
+      "web"
+    ]
+  },
+  {
+    "id": "steam",
+    "name": "Steam",
+    "description": "The largest PC gaming platform — game library, workshop, and community",
+    "category": "Gaming",
+    "wingetId": "Valve.Steam",
+    "chocoId": "steam",
+    "website": "https://store.steampowered.com",
+    "tags": [
+      "gaming",
+      "store",
+      "platform"
+    ]
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "description": "Voice, video, and text chat for gaming communities and teams",
+    "category": "Gaming",
+    "wingetId": "Discord.Discord",
+    "chocoId": "discord",
+    "website": "https://discord.com",
+    "tags": [
+      "chat",
+      "voice",
+      "gaming"
+    ]
+  },
+  {
+    "id": "playnite",
+    "name": "Playnite",
+    "description": "Open-source game library manager — unifies Steam, GOG, Epic, EA, and more into one launcher",
+    "category": "Gaming",
+    "wingetId": "Playnite.Playnite",
+    "chocoId": "playnite",
+    "website": "https://playnite.link",
+    "tags": [
+      "gaming",
+      "launcher",
+      "library"
+    ]
+  },
+  {
+    "id": "openrgb",
+    "name": "OpenRGB",
+    "description": "Universal RGB lighting control — replaces proprietary bloat from Corsair, ASUS, etc.",
+    "category": "Gaming",
+    "wingetId": "CalcProgrammer1.OpenRGB",
+    "chocoId": "openrgb",
+    "website": "https://openrgb.org",
+    "tags": [
+      "rgb",
+      "lighting",
+      "open-source"
+    ]
+  },
+  {
+    "id": "qbittorrent",
+    "name": "qBittorrent",
+    "description": "Open-source BitTorrent client — clean, ad-free alternative to uTorrent",
+    "category": "Networking",
+    "wingetId": "qBittorrent.qBittorrent",
+    "chocoId": "qbittorrent",
+    "website": "https://www.qbittorrent.org",
+    "tags": [
+      "torrent",
+      "download",
+      "open-source"
+    ]
+  },
+  {
+    "id": "wireguard",
+    "name": "WireGuard",
+    "description": "Modern, fast, and secure VPN tunnel — simpler and faster than OpenVPN",
+    "category": "Networking",
+    "wingetId": "WireGuard.WireGuard",
+    "chocoId": "wireguard",
+    "website": "https://www.wireguard.com",
+    "tags": [
+      "vpn",
+      "networking",
+      "security"
+    ]
+  },
+  {
+    "id": "putty",
+    "name": "PuTTY",
+    "description": "Classic SSH and Telnet client for remote server management",
+    "category": "Networking",
+    "wingetId": "SimonTatham.PuTTY",
+    "chocoId": "putty",
+    "website": "https://www.putty.org",
+    "tags": [
+      "ssh",
+      "remote",
+      "networking"
+    ]
+  },
+  {
+    "id": "rufus",
+    "name": "Rufus",
+    "description": "Create bootable USB drives from ISOs — the fastest and most reliable tool",
+    "category": "System",
+    "wingetId": "Rufus.Rufus",
+    "chocoId": "rufus",
+    "website": "https://rufus.ie",
+    "tags": [
+      "usb",
+      "bootable",
+      "iso"
+    ]
+  },
+  {
+    "id": "ventoy",
+    "name": "Ventoy",
+    "description": "Multi-boot USB tool — drop multiple ISOs on one drive and boot any of them",
+    "category": "System",
+    "wingetId": "Ventoy.Ventoy",
+    "chocoId": "ventoy",
+    "website": "https://www.ventoy.net",
+    "tags": [
+      "usb",
+      "multiboot",
+      "iso"
+    ]
+  },
+  {
+    "id": "ddu",
+    "name": "Display Driver Uninstaller (DDU)",
+    "description": "Cleanly remove GPU drivers before installing new ones — prevents conflicts and crashes",
+    "category": "System",
+    "wingetId": "Wagnardsoft.DisplayDriverUninstaller",
+    "chocoId": "ddu",
+    "website": "https://www.wagnardsoft.com/display-driver-uninstaller-DDU-",
+    "tags": [
+      "drivers",
+      "gpu",
+      "cleanup"
+    ]
+  },
+  {
+    "id": "paintnet",
+    "name": "paint.net",
+    "description": "Lightweight image editor — much more capable than MS Paint, simpler than Photoshop",
+    "category": "Productivity",
+    "wingetId": "dotPDN.PaintDotNet",
+    "chocoId": "paint.net",
+    "website": "https://www.getpaint.net",
+    "tags": [
+      "image-editor",
+      "graphics",
+      "simple"
+    ]
+  },
+  {
+    "id": "gimp",
+    "name": "GIMP",
+    "description": "Full-featured open-source image editor — free Photoshop alternative",
+    "category": "Productivity",
+    "wingetId": "GIMP.GIMP",
+    "chocoId": "gimp",
+    "website": "https://www.gimp.org",
+    "tags": [
+      "image-editor",
+      "graphics",
+      "open-source"
+    ]
+  },
+  {
+    "id": "audacity",
+    "name": "Audacity",
+    "description": "Open-source audio recording and editing — podcast creation, noise removal, effects",
+    "category": "Media",
+    "wingetId": "Audacity.Audacity",
+    "chocoId": "audacity",
+    "website": "https://www.audacityteam.org",
+    "tags": [
+      "audio",
+      "recording",
+      "editing"
+    ]
+  },
+  {
+    "id": "occt",
+    "name": "OCCT",
+    "description": "All-in-one system stability testing and monitoring tool",
+    "category": "Monitoring",
+    "wingetId": "OCBase.OCCT",
+    "chocoId": "occt",
+    "website": "https://www.ocbase.com",
+    "tags": [
+      "stress-test",
+      "stability",
+      "monitoring"
+    ]
+  },
+  {
+    "id": "3dmark",
+    "name": "3DMark",
+    "description": "Industry-standard GPU benchmarking suite for overclock validation",
+    "category": "Monitoring",
+    "wingetId": "Futuremark.3DMark",
+    "chocoId": "3dmark",
+    "website": "https://www.3dmark.com",
+    "tags": [
+      "benchmark",
+      "gpu",
+      "testing"
+    ]
+  },
+  {
+    "id": "malwarebytes",
+    "name": "Malwarebytes",
+    "description": "Industry-leading malware detection and removal — catches what Windows Defender misses",
+    "category": "Privacy & Security",
+    "wingetId": "Malwarebytes.Malwarebytes",
+    "chocoId": "malwarebytes",
+    "website": "https://www.malwarebytes.com",
+    "tags": [
+      "antimalware",
+      "security",
+      "protection"
+    ]
+  },
+  {
+    "id": "protonvpn",
+    "name": "Proton VPN",
+    "description": "Free-tier VPN from the makers of ProtonMail — Swiss-based, no-logs, open-source apps",
+    "category": "Privacy & Security",
+    "wingetId": "ProtonTechnologies.ProtonVPN",
+    "chocoId": "protonvpn",
+    "website": "https://protonvpn.com",
+    "tags": [
+      "vpn",
+      "privacy",
+      "free-tier"
+    ]
+  },
+  {
+    "id": "flux",
+    "name": "f.lux",
+    "description": "Automatic blue light filter — adjusts screen warmth based on time of day to reduce eye strain",
+    "category": "Utilities",
+    "wingetId": "flux.flux",
+    "chocoId": "f.lux",
+    "website": "https://justgetflux.com",
+    "tags": [
+      "eye-care",
+      "display",
+      "health"
+    ]
+  },
+  {
+    "id": "eartrumpet",
+    "name": "EarTrumpet",
+    "description": "Per-app volume control from the system tray — far superior to Windows default mixer",
+    "category": "Utilities",
+    "wingetId": "File-New-Project.EarTrumpet",
+    "chocoId": "eartrumpet",
+    "website": "https://eartrumpet.app",
+    "tags": [
+      "audio",
+      "volume",
+      "system-tray"
+    ]
+  },
+  {
+    "id": "ds4windows",
+    "name": "DS4Windows",
+    "description": "PlayStation controller mapper for PC — gyro aiming, touchpad, rumble, and profile support",
+    "category": "Gaming",
+    "wingetId": "Ryochan7.DS4Windows",
+    "chocoId": "ds4windows",
+    "website": "https://ds4-windows.com",
+    "tags": [
+      "controller",
+      "playstation",
+      "input"
+    ]
+  },
+  {
+    "id": "borderlessgaming",
+    "name": "Borderless Gaming",
+    "description": "Force any game into borderless windowed mode — alt-tab without minimizing",
+    "category": "Gaming",
+    "wingetId": "Codeusa.BorderlessGaming",
+    "chocoId": "borderlessgaming",
+    "website": "https://github.com/Codeusa/Borderless-Gaming",
+    "tags": [
+      "gaming",
+      "windowed",
+      "borderless"
+    ]
+  },
+  {
+    "id": "goggalaxy",
+    "name": "GOG Galaxy",
+    "description": "All-in-one game launcher from GOG — DRM-free library plus cross-platform integration",
+    "category": "Gaming",
+    "wingetId": "GOG.Galaxy",
+    "chocoId": "goggalaxy",
+    "website": "https://www.gog.com/galaxy",
+    "tags": [
+      "gaming",
+      "launcher",
+      "drm-free"
+    ]
+  },
+  {
+    "id": "capframex",
+    "name": "CapFrameX",
+    "description": "Advanced frametime capture and analysis — stutter detection, quantile stats, and comparisons",
+    "category": "Monitoring",
+    "wingetId": "CXWorld.CapFrameX",
+    "chocoId": "capframex",
+    "website": "https://www.capframex.com",
+    "tags": [
+      "frametime",
+      "analysis",
+      "benchmarking"
+    ]
+  },
+  {
+    "id": "razercortex",
+    "name": "Razer Cortex",
+    "description": "Game booster — auto-kills background processes and frees RAM before launching games",
+    "category": "Gaming",
+    "wingetId": "Razer.Cortex",
+    "chocoId": "razer-cortex",
+    "website": "https://www.razer.com/cortex",
+    "tags": [
+      "gaming",
+      "optimization",
+      "booster"
+    ]
+  },
+  {
+    "id": "voicemeeter",
+    "name": "VoiceMeeter Banana",
+    "description": "Virtual audio mixer — route game, mic, music, and Discord to separate channels for streaming",
+    "category": "Media",
+    "wingetId": "VB-Audio.Voicemeeter.Banana",
+    "chocoId": "voicemeeter-banana",
+    "website": "https://vb-audio.com/Voicemeeter/banana.htm",
+    "tags": [
+      "audio",
+      "mixer",
+      "streaming"
+    ]
+  }
+]

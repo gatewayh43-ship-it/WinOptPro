@@ -1,3 +1,4 @@
+mod apps;
 mod db;
 mod network;
 mod process;
@@ -6,6 +7,7 @@ mod startup;
 mod storage;
 mod system;
 mod tweaks;
+mod power;
 
 use db::DbState;
 use std::sync::Mutex;
@@ -27,6 +29,7 @@ pub fn run() {
             system::get_system_vitals,
             // Security
             security::is_admin,
+            security::elevate_and_execute,
             // Tweaks
             tweaks::execute_tweak,
             tweaks::validate_tweak,
@@ -50,6 +53,13 @@ pub fn run() {
             // Network
             network::get_network_interfaces,
             network::ping_host,
+            // Apps
+            apps::check_app_installed,
+            apps::install_app,
+            apps::check_choco_available,
+            // Power
+            power::get_power_plans,
+            power::set_active_power_plan,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,9 +1,13 @@
 use serde::{Deserialize, Serialize};
-use std::process::Command;
+use std::process::Stdio;
 use std::time::Instant;
 use tauri::{command, State};
+use tokio::process::Command;
+use tokio::time::{timeout, Duration};
 
 use crate::db::{self, DbState, TweakHistoryEntry};
+
+const TWEAK_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -32,12 +36,12 @@ pub struct BatchTweak {
     pub code: String,
 }
 
-/// Run a PowerShell command and return stdout, stderr, exit code.
-/// Enforces a 30-second timeout.
-fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
+/// Run a PowerShell command with a proper async timeout.
+/// If the timeout fires, the child process is killed immediately.
+async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
     let start = Instant::now();
 
-    let output = Command::new("powershell")
+    let mut child = Command::new("powershell")
         .args([
             "-NoProfile",
             "-NonInteractive",
@@ -46,16 +50,21 @@ fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
             "-Command",
             code,
         ])
-        .output()
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
         .map_err(|e| format!("Failed to spawn PowerShell: {}", e))?;
 
+    let output = timeout(TWEAK_TIMEOUT, child.wait_with_output())
+        .await
+        .map_err(|_| {
+            // Timeout fired — kill the hanging process
+            let _ = child.start_kill();
+            "Tweak timed out after 30 seconds".to_string()
+        })?
+        .map_err(|e| format!("PowerShell execution failed: {}", e))?;
+
     let duration_ms = start.elapsed().as_millis() as i64;
-
-    // Check for timeout (30s)
-    if duration_ms > 30_000 {
-        return Err("Tweak timed out after 30 seconds".to_string());
-    }
-
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
     let exit_code = output.status.code().unwrap_or(-1);
@@ -65,13 +74,13 @@ fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
 
 /// Execute a single tweak's PowerShell code.
 #[command]
-pub fn execute_tweak(
+pub async fn execute_tweak(
     db: State<'_, DbState>,
     tweak_id: String,
     tweak_name: String,
     code: String,
 ) -> Result<TweakResult, String> {
-    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&code)?;
+    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&code).await?;
     let success = exit_code == 0 && stderr.is_empty();
 
     // Record in history
@@ -113,7 +122,7 @@ pub fn execute_tweak(
 
 /// Validate a tweak's current state by running its validation command.
 #[command]
-pub fn validate_tweak(validation_cmd: String) -> Result<TweakValidationResult, String> {
+pub async fn validate_tweak(validation_cmd: String) -> Result<TweakValidationResult, String> {
     if validation_cmd.trim().is_empty() {
         return Ok(TweakValidationResult {
             state: "Unknown".to_string(),
@@ -121,11 +130,8 @@ pub fn validate_tweak(validation_cmd: String) -> Result<TweakValidationResult, S
         });
     }
 
-    match run_powershell(&validation_cmd) {
+    match run_powershell(&validation_cmd).await {
         Ok((stdout, _stderr, exit_code, _duration)) => {
-            // For service-based checks, "Stopped" means the tweak is applied (service disabled)
-            // For registry checks, interpret the value contextually
-            // The frontend can interpret raw_output for specific tweaks
             let state = if exit_code == 0 && !stdout.is_empty() {
                 "Applied".to_string()
             } else {
@@ -146,16 +152,15 @@ pub fn validate_tweak(validation_cmd: String) -> Result<TweakValidationResult, S
 
 /// Revert a single tweak by running its revert code.
 #[command]
-pub fn revert_tweak(
+pub async fn revert_tweak(
     db: State<'_, DbState>,
     tweak_id: String,
     tweak_name: String,
     revert_code: String,
 ) -> Result<TweakResult, String> {
-    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&revert_code)?;
+    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&revert_code).await?;
     let success = exit_code == 0 && stderr.is_empty();
 
-    // Record revert in history
     let entry = TweakHistoryEntry {
         id: uuid::Uuid::new_v4().to_string(),
         tweak_id: tweak_id.clone(),
@@ -190,7 +195,7 @@ pub fn revert_tweak(
 
 /// Execute multiple tweaks sequentially, returning results for each.
 #[command]
-pub fn execute_batch_tweaks(
+pub async fn execute_batch_tweaks(
     db: State<'_, DbState>,
     tweaks: Vec<BatchTweak>,
 ) -> Result<Vec<TweakResult>, String> {
@@ -202,9 +207,66 @@ pub fn execute_batch_tweaks(
             tweak.id,
             tweak.name,
             tweak.code,
-        )?;
+        )
+        .await?;
         results.push(result);
     }
 
     Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_run_powershell_basic() {
+        let result = run_powershell("Write-Output 'hello world'").await;
+        assert!(result.is_ok());
+        let (stdout, stderr, exit_code, duration_ms) = result.unwrap();
+        assert_eq!(stdout, "hello world");
+        assert!(stderr.is_empty());
+        assert_eq!(exit_code, 0);
+        assert!(duration_ms > 0);
+    }
+
+    #[tokio::test]
+    async fn test_run_powershell_exit_code() {
+        let result = run_powershell("exit 42").await;
+        assert!(result.is_ok());
+        let (_, _, exit_code, _) = result.unwrap();
+        assert_eq!(exit_code, 42);
+    }
+
+    #[tokio::test]
+    async fn test_run_powershell_stderr() {
+        let result = run_powershell("Write-Error 'test error' -EA Continue").await;
+        assert!(result.is_ok());
+        let (_, stderr, _, _) = result.unwrap();
+        assert!(!stderr.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_tweak_result_serialization() {
+        let result = TweakResult {
+            success: true,
+            tweak_id: "test".to_string(),
+            stdout: "ok".to_string(),
+            stderr: String::new(),
+            exit_code: 0,
+            duration_ms: 100,
+        };
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("tweakId")); // camelCase
+        assert!(json.contains("durationMs"));
+    }
+
+    #[tokio::test]
+    async fn test_batch_tweak_deserialization() {
+        let json = r#"{"id":"test","name":"Test Tweak","code":"echo 1"}"#;
+        let batch: BatchTweak = serde_json::from_str(json).unwrap();
+        assert_eq!(batch.id, "test");
+        assert_eq!(batch.name, "Test Tweak");
+        assert_eq!(batch.code, "echo 1");
+    }
 }

@@ -18,8 +18,8 @@
 | Architecture | ✅ Stable | Engineering | 2026-02-25 |
 | Data Models | ✅ Stable | Engineering | 2026-02-25 |
 | IPC Command Interface | ✅ Stable | Engineering | 2026-02-25 |
-| Module Roadmap | 🔄 In progress | Engineering | 2026-02-25 |
-| Phased Delivery | 🔄 In progress | Engineering | 2026-02-25 |
+| Module Roadmap | 🔄 In progress (Ph1-2 done) | Engineering | 2026-02-27 |
+| Phased Delivery | 🔄 In progress (Ph1-2 done) | Engineering | 2026-02-27 |
 | Risk Register | ✅ Stable | Engineering | 2026-02-25 |
 
 ---
@@ -65,11 +65,11 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | ID | User Story | Priority | Status |
 | :--- | :--- | :--- | :--- |
 | US-A1 | As a power user, I want to review detailed technical docs (how it works, pros/cons, exact PowerShell commands) for each tweak before applying so I can make an informed decision. | P0 | ✅ Done (Inspector sidebar) |
-| US-A2 | As a power user, I want to execute multiple tweaks in a single batch deploy with a per-item progress tracker so I can apply comprehensive optimizations efficiently. | P0 | 🔲 Backend missing |
-| US-A3 | As a power user, I want to revert any applied tweak with one click, with a confirmation showing the exact revert command so I can undo safely. | P0 | 🔲 Backend missing |
-| US-A4 | As a power user, I want a full history timeline of all applied and reverted tweaks with timestamps and before/after system vitals so I can measure optimization impact. | P1 | 🔲 Not started |
+| US-A2 | As a power user, I want to execute multiple tweaks in a single batch deploy with a per-item progress tracker so I can apply comprehensive optimizations efficiently. | P0 | ✅ Done |
+| US-A3 | As a power user, I want to revert any applied tweak with one click, with a confirmation showing the exact revert command so I can undo safely. | P0 | ✅ Done |
+| US-A4 | As a power user, I want a full history timeline of all applied and reverted tweaks with timestamps and before/after system vitals so I can measure optimization impact. | P1 | ✅ Done (HistoryPage) |
 | US-A5 | As a power user, I want to export my complete tweak profile as a `.winopt` file so I can replicate the setup on another machine instantly. | P1 | 🔲 Not started |
-| US-A6 | As a power user, I want an Expert Mode toggle that unlocks Red-level tweaks with clear warnings, so I can push system limits when I know what I'm doing. | P2 | 🔲 Not started |
+| US-A6 | As a power user, I want an Expert Mode toggle that unlocks Red-level tweaks with clear warnings, so I can push system limits when I know what I'm doing. | P2 | ✅ Done (SettingsPage) |
 | US-A7 | As a power user, I want to search all tweaks via Command Palette and see results grouped by category so I can find any optimization instantly. | P0 | ✅ Done |
 | US-A8 | As a power user, I want the Inspector panel to appear as a bottom drawer on small windows so I can use the app regardless of window size. | P0 | ✅ Done |
 
@@ -79,7 +79,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 | ID | User Story | Priority | Status |
 | :--- | :--- | :--- | :--- |
-| US-B1 | As a gamer, I want to apply all gaming tweaks (core parking, game priority, FSO, DVR, responsiveness) with a single "Gaming Mode" preset button. | P0 | 🔲 Backend missing |
+| US-B1 | As a gamer, I want to apply all gaming tweaks (core parking, game priority, FSO, DVR, responsiveness) with a single "Gaming Mode" preset button. | P0 | ✅ Done (ProfilesPage) |
 | US-B2 | As a gamer, I want real-time FPS, frame time, CPU%, and GPU% in a transparent in-game overlay so I can monitor performance without alt-tabbing. | P1 | 🔲 Not started |
 | US-B3 | As a gamer, I want WinOpt to automatically detect when I launch a game and apply gaming optimizations without me having to open the app. | P1 | 🔲 Not started |
 | US-B4 | As a gamer, I want to adjust GPU core clock, memory clock, and power limit with sliders so I can overclock without third-party tools. | P2 | 🔲 Not started |
@@ -93,7 +93,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | :--- | :--- | :--- | :--- |
 | US-C1 | As a privacy user, I want a one-click Privacy Audit that scans all telemetry settings, tracking services, and firewall rules, and shows me the results as a categorized report. | P0 | 🔲 Not started |
 | US-C2 | As a privacy user, I want a Privacy Score from 0 to 100 so I can understand my current exposure level at a glance. | P0 | 🔲 Not started |
-| US-C3 | As a privacy user, I want to apply all privacy tweaks with a single "Harden Privacy" action after reviewing a full preview of every change. | P0 | 🔲 Backend missing |
+| US-C3 | As a privacy user, I want to apply all privacy tweaks with a single "Harden Privacy" action after reviewing a full preview of every change. | P0 | ✅ Done (ProfilesPage) |
 | US-C4 | As a privacy user, I want an encrypted, local audit log of every system change made by WinOpt so I have a verifiable compliance record. | P1 | 🔲 Not started |
 | US-C5 | As a privacy user, I want to click the alert banner on the Dashboard to navigate directly to the Privacy page so I can act on warnings immediately. | P0 | ✅ Done |
 
@@ -115,7 +115,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 | ID | User Story | Priority | Status |
 | :--- | :--- | :--- | :--- |
-| US-E1 | As a casual user, I want a "Quick Scan" button that automatically identifies and selects all safe (Green-level) tweaks so I can optimize with one click and no risk. | P0 | 🔲 Backend missing |
+| US-E1 | As a casual user, I want a "Quick Scan" button that automatically identifies and selects all safe (Green-level) tweaks so I can optimize with one click and no risk. | P0 | ✅ Done (Dashboard) |
 | US-E2 | As a casual user, I want the onboarding guide to appear only on my first launch and explain the three key features in simple language. | P0 | ✅ Done |
 | US-E3 | As a casual user, I want filter chips so I can see only Green (safe) tweaks and ignore Yellow and Red ones. | P0 | ✅ Done |
 | US-E4 | As a casual user, I want a floating summary bar to show me how many tweaks I've selected and let me deploy with one button even when scrolled down. | P0 | ✅ Done |
@@ -129,7 +129,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-01: System Information Retrieval
 
-- **Status:** 🔲 Not started (all hardcoded)
+- **Status:** ✅ Done (system.rs → useSystemVitals → Dashboard)
 - Real-time collection every 3s (configurable): CPU temp, usage %, clock speed; RAM used/total; Drive temp + SMART status; Network latency, adapter link speed; uptime; OS version; admin status
 - Source: WMI via Rust Tauri commands (`get_system_vitals`)
 - Graceful degradation: if WMI query fails, show "Unavailable" badge — never crash
@@ -137,7 +137,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-02: Tweak Execution with Elevation
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (tweaks.rs + security.rs → useTweakExecution → TweaksPage)
 - Execute any `execution.code` PowerShell command from `tweaks.json` via Rust backend
 - Before execution: check admin rights; surface UAC prompt if missing
 - Show confirmation modal with exact command, estimated time, and risk level
@@ -146,7 +146,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-03: Tweak State Validation on Load
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (validateTweak on category mount with 5s timeout)
 - On page load, run `validationCmd` for every tweak in the active category
 - Render toggle as: ON (green) if validation passes, OFF (grey) if not, UNKNOWN (amber) if cmd empty or query fails
 - Validation must complete within 5 seconds; show skeleton loading state while in progress
@@ -154,7 +154,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-04: Tweak Revert / Undo
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (revertTweak + confirmation modal in TweaksPage)
 - Toggle already-applied tweaks shows confirmation with exact `revertCode`
 - Execute `revertCode` via Rust backend with same elevation logic as apply
 - Maintain undo stack of last 50 operations; persist to SQLite
@@ -162,7 +162,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-05: Tweak History & Audit Log
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (db.rs SQLite + HistoryPage with timeline)
 - SQLite table `tweak_history`: id, tweak_id, tweak_name, action, timestamp, duration_ms, command_executed, stdout, stderr, exit_code, status
 - Query via `get_tweak_history(limit, since_timestamp)` Tauri command
 - Display as timeline widget in Dashboard; full page in History route
@@ -170,7 +170,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-06: Batch Deploy with Progress & Rollback
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (ProgressModal with Skip & Continue / Rollback All)
 - Preview modal: list all N tweaks, risk summary, estimated total time
 - Execution: sequential, with per-item status (pending → running → success/failed)
 - On any failure: pause, show error, offer "Continue (skip)" or "Rollback All"
@@ -178,7 +178,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-07: Global State Persistence
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (Zustand appStore.ts + persist → localStorage)
 - Applied tweaks survive app restart (persisted via Zustand + localStorage)
 - Selected-but-not-deployed tweaks survive page navigation (Zustand in-memory)
 - User settings (theme, expertMode, autoRefresh interval) persisted in localStorage
@@ -186,7 +186,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-08: Expert Mode
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (SettingsPage toggle + TweaksPage gate + warning modal)
 - Off by default; toggle in Settings with warning confirmation
 - When off: tweaks with `requiresExpertMode: true` hidden; categories show banner counting hidden tweaks
 - When on: Red tweaks visible with red border + "EXPERT" badge
@@ -202,7 +202,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-10: Command Palette
 
-- **Status:** ✅ Mostly done
+- **Status:** ✅ Done
 - Ctrl+K global shortcut; ESC to close; arrow keys to navigate; Enter to select
 - Semantic synonym matching (lag → network, fps → gaming, tracking → privacy)
 - Results grouped by category with section headers
@@ -211,7 +211,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-11: Optimization Profiles
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (6 built-in presets in ProfilesPage; export/import not yet)
 - Built-in read-only presets: Gaming, Productivity, Privacy, Balanced, Battery Saver
 - User can create/rename/delete/duplicate profiles (stored in SQLite)
 - Apply profile: batch deploy all tweaks in profile
@@ -219,7 +219,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-12: Quick Scan (Dashboard CTA)
 
-- **Status:** 🔲 Backend missing
+- **Status:** ✅ Done (Dashboard Quick Scan button → batch deploy green tweaks)
 - Wire "Quick Scan" button on Dashboard hero
 - Identify all Green-level tweaks not yet applied across all categories
 - Open preview modal listing candidates, then batch deploy on confirm
@@ -247,14 +247,14 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-16: Startup Optimizer
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (startup.rs + StartupPage with toggle/search)
 - Enumerate: `HKLM\SOFTWARE\...\Run`, `HKCU\SOFTWARE\...\Run`, Startup folder, auto-start Services, enabled Scheduled Tasks
 - Per-item: name, path, type, estimated startup impact (ms)
 - Toggle disable/enable without deletion; changes recorded in history
 
 ### FR-17: Disk Cleanup & Health
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (storage.rs + StoragePage with scan/cleanup/SMART)
 - Scan: %TEMP%, %LocalAppData%\Temp, Recycle Bin, browser caches, Windows Update cache, thumbnail cache
 - Preview: count + total size before commit
 - Delete via Windows Shell `SHFileOperation` (sends to Recycle Bin, recoverable)
@@ -262,7 +262,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-18: Process Manager
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (process.rs + ProcessPage with sort/kill/priority/game detect)
 - List all processes: PID, name, CPU%, RAM MB, Disk I/O, Network kB/s, icon
 - Sort by any column; real-time update every 1s
 - Right-click: set priority (Realtime/High/Normal/Low/Idle), terminate, open file location
@@ -270,7 +270,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-19: Network Analyzer & Optimizer
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (network.rs + NetworkAnalyzerPage with ping/jitter/baseline)
 - Per-adapter: IP, MAC, link speed, latency to 8.8.8.8 and 1.1.1.1, sent/received bytes
 - Diagnostic: run ping test (100 packets), compute variance, jitter, loss %
 - Before/after comparison panel after applying Network tweaks
@@ -278,7 +278,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-20: Privacy & Security Audit
 
-- **Status:** 🔲 Not started
+- **Status:** 🔲 Not started (Privacy Score + audit scan not yet implemented)
 - Scan telemetry registry keys, DiagTrack/dmwappushservice services, firewall outbound rules
 - Privacy Score: 0–100 computed from weighted issue severity
 - Categorized issue list: Telemetry, Services, Registry, Network

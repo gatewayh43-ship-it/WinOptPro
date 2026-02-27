@@ -96,8 +96,8 @@ export function ConfirmDeployModal({
                             {(hasRed || hasYellow) && (
                                 <div
                                     className={`mx-6 mt-4 p-3 rounded-lg border flex items-start gap-3 ${hasRed
-                                            ? "bg-red-500/10 border-red-500/20"
-                                            : "bg-amber-500/10 border-amber-500/20"
+                                        ? "bg-red-500/10 border-red-500/20"
+                                        : "bg-amber-500/10 border-amber-500/20"
                                         }`}
                                 >
                                     <AlertTriangle
@@ -117,15 +117,24 @@ export function ConfirmDeployModal({
                                 {tweaks.map((tweak) => (
                                     <div
                                         key={tweak.id}
-                                        className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5"
+                                        className="flex flex-col p-3 rounded-lg bg-white/5 border border-white/5 space-y-2"
                                     >
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <Code2 className="w-4 h-4 text-slate-500 shrink-0" />
-                                            <span className="text-sm font-medium text-white truncate">
-                                                {tweak.name}
-                                            </span>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <Code2 className="w-4 h-4 text-slate-500 shrink-0" />
+                                                <span className="text-sm font-medium text-white truncate">
+                                                    {tweak.name}
+                                                </span>
+                                            </div>
+                                            {riskBadge(tweak.riskLevel)}
                                         </div>
-                                        {riskBadge(tweak.riskLevel)}
+
+                                        <div className="bg-black/30 rounded border border-white/5 p-2 overflow-x-auto custom-scrollbar">
+                                            <code className="text-[11px] text-emerald-400/90 font-mono whitespace-nowrap flex items-center">
+                                                <span className="text-blue-500/50 select-none mr-2 font-bold shrink-0">PS&gt;</span>
+                                                {tweak.execution.code}
+                                            </code>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { ShieldAlert, Zap, Cpu, Activity, HardDrive, Wifi, Sparkles, ChevronRight, PlayCircle, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSystemVitals } from "../hooks/useSystemVitals";
+import { useAppStore } from "../store/appStore";
+import { useTweakExecution } from "../hooks/useTweakExecution";
+import { useToast } from "../components/ToastSystem";
+import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
+import { ProgressModal, type ProgressItem } from "../components/ProgressModal";
+import tweaksData from "../data/tweaks.json";
 
 // System Score Circular Progress Component
 const SystemScore = ({ score }: { score: number }) => {
@@ -107,6 +114,27 @@ function ramBadge(pct: number) {
 export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => void; setView?: (v: string) => void }) {
     const { vitals } = useSystemVitals();
 
+    // Quick Scan state
+    const [showScanConfirm, setShowScanConfirm] = useState(false);
+    const [showScanProgress, setShowScanProgress] = useState(false);
+    const [scanProgressItems, setScanProgressItems] = useState<ProgressItem[]>([]);
+    const [showScanFailureActions, setShowScanFailureActions] = useState(false);
+
+    const appliedTweaks = useAppStore(s => s.appliedTweaks);
+    const { applyTweak, rollbackTweaks, isExecuting } = useTweakExecution();
+    const { addToast } = useToast();
+
+    // All Green tweaks not yet applied — candidates for Quick Scan
+    const greenCandidates = tweaksData.filter(t => t.riskLevel === "Green" && !appliedTweaks.includes(t.id));
+
+    const handleQuickScan = () => {
+        if (greenCandidates.length === 0) {
+            addToast({ type: "success", title: "Already optimized!", message: "All safe (Green) tweaks are already applied." });
+            return;
+        }
+        setShowScanConfirm(true);
+    };
+
     const healthScore = computeHealthScore(vitals);
     const scoreTier = healthScore >= 90 ? "Top 5% Optimal Performance" : healthScore >= 75 ? "Good System Health" : healthScore >= 60 ? "Room for Improvement" : "Needs Attention";
 
@@ -123,6 +151,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
     const ramBdg = ramBadge(vitals?.ram.usagePct ?? 0);
 
     return (
+        <>
         <div className="space-y-6 pb-12 mix-blend-plus-lighter relative z-10">
 
             {/* Hero Banner (Webflow Dark style) */}
@@ -167,9 +196,14 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                             </button>
                         )}
 
-                        <button className="btn-tactile w-full sm:w-auto relative group overflow-hidden bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold shadow-lg dark:bg-white dark:text-[#0A0A0E] dark:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-white flex justify-center items-center">
+                        <button
+                            onClick={handleQuickScan}
+                            disabled={isExecuting}
+                            className="btn-tactile w-full sm:w-auto relative group overflow-hidden bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold shadow-lg dark:bg-white dark:text-[#0A0A0E] dark:shadow-[0_0_20px_rgba(255,255,255,0.2)] text-white flex justify-center items-center disabled:opacity-60"
+                        >
                             <span className="relative z-10 flex items-center text-sm">
-                                <Zap className="w-4 h-4 mr-2" fill="currentColor" /> Quick Scan
+                                <Zap className="w-4 h-4 mr-2" fill="currentColor" />
+                                {greenCandidates.length > 0 ? `Quick Scan (${greenCandidates.length})` : "All Safe Tweaks Applied ✓"}
                             </span>
                         </button>
                     </div>
@@ -305,5 +339,67 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                 </div>
             </motion.div>
         </div>
+
+        {/* Quick Scan — Confirm modal */}
+        <ConfirmDeployModal
+            isOpen={showScanConfirm}
+            tweaks={greenCandidates}
+            onCancel={() => setShowScanConfirm(false)}
+            isExecuting={isExecuting}
+            onConfirm={async () => {
+                setShowScanConfirm(false);
+                setScanProgressItems(greenCandidates.map(t => ({ id: t.id, name: t.name, status: "pending" as const })));
+                setShowScanProgress(true);
+                setShowScanFailureActions(false);
+
+                for (let i = 0; i < greenCandidates.length; i++) {
+                    const tweak = greenCandidates[i];
+                    setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "running" as const } : item));
+                    const result = await applyTweak(tweak);
+                    if (result?.success) {
+                        setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "success" as const, result } : item));
+                    } else {
+                        setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "failed" as const, result: result ?? undefined } : item));
+                        setShowScanFailureActions(true);
+                        return;
+                    }
+                }
+                addToast({ type: "success", title: `${greenCandidates.length} safe tweak${greenCandidates.length > 1 ? "s" : ""} applied!` });
+            }}
+        />
+
+        {/* Quick Scan — Progress modal */}
+        <ProgressModal
+            isOpen={showScanProgress}
+            items={scanProgressItems}
+            showFailureActions={showScanFailureActions}
+            onClose={() => { setShowScanProgress(false); setShowScanFailureActions(false); }}
+            onRollback={async () => {
+                setShowScanFailureActions(false);
+                const applied = scanProgressItems
+                    .filter(i => i.status === "success")
+                    .map(i => tweaksData.find(t => t.id === i.id)!)
+                    .filter(Boolean);
+                await rollbackTweaks(applied);
+                addToast({ type: "warning", title: `Rolled back ${applied.length} tweak${applied.length > 1 ? "s" : ""}` });
+                setShowScanProgress(false);
+            }}
+            onSkipAndContinue={async () => {
+                setShowScanFailureActions(false);
+                const failedIdx = scanProgressItems.findIndex(i => i.status === "failed");
+                for (let i = failedIdx + 1; i < greenCandidates.length; i++) {
+                    const tweak = greenCandidates[i];
+                    setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "running" as const } : item));
+                    const result = await applyTweak(tweak);
+                    if (result?.success) {
+                        setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "success" as const, result } : item));
+                    } else {
+                        setScanProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: "failed" as const, result: result ?? undefined } : item));
+                        break;
+                    }
+                }
+            }}
+        />
+        </>
     );
 }

@@ -164,3 +164,92 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
         },
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cpu_info_serialization() {
+        let info = CpuInfo {
+            model: "Test CPU".to_string(),
+            usage_pct: 45.5,
+            freq_ghz: 3.6,
+            cores: 8,
+            temp_c: Some(65.0),
+        };
+        let json = serde_json::to_string(&info).unwrap();
+        assert!(json.contains("usagePct")); // camelCase
+        assert!(json.contains("freqGhz"));
+        assert!(json.contains("tempC"));
+    }
+
+    #[test]
+    fn test_ram_info_serialization() {
+        let info = RamInfo {
+            used_mb: 8192,
+            total_mb: 16384,
+            usage_pct: 50.0,
+        };
+        let json = serde_json::to_string(&info).unwrap();
+        assert!(json.contains("usedMb"));
+        assert!(json.contains("totalMb"));
+        assert!(json.contains("usagePct"));
+    }
+
+    #[test]
+    fn test_ram_percentage_zero_total() {
+        // Edge case: 0 total RAM should not panic
+        let total_mb: u64 = 0;
+        let used_mb: u64 = 0;
+        let ram_pct = if total_mb > 0 {
+            (used_mb as f32 / total_mb as f32) * 100.0
+        } else {
+            0.0
+        };
+        assert_eq!(ram_pct, 0.0);
+    }
+
+    #[test]
+    fn test_system_vitals_construction() {
+        let vitals = SystemVitals {
+            timestamp: 1234567890,
+            cpu: CpuInfo {
+                model: "Test".to_string(),
+                usage_pct: 0.0,
+                freq_ghz: 0.0,
+                cores: 1,
+                temp_c: None,
+            },
+            ram: RamInfo {
+                used_mb: 0,
+                total_mb: 0,
+                usage_pct: 0.0,
+            },
+            drives: HashMap::new(),
+            network: HashMap::new(),
+            system: SystemInfo {
+                uptime_seconds: 0,
+                os_version: "Test".to_string(),
+                is_admin: false,
+            },
+        };
+        let json = serde_json::to_string(&vitals).unwrap();
+        assert!(json.contains("timestamp"));
+        assert!(json.contains("uptimeSeconds"));
+    }
+
+    #[test]
+    fn test_drive_info_serialization() {
+        let info = DriveInfo {
+            free_gb: 100.5,
+            total_gb: 500.0,
+            name: "C:".to_string(),
+            mount_point: "C:\\".to_string(),
+        };
+        let json = serde_json::to_string(&info).unwrap();
+        assert!(json.contains("freeGb"));
+        assert!(json.contains("totalGb"));
+        assert!(json.contains("mountPoint"));
+    }
+}

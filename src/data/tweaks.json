@@ -1960,5 +1960,1067 @@
             "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -Name 'AllowPrelaunch' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\TabPreloader' -Name 'AllowTabPreloading' -EA SilentlyContinue"
         },
         "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\MicrosoftEdge\\Main' -EA SilentlyContinue).AllowPrelaunch"
+    },
+    {
+        "id": "ExpandEphemeralPorts",
+        "name": "Expand Ephemeral Port Range",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Expands the dynamic TCP/UDP port range to 1025–65535, reducing port exhaustion under heavy connection loads (servers, gaming, streaming).",
+        "educationalContext": {
+            "howItWorks": "Windows defaults to ports 49152–65535 for outbound connections (~16K ports). Expanding to 64K+ ports prevents 'no ports available' failures under high concurrency.",
+            "pros": "Prevents connection failures in high-traffic scenarios. Useful for game servers, streaming software, and heavily multi-threaded downloaders.",
+            "cons": "Negligible. Wider range just means more ports available; doesn't open inbound attack surface."
+        },
+        "execution": {
+            "code": "netsh int ipv4 set dynamicport tcp start=1025 num=64511; netsh int ipv4 set dynamicport udp start=1025 num=64511",
+            "revertCode": "netsh int ipv4 set dynamicport tcp start=49152 num=16384; netsh int ipv4 set dynamicport udp start=49152 num=16384"
+        },
+        "validationCmd": "(netsh int ipv4 show dynamicport tcp) | Select-String 'Start Port'"
+    },
+    {
+        "id": "ReduceTCPTimedWaitDelay",
+        "name": "Reduce TCP TIME_WAIT Delay",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Reduces the time TCP connections linger in the TIME_WAIT state from 4 minutes to 30 seconds, allowing ports to be recycled faster.",
+        "educationalContext": {
+            "howItWorks": "After a TCP connection closes, Windows holds the port in TIME_WAIT for 240 seconds (default) to catch late-arriving packets. Most modern protocols don't need this long.",
+            "pros": "Faster port recycling improves throughput for apps that open many short-lived connections (REST APIs, game matchmaking, download managers).",
+            "cons": "Very rare: if packets arrive more than 30s after connection close, they could be mis-associated with a new connection on the same port."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters' -Name 'TcpTimedWaitDelay' -Value 30 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters' -Name 'TcpTimedWaitDelay' -ErrorAction SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters' -EA SilentlyContinue).TcpTimedWaitDelay"
+    },
+    {
+        "id": "OptimizeDNSCache",
+        "name": "Optimize DNS Cache Size",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Increases the Windows DNS cache from its conservative default to 4096 entries and eliminates negative TTL caching, speeding up domain lookups.",
+        "educationalContext": {
+            "howItWorks": "The DNS Client service caches resolved hostnames locally. A larger cache means fewer round-trips to DNS servers. Zeroing MaxNegativeCacheTtl prevents caching of failed lookups that may later succeed.",
+            "pros": "Faster page loads and connection establishment for frequently visited domains. Reduces DNS server load.",
+            "cons": "Slightly more RAM used for the cache (negligible, < 1 MB). Stale entries could persist longer if a DNS record changes mid-session."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'MaxCacheSize' -Value 4096 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'MaxNegativeCacheTtl' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'MaxCacheSize' -ErrorAction SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'MaxNegativeCacheTtl' -ErrorAction SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -EA SilentlyContinue).MaxCacheSize"
+    },
+    {
+        "id": "EnableRSS",
+        "name": "Enable Receive-Side Scaling (RSS)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Ensures RSS is enabled so incoming network traffic is distributed across multiple CPU cores, preventing a single core from becoming a bottleneck.",
+        "educationalContext": {
+            "howItWorks": "Without RSS, all network interrupts are handled by CPU 0 alone. RSS spreads the interrupt processing across cores, improving throughput on multi-core systems under sustained network load.",
+            "pros": "Higher sustained throughput, lower CPU usage per-core, reduced network latency under heavy loads.",
+            "cons": "None on modern hardware. RSS is a standard feature supported by all modern NICs."
+        },
+        "execution": {
+            "code": "netsh int tcp set global rss=enabled",
+            "revertCode": "netsh int tcp set global rss=disabled"
+        },
+        "validationCmd": "(netsh int tcp show global) | Select-String 'Receive-Side Scaling State'"
+    },
+    {
+        "id": "DisableTCPAutoTuning",
+        "name": "Disable TCP Auto-Tuning",
+        "category": "Network",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables Windows' automatic TCP receive-window scaling, which can cause inconsistent throughput on connections with high latency or packet loss.",
+        "educationalContext": {
+            "howItWorks": "TCP Auto-Tuning dynamically adjusts the receive buffer window size. On some networks (high-latency satellite, VPN, enterprise firewalls) this can cause throughput to oscillate unpredictably.",
+            "pros": "More stable, predictable throughput on problematic connections. Can improve gaming latency on certain ISP configurations.",
+            "cons": "On a healthy broadband connection, auto-tuning typically achieves better peak throughput than a fixed window. Only disable if experiencing instability."
+        },
+        "execution": {
+            "code": "netsh int tcp set global autotuninglevel=disabled",
+            "revertCode": "netsh int tcp set global autotuninglevel=normal"
+        },
+        "validationCmd": "(netsh int tcp show global) | Select-String 'Receive Window Auto-Tuning Level'"
+    },
+    {
+        "id": "DisableNetBIOS",
+        "name": "Disable NetBIOS over TCP/IP",
+        "category": "Network",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables the legacy NetBIOS protocol on all active network adapters. Not needed in modern pure-IP environments and eliminates associated attack surface.",
+        "educationalContext": {
+            "howItWorks": "NetBIOS is a 1980s protocol used for Windows network discovery and name resolution in pre-Active Directory environments. It generates background broadcast traffic and has known security vulnerabilities (LLMNR poisoning, NBNS spoofing).",
+            "pros": "Eliminates broadcast pollution on the network. Removes NBNS/LLMNR attack vectors. Reduces network interface CPU overhead.",
+            "cons": "Breaks network discovery on legacy Windows workgroups (Windows XP-era file sharing). Do not disable on corporate networks relying on old NetBIOS-dependent software."
+        },
+        "execution": {
+            "code": "$adapters = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter 'IPEnabled=True'; foreach ($a in $adapters) { $a.SetTcpipNetbios(2) | Out-Null }",
+            "revertCode": "$adapters = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter 'IPEnabled=True'; foreach ($a in $adapters) { $a.SetTcpipNetbios(0) | Out-Null }"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableFastStartup",
+        "name": "Disable Fast Startup",
+        "category": "Power",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables Windows Fast Startup (hybrid boot). Ensures full cold boots that apply all pending driver and Windows updates correctly on restart.",
+        "educationalContext": {
+            "howItWorks": "Fast Startup saves a partial hibernation file on shutdown so the next boot resumes from that state rather than doing a full cold boot. This means drivers and system state are not fully re-initialized.",
+            "pros": "Fixes driver-loading issues, ensures Windows Updates apply on restart, prevents stale system state that can cause BSoDs or performance regressions after updates.",
+            "cons": "Slightly slower cold boot (typically 3–8 seconds longer). The difference is negligible on NVMe SSDs."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power' -Name 'HiberbootEnabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power' -Name 'HiberbootEnabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power').HiberbootEnabled"
+    },
+    {
+        "id": "DisableUSBSelectiveSuspend",
+        "name": "Disable USB Selective Suspend",
+        "category": "Power",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents Windows from powering down idle USB devices. Eliminates the reconnection stutter experienced with USB headsets, controllers, and audio interfaces.",
+        "educationalContext": {
+            "howItWorks": "USB Selective Suspend lets Windows cut power to idle USB devices to save energy. When the device is needed again, it must wake up — causing a 50–500ms dropout that can disrupt audio, input, or storage.",
+            "pros": "No more USB audio dropouts or controller disconnects during gameplay. Zero-latency USB device responses.",
+            "cons": "Higher idle power consumption (typically 1–3W for all USB devices combined). Not recommended if maximizing laptop battery life is a priority."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0; powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0; powercfg -setactive SCHEME_CURRENT",
+            "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1; powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1; powercfg -setactive SCHEME_CURRENT"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisablePCIeLinkStatePM",
+        "name": "Disable PCIe Link State Power Management",
+        "category": "Power",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents the PCIe bus from entering low-power states, ensuring GPU and NVMe SSD remain at full performance without latency spikes from power state transitions.",
+        "educationalContext": {
+            "howItWorks": "PCIe Active State Power Management (ASPM) allows devices to enter L1/L0s low-power states when idle. Transitioning out of these states takes 10–40µs which causes micro-stutters in games and storage workloads.",
+            "pros": "Eliminates GPU micro-stutters and NVMe latency spikes caused by PCIe power state transitions. Particularly noticeable in 1% low frametimes in benchmarks.",
+            "cons": "Slightly higher system idle power draw (typically 2–5W). No impact on laptop battery life is minimal if you're gaming on AC anyway."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0; powercfg -setactive SCHEME_CURRENT",
+            "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 2; powercfg -setactive SCHEME_CURRENT"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "EnableAggressiveCPUBoost",
+        "name": "Enable Aggressive CPU Boost Mode",
+        "category": "Power",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets CPU performance boost to Aggressive mode, allowing the processor to reach and sustain its maximum boost clock more readily for compute-intensive workloads.",
+        "educationalContext": {
+            "howItWorks": "Windows exposes a CPU performance boost setting through the power plan. Aggressive mode instructs the processor to boost to its turbo frequency more eagerly and maintain it longer, versus Efficient Aggressive which is the common default.",
+            "pros": "Higher sustained CPU boost clocks. Reduced latency in single-threaded workloads. Measurable improvement in lightly-threaded games.",
+            "cons": "Slightly higher CPU temperature and power draw under sustained boost. On systems without adequate cooling, may cause more thermal throttling."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 2; powercfg -setactive SCHEME_CURRENT",
+            "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 1; powercfg -setactive SCHEME_CURRENT"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableAdaptiveBrightness",
+        "name": "Disable Adaptive Display Brightness",
+        "category": "Power",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from automatically adjusting display brightness based on ambient light. Provides consistent, predictable brightness levels.",
+        "educationalContext": {
+            "howItWorks": "On systems with an ambient light sensor, Windows can dim or brighten the display automatically. This often triggers unexpectedly during gameplay, video watching, or screen recording.",
+            "pros": "Consistent brightness without unexpected dimming. Eliminates brightness drift during gaming sessions or screen recordings.",
+            "cons": "You must manually adjust brightness for ambient lighting changes. Slightly higher display power draw in bright environments."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0; powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0; powercfg -setactive SCHEME_CURRENT",
+            "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 1; powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 1; powercfg -setactive SCHEME_CURRENT"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "SetMinCPUState100",
+        "name": "Lock CPU Minimum Performance to 100%",
+        "category": "Power",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Forces the CPU to always operate at 100% of its performance state, eliminating clock speed ramp-up delays at the cost of higher idle power draw.",
+        "educationalContext": {
+            "howItWorks": "By default, Windows allows the CPU to idle at as low as 5% of its performance state (e.g., 400 MHz on a 4 GHz chip). Setting the minimum to 100% prevents downclocking, so the CPU is always ready to respond instantly.",
+            "pros": "Zero latency to reach full CPU frequency. Eliminates 'wake-up' stutters at the start of frames in CPU-bound games. Measurable improvement in minimum frametimes.",
+            "cons": "Significantly higher idle power and heat. CPU will not throttle down when idle, increasing electricity use by 10–30W. Not recommended for laptops or thermally constrained systems."
+        },
+        "execution": {
+            "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 100; powercfg -setactive SCHEME_CURRENT",
+            "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5; powercfg -setactive SCHEME_CURRENT"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "UltimatePerformancePlan",
+        "name": "Enable Ultimate Performance Power Plan",
+        "category": "Power",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Unhides and activates the Ultimate Performance power plan — Microsoft's highest performance preset.",
+        "educationalContext": {
+            "howItWorks": "Windows ships with a hidden 'Ultimate Performance' plan that disables all power-saving features. This command enables it.",
+            "pros": "Maximum CPU/GPU performance. Eliminates all power-saving latency. Best for desktop gaming rigs.",
+            "cons": "Higher power consumption and heat. Not suitable for laptops on battery."
+        },
+        "execution": {
+            "code": "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61; powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61",
+            "revertCode": "powercfg -setactive SCHEME_BALANCED"
+        },
+        "validationCmd": "(powercfg /getactivescheme) -match 'Ultimate'"
+    },
+    {
+        "id": "IncreaseIRPStackSize",
+        "name": "Increase IRPStackSize",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Increases the I/O Request Packet stack size for better network file sharing performance.",
+        "educationalContext": {
+            "howItWorks": "IRPStackSize controls how many I/O request packets the network stack can queue. Default of 15 is too low for many NAS/SMB setups.",
+            "pros": "Faster SMB file transfers. Eliminates 'insufficient server storage' errors.",
+            "cons": "Negligible additional memory usage. Safe on all systems."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters' -Name 'IRPStackSize' -Value 32 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters' -Name 'IRPStackSize' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters' -EA SilentlyContinue).IRPStackSize"
+    },
+    {
+        "id": "EnableDNSOverHTTPS",
+        "name": "Enable DNS over HTTPS (DoH)",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Enables DNS over HTTPS to encrypt DNS queries and prevent ISP snooping.",
+        "educationalContext": {
+            "howItWorks": "DoH wraps DNS queries in HTTPS, preventing ISPs and network observers from seeing what domains you visit.",
+            "pros": "Encrypted DNS queries. ISP can't see your browsing domains. Prevents DNS hijacking.",
+            "cons": "Requires Windows 11 or higher. Slightly higher latency on first lookup."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'EnableAutoDoh' -Value 2 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -Name 'EnableAutoDoh' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters' -EA SilentlyContinue).EnableAutoDoh"
+    },
+    {
+        "id": "DisableWiFiSense",
+        "name": "Disable Wi-Fi Sense",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Wi-Fi Sense that shares your network credentials with contacts.",
+        "educationalContext": {
+            "howItWorks": "Wi-Fi Sense automatically shares your Wi-Fi passwords with Outlook/Skype/Facebook contacts.",
+            "pros": "Your Wi-Fi credentials stay private. No auto-sharing with contacts.",
+            "cons": "You lose the convenience of auto-sharing Wi-Fi access with trusted contacts."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Name 'AutoConnectAllowedOEM' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -Name 'AutoConnectAllowedOEM' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config' -EA SilentlyContinue).AutoConnectAllowedOEM"
+    },
+    {
+        "id": "DisableStartupDelay",
+        "name": "Disable Startup Application Delay",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the artificial delay Windows adds before launching startup apps.",
+        "educationalContext": {
+            "howItWorks": "Windows adds a 10-second delay before launching startup programs. This removes it.",
+            "pros": "Startup apps launch immediately at login. Desktop is ready faster.",
+            "cons": "Higher CPU usage immediately after boot. System may feel briefly sluggish on slow PCs."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Name 'StartupDelayInMSec' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -Force -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize' -EA SilentlyContinue).StartupDelayInMSec"
+    },
+    {
+        "id": "SpeedUpShutdown",
+        "name": "Speed Up Shutdown Time",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Reduces WaitToKillServiceTimeout and HungAppTimeout for faster shutdowns.",
+        "educationalContext": {
+            "howItWorks": "Windows waits up to 5 seconds for services and hung apps to close. This reduces it to 2 seconds.",
+            "pros": "Shutdown and restart complete noticeably faster.",
+            "cons": "Apps with unsaved data may not get enough time to save. Most apps auto-save."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control' -Name 'WaitToKillServiceTimeout' -Value '2000' -Type String -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'HungAppTimeout' -Value '2000' -Type String -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'WaitToKillAppTimeout' -Value '2000' -Type String -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control' -Name 'WaitToKillServiceTimeout' -Value '5000' -Type String -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'HungAppTimeout' -Value '5000' -Type String -Force; Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name 'WaitToKillAppTimeout' -Value '20000' -Type String -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control').WaitToKillServiceTimeout"
+    },
+    {
+        "id": "DisableAdvertisingID",
+        "name": "Disable Advertising ID",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables your unique advertising identifier that Microsoft uses to track you across apps.",
+        "educationalContext": {
+            "howItWorks": "Windows assigns a unique advertising ID to your profile for targeted ads in apps and browsers.",
+            "pros": "Apps can no longer track you via Microsoft's advertising ID.",
+            "cons": "You may see less relevant ads in free Microsoft Store apps."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -Name 'Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo' -Name 'Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo').Enabled"
+    },
+    {
+        "id": "DisableLocationTracking",
+        "name": "Disable Location Tracking",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Windows location services and prevents apps from accessing your location.",
+        "educationalContext": {
+            "howItWorks": "Windows collects location data via GPS, Wi-Fi, and IP geolocation. This disables it system-wide.",
+            "pros": "No app or Microsoft service can access your physical location.",
+            "cons": "Weather, Maps, and Find My Device won't work correctly."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location' -Name 'Value' -Value 'Deny' -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -Value 1 -Type DWord -Force -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location' -Name 'Value' -Value 'Allow' -Force; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location').Value"
+    },
+    {
+        "id": "DisableClipboardSync",
+        "name": "Disable Clipboard Cloud Sync",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents clipboard contents from being synced to the cloud across devices.",
+        "educationalContext": {
+            "howItWorks": "Windows syncs clipboard data (including copied passwords) across your Microsoft account devices.",
+            "pros": "Your clipboard contents (passwords, sensitive text) stay local.",
+            "cons": "You can't paste between your Windows devices via the cloud."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableCloudClipboard' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableClipboardHistory' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableCloudClipboard' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard' -Name 'EnableClipboardHistory' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Clipboard').EnableCloudClipboard"
+    },
+    {
+        "id": "FlushDNSCache",
+        "name": "Flush DNS Cache",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Clears the local DNS resolver cache to fix stale DNS entries and resolve connectivity issues.",
+        "educationalContext": {
+            "howItWorks": "Clears all cached DNS lookups. The next connection will do a fresh DNS resolution.",
+            "pros": "Fixes websites not loading after DNS changes. Resolves stale cache entries.",
+            "cons": "First visit to each site will be slightly slower (one DNS lookup). Cache rebuilds in seconds."
+        },
+        "execution": {
+            "code": "Clear-DnsClientCache; ipconfig /flushdns",
+            "revertCode": "Write-Output 'DNS cache is rebuilt automatically as you browse.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "ResetWinsock",
+        "name": "Reset Winsock Catalog",
+        "category": "Tools",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Resets the Winsock catalog to fix network connectivity issues caused by corrupted LSP entries.",
+        "educationalContext": {
+            "howItWorks": "Winsock is Windows' network socket API. Corrupted entries from VPNs or security software can break all networking.",
+            "pros": "Fixes 'no internet' issues, DNS failures, and corrupted network stacks.",
+            "cons": "Requires a reboot. Some VPN/proxy software may need reinstalling."
+        },
+        "execution": {
+            "code": "netsh winsock reset; netsh int ip reset",
+            "revertCode": "Write-Output 'Winsock reset cannot be explicitly reversed. Network will reconfigure on reboot.'"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableRemoteDesktop",
+        "name": "Disable Remote Desktop",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Remote Desktop Protocol (RDP) — a major attack vector if left enabled.",
+        "educationalContext": {
+            "howItWorks": "RDP allows remote access to your PC. If enabled, attackers can brute-force the login from the internet.",
+            "pros": "Closes a common entry point for ransomware and unauthorized access.",
+            "cons": "You can't remotely control this PC. Use alternatives like RustDesk or Parsec."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -Value 1 -Type DWord -Force; Disable-NetFirewallRule -DisplayGroup 'Remote Desktop' -EA SilentlyContinue",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -Value 0 -Type DWord -Force; Enable-NetFirewallRule -DisplayGroup 'Remote Desktop' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections"
+    },
+    {
+        "id": "DisableSMBv1",
+        "name": "Disable SMBv1 Protocol",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the outdated SMBv1 protocol used by WannaCry and other ransomware.",
+        "educationalContext": {
+            "howItWorks": "SMBv1 has critical vulnerabilities (EternalBlue exploit). Modern networks use SMBv2/v3.",
+            "pros": "Closes the attack vector used by WannaCry, NotPetya, and other major exploits.",
+            "cons": "Very old printers or NAS devices (pre-2012) may not work. All modern devices use SMBv2+."
+        },
+        "execution": {
+            "code": "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force; Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart -EA SilentlyContinue | Out-Null",
+            "revertCode": "Set-SmbServerConfiguration -EnableSMB1Protocol $true -Force"
+        },
+        "validationCmd": "(Get-SmbServerConfiguration).EnableSMB1Protocol"
+    },
+    {
+        "id": "BlockCortana",
+        "name": "Block Cortana",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Cortana and prevents it from running in the background.",
+        "educationalContext": {
+            "howItWorks": "Cortana runs as a background process even when not in use, consuming RAM and sending data to Microsoft.",
+            "pros": "Saves 50-100MB RAM. No more background data collection by Cortana.",
+            "cons": "Voice search and Cortana features will not work."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortana' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortanaAboveLock' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortana' -Value 1 -Type DWord -Force; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -Name 'AllowCortanaAboveLock' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search' -EA SilentlyContinue).AllowCortana"
+    },
+    {
+        "id": "DisableBackgroundApps",
+        "name": "Disable Background Apps",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents UWP/Store apps from running in the background and consuming resources.",
+        "educationalContext": {
+            "howItWorks": "Windows allows Store apps to run background tasks for live tiles, notifications, and updates.",
+            "pros": "Reclaims CPU, RAM, and battery used by background UWP apps. Reduces I/O noise.",
+            "cons": "Store app notifications and live tiles won't update until you open the app."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications' -Name 'GlobalUserDisabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BackgroundAppGlobalToggle' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications' -Name 'GlobalUserDisabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search' -Name 'BackgroundAppGlobalToggle' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications').GlobalUserDisabled"
+    },
+    {
+        "id": "DisableActivityHistory",
+        "name": "Disable Activity History",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables Activity History which tracks your recent docs, clipboard, and run history.",
+        "educationalContext": {
+            "howItWorks": "Windows Timeline tracks app usage, file access, and browsing history. This disables it entirely.",
+            "pros": "Stops Windows from recording your recent activity. No data sent to Microsoft Timeline.",
+            "cons": "You lose Windows Timeline/Task View history and cross-device activity resume."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableActivityFeed' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'PublishUserActivities' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'UploadUserActivities' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'EnableActivityFeed' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'PublishUserActivities' -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -Name 'UploadUserActivities' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System' -EA SilentlyContinue).EnableActivityFeed"
+    },
+    {
+        "id": "EnableEndTaskTaskbar",
+        "name": "Enable 'End Task' in Taskbar Right-Click",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Adds 'End Task' to the taskbar right-click context menu (Win11 23H2+).",
+        "educationalContext": {
+            "howItWorks": "Windows 11 23H2+ has a hidden 'End Task' option in the taskbar right-click menu. This enables it.",
+            "pros": "Kill frozen apps directly from the taskbar without opening Task Manager.",
+            "cons": "None. This is a hidden QoL feature that Microsoft should have enabled by default."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -Name 'TaskbarEndTask' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -Name 'TaskbarEndTask' -Value 0 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -EA SilentlyContinue).TaskbarEndTask"
+    },
+    {
+        "id": "DisableCopilot",
+        "name": "Disable Windows Copilot",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Completely disables Windows Copilot AI assistant and removes its taskbar button.",
+        "educationalContext": {
+            "howItWorks": "Windows Copilot runs as a sidebar AI that sends your queries to Microsoft. This blocks it via Group Policy.",
+            "pros": "No AI telemetry. Removes the Copilot button from taskbar. Saves background resources.",
+            "cons": "You lose access to the Copilot AI assistant in Windows."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot')) { New-Item -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Name 'TurnOffWindowsCopilot' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowCopilotButton' -Value 0 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -Name 'TurnOffWindowsCopilot' -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'ShowCopilotButton' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot' -EA SilentlyContinue).TurnOffWindowsCopilot"
+    },
+    {
+        "id": "ClassicContextMenu",
+        "name": "Restore Classic Right-Click Menu (Win11)",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Brings back the full classic context menu on right-click in Windows 11 instead of the simplified version.",
+        "educationalContext": {
+            "howItWorks": "Windows 11 replaced the full context menu with a truncated version. This registry key forces the legacy menu.",
+            "pros": "All context menu items visible immediately. No more 'Show more options' click.",
+            "cons": "Loses the modern rounded context menu design. Requires Explorer restart."
+        },
+        "execution": {
+            "code": "New-Item -Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32' -Force -Value '' | Out-Null; Stop-Process -Name explorer -Force",
+            "revertCode": "Remove-Item -Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}' -Recurse -Force -EA SilentlyContinue; Stop-Process -Name explorer -Force"
+        },
+        "validationCmd": "if (Test-Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32') { 'Applied' } else { 'Reverted' }"
+    },
+    {
+        "id": "DisableStickyKeys",
+        "name": "Disable Sticky Keys Popup",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the Sticky Keys popup when pressing Shift 5 times — essential for gaming.",
+        "educationalContext": {
+            "howItWorks": "Pressing Shift 5 times triggers a Sticky Keys accessibility prompt. This disables that shortcut.",
+            "pros": "No more annoying popups during gaming when spamming Shift.",
+            "cons": "You lose the Shift×5 shortcut to enable Sticky Keys (still accessible via Settings)."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Accessibility\\StickyKeys' -Name 'Flags' -Value '58' -Type String -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Accessibility\\StickyKeys' -Name 'Flags' -Value '510' -Type String -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\Control Panel\\Accessibility\\StickyKeys').Flags"
+    },
+    {
+        "id": "DisableIPv6",
+        "name": "Disable IPv6",
+        "category": "Network",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables IPv6 on all network adapters. Can fix connectivity issues on IPv4-only networks.",
+        "educationalContext": {
+            "howItWorks": "Disables the IPv6 protocol stack. Most consumer ISPs still primarily use IPv4.",
+            "pros": "Fixes DNS leaks in some VPN configs. Can resolve connectivity issues on IPv4-only networks.",
+            "cons": "Breaks IPv6-only services. Some modern apps and services are moving to IPv6."
+        },
+        "execution": {
+            "code": "Get-NetAdapterBinding -ComponentID ms_tcpip6 -EA SilentlyContinue | Disable-NetAdapterBinding -ComponentID ms_tcpip6 -EA SilentlyContinue; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters' -Name 'DisabledComponents' -Value 255 -Type DWord -Force",
+            "revertCode": "Get-NetAdapterBinding -ComponentID ms_tcpip6 -EA SilentlyContinue | Enable-NetAdapterBinding -ComponentID ms_tcpip6 -EA SilentlyContinue; Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters' -Name 'DisabledComponents' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters' -EA SilentlyContinue).DisabledComponents"
+    },
+    {
+        "id": "DisableWPBT",
+        "name": "Disable Windows Platform Binary Table",
+        "category": "Security",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Blocks OEMs from force-installing software via UEFI firmware on every boot.",
+        "educationalContext": {
+            "howItWorks": "WPBT lets motherboard vendors embed executables in UEFI that Windows runs automatically at boot.",
+            "pros": "Prevents vendor bloatware from re-installing itself. Closes a firmware-level attack vector.",
+            "cons": "Some vendor-specific features (anti-theft, driver helpers) may stop working."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager' -Name 'DisableWpbtExecution' -Value 1 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager' -Name 'DisableWpbtExecution' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager' -EA SilentlyContinue).DisableWpbtExecution"
+    },
+    {
+        "id": "DisableMultiplaneOverlay",
+        "name": "Disable Multiplane Overlay (MPO)",
+        "category": "Gaming",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Disables MPO which can cause black screens, flickering, and stuttering on some GPU/monitor combos.",
+        "educationalContext": {
+            "howItWorks": "MPO lets the GPU composite multiple planes (overlays) in hardware. Buggy implementations cause visual glitches.",
+            "pros": "Fixes black screens, flickering, and stuttering in games on affected GPUs (esp. AMD pre-RDNA3).",
+            "cons": "Slightly higher GPU power usage for desktop compositing. No impact on modern NVIDIA cards."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -Name 'OverlayTestMode' -Value 5 -Type DWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -Name 'OverlayTestMode' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -EA SilentlyContinue).OverlayTestMode"
+    },
+    {
+        "id": "RemoveExplorerHome",
+        "name": "Remove Home from File Explorer",
+        "category": "Windows UI",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes the 'Home' page from File Explorer in Windows 11 and opens to 'This PC' instead.",
+        "educationalContext": {
+            "howItWorks": "Sets Explorer to open to This PC instead of the Home view that shows recent files and favorites.",
+            "pros": "Faster access to drives. No privacy-leaking recent files shown on Explorer open.",
+            "cons": "You lose the quick access to recent files and favorites on the Home page."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'LaunchTo' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'LaunchTo' -Value 2 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').LaunchTo"
+    },
+    {
+        "id": "DisableStartMenuSuggestions",
+        "name": "Disable Start Menu Recommendations & Suggestions",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes app suggestions and recommendations from the Windows 11 Start Menu.",
+        "educationalContext": {
+            "howItWorks": "Windows 11 shows 'Recommended' apps and tips in the Start Menu. This disables them.",
+            "pros": "Cleaner Start Menu with no ads or suggestions. Faster Start Menu rendering.",
+            "cons": "You won't see recently opened files or app suggestions in Start."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackProgs' -Value 0 -Type DWord -Force; if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'HideRecommendedSection' -Value 1 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackProgs' -Value 1 -Type DWord -Force; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer' -Name 'HideRecommendedSection' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').Start_TrackProgs"
+    },
+    {
+        "id": "SetUTCTime",
+        "name": "Set Time to UTC (Dual Boot Fix)",
+        "category": "Tools",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Makes Windows use UTC for the hardware clock — essential for dual-booting with Linux.",
+        "educationalContext": {
+            "howItWorks": "Linux uses UTC for the hardware clock, Windows uses local time. This makes both consistent.",
+            "pros": "Fixes the time being wrong every time you switch between Linux and Windows.",
+            "cons": "None if you're dual-booting. Slight confusion if you later remove Linux."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation' -Name 'RealTimeIsUniversal' -Value 1 -Type QWord -Force",
+            "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation' -Name 'RealTimeIsUniversal' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation' -EA SilentlyContinue).RealTimeIsUniversal"
+    },
+    {
+        "id": "DisableAppLaunchTracking",
+        "name": "Disable App Launch Tracking",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from tracking which apps you launch and how often.",
+        "educationalContext": {
+            "howItWorks": "Windows records every app launch to personalize Start Menu and search results. This stops that tracking.",
+            "pros": "No more app launch history recorded by Windows.",
+            "cons": "Start Menu 'Most used' apps section won't update."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackProgs' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackDocs' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackProgs' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'Start_TrackDocs' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced').Start_TrackDocs"
+    },
+    {
+        "id": "DisableFeedbackFrequency",
+        "name": "Disable Feedback Requests",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from asking for feedback and sending diagnostic feedback data.",
+        "educationalContext": {
+            "howItWorks": "Windows periodically prompts you for feedback about your experience. This silences it.",
+            "pros": "No more 'How likely are you to recommend Windows?' popups.",
+            "cons": "Microsoft won't receive your feedback about bugs or features."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -Value 0 -Type DWord -Force; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'PeriodInNanoSeconds' -EA SilentlyContinue",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -EA SilentlyContinue).NumberOfSIUFInPeriod"
+    },
+    {
+        "id": "DisableTypingData",
+        "name": "Disable Typing & Inking Data Collection",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Windows from collecting typing patterns and inking data to send to Microsoft.",
+        "educationalContext": {
+            "howItWorks": "Windows sends keyboard typing patterns and handwriting data to improve speech/ink recognition models.",
+            "pros": "Your typing patterns and handwriting data stay completely private.",
+            "cons": "Personalized autocorrect and ink recognition may be less accurate."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Input\\TIPC' -Name 'Enabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy' -Name 'TailoredExperiencesWithDiagnosticDataEnabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Input\\TIPC' -Name 'Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Input\\TIPC').Enabled"
+    },
+    {
+        "id": "DisableCameraAccess",
+        "name": "Disable App Camera Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Denies all apps access to the camera by default.",
+        "educationalContext": {
+            "howItWorks": "Blocks UWP and desktop apps from accessing your camera through the Windows capability manager.",
+            "pros": "No app can secretly use your webcam. LED should never light up unexpectedly.",
+            "cons": "Video calls (Teams, Zoom, Discord) won't work until you re-enable per-app."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam').Value"
+    },
+    {
+        "id": "DisableContactsAccess",
+        "name": "Disable App Contacts Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your Windows contacts.",
+        "educationalContext": {
+            "howItWorks": "Blocks apps from reading your contacts stored in the Windows People app.",
+            "pros": "No app can harvest your contact list.",
+            "cons": "Apps that integrate with Windows contacts (People, Mail) won't show contact info."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts').Value"
+    },
+    {
+        "id": "DisableCalendarAccess",
+        "name": "Disable App Calendar Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your calendar data.",
+        "educationalContext": {
+            "howItWorks": "Blocks apps from reading your calendar events. Desktop apps that don't use the Windows API are unaffected.",
+            "pros": "Your schedule and appointments stay private from third-party apps.",
+            "cons": "UWP calendar integrations won't work."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments').Value"
+    },
+    {
+        "id": "DisableAccountInfoAccess",
+        "name": "Disable App Account Info Access",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Prevents apps from accessing your Microsoft account name, picture, and other info.",
+        "educationalContext": {
+            "howItWorks": "Blocks apps from reading your account name, picture, and email address.",
+            "pros": "Apps can't see your real name, email, or account photo.",
+            "cons": "Some apps may show a generic 'User' instead of your name."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation' -Name 'Value' -Value 'Deny' -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation' -Name 'Value' -Value 'Allow' -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation').Value"
+    },
+    {
+        "id": "DisableDiagnosticData",
+        "name": "Set Diagnostic Data to Minimum",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets Windows diagnostic data collection to 'Required' (minimum) — the lowest level allowed.",
+        "educationalContext": {
+            "howItWorks": "Windows collects diagnostic data at Full or Required levels. This forces the minimum level.",
+            "pros": "Minimizes telemetry sent to Microsoft to only what's required for security updates.",
+            "cons": "Tailored experiences and optional diagnostic insights won't work."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\DataCollection' -Name 'AllowTelemetry' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Name 'AllowTelemetry' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\DataCollection' -Name 'AllowTelemetry' -Value 3 -Type DWord -Force; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Name 'AllowTelemetry' -EA SilentlyContinue"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\DataCollection').AllowTelemetry"
+    },
+    {
+        "id": "DisablePSTelementry",
+        "name": "Disable PowerShell 7 Telemetry",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets the environment variable to disable PowerShell 7+ telemetry data collection.",
+        "educationalContext": {
+            "howItWorks": "PowerShell 7+ sends usage telemetry unless the POWERSHELL_TELEMETRY_OPTOUT variable is set.",
+            "pros": "No PowerShell usage data sent to Microsoft.",
+            "cons": "None. This only affects telemetry, not functionality."
+        },
+        "execution": {
+            "code": "[System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'Machine')",
+            "revertCode": "[System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', $null, 'Machine')"
+        },
+        "validationCmd": "[System.Environment]::GetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'Machine')"
+    },
+    {
+        "id": "DisableCrossDeviceResume",
+        "name": "Disable Cross-Device Resume",
+        "category": "Privacy",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Disables the cross-device activity resume feature in Windows 11 24H2+.",
+        "educationalContext": {
+            "howItWorks": "Windows 11 24H2 can resume activities started on your phone or other devices. This disables it.",
+            "pros": "No cross-device activity data shared with Microsoft servers.",
+            "cons": "You can't resume mobile activities on your PC."
+        },
+        "execution": {
+            "code": "if (!(Test-Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CrossDeviceResume\\Configuration')) { New-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CrossDeviceResume\\Configuration' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CrossDeviceResume\\Configuration' -Name 'IsResumeAllowed' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CrossDeviceResume\\Configuration' -Name 'IsResumeAllowed' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CrossDeviceResume\\Configuration' -EA SilentlyContinue).IsResumeAllowed"
+    },
+    {
+        "id": "SetServicesManual",
+        "name": "Set Unnecessary Services to Manual",
+        "category": "Performance",
+        "riskLevel": "Yellow",
+        "requiresExpertMode": false,
+        "description": "Sets non-essential Windows services to Manual startup so they only run when needed.",
+        "educationalContext": {
+            "howItWorks": "Many Windows services auto-start but are rarely used. Setting them to Manual means they start on-demand.",
+            "pros": "Faster boot, lower RAM usage, reduced background CPU activity.",
+            "cons": "First use of some features may take a moment longer as the service starts."
+        },
+        "execution": {
+            "code": "$services = @('DiagTrack','dmwappushservice','MapsBroker','lfsvc','SharedAccess','RemoteRegistry','RemoteAccess','TrkWks','WMPNetworkSvc','WSearch'); foreach ($s in $services) { if (Get-Service -Name $s -EA SilentlyContinue) { Set-Service -Name $s -StartupType Manual -EA SilentlyContinue } }; Set-Service -Name 'DiagTrack' -StartupType Disabled -EA SilentlyContinue; Stop-Service -Name 'DiagTrack' -Force -EA SilentlyContinue",
+            "revertCode": "$services = @('DiagTrack','dmwappushservice','MapsBroker','TrkWks','WSearch'); foreach ($s in $services) { if (Get-Service -Name $s -EA SilentlyContinue) { Set-Service -Name $s -StartupType Automatic -EA SilentlyContinue } }"
+        },
+        "validationCmd": "(Get-Service -Name 'DiagTrack' -EA SilentlyContinue).StartType"
+    },
+    {
+        "id": "DisableExplorerFolderDiscovery",
+        "name": "Disable Explorer Automatic Folder Discovery",
+        "category": "Performance",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Stops Explorer from auto-detecting folder types (Music, Pictures, etc.) which causes slow enumeration.",
+        "educationalContext": {
+            "howItWorks": "Explorer scans folder contents to decide the view template (Pictures, Music, etc.). This is slow for large folders.",
+            "pros": "Dramatically faster folder opening, especially for game install dirs and large downloads.",
+            "cons": "Folders always use the General template. No automatic Music/Pictures column layouts."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -Value 'NotSpecified' -Type String -Force -EA SilentlyContinue",
+            "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -EA SilentlyContinue"
+        },
+        "validationCmd": ""
+    },
+    {
+        "id": "DisableLockScreenAdsSpotlight",
+        "name": "Disable Lock Screen Ads & Spotlight",
+        "category": "Debloat",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Removes ads, tips, and Microsoft Spotlight from the lock screen.",
+        "educationalContext": {
+            "howItWorks": "Windows shows ads disguised as 'tips' and 'fun facts' on the lock screen. This disables all of them.",
+            "pros": "Clean lock screen with no marketing content. Faster lock screen loading.",
+            "cons": "You lose the rotating Bing wallpapers from Windows Spotlight."
+        },
+        "execution": {
+            "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenOverlayEnabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-338387Enabled' -Value 0 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-338389Enabled' -Value 0 -Type DWord -Force",
+            "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'RotatingLockScreenOverlayEnabled' -Value 1 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager' -Name 'SubscribedContent-338387Enabled' -Value 1 -Type DWord -Force"
+        },
+        "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager').RotatingLockScreenOverlayEnabled"
+    },
+    {
+        "id": "SetDNSMullvad",
+        "name": "Set DNS to Mullvad (100.64.0.4)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to Mullvad's privacy-focused DNS with ad/tracker blocking.",
+        "educationalContext": {
+            "howItWorks": "Mullvad DNS blocks ads, trackers, and malware at the DNS level. No logs, no data collection.",
+            "pros": "Privacy-first DNS with built-in ad/tracker blocking. No logging policy.",
+            "cons": "Slower than Cloudflare for raw speed. Some sites may break if ads are blocked."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('194.242.2.3','194.242.2.4') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSAdGuard",
+        "name": "Set DNS to AdGuard (94.140.14.14)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to AdGuard's DNS which blocks ads, trackers, and phishing domains.",
+        "educationalContext": {
+            "howItWorks": "AdGuard DNS resolves normal domains but returns NXDOMAIN for known ad/tracker/malware domains.",
+            "pros": "System-wide ad blocking at the DNS level. Blocks trackers and phishing sites.",
+            "cons": "Some ad-supported sites or services may not work correctly."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('94.140.14.14','94.140.15.15') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSQuad9",
+        "name": "Set DNS to Quad9 (9.9.9.9)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to Quad9 which provides malware blocking and privacy protection.",
+        "educationalContext": {
+            "howItWorks": "Quad9 uses threat intelligence from 40+ partners to block malicious domains at the DNS level.",
+            "pros": "Strong malware domain blocking. Non-profit, privacy-focused. Swiss legal jurisdiction.",
+            "cons": "Slightly slower than Cloudflare. Very aggressive blocking may rarely flag legitimate sites."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('9.9.9.9','149.112.112.112') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSNextDNS",
+        "name": "Set DNS to NextDNS (45.90.28.0)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to NextDNS — a customizable DNS with ad blocking, analytics, and parental controls.",
+        "educationalContext": {
+            "howItWorks": "NextDNS lets you customize your blocklists online. The default server provides basic protection.",
+            "pros": "Highly customizable via nextdns.io dashboard. Excellent analytics and logging controls.",
+            "cons": "Free tier limited to 300K queries/month. Full customization requires creating a NextDNS account."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('45.90.28.0','45.90.30.0') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSOpenDNS",
+        "name": "Set DNS to OpenDNS / Cisco Umbrella (208.67.222.222)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to Cisco's OpenDNS with phishing/botnet protection and content filtering.",
+        "educationalContext": {
+            "howItWorks": "OpenDNS (now Cisco Umbrella) provides DNS-level security with enterprise-grade threat detection.",
+            "pros": "Excellent phishing and botnet protection. Optional content filtering via OpenDNS account.",
+            "cons": "Owned by Cisco — may log queries for analytics. Slightly slower in some regions."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('208.67.222.222','208.67.220.220') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSControlD",
+        "name": "Set DNS to Control D (76.76.2.0)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to Control D — a customizable DNS with ad blocking and geo-unblocking.",
+        "educationalContext": {
+            "howItWorks": "Control D provides DNS-level ad blocking and can unblock geo-restricted content.",
+            "pros": "Ad blocking + geo-unblocking in one DNS. Very fast resolver infrastructure.",
+            "cons": "Full features require a paid account. Free tier is basic DNS resolution."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('76.76.2.0','76.76.10.0') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "SetDNSGoogle",
+        "name": "Set DNS to Google (8.8.8.8)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Sets DNS to Google Public DNS — the most widely used public DNS resolver.",
+        "educationalContext": {
+            "howItWorks": "Google Public DNS is a fast, reliable DNS resolver. No ad blocking or filtering.",
+            "pros": "Extremely fast and reliable. Massive global infrastructure with low latency.",
+            "cons": "Google logs DNS queries (anonymized after 48h). No ad/tracker blocking."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ServerAddresses ('8.8.8.8','8.8.4.4') }",
+            "revertCode": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
+    },
+    {
+        "id": "ResetDNSDefault",
+        "name": "Reset DNS to ISP Default (DHCP)",
+        "category": "Network",
+        "riskLevel": "Green",
+        "requiresExpertMode": false,
+        "description": "Resets DNS back to your ISP's default DNS servers via DHCP.",
+        "educationalContext": {
+            "howItWorks": "Removes any manually set DNS servers and lets your router/ISP assign DNS automatically via DHCP.",
+            "pros": "Returns to default network configuration. Useful if a custom DNS is causing issues.",
+            "cons": "Your ISP can see and log all your DNS queries. Usually slower than public DNS."
+        },
+        "execution": {
+            "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($a in $adapters) { Set-DnsClientServerAddress -InterfaceIndex $a.ifIndex -ResetServerAddresses }",
+            "revertCode": "Write-Output 'DNS is already at default.'"
+        },
+        "validationCmd": "(Get-DnsClientServerAddress -InterfaceAlias (Get-NetAdapter | Where-Object Status -eq 'Up' | Select -First 1).Name -AddressFamily IPv4).ServerAddresses -join ','"
     }
 ]

@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import tweaksData from "../data/tweaks.json";
-import { Info, AlertTriangle, ShieldCheck, Cpu, Code2, Zap, X, Filter } from "lucide-react";
+import { Info, AlertTriangle, ShieldCheck, Cpu, Code2, Zap, X, Filter, RotateCcw, Lock, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTweakExecution } from "../hooks/useTweakExecution";
 import { useToast } from "../components/ToastSystem";
 import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
 import { ProgressModal, type ProgressItem } from "../components/ProgressModal";
+import { useAppStore } from "../store/appStore";
 
 export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [selectedTweaks, setSelectedTweaks] = useState<string[]>([]);
@@ -16,18 +17,96 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
     const [showFailureActions, setShowFailureActions] = useState(false);
     const [failedBatchIndex, setFailedBatchIndex] = useState(-1);
+    const [revertTarget, setRevertTarget] = useState<typeof tweaksData[0] | null>(null);
+    const [isReverting, setIsReverting] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
+    const [showBannerExpertConfirm, setShowBannerExpertConfirm] = useState(false);
 
-    const { applyTweak, rollbackTweaks, isExecuting } = useTweakExecution();
+    const { applyTweak, revertTweak, validateTweak, rollbackTweaks, isExecuting } = useTweakExecution();
     const { addToast } = useToast();
 
-    const tweaks = tweaksData.filter(t => t.category === categoryTitle);
+    const appliedTweaks = useAppStore(s => s.appliedTweaks);
+    const expertModeEnabled = useAppStore(s => s.userSettings.expertModeEnabled);
+    const updateSettings = useAppStore(s => s.updateSettings);
+    const addAppliedTweak = useAppStore(s => s.addAppliedTweak);
+    const removeAppliedTweak = useAppStore(s => s.removeAppliedTweak);
+
+    // All tweaks in this category
+    const allCategoryTweaks = tweaksData.filter(t => t.category === categoryTitle);
+
+    // Count tweaks hidden by expert mode
+    const hiddenByExpertMode = allCategoryTweaks.filter(t => t.requiresExpertMode && !expertModeEnabled).length;
+
+    // Tweaks visible after expert mode filter
+    const tweaks = allCategoryTweaks.filter(t => expertModeEnabled || !t.requiresExpertMode);
+
     const visibleTweaks = tweaks.filter(t => filterRisk === "All" || t.riskLevel === filterRisk);
 
-    const toggleTweak = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setSelectedTweaks(prev =>
-            prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+    // FR-03: Validate current system state on category mount
+    useEffect(() => {
+        const tweaksToValidate = tweaksData.filter(
+            t => t.category === categoryTitle && t.validationCmd
         );
+        if (tweaksToValidate.length === 0) return;
+
+        let cancelled = false;
+        setIsValidating(true);
+
+        (async () => {
+            const settled = await Promise.allSettled(
+                tweaksToValidate.map(async (tweak) => {
+                    const timeout = new Promise<null>(res => setTimeout(() => res(null), 5000));
+                    const result = await Promise.race([validateTweak(tweak), timeout]);
+                    return { tweak, result };
+                })
+            );
+
+            if (cancelled) return;
+
+            // Reconcile: detect tweaks applied/reverted outside the app
+            for (const item of settled) {
+                if (item.status !== 'fulfilled' || !item.value.result) continue;
+                const { tweak, result } = item.value;
+                const currentlyApplied = useAppStore.getState().appliedTweaks.includes(tweak.id);
+                if (result.state === 'Applied' && !currentlyApplied) {
+                    addAppliedTweak(tweak.id);
+                } else if (result.state === 'Reverted' && currentlyApplied) {
+                    removeAppliedTweak(tweak.id);
+                }
+            }
+
+            setIsValidating(false);
+        })();
+
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [categoryTitle]);
+
+    const handleToggle = (tweak: typeof tweaksData[0], e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (appliedTweaks.includes(tweak.id)) {
+            setRevertTarget(tweak);
+        } else {
+            setSelectedTweaks(prev =>
+                prev.includes(tweak.id) ? prev.filter(id => id !== tweak.id) : [...prev, tweak.id]
+            );
+        }
+    };
+
+    const handleConfirmRevert = async () => {
+        if (!revertTarget) return;
+        setIsReverting(true);
+        try {
+            const result = await revertTweak(revertTarget);
+            if (result?.success) {
+                addToast({ type: 'success', title: `Reverted: ${revertTarget.name}` });
+            } else {
+                addToast({ type: 'error', title: `Revert failed: ${revertTarget.name}`, message: result?.stderr || '' });
+            }
+        } finally {
+            setIsReverting(false);
+            setRevertTarget(null);
+        }
     };
 
     const riskStyles: Record<string, { badge: string, dot: string }> = {
@@ -88,8 +167,36 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                         <span className="text-emerald-400 dark:text-emerald-300/80">{tweak.execution.code}</span>
                     </code>
                 </div>
+                {tweak.execution.revertCode && (
+                    <div className="mt-3 bg-slate-900 dark:bg-[#050505] rounded-xl p-4 border border-border shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+                        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex items-center">
+                            <RotateCcw className="w-3 h-3 mr-1" /> Revert Code
+                        </p>
+                        <code className="text-[11px] text-slate-500 font-mono break-all leading-loose">
+                            <span className="text-blue-500 select-none mr-2">PS&gt;</span>
+                            {tweak.execution.revertCode}
+                        </code>
+                    </div>
+                )}
             </div>
         </motion.div>
+    );
+
+    const SkeletonCard = ({ delay = 0 }: { delay?: number }) => (
+        <div
+            className="bento-card relative overflow-hidden p-5 flex items-start gap-4"
+            style={{ animationDelay: `${delay}ms` }}
+        >
+            <div className="mt-0.5 w-[42px] h-[24px] rounded-full bg-white/[0.05] shrink-0 animate-pulse" />
+            <div className="flex-1 min-w-0 space-y-2.5">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="h-4 bg-white/[0.05] rounded-full w-44 animate-pulse" />
+                    <div className="h-5 bg-white/[0.05] rounded-full w-14 animate-pulse" />
+                </div>
+                <div className="h-3 bg-white/[0.04] rounded-full w-full animate-pulse" />
+                <div className="h-3 bg-white/[0.04] rounded-full w-4/5 animate-pulse" />
+            </div>
+        </div>
     );
 
     return (
@@ -149,11 +256,48 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                         </button>
                     </div>
 
+                    {/* Expert mode banner */}
+                    {hiddenByExpertMode > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-amber-400"
+                        >
+                            <Lock className="w-4 h-4 shrink-0" />
+                            <p className="text-[13px] font-medium flex-1">
+                                <span className="font-bold">{hiddenByExpertMode} advanced tweak{hiddenByExpertMode > 1 ? 's' : ''} hidden</span>
+                                {" "}— enable Expert Mode in{" "}
+                                <button
+                                    onClick={() => setShowBannerExpertConfirm(true)}
+                                    className="underline hover:text-amber-300 transition-colors"
+                                >
+                                    Settings
+                                </button>
+                                {" "}to unlock.
+                            </p>
+                        </motion.div>
+                    )}
+
                     <div className={`flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar transition-all ${selectedTweaks.length > 0 ? "pb-24" : "pb-10"}`}>
+                        {isValidating ? (
+                            (tweaks.length > 0 ? tweaks : Array.from({ length: 4 })).map((_, i) => (
+                                <SkeletonCard key={i} delay={i * 60} />
+                            ))
+                        ) : (<>
                         <AnimatePresence mode="popLayout">
                             {visibleTweaks.map((tweak, i) => {
                                 const isSelected = selectedTweaks.includes(tweak.id);
+                                const isApplied = appliedTweaks.includes(tweak.id);
                                 const isActive = activeTweak?.id === tweak.id;
+
+                                // Toggle visual state
+                                const toggleBg = isApplied
+                                    ? "bg-emerald-500"
+                                    : isSelected
+                                        ? "bg-primary"
+                                        : "bg-black/10 dark:bg-[#27272a] shadow-inner border border-border";
+
+                                const thumbPosition = (isApplied || isSelected) ? "calc(100% - 22px)" : "2px";
 
                                 return (
                                     <motion.div
@@ -175,21 +319,26 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                             />
                                         )}
 
-                                        {isSelected && !isActive && (
+                                        {isApplied && (
+                                            <div className="absolute inset-0 bg-emerald-500/[0.03] pointer-events-none z-0 rounded-2xl border border-emerald-500/10" />
+                                        )}
+
+                                        {isSelected && !isActive && !isApplied && (
                                             <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none z-0"></div>
                                         )}
 
                                         {/* iOS Style Custom Switch */}
                                         <div
                                             className="mt-0.5 flex-shrink-0 relative z-10"
-                                            onClick={(e) => toggleTweak(tweak.id, e)}
+                                            onClick={(e) => handleToggle(tweak, e)}
+                                            title={isApplied ? "Click to revert this tweak" : "Toggle selection"}
                                         >
-                                            <div className={`w-[42px] h-[24px] rounded-full transition-colors relative flex items-center px-0.5 ${isSelected ? "bg-primary" : "bg-black/10 dark:bg-[#27272a] shadow-inner border border-border"}`}>
+                                            <div className={`w-[42px] h-[24px] rounded-full transition-colors relative flex items-center px-0.5 ${toggleBg}`}>
                                                 <motion.div
                                                     layout
                                                     className="w-[20px] h-[20px] rounded-full bg-white shadow-sm absolute"
                                                     initial={false}
-                                                    animate={{ left: isSelected ? "calc(100% - 22px)" : "2px" }}
+                                                    animate={{ left: thumbPosition }}
                                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                                 />
                                             </div>
@@ -197,15 +346,27 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
 
                                         <div className="flex-1 min-w-0 relative z-10">
                                             <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                                                <h3 className={`text-[15px] font-bold truncate transition-colors ${isSelected ? "text-primary dark:text-white" : "text-card-foreground"}`}>
+                                                <h3 className={`text-[15px] font-bold truncate transition-colors ${isApplied ? "text-emerald-400" : isSelected ? "text-primary dark:text-white" : "text-card-foreground"}`}>
                                                     {tweak.name}
                                                 </h3>
-                                                <span className={`flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${riskStyles[tweak.riskLevel].badge}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${riskStyles[tweak.riskLevel].dot}`}></span>
-                                                    {tweak.riskLevel}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    {isApplied && (
+                                                        <span className="flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 gap-1">
+                                                            <CheckCircle2 className="w-3 h-3" /> Applied
+                                                        </span>
+                                                    )}
+                                                    {tweak.requiresExpertMode && (
+                                                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20 uppercase tracking-widest">
+                                                            Expert
+                                                        </span>
+                                                    )}
+                                                    <span className={`flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${riskStyles[tweak.riskLevel].badge}`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${riskStyles[tweak.riskLevel].dot}`}></span>
+                                                        {tweak.riskLevel}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-500"}`}>
+                                            <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-100/60 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-500"}`}>
                                                 {tweak.description}
                                             </p>
                                         </div>
@@ -229,6 +390,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 <button onClick={() => setFilterRisk("All")} className="text-[12px] text-primary mt-2 hover:underline">Clear filter</button>
                             </div>
                         ) : null}
+                        </>)}
                     </div>
                 </div>
 
@@ -383,13 +545,11 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     setShowConfirm(false);
                     const tweaksToApply = selectedTweaks.map(id => tweaksData.find(t => t.id === id)!).filter(Boolean);
 
-                    // Set up progress items
                     setProgressItems(tweaksToApply.map(t => ({ id: t.id, name: t.name, status: 'pending' as const })));
                     setShowProgress(true);
                     setShowFailureActions(false);
                     setFailedBatchIndex(-1);
 
-                    // Execute sequentially
                     for (let i = 0; i < tweaksToApply.length; i++) {
                         const tweak = tweaksToApply[i];
                         setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'running' as const } : item));
@@ -408,12 +568,12 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                         }
                     }
 
-                    // Show toast summary
-                    if (failedBatchIndex === -1) {
+                    const currentFailedIndex = failedBatchIndex;
+                    if (currentFailedIndex === -1) {
                         addToast({ type: 'success', title: `${tweaksToApply.length} tweak${tweaksToApply.length > 1 ? 's' : ''} deployed successfully` });
                         setSelectedTweaks([]);
                     } else {
-                        addToast({ type: 'error', title: `Deployment failed on tweak ${failedBatchIndex + 1}/${tweaksToApply.length}` });
+                        addToast({ type: 'error', title: `Deployment failed on tweak ${currentFailedIndex + 1}/${tweaksToApply.length}` });
                     }
                 }}
             />
@@ -441,7 +601,6 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                 onSkipAndContinue={async () => {
                     setShowFailureActions(false);
                     const tweaksToApply = selectedTweaks.map(id => tweaksData.find(t => t.id === id)!).filter(Boolean);
-                    // Continue from after the failed index
                     for (let i = failedBatchIndex + 1; i < tweaksToApply.length; i++) {
                         const tweak = tweaksToApply[i];
                         setProgressItems(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'running' as const } : item));
@@ -455,6 +614,120 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     }
                 }}
             />
+
+            {/* Revert Confirmation Modal */}
+            <AnimatePresence>
+                {revertTarget && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => !isReverting && setRevertTarget(null)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            className="bg-card border border-border/80 rounded-2xl shadow-2xl p-6 max-w-md w-full relative z-10"
+                        >
+                            <div className="flex items-start gap-4 mb-5">
+                                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
+                                    <RotateCcw className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-[15px] font-bold text-foreground">Revert Tweak?</h3>
+                                    <p className="text-[13px] text-slate-400 mt-1">
+                                        <span className="font-bold text-foreground">{revertTarget.name}</span> will be reversed and the system restored to its previous state.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mb-5">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Revert Command</p>
+                                <div className="bg-slate-900 dark:bg-[#050505] rounded-xl p-3 border border-border">
+                                    <code className="text-[11px] text-blue-400/80 font-mono break-all leading-loose">
+                                        <span className="text-blue-500 select-none mr-2">PS&gt;</span>
+                                        {revertTarget.execution.revertCode}
+                                    </code>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-3">
+                                <button
+                                    onClick={() => setRevertTarget(null)}
+                                    disabled={isReverting}
+                                    className="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-400 hover:text-foreground hover:bg-white/5 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmRevert}
+                                    disabled={isReverting}
+                                    className="px-5 py-2 rounded-xl text-[13px] font-bold bg-blue-500 hover:bg-blue-600 text-white transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {isReverting ? (
+                                        <><RotateCcw className="w-4 h-4 animate-spin" /> Reverting…</>
+                                    ) : (
+                                        <><RotateCcw className="w-4 h-4" /> Revert</>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Expert Mode Confirmation (from banner) */}
+            <AnimatePresence>
+                {showBannerExpertConfirm && (
+                    <>
+                        <motion.div
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            onClick={() => setShowBannerExpertConfirm(false)}
+                        />
+                        <motion.div
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                        >
+                            <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl shadow-2xl max-w-md w-full">
+                                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+                                            <AlertTriangle className="w-5 h-5 text-red-400" />
+                                        </div>
+                                        <h2 className="text-lg font-bold text-white">Expert Mode Warning</h2>
+                                    </div>
+                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="px-6 py-5">
+                                    <p className="text-[14px] text-slate-300 leading-relaxed">
+                                        Expert Mode enables high-risk tweaks that can affect system stability.
+                                        These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
+                                        carry a higher risk of causing system issues or requiring a restore point.
+                                    </p>
+                                    <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
+                                        Only enable this if you understand the risks and have a system restore point ready.
+                                    </p>
+                                </div>
+                                <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
+                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => { updateSettings({ expertModeEnabled: true }); setShowBannerExpertConfirm(false); }}
+                                        className="px-5 py-2 text-sm font-bold rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/30 transition-colors"
+                                    >
+                                        I Understand, Enable
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </>
     );
 }

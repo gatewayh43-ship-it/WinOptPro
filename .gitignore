@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# WinOpt Specific
+chromium-out*.txt
+test-results/
+src-tauri/target/
+node_modules/
+dist/
+dist-ssr/
+

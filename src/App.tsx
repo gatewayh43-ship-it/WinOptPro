@@ -9,6 +9,8 @@ import { StartupPage } from "./pages/StartupPage";
 import { StoragePage } from "./pages/StoragePage";
 import { ProcessPage } from "./pages/ProcessPage";
 import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
+import { AppsPage } from "./pages/AppsPage";
+import { PowerPage } from "./pages/PowerPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -61,6 +63,8 @@ function App() {
     network: <NetworkAnalyzerPage />,
     settings: <SettingsPage />,
     profiles: <ProfilesPage />,
+    apps: <AppsPage />,
+    power_manager: <PowerPage />,
   };
 
   const handleSelectTweak = (tweak: any) => {

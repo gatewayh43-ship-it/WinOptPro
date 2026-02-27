@@ -1,6 +1,20 @@
+use serde::Serialize;
+use std::process::Stdio;
 use tauri::command;
+use tokio::process::Command;
+use tokio::time::{timeout, Duration};
 
-/// Check if the current process is running with administrator privileges.
+const ELEVATION_TIMEOUT: Duration = Duration::from_secs(60);
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ElevationResult {
+    pub success: bool,
+    pub output: String,
+    pub error: String,
+}
+
+/// Check if the current process is running as Administrator.
 #[command]
 pub fn is_admin() -> Result<bool, String> {
     #[cfg(windows)]
@@ -12,5 +26,114 @@ pub fn is_admin() -> Result<bool, String> {
     #[cfg(not(windows))]
     {
         Ok(false)
+    }
+}
+
+/// Execute a PowerShell command with UAC elevation (RunAs).
+/// Writes the script to a temp file, executes via ShellExecute "runas" verb,
+/// and captures output.
+#[command]
+pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String> {
+    #[cfg(windows)]
+    {
+        // Write the PowerShell code + result capture to a temp file
+        let temp_dir = std::env::temp_dir();
+        let script_id = uuid::Uuid::new_v4().to_string();
+        let script_path = temp_dir.join(format!("winopt_{}.ps1", script_id));
+        let output_path = temp_dir.join(format!("winopt_{}.out", script_id));
+        let error_path = temp_dir.join(format!("winopt_{}.err", script_id));
+
+        // Wrap the user code to capture output to files
+        let wrapped_code = format!(
+            r#"try {{
+    $result = Invoke-Command -ScriptBlock {{ {} }}
+    $result | Out-File -FilePath '{}' -Encoding UTF8 -Force
+}} catch {{
+    $_.Exception.Message | Out-File -FilePath '{}' -Encoding UTF8 -Force
+    exit 1
+}}"#,
+            code,
+            output_path.to_string_lossy().replace('\\', "\\\\"),
+            error_path.to_string_lossy().replace('\\', "\\\\"),
+        );
+
+        std::fs::write(&script_path, &wrapped_code)
+            .map_err(|e| format!("Failed to write temp script: {}", e))?;
+
+        // Execute with elevated privileges using PowerShell Start-Process -Verb RunAs
+        let mut child = Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                &format!(
+                    "Start-Process powershell -Verb RunAs -Wait -WindowStyle Hidden -ArgumentList '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"{}\"'",
+                    script_path.to_string_lossy()
+                ),
+            ])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("Failed to spawn elevated process: {}", e))?;
+
+        let result = timeout(ELEVATION_TIMEOUT, child.wait_with_output())
+            .await
+            .map_err(|_| {
+                let _ = child.start_kill();
+                "Elevated command timed out after 60 seconds".to_string()
+            })?
+            .map_err(|e| format!("Elevated command failed: {}", e))?;
+
+        // Read output files
+        let output = std::fs::read_to_string(&output_path).unwrap_or_default().trim().to_string();
+        let error = std::fs::read_to_string(&error_path).unwrap_or_default().trim().to_string();
+        let success = result.status.success() && error.is_empty();
+
+        // Cleanup temp files
+        let _ = std::fs::remove_file(&script_path);
+        let _ = std::fs::remove_file(&output_path);
+        let _ = std::fs::remove_file(&error_path);
+
+        Ok(ElevationResult {
+            success,
+            output,
+            error,
+        })
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = code;
+        Ok(ElevationResult {
+            success: false,
+            output: String::new(),
+            error: "UAC elevation is only supported on Windows.".to_string(),
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_admin_returns_bool() {
+        // Should not panic regardless of elevation state
+        let result = is_admin();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_elevation_result_serialization() {
+        let result = ElevationResult {
+            success: true,
+            output: "ok".to_string(),
+            error: String::new(),
+        };
+        let json = serde_json::to_string(&result).unwrap();
+        assert!(json.contains("success"));
+        assert!(json.contains("output"));
     }
 }
