@@ -68,7 +68,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-A2 | As a power user, I want to execute multiple tweaks in a single batch deploy with a per-item progress tracker so I can apply comprehensive optimizations efficiently. | P0 | ✅ Done |
 | US-A3 | As a power user, I want to revert any applied tweak with one click, with a confirmation showing the exact revert command so I can undo safely. | P0 | ✅ Done |
 | US-A4 | As a power user, I want a full history timeline of all applied and reverted tweaks with timestamps and before/after system vitals so I can measure optimization impact. | P1 | ✅ Done (HistoryPage) |
-| US-A5 | As a power user, I want to export my complete tweak profile as a `.winopt` file so I can replicate the setup on another machine instantly. | P1 | 🔲 Not started |
+| US-A5 | As a power user, I want to export my complete tweak profile as a `.winopt` file so I can replicate the setup on another machine instantly. | P1 | ✅ Done (SettingsPage Backup section) |
 | US-A6 | As a power user, I want an Expert Mode toggle that unlocks Red-level tweaks with clear warnings, so I can push system limits when I know what I'm doing. | P2 | ✅ Done (SettingsPage) |
 | US-A7 | As a power user, I want to search all tweaks via Command Palette and see results grouped by category so I can find any optimization instantly. | P0 | ✅ Done |
 | US-A8 | As a power user, I want the Inspector panel to appear as a bottom drawer on small windows so I can use the app regardless of window size. | P0 | ✅ Done |
@@ -91,8 +91,8 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 | ID | User Story | Priority | Status |
 | :--- | :--- | :--- | :--- |
-| US-C1 | As a privacy user, I want a one-click Privacy Audit that scans all telemetry settings, tracking services, and firewall rules, and shows me the results as a categorized report. | P0 | 🔲 Not started |
-| US-C2 | As a privacy user, I want a Privacy Score from 0 to 100 so I can understand my current exposure level at a glance. | P0 | 🔲 Not started |
+| US-C1 | As a privacy user, I want a one-click Privacy Audit that scans all telemetry settings, tracking services, and firewall rules, and shows me the results as a categorized report. | P0 | ✅ Done (PrivacyAuditPage) |
+| US-C2 | As a privacy user, I want a Privacy Score from 0 to 100 so I can understand my current exposure level at a glance. | P0 | ✅ Done (PrivacyAuditPage score gauge) |
 | US-C3 | As a privacy user, I want to apply all privacy tweaks with a single "Harden Privacy" action after reviewing a full preview of every change. | P0 | ✅ Done (ProfilesPage) |
 | US-C4 | As a privacy user, I want an encrypted, local audit log of every system change made by WinOpt so I have a verifiable compliance record. | P1 | 🔲 Not started |
 | US-C5 | As a privacy user, I want to click the alert banner on the Dashboard to navigate directly to the Privacy page so I can act on warnings immediately. | P0 | ✅ Done |
@@ -103,10 +103,10 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 | ID | User Story | Priority | Status |
 | :--- | :--- | :--- | :--- |
-| US-D1 | As an IT pro, I want to generate a comprehensive system report (hardware, drivers, running services, Windows build, installed software) as a PDF so I can share it with stakeholders. | P1 | 🔲 Not started |
+| US-D1 | As an IT pro, I want to generate a comprehensive system report (hardware, drivers, running services, Windows build, installed software) as a PDF so I can share it with stakeholders. | P1 | ✅ Done (SystemReportPage — HTML format) |
 | US-D2 | As an IT pro, I want to compare my system against CIS Benchmarks or Microsoft Security Baseline and see a compliance percentage with remediation steps. | P2 | 🔲 Not started |
-| US-D3 | As an IT pro, I want to schedule automated maintenance tasks (disk cleanup, temp removal) at off-peak hours so systems stay clean without manual work. | P2 | 🔲 Not started |
-| US-D4 | As an IT pro, I want to export all WinOpt settings, profiles, and history as an encrypted backup file so I can restore on a new machine or share with a team. | P2 | 🔲 Not started |
+| US-D3 | As an IT pro, I want to schedule automated maintenance tasks (disk cleanup, temp removal) at off-peak hours so systems stay clean without manual work. | P2 | ✅ Done (StoragePage scheduler section) |
+| US-D4 | As an IT pro, I want to export all WinOpt settings, profiles, and history as an encrypted backup file so I can restore on a new machine or share with a team. | P2 | ✅ Done (SettingsPage Backup section) |
 | US-D5 | As an IT pro, I want to see every tweak's exact PowerShell code in the Inspector so I can verify and understand every system change before it runs. | P0 | ✅ Done (Inspector sidebar) |
 
 ### Persona E — Casual User
@@ -278,7 +278,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-20: Privacy & Security Audit
 
-- **Status:** 🔲 Not started (Privacy Score + audit scan not yet implemented)
+- **Status:** ✅ Done (PrivacyAuditPage — scan, score 0-100, category tabs, per-issue Fix, Fix All)
 - Scan telemetry registry keys, DiagTrack/dmwappushservice services, firewall outbound rules
 - Privacy Score: 0–100 computed from weighted issue severity
 - Categorized issue list: Telemetry, Services, Registry, Network
@@ -286,7 +286,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-21: Power Plan Manager
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (PowerPage — plan switching, battery health, CPU/display/sleep sliders per plan)
 - List all power plans via `powercfg /list`; show active plan
 - Edit per-plan: CPU min/max %, display timeout, sleep timeout, USB suspend
 - One-click switch; auto-switch on AC/battery event
@@ -294,14 +294,14 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 
 ### FR-22: Gaming Optimizer (expanded)
 
-- **Status:** 🔲 Not started (tweaks page done)
+- **Status:** ❌ Not feasible (FPS overlay requires DirectX hooking; GPU OC requires NVML/ADL SDK; auto-detect requires ETW — none possible in a Tauri webview; GPU basic info added to Dashboard SystemVitals via WMI)
 - Auto-detect game launches via process creation events; apply Gaming profile automatically
 - Show in-game overlay: FPS, frame time ms, CPU%, GPU%, network ping; toggle F12
 - GPU info: current clocks, temp, VRAM usage (NVIDIA + AMD)
 
 ### FR-23: Driver Manager
 
-- **Status:** 🔲 Not started
+- **Status:** ✅ Done (DriverManagerPage — list all drivers, signed/unsigned filter, search, export JSON)
 - Enumerate installed drivers via WMI `Win32_PnPDevice`; show installed version
 - Backup driver before any update via `Export-WindowsDriver`
 - Install update via `pnputil.exe /add-driver`; rollback to backup
