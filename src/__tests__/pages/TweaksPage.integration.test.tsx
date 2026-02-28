@@ -269,6 +269,7 @@ describe("TweaksPage integration", () => {
                 autoRefreshVitals: true,
                 autoRefreshIntervalMs: 3000,
                 showDeployConfirmation: true,
+                aiAssistantEnabled: false,
             },
         });
 

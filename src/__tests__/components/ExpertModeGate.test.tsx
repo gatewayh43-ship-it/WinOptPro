@@ -32,6 +32,7 @@ function setExpertMode(enabled: boolean) {
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,
             showDeployConfirmation: true,
+            aiAssistantEnabled: false,
         },
     });
 }

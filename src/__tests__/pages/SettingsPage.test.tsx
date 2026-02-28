@@ -27,6 +27,7 @@ function resetStore() {
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,
             showDeployConfirmation: true,
+            aiAssistantEnabled: false,
         },
     });
 }
@@ -61,6 +62,7 @@ describe("SettingsPage", () => {
                 autoRefreshVitals: false,
                 autoRefreshIntervalMs: 10000,
                 showDeployConfirmation: false,
+                aiAssistantEnabled: false,
             },
         });
         const user = setupUser();

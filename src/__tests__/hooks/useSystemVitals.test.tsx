@@ -28,6 +28,7 @@ function settingsWithInterval(ms: number) {
             autoRefreshVitals: true,
             autoRefreshIntervalMs: ms,
             showDeployConfirmation: true,
+            aiAssistantEnabled: false,
         },
     };
 }
@@ -41,6 +42,7 @@ const settingsNoRefresh = {
         autoRefreshVitals: false,
         autoRefreshIntervalMs: 3000,
         showDeployConfirmation: true,
+        aiAssistantEnabled: false,
     },
 };
 
