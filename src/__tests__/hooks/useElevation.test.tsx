@@ -96,7 +96,8 @@ describe("useElevation", () => {
         vi.mocked(tauriCore.invoke).mockRejectedValue(new Error("UAC cancelled"));
         const { result } = renderHook(() => useElevation());
 
-        let ret: { success: boolean; output: string; error: string } | null = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let ret: any = null;
         await act(async () => {
             ret = await result.current.elevateAndExecute("Set-Service");
         });

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield } from "lucide-react";
+import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck, Cpu, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
 
@@ -39,12 +39,15 @@ const mainNavItems: NavItem[] = [
 
 const utilNavItems: NavItem[] = [
     { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
+    { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
     { id: "defender", label: "Defender Support", lucideIcon: Shield },
     { id: "processes", label: "Process Manager", lucideIcon: Activity },
     { id: "network", label: "Network Analyzer", lucideIcon: Network },
     { id: "startup", label: "Startup Apps", lucideIcon: Power },
     { id: "storage", label: "Storage Optimizer", lucideIcon: HardDrive },
+    { id: "drivers", label: "Driver Manager", lucideIcon: Cpu },
     { id: "apps", label: "Recommended Apps", lucideIcon: Package },
+    { id: "system_report", label: "System Report", lucideIcon: FileText },
     { id: "profiles", label: "Profiles", lucideIcon: Layers },
     { id: "history", label: "History", lucideIcon: Clock },
     { id: "settings", label: "Settings", lucideIcon: Settings },

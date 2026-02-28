@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2 } from "lucide-react";
+import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
+import { useBackup } from "../hooks/useBackup";
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -68,6 +69,64 @@ function SelectOption({ value, options, onChange, label }: {
                 ))}
             </select>
         </div>
+    );
+}
+
+function BackupSection() {
+    const { isExporting, isImporting, lastBackupTime, importPath, setImportPath, exportBackup, importBackup } = useBackup();
+    const [showImport, setShowImport] = useState(false);
+
+    return (
+        <SettingSection icon={Archive} title="Backup & Restore" description="Export your applied tweaks and settings to a .winopt file, or restore from a previous backup.">
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-[13px] font-semibold text-slate-300">Export Backup</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                            {lastBackupTime ? `Last backup: ${lastBackupTime}` : "No backup taken yet"}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => exportBackup()}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[12px] font-bold transition-colors disabled:opacity-50"
+                    >
+                        {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                        Export
+                    </button>
+                </div>
+
+                <div className="border-t border-border/50 pt-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="text-[13px] font-semibold text-slate-300">Import Backup</p>
+                        <button
+                            onClick={() => setShowImport(v => !v)}
+                            className="text-[11px] text-slate-500 hover:text-foreground transition-colors font-medium"
+                        >
+                            {showImport ? "Hide" : "Show"}
+                        </button>
+                    </div>
+                    {showImport && (
+                        <div className="flex gap-2 mt-2">
+                            <input
+                                value={importPath}
+                                onChange={e => setImportPath(e.target.value)}
+                                placeholder="C:\path\to\backup.winopt"
+                                className="flex-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-[12px] font-mono text-foreground placeholder:text-slate-600 focus:outline-none focus:border-primary/50"
+                            />
+                            <button
+                                onClick={() => importBackup()}
+                                disabled={isImporting || !importPath.trim()}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[12px] font-bold transition-colors disabled:opacity-50"
+                            >
+                                {isImporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                                Restore
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </SettingSection>
     );
 }
 
@@ -239,6 +298,9 @@ export function SettingsPage() {
                             </div>
                         )}
                     </SettingSection>
+
+                    {/* Backup & Restore */}
+                    <BackupSection />
                 </div>
             </div>
 

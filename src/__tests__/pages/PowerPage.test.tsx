@@ -7,6 +7,9 @@ import type { ReactNode } from "react";
 vi.mock("@/hooks/usePower", () => {
     const setActivePlan = vi.fn().mockResolvedValue(true);
     const fetchPlans = vi.fn();
+    const fetchBatteryHealth = vi.fn();
+    const fetchPowerSettings = vi.fn();
+    const updatePowerSetting = vi.fn().mockResolvedValue(true);
     return {
         usePower: () => ({
             plans: [
@@ -18,6 +21,12 @@ vi.mock("@/hooks/usePower", () => {
             isChanging: false,
             setActivePlan,
             fetchPlans,
+            batteryHealth: null,
+            powerSettings: null,
+            isLoadingSettings: false,
+            fetchBatteryHealth,
+            fetchPowerSettings,
+            updatePowerSetting,
         }),
     };
 });

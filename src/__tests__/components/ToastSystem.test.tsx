@@ -31,17 +31,8 @@ function ToastTrigger({ type, title, message, duration }: {
     );
 }
 
-function RemoveTrigger() {
-    const { addToast, removeToast } = useToast();
-    const handleAdd = () => {
-        addToast({ type: "info", title: "Removable", duration: 0 }); // duration 0 = persistent
-    };
-    return (
-        <>
-            <button onClick={handleAdd}>Add Persistent</button>
-        </>
-    );
-}
+// RemoveTrigger component kept for reference but not used in tests
+// (was used to verify removeToast but tests use direct dismiss button clicks instead)
 
 describe("ToastSystem", () => {
     describe("useToast fallback (outside provider)", () => {
@@ -128,8 +119,6 @@ describe("ToastSystem", () => {
             await user.click(screen.getByRole("button", { name: /add toast/i }));
             expect(await screen.findByText("Dismiss me")).toBeInTheDocument();
 
-            // Click the X button inside the toast
-            const dismissBtn = screen.getByRole("button", { name: "" }); // X has no accessible name
             // Find the small X button (not the Add Toast button)
             const allBtns = screen.getAllByRole("button");
             const xBtn = allBtns.find((b) => !b.textContent?.includes("Add Toast"));

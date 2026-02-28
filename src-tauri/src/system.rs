@@ -1,7 +1,11 @@
 use serde::Serialize;
 use std::collections::HashMap;
+use std::os::windows::process::CommandExt;
+use std::process::Command;
 use sysinfo::{Components, Disks, Networks, System};
 use tauri::command;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -47,6 +51,14 @@ pub struct SystemInfo {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct GpuInfo {
+    pub name: String,
+    pub driver_version: String,
+    pub vram_mb: u64,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SystemVitals {
     pub timestamp: i64,
     pub cpu: CpuInfo,
@@ -54,6 +66,7 @@ pub struct SystemVitals {
     pub drives: HashMap<String, DriveInfo>,
     pub network: HashMap<String, NetworkAdapterInfo>,
     pub system: SystemInfo,
+    pub gpu: Option<GpuInfo>,
 }
 
 /// Collect real system vitals using the `sysinfo` crate.
@@ -141,6 +154,32 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
 
     let timestamp = chrono::Utc::now().timestamp_millis();
 
+    // GPU info via WMI
+    let gpu_info = {
+        let script = r#"
+$g = Get-WmiObject Win32_VideoController | Select-Object -First 1
+if ($g) {
+    @{ name=$g.Name; driver_version=$g.DriverVersion; vram_mb=[math]::Round($g.AdapterRAM/1MB) } | ConvertTo-Json -Compress
+}
+"#;
+        Command::new("powershell")
+            .args(["-NoProfile", "-NonInteractive", "-Command", script])
+            .creation_flags(CREATE_NO_WINDOW)
+            .output()
+            .ok()
+            .and_then(|o| {
+                let s = String::from_utf8_lossy(&o.stdout).trim().to_string();
+                if s.is_empty() { return None; }
+                #[derive(serde::Deserialize)]
+                struct GpuRaw { name: String, driver_version: String, vram_mb: u64 }
+                serde_json::from_str::<GpuRaw>(&s).ok().map(|r| GpuInfo {
+                    name: r.name,
+                    driver_version: r.driver_version,
+                    vram_mb: r.vram_mb,
+                })
+            })
+    };
+
     Ok(SystemVitals {
         timestamp,
         cpu: CpuInfo {
@@ -162,6 +201,7 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
             os_version,
             is_admin,
         },
+        gpu: gpu_info,
     })
 }
 
@@ -233,6 +273,7 @@ mod tests {
                 os_version: "Test".to_string(),
                 is_admin: false,
             },
+            gpu: None,
         };
         let json = serde_json::to_string(&vitals).unwrap();
         assert!(json.contains("timestamp"));

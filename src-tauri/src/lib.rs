@@ -1,13 +1,18 @@
 mod apps;
+mod backup;
 mod db;
+mod drivers;
 mod network;
+mod power;
+mod privacy;
 mod process;
+mod report;
+mod scheduler;
 mod security;
 mod startup;
 mod storage;
 mod system;
 mod tweaks;
-mod power;
 mod ai;
 
 use db::DbState;
@@ -67,6 +72,29 @@ pub fn run() {
             // Power
             power::get_power_plans,
             power::set_active_power_plan,
+            power::get_battery_health,
+            power::get_power_settings,
+            power::set_power_setting,
+            // Privacy
+            privacy::scan_privacy_issues,
+            privacy::fix_privacy_issues,
+            privacy::check_privacy_issue,
+            // Drivers
+            drivers::list_drivers,
+            drivers::get_unsigned_drivers,
+            drivers::export_driver_list,
+            // Backup
+            backup::export_backup,
+            backup::import_backup,
+            backup::get_backup_info,
+            // Report
+            report::generate_system_report,
+            report::save_system_report,
+            // Scheduler
+            scheduler::list_maintenance_tasks,
+            scheduler::create_maintenance_task,
+            scheduler::delete_maintenance_task,
+            scheduler::run_maintenance_task_now,
             // AI
             ai::start_ollama,
             ai::stop_ollama,

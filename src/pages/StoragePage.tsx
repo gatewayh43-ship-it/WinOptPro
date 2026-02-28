@@ -1,7 +1,91 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { HardDrive, RefreshCcw, Trash2, ShieldAlert } from "lucide-react";
+import { HardDrive, RefreshCcw, Trash2, ShieldAlert, Clock, Plus, PlayCircle, X, Loader2 } from "lucide-react";
 import { useStorage } from "../hooks/useStorage";
+import { useScheduler, PREDEFINED_TASKS } from "../hooks/useScheduler";
+
+function ScheduledMaintenanceSection() {
+    const { tasks, isLoading, isWorking, fetchTasks, createTask, deleteTask, runNow } = useScheduler();
+    const [showAdd, setShowAdd] = useState(false);
+
+    useEffect(() => { fetchTasks(); }, []);
+
+    return (
+        <div className="bento-card p-5 space-y-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Scheduled Maintenance</span>
+                </div>
+                <button
+                    onClick={() => setShowAdd(v => !v)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[11px] font-bold transition-colors"
+                >
+                    <Plus className="w-3.5 h-3.5" /> Add Schedule
+                </button>
+            </div>
+
+            {showAdd && (
+                <div className="space-y-2 p-3 rounded-xl border border-border bg-white/[0.02]">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Predefined Tasks</p>
+                    {PREDEFINED_TASKS.map(task => (
+                        <div key={task.name} className="flex items-center justify-between gap-3 py-2">
+                            <div>
+                                <p className="text-[13px] font-semibold text-foreground">{task.label}</p>
+                                <p className="text-[11px] text-slate-500">{task.description}</p>
+                            </div>
+                            <button
+                                onClick={() => createTask(task.name, task.schedule, task.action_cmd)}
+                                disabled={isWorking}
+                                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-primary/30 text-[11px] font-bold transition-colors disabled:opacity-50"
+                            >
+                                {isWorking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                                Schedule {task.schedule.charAt(0) + task.schedule.slice(1).toLowerCase()}
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {isLoading ? (
+                <div className="flex items-center gap-2 text-slate-500 text-[12px] py-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Loading tasks...
+                </div>
+            ) : tasks.length === 0 ? (
+                <p className="text-[12px] text-slate-600 py-2">No maintenance tasks scheduled. Click "Add Schedule" to create one.</p>
+            ) : (
+                <div className="space-y-2">
+                    {tasks.map(task => (
+                        <div key={task.id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border bg-white/[0.02]">
+                            <div className="min-w-0">
+                                <p className="text-[13px] font-semibold text-foreground truncate">{task.name}</p>
+                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                    {task.schedule} · Last: {task.last_run} · Next: {task.next_run}
+                                </p>
+                            </div>
+                            <div className="flex gap-1.5 shrink-0">
+                                <button
+                                    onClick={() => runNow(task.name)}
+                                    title="Run Now"
+                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-500 hover:text-emerald-400 transition-colors"
+                                >
+                                    <PlayCircle className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => deleteTask(task.name)}
+                                    title="Delete Task"
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 export function StoragePage() {
     const { items, diskHealth, isScanning, isCleaning, error, scan, executeCleanup } = useStorage();
@@ -198,6 +282,9 @@ export function StoragePage() {
                     </div>
                 )}
             </motion.div>
+
+            {/* Scheduled Maintenance */}
+            <ScheduledMaintenanceSection />
         </div>
     );
 }

@@ -12,6 +12,9 @@ import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
 import { AppsPage } from "./pages/AppsPage";
 import { PowerPage } from "./pages/PowerPage";
 import { DefenderPage } from "./pages/DefenderPage";
+import { PrivacyAuditPage } from "./pages/PrivacyAuditPage";
+import { DriverManagerPage } from "./pages/DriverManagerPage";
+import { SystemReportPage } from "./pages/SystemReportPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
@@ -68,6 +71,9 @@ function App() {
     apps: <AppsPage />,
     power_manager: <PowerPage />,
     defender: <DefenderPage />,
+    privacy_audit: <PrivacyAuditPage />,
+    drivers: <DriverManagerPage />,
+    system_report: <SystemReportPage />,
   };
 
   const handleSelectTweak = (tweak: any) => {
