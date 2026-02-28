@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X } from "lucide-react";
+import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2 } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
@@ -75,6 +76,35 @@ export function SettingsPage() {
     const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
     const { addToast } = useToast();
     const [showExpertConfirm, setShowExpertConfirm] = useState(false);
+    const [isDownloadingAI, setIsDownloadingAI] = useState(false);
+    const [aiDownloadStatus, setAiDownloadStatus] = useState("");
+
+    const handleAIToggle = async (enable: boolean) => {
+        if (!enable) {
+            updateSettings({ aiAssistantEnabled: false });
+            try { await invoke("stop_ollama"); } catch (e) { }
+            return;
+        }
+
+        setIsDownloadingAI(true);
+        setAiDownloadStatus("Downloading portable Ollama backend (~60MB)...");
+        try {
+            await invoke("download_ollama");
+            setAiDownloadStatus("Starting AI Daemon...");
+            await invoke("start_ollama");
+            setAiDownloadStatus("Pulling Qwen 2.5 1.5B Model (~1.5GB). This may take a few minutes...");
+            await invoke("pull_model");
+
+            updateSettings({ aiAssistantEnabled: true });
+            addToast({ type: "success", title: "AI Assistant Ready", message: "Ollama and Qwen 2.5 installed successfully." });
+        } catch (err: any) {
+            addToast({ type: "error", title: "AI Setup Failed", message: err.toString() });
+            updateSettings({ aiAssistantEnabled: false });
+        } finally {
+            setIsDownloadingAI(false);
+            setAiDownloadStatus("");
+        }
+    };
 
     const handleResetDefaults = () => {
         updateSettings({
@@ -90,178 +120,193 @@ export function SettingsPage() {
 
     return (
         <>
-        <div className="space-y-6 pb-12 max-w-3xl">
-            {/* Header */}
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-end justify-between"
-            >
-                <div>
-                    <h2 className="text-3xl font-black tracking-tight text-foreground">
-                        <span className="text-gradient">Settings</span>
-                    </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed">
-                        Customize your WinOpt Pro experience.
-                    </p>
-                </div>
-                <button
-                    onClick={handleResetDefaults}
-                    className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-400 hover:text-foreground hover:bg-white/5 rounded-lg transition-colors"
+            <div className="space-y-6 pb-12 max-w-3xl">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-end justify-between"
                 >
-                    <RotateCcw className="w-3.5 h-3.5" /> Reset Defaults
-                </button>
-            </motion.div>
-
-            <div className="space-y-4">
-                {/* Appearance */}
-                <SettingSection icon={Palette} title="Appearance" description="Theme, color scheme, and visual preferences.">
-                    <div className="flex items-center justify-between">
-                        <span className="text-[13px] font-medium text-slate-300">Theme</span>
-                        <div className="flex gap-2 bg-white/[0.02] border border-border rounded-xl p-1">
-                            <button
-                                onClick={() => setTheme("dark")}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
-                                    }`}
-                            >
-                                <Moon className="w-3.5 h-3.5" /> Dark
-                            </button>
-                            <button
-                                onClick={() => setTheme("light")}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
-                                    }`}
-                            >
-                                <Sun className="w-3.5 h-3.5" /> Light
-                            </button>
-                        </div>
-                    </div>
-
                     <div>
-                        <span className="text-[13px] font-medium text-slate-300 block mb-3">Accent Color</span>
-                        <div className="flex gap-2.5">
-                            {COLOR_SCHEMES.map(scheme => (
-                                <button
-                                    key={scheme.id}
-                                    title={scheme.label}
-                                    onClick={() => setColorScheme(scheme.id as any)}
-                                    className={`w-7 h-7 rounded-full transition-all hover:scale-110 active:scale-95 ${colorScheme === scheme.id
-                                        ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110"
-                                        : "opacity-60 hover:opacity-100"
-                                        }`}
-                                    style={{ backgroundColor: scheme.color }}
-                                />
-                            ))}
-                        </div>
+                        <h2 className="text-3xl font-black tracking-tight text-foreground">
+                            <span className="text-gradient">Settings</span>
+                        </h2>
+                        <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed">
+                            Customize your WinOpt Pro experience.
+                        </p>
                     </div>
-                </SettingSection>
-
-                {/* System Monitoring */}
-                <SettingSection icon={Gauge} title="System Monitoring" description="Configure live telemetry behavior.">
-                    <Toggle
-                        checked={userSettings.autoRefreshVitals}
-                        onChange={(v) => updateSettings({ autoRefreshVitals: v })}
-                        label="Auto-refresh system vitals"
-                    />
-                    <SelectOption
-                        value={userSettings.autoRefreshIntervalMs}
-                        onChange={(v: string) => updateSettings({ autoRefreshIntervalMs: parseInt(v) })}
-                        label="Refresh interval"
-                        options={[
-                            { label: "1 second", value: 1000 },
-                            { label: "3 seconds", value: 3000 },
-                            { label: "5 seconds", value: 5000 },
-                            { label: "10 seconds", value: 10000 },
-                        ]}
-                    />
-                </SettingSection>
-
-                {/* Safety */}
-                <SettingSection icon={Shield} title="Safety & Execution" description="Control how tweaks are deployed.">
-                    <Toggle
-                        checked={userSettings.showDeployConfirmation}
-                        onChange={(v) => updateSettings({ showDeployConfirmation: v })}
-                        label="Show confirmation before deploying"
-                    />
-                    <Toggle
-                        checked={userSettings.expertModeEnabled}
-                        onChange={(v) => {
-                            if (v) {
-                                setShowExpertConfirm(true);
-                            } else {
-                                updateSettings({ expertModeEnabled: false });
-                            }
-                        }}
-                        label="Expert mode (show advanced/Red tweaks)"
-                    />
-                </SettingSection>
-            </div>
-        </div>
-
-        {/* Expert Mode Confirmation Modal */}
-        <AnimatePresence>
-            {showExpertConfirm && (
-                <>
-                    <motion.div
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setShowExpertConfirm(false)}
-                    />
-                    <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                    <button
+                        onClick={handleResetDefaults}
+                        className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-400 hover:text-foreground hover:bg-white/5 rounded-lg transition-colors"
                     >
-                        <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl shadow-2xl max-w-md w-full">
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
-                                        <AlertTriangle className="w-5 h-5 text-red-400" />
-                                    </div>
-                                    <h2 className="text-lg font-bold text-white">Expert Mode Warning</h2>
-                                </div>
+                        <RotateCcw className="w-3.5 h-3.5" /> Reset Defaults
+                    </button>
+                </motion.div>
+
+                <div className="space-y-4">
+                    {/* Appearance */}
+                    <SettingSection icon={Palette} title="Appearance" description="Theme, color scheme, and visual preferences.">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[13px] font-medium text-slate-300">Theme</span>
+                            <div className="flex gap-2 bg-white/[0.02] border border-border rounded-xl p-1">
                                 <button
-                                    onClick={() => setShowExpertConfirm(false)}
-                                    className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                                    onClick={() => setTheme("dark")}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                        }`}
                                 >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <div className="px-6 py-5">
-                                <p className="text-[14px] text-slate-300 leading-relaxed">
-                                    Expert Mode enables high-risk tweaks that can affect system stability.
-                                    These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
-                                    carry a higher risk of causing system issues or requiring a restore point.
-                                </p>
-                                <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
-                                    Only enable this if you understand the risks and have a system restore point ready.
-                                </p>
-                            </div>
-                            <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
-                                <button
-                                    onClick={() => setShowExpertConfirm(false)}
-                                    className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
-                                >
-                                    Cancel
+                                    <Moon className="w-3.5 h-3.5" /> Dark
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        updateSettings({ expertModeEnabled: true });
-                                        setShowExpertConfirm(false);
-                                        addToast({ type: "warning", title: "Expert mode enabled", message: "Red-level tweaks are now visible." });
-                                    }}
-                                    className="px-5 py-2 text-sm font-bold rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/30 transition-colors"
+                                    onClick={() => setTheme("light")}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                        }`}
                                 >
-                                    I Understand, Enable
+                                    <Sun className="w-3.5 h-3.5" /> Light
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
+
+                        <div>
+                            <span className="text-[13px] font-medium text-slate-300 block mb-3">Accent Color</span>
+                            <div className="flex gap-2.5">
+                                {COLOR_SCHEMES.map(scheme => (
+                                    <button
+                                        key={scheme.id}
+                                        title={scheme.label}
+                                        onClick={() => setColorScheme(scheme.id as any)}
+                                        className={`w-7 h-7 rounded-full transition-all hover:scale-110 active:scale-95 ${colorScheme === scheme.id
+                                            ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110"
+                                            : "opacity-60 hover:opacity-100"
+                                            }`}
+                                        style={{ backgroundColor: scheme.color }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </SettingSection>
+
+                    {/* System Monitoring */}
+                    <SettingSection icon={Gauge} title="System Monitoring" description="Configure live telemetry behavior.">
+                        <Toggle
+                            checked={userSettings.autoRefreshVitals}
+                            onChange={(v) => updateSettings({ autoRefreshVitals: v })}
+                            label="Auto-refresh system vitals"
+                        />
+                        <SelectOption
+                            value={userSettings.autoRefreshIntervalMs}
+                            onChange={(v: string) => updateSettings({ autoRefreshIntervalMs: parseInt(v) })}
+                            label="Refresh interval"
+                            options={[
+                                { label: "1 second", value: 1000 },
+                                { label: "3 seconds", value: 3000 },
+                                { label: "5 seconds", value: 5000 },
+                                { label: "10 seconds", value: 10000 },
+                            ]}
+                        />
+                    </SettingSection>
+
+                    {/* Safety */}
+                    <SettingSection icon={Shield} title="Safety & Execution" description="Control how tweaks are deployed.">
+                        <Toggle
+                            checked={userSettings.showDeployConfirmation}
+                            onChange={(v) => updateSettings({ showDeployConfirmation: v })}
+                            label="Show confirmation before deploying"
+                        />
+                        <Toggle
+                            checked={userSettings.expertModeEnabled}
+                            onChange={(v) => {
+                                if (v) {
+                                    setShowExpertConfirm(true);
+                                } else {
+                                    updateSettings({ expertModeEnabled: false });
+                                }
+                            }}
+                            label="Expert mode (show advanced/Red tweaks)"
+                        />
+                    </SettingSection>
+
+                    {/* AI Assistant */}
+                    <SettingSection icon={Sparkles} title="Pro AI Assistant" description="Experiment with an agentic local AI to analyze your system and apply tweaks automatically.">
+                        <Toggle
+                            checked={userSettings.aiAssistantEnabled}
+                            onChange={handleAIToggle}
+                            label="Enable AI Assistant (Requires ~1.5GB Model Download)"
+                        />
+                        {isDownloadingAI && (
+                            <div className="flex items-center gap-3 mt-4 px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl">
+                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                <span className="text-[12px] font-medium text-primary">{aiDownloadStatus}</span>
+                            </div>
+                        )}
+                    </SettingSection>
+                </div>
+            </div>
+
+            {/* Expert Mode Confirmation Modal */}
+            <AnimatePresence>
+                {showExpertConfirm && (
+                    <>
+                        <motion.div
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowExpertConfirm(false)}
+                        />
+                        <motion.div
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                        >
+                            <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl shadow-2xl max-w-md w-full">
+                                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+                                            <AlertTriangle className="w-5 h-5 text-red-400" />
+                                        </div>
+                                        <h2 className="text-lg font-bold text-white">Expert Mode Warning</h2>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowExpertConfirm(false)}
+                                        className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="px-6 py-5">
+                                    <p className="text-[14px] text-slate-300 leading-relaxed">
+                                        Expert Mode enables high-risk tweaks that can affect system stability.
+                                        These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
+                                        carry a higher risk of causing system issues or requiring a restore point.
+                                    </p>
+                                    <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
+                                        Only enable this if you understand the risks and have a system restore point ready.
+                                    </p>
+                                </div>
+                                <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
+                                    <button
+                                        onClick={() => setShowExpertConfirm(false)}
+                                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            updateSettings({ expertModeEnabled: true });
+                                            setShowExpertConfirm(false);
+                                            addToast({ type: "warning", title: "Expert mode enabled", message: "Red-level tweaks are now visible." });
+                                        }}
+                                        className="px-5 py-2 text-sm font-bold rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/30 transition-colors"
+                                    >
+                                        I Understand, Enable
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </>
     );
 }

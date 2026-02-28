@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import tweaksData from "../data/tweaks.json";
-import { Info, AlertTriangle, ShieldCheck, Cpu, Code2, Zap, X, Filter, RotateCcw, Lock, CheckCircle2 } from "lucide-react";
+import { Info, AlertTriangle, ShieldCheck, Cpu, Code2, Zap, X, Filter, RotateCcw, Lock, CheckCircle2, BookOpen, GitMerge } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTweakExecution } from "../hooks/useTweakExecution";
 import { useToast } from "../components/ToastSystem";
@@ -157,6 +157,32 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                 </div>
             </div>
 
+            {/* @ts-ignore - added dynamically via patch scripts */}
+            {tweak.educationalContext.expertDetails && (
+                <div className="pt-2">
+                    <h4 className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest mb-2 flex items-center">
+                        <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Deep Research
+                    </h4>
+                    <p className="text-slate-300 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-indigo-500/[0.04] p-4 rounded-2xl border border-indigo-500/10">
+                        {/* @ts-ignore */}
+                        {tweak.educationalContext.expertDetails}
+                    </p>
+                </div>
+            )}
+
+            {/* @ts-ignore */}
+            {tweak.educationalContext.interactions && (
+                <div className="pt-2">
+                    <h4 className="text-[11px] font-bold text-pink-400 uppercase tracking-widest mb-2 flex items-center">
+                        <GitMerge className="w-3.5 h-3.5 mr-1.5" /> Interactions & Conflicts
+                    </h4>
+                    <p className="text-slate-300 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-pink-500/[0.04] p-4 rounded-2xl border border-pink-500/10">
+                        {/* @ts-ignore */}
+                        {tweak.educationalContext.interactions}
+                    </p>
+                </div>
+            )}
+
             <div className="pt-2">
                 <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center">
                     <Code2 className="w-3.5 h-3.5 mr-1.5" /> Payload Injection
@@ -240,20 +266,16 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             )}
                         </div>
 
-                        <button
-                            className={`btn-tactile relative group overflow-hidden px-6 py-2.5 rounded-full font-bold shadow-xl text-sm border mt-2 md:mt-0 shrink-0 ${selectedTweaks.length === 0
-                                ? "bg-black/5 dark:bg-white/5 text-slate-400 cursor-not-allowed border-border"
-                                : "bg-primary text-white dark:bg-white dark:text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] border-transparent"
-                                }`}
-                            disabled={selectedTweaks.length === 0 || isExecuting}
-                            onClick={() => setShowConfirm(true)}
-                        >
-                            <span className="relative z-10 flex items-center justify-center min-w-[120px]">
-                                {selectedTweaks.length > 0 ? (
-                                    <>Deploy ({selectedTweaks.length}) <Zap className="w-3.5 h-3.5 ml-1.5" fill="currentColor" /></>
-                                ) : "Select Tweaks"}
-                            </span>
-                        </button>
+                        {selectedTweaks.length === 0 && (
+                            <button
+                                className="btn-tactile relative group overflow-hidden px-6 py-2.5 rounded-full font-bold shadow-xl text-sm border mt-2 md:mt-0 shrink-0 bg-black/5 dark:bg-white/5 text-slate-400 cursor-not-allowed border-border"
+                                disabled
+                            >
+                                <span className="relative z-10 flex items-center justify-center min-w-[120px]">
+                                    Select Tweaks
+                                </span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Expert mode banner */}
@@ -284,112 +306,112 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 <SkeletonCard key={i} delay={i * 60} />
                             ))
                         ) : (<>
-                        <AnimatePresence mode="popLayout">
-                            {visibleTweaks.map((tweak, i) => {
-                                const isSelected = selectedTweaks.includes(tweak.id);
-                                const isApplied = appliedTweaks.includes(tweak.id);
-                                const isActive = activeTweak?.id === tweak.id;
+                            <AnimatePresence mode="popLayout">
+                                {visibleTweaks.map((tweak, i) => {
+                                    const isSelected = selectedTweaks.includes(tweak.id);
+                                    const isApplied = appliedTweaks.includes(tweak.id);
+                                    const isActive = activeTweak?.id === tweak.id;
 
-                                // Toggle visual state
-                                const toggleBg = isApplied
-                                    ? "bg-emerald-500"
-                                    : isSelected
-                                        ? "bg-primary"
-                                        : "bg-black/10 dark:bg-[#27272a] shadow-inner border border-border";
+                                    // Toggle visual state
+                                    const toggleBg = isApplied
+                                        ? "bg-emerald-500"
+                                        : isSelected
+                                            ? "bg-primary"
+                                            : "bg-black/10 dark:bg-[#27272a] shadow-inner border border-border";
 
-                                const thumbPosition = (isApplied || isSelected) ? "calc(100% - 22px)" : "2px";
+                                    const thumbPosition = (isApplied || isSelected) ? "calc(100% - 22px)" : "2px";
 
-                                return (
-                                    <motion.div
-                                        layout
-                                        initial={{ opacity: 0, y: 15 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.98 }}
-                                        transition={{ delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                                        key={tweak.id}
-                                        className={`bento-card relative overflow-hidden p-5 cursor-pointer flex items-start gap-4 ${isActive ? "" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
-                                        onClick={() => setActiveTweak(isActive ? null : tweak)}
-                                    >
-                                        {isActive && (
-                                            <motion.div
-                                                layoutId="active-tweak-bg"
-                                                className="absolute inset-0 bg-primary/5 dark:bg-white/[0.04] rounded-2xl border border-primary/20 pointer-events-none z-0"
-                                                initial={false}
-                                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                            />
-                                        )}
-
-                                        {isApplied && (
-                                            <div className="absolute inset-0 bg-emerald-500/[0.03] pointer-events-none z-0 rounded-2xl border border-emerald-500/10" />
-                                        )}
-
-                                        {isSelected && !isActive && !isApplied && (
-                                            <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none z-0"></div>
-                                        )}
-
-                                        {/* iOS Style Custom Switch */}
-                                        <div
-                                            className="mt-0.5 flex-shrink-0 relative z-10"
-                                            onClick={(e) => handleToggle(tweak, e)}
-                                            title={isApplied ? "Click to revert this tweak" : "Toggle selection"}
+                                    return (
+                                        <motion.div
+                                            layout
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.98 }}
+                                            transition={{ delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                                            key={tweak.id}
+                                            className={`bento-card relative overflow-hidden p-5 cursor-pointer flex items-start gap-4 ${isActive ? "" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
+                                            onClick={() => setActiveTweak(isActive ? null : tweak)}
                                         >
-                                            <div className={`w-[42px] h-[24px] rounded-full transition-colors relative flex items-center px-0.5 ${toggleBg}`}>
+                                            {isActive && (
                                                 <motion.div
-                                                    layout
-                                                    className="w-[20px] h-[20px] rounded-full bg-white shadow-sm absolute"
+                                                    layoutId="active-tweak-bg"
+                                                    className="absolute inset-0 bg-primary/5 dark:bg-white/[0.04] rounded-2xl border border-primary/20 pointer-events-none z-0"
                                                     initial={false}
-                                                    animate={{ left: thumbPosition }}
-                                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
                                                 />
-                                            </div>
-                                        </div>
+                                            )}
 
-                                        <div className="flex-1 min-w-0 relative z-10">
-                                            <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                                                <h3 className={`text-[15px] font-bold truncate transition-colors ${isApplied ? "text-emerald-400" : isSelected ? "text-primary dark:text-white" : "text-card-foreground"}`}>
-                                                    {tweak.name}
-                                                </h3>
-                                                <div className="flex items-center gap-2">
-                                                    {isApplied && (
-                                                        <span className="flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 gap-1">
-                                                            <CheckCircle2 className="w-3 h-3" /> Applied
-                                                        </span>
-                                                    )}
-                                                    {tweak.requiresExpertMode && (
-                                                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20 uppercase tracking-widest">
-                                                            Expert
-                                                        </span>
-                                                    )}
-                                                    <span className={`flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${riskStyles[tweak.riskLevel].badge}`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${riskStyles[tweak.riskLevel].dot}`}></span>
-                                                        {tweak.riskLevel}
-                                                    </span>
+                                            {isApplied && (
+                                                <div className="absolute inset-0 bg-emerald-500/[0.03] pointer-events-none z-0 rounded-2xl border border-emerald-500/10" />
+                                            )}
+
+                                            {isSelected && !isActive && !isApplied && (
+                                                <div className="absolute inset-0 bg-primary/[0.02] pointer-events-none z-0"></div>
+                                            )}
+
+                                            {/* iOS Style Custom Switch */}
+                                            <div
+                                                className="mt-0.5 flex-shrink-0 relative z-10"
+                                                onClick={(e) => handleToggle(tweak, e)}
+                                                title={isApplied ? "Click to revert this tweak" : "Toggle selection"}
+                                            >
+                                                <div className={`w-[42px] h-[24px] rounded-full transition-colors relative flex items-center px-0.5 ${toggleBg}`}>
+                                                    <motion.div
+                                                        layout
+                                                        className="w-[20px] h-[20px] rounded-full bg-white shadow-sm absolute"
+                                                        initial={false}
+                                                        animate={{ left: thumbPosition }}
+                                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                                    />
                                                 </div>
                                             </div>
-                                            <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-100/60 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-500"}`}>
-                                                {tweak.description}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
-                        </AnimatePresence>
 
-                        {/* Empty State */}
-                        {tweaks.length === 0 ? (
-                            <div className="h-64 flex flex-col items-center justify-center text-center bento-card border-dashed bg-transparent">
-                                <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
-                                    <Zap className="w-5 h-5 text-primary opacity-50" />
+                                            <div className="flex-1 min-w-0 relative z-10">
+                                                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                                    <h3 className={`text-[15px] font-bold truncate transition-colors ${isApplied ? "text-emerald-400" : isSelected ? "text-primary dark:text-white" : "text-card-foreground"}`}>
+                                                        {tweak.name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2">
+                                                        {isApplied && (
+                                                            <span className="flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 gap-1">
+                                                                <CheckCircle2 className="w-3 h-3" /> Applied
+                                                            </span>
+                                                        )}
+                                                        {tweak.requiresExpertMode && (
+                                                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border text-amber-400 bg-amber-500/10 border-amber-500/20 uppercase tracking-widest">
+                                                                Expert
+                                                            </span>
+                                                        )}
+                                                        <span className={`flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${riskStyles[tweak.riskLevel].badge}`}>
+                                                            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${riskStyles[tweak.riskLevel].dot}`}></span>
+                                                            {tweak.riskLevel}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-100/60 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-500"}`}>
+                                                    {tweak.description}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </AnimatePresence>
+
+                            {/* Empty State */}
+                            {tweaks.length === 0 ? (
+                                <div className="h-64 flex flex-col items-center justify-center text-center bento-card border-dashed bg-transparent">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                                        <Zap className="w-5 h-5 text-primary opacity-50" />
+                                    </div>
+                                    <p className="text-[14px] font-bold text-slate-400">No optimizations yet</p>
+                                    <p className="text-[12px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Configurations for this module are being developed.</p>
                                 </div>
-                                <p className="text-[14px] font-bold text-slate-400">No optimizations yet</p>
-                                <p className="text-[12px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Configurations for this module are being developed.</p>
-                            </div>
-                        ) : visibleTweaks.length === 0 ? (
-                            <div className="h-48 flex flex-col items-center justify-center text-center bento-card border-dashed bg-transparent">
-                                <p className="text-[14px] font-bold text-slate-400">No {filterRisk.toLowerCase()} tweaks</p>
-                                <button onClick={() => setFilterRisk("All")} className="text-[12px] text-primary mt-2 hover:underline">Clear filter</button>
-                            </div>
-                        ) : null}
+                            ) : visibleTweaks.length === 0 ? (
+                                <div className="h-48 flex flex-col items-center justify-center text-center bento-card border-dashed bg-transparent">
+                                    <p className="text-[14px] font-bold text-slate-400">No {filterRisk.toLowerCase()} tweaks</p>
+                                    <button onClick={() => setFilterRisk("All")} className="text-[12px] text-primary mt-2 hover:underline">Clear filter</button>
+                                </div>
+                            ) : null}
                         </>)}
                     </div>
                 </div>

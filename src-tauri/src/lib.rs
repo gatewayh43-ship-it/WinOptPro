@@ -8,8 +8,10 @@ mod storage;
 mod system;
 mod tweaks;
 mod power;
+mod ai;
 
 use db::DbState;
+use ai::OllamaState;
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -22,6 +24,7 @@ pub fn run() {
             let conn =
                 db::init_db(&app.handle()).expect("Failed to initialize database");
             app.manage(DbState(Mutex::new(conn)));
+            app.manage(OllamaState { process: Mutex::new(None) });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -30,6 +33,10 @@ pub fn run() {
             // Security
             security::is_admin,
             security::elevate_and_execute,
+            security::defender_get_status,
+            security::defender_run_scan,
+            security::defender_update_signatures,
+            security::defender_set_realtime,
             // Tweaks
             tweaks::execute_tweak,
             tweaks::validate_tweak,
@@ -60,6 +67,11 @@ pub fn run() {
             // Power
             power::get_power_plans,
             power::set_active_power_plan,
+            // AI
+            ai::start_ollama,
+            ai::stop_ollama,
+            ai::download_ollama,
+            ai::pull_model,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

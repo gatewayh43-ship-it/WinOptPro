@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package } from "lucide-react";
+import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
 
@@ -39,6 +39,7 @@ const mainNavItems: NavItem[] = [
 
 const utilNavItems: NavItem[] = [
     { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
+    { id: "defender", label: "Defender Support", lucideIcon: Shield },
     { id: "processes", label: "Process Manager", lucideIcon: Activity },
     { id: "network", label: "Network Analyzer", lucideIcon: Network },
     { id: "startup", label: "Startup Apps", lucideIcon: Power },

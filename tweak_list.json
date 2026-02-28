@@ -1,0 +1,807 @@
+[
+  {
+    "id": "DisableSysMain",
+    "name": "Disable SysMain (Superfetch)",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableSearchIndexer",
+    "name": "Disable Windows Search Indexer",
+    "category": "Performance"
+  },
+  {
+    "id": "SystemResponsiveness",
+    "name": "Optimize System Responsiveness",
+    "category": "Gaming"
+  },
+  {
+    "id": "GamePriority",
+    "name": "Increase Game CPU/GPU Priority",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableFSO",
+    "name": "Disable Full-Screen Optimizations",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableGameDVR",
+    "name": "Disable Game DVR Background Recording",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableTelemetry",
+    "name": "Reduce Telemetry to Basic",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableNetworkThrottling",
+    "name": "Disable Network Throttling",
+    "category": "Network"
+  },
+  {
+    "id": "DisableNagle",
+    "name": "Disable Nagle's Algorithm",
+    "category": "Network"
+  },
+  {
+    "id": "DisableCoreParking",
+    "name": "Disable CPU Core Parking",
+    "category": "Power"
+  },
+  {
+    "id": "DisableActivityHistory",
+    "name": "Disable Activity History",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableDiagnosticData",
+    "name": "Disable Diagnostic Data Collection",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableAdvertisingId",
+    "name": "Disable Advertising ID",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableLocationTracking",
+    "name": "Disable Location Tracking",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableClipboardSync",
+    "name": "Disable Clipboard Cloud Sync",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableHPET",
+    "name": "Disable HPET (High Precision Timer)",
+    "category": "Gaming"
+  },
+  {
+    "id": "MouseAccelOff",
+    "name": "Disable Mouse Acceleration",
+    "category": "Gaming"
+  },
+  {
+    "id": "UltimatePowerPlan",
+    "name": "Enable Ultimate Performance Power Plan",
+    "category": "Power"
+  },
+  {
+    "id": "DisableHibernation",
+    "name": "Disable Hibernation",
+    "category": "Power"
+  },
+  {
+    "id": "OptimizeTCP",
+    "name": "Optimize TCP/IP Stack",
+    "category": "Network"
+  },
+  {
+    "id": "DisableDefragSchedule",
+    "name": "Disable Scheduled Disk Defragmentation",
+    "category": "Performance"
+  },
+  {
+    "id": "VisualEffectsPerformance",
+    "name": "Set Visual Effects to Performance",
+    "category": "Performance"
+  },
+  {
+    "id": "ClearTempFiles",
+    "name": "Clean Temporary Files",
+    "category": "Tools"
+  },
+  {
+    "id": "FlushDNS",
+    "name": "Flush DNS Cache",
+    "category": "Tools"
+  },
+  {
+    "id": "ResetNetworkStack",
+    "name": "Reset Network Stack",
+    "category": "Tools"
+  },
+  {
+    "id": "EnableFirewall",
+    "name": "Ensure Windows Firewall is Active",
+    "category": "Security"
+  },
+  {
+    "id": "DisableRemoteDesktop",
+    "name": "Disable Remote Desktop",
+    "category": "Security"
+  },
+  {
+    "id": "DisableCortana",
+    "name": "Disable Cortana",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableErrorReporting",
+    "name": "Disable Windows Error Reporting",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableBingSearch",
+    "name": "Disable Bing Search in Start Menu",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableAppSuggestions",
+    "name": "Disable App Suggestions & Tips",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableTailoredExperiences",
+    "name": "Disable Tailored Experiences",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableHandwritingData",
+    "name": "Disable Handwriting Data Sharing",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableCameraAccess",
+    "name": "Disable App Camera Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableMicrophoneAccess",
+    "name": "Disable App Microphone Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableBackgroundApps",
+    "name": "Disable Background Apps",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableWiFiSense",
+    "name": "Disable Wi-Fi Sense",
+    "category": "Privacy"
+  },
+  {
+    "id": "RemoveBloatwareApps",
+    "name": "Remove Pre-installed Bloatware",
+    "category": "Debloat"
+  },
+  {
+    "id": "RemoveOneDrive",
+    "name": "Remove OneDrive",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableXboxFeatures",
+    "name": "Disable Xbox Services & Features",
+    "category": "Debloat"
+  },
+  {
+    "id": "RemoveCortanaApp",
+    "name": "Remove Cortana App",
+    "category": "Debloat"
+  },
+  {
+    "id": "Remove3DAndMixedReality",
+    "name": "Remove 3D Viewer & Mixed Reality",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableWidgets",
+    "name": "Disable Widgets Board (Win 11)",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableTeamsAutostart",
+    "name": "Disable Microsoft Teams Autostart",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableCopilot",
+    "name": "Disable Windows Copilot",
+    "category": "Debloat"
+  },
+  {
+    "id": "ClassicContextMenu",
+    "name": "Restore Classic Right-Click Menu (Win 11)",
+    "category": "Windows UI"
+  },
+  {
+    "id": "ShowFileExtensions",
+    "name": "Show File Extensions",
+    "category": "Windows UI"
+  },
+  {
+    "id": "ShowHiddenFiles",
+    "name": "Show Hidden Files & Folders",
+    "category": "Windows UI"
+  },
+  {
+    "id": "TaskbarAlignLeft",
+    "name": "Align Taskbar to Left (Win 11)",
+    "category": "Windows UI"
+  },
+  {
+    "id": "VerboseStartup",
+    "name": "Enable Verbose Startup Messages",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableDeliveryOptimization",
+    "name": "Disable Delivery Optimization (P2P Updates)",
+    "category": "Windows Update"
+  },
+  {
+    "id": "DisableAutoRestart",
+    "name": "Disable Auto-Restart After Updates",
+    "category": "Windows Update"
+  },
+  {
+    "id": "DisableDriverUpdates",
+    "name": "Disable Driver Updates via Windows Update",
+    "category": "Windows Update"
+  },
+  {
+    "id": "PauseUpdates35Days",
+    "name": "Pause Windows Updates for 35 Days",
+    "category": "Windows Update"
+  },
+  {
+    "id": "SecurityOnlyUpdates",
+    "name": "Security-Only Updates (Delay Feature Updates)",
+    "category": "Windows Update"
+  },
+  {
+    "id": "DisableSMBv1",
+    "name": "Disable SMBv1 Protocol",
+    "category": "Security"
+  },
+  {
+    "id": "DisableWindowsScriptHost",
+    "name": "Disable Windows Script Host",
+    "category": "Security"
+  },
+  {
+    "id": "DisableLockScreenAds",
+    "name": "Disable Lock Screen Ads & Tips",
+    "category": "Security"
+  },
+  {
+    "id": "DisableAutoplay",
+    "name": "Disable AutoPlay & AutoRun",
+    "category": "Security"
+  },
+  {
+    "id": "DisableSpectreMitigations",
+    "name": "Disable Spectre/Meltdown Mitigations",
+    "category": "Security"
+  },
+  {
+    "id": "DisableStartupDelay",
+    "name": "Remove Startup App Delay",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableLastAccessTimestamp",
+    "name": "Disable NTFS Last Access Timestamp",
+    "category": "Performance"
+  },
+  {
+    "id": "Disable8dot3Naming",
+    "name": "Disable 8.3 Short File Names",
+    "category": "Performance"
+  },
+  {
+    "id": "DisablePrintSpooler",
+    "name": "Disable Print Spooler Service",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableFaxService",
+    "name": "Disable Fax Service",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableContactsAccess",
+    "name": "Disable App Contacts Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableCalendarAccess",
+    "name": "Disable App Calendar Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableEmailAccess",
+    "name": "Disable App Email Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableMessagingAccess",
+    "name": "Disable App Messaging Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableNotificationsAccess",
+    "name": "Disable App Notification Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableAccountInfoAccess",
+    "name": "Disable App Account Info Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableOnlineSpeechRecognition",
+    "name": "Disable Online Speech Recognition",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableInputPersonalization",
+    "name": "Disable Input Personalization",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableFeedback",
+    "name": "Disable Feedback Notifications",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableAutomaticMaps",
+    "name": "Disable Automatic Map Updates",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableDefenderSampleSubmission",
+    "name": "Disable Defender Auto Sample Submission",
+    "category": "Security"
+  },
+  {
+    "id": "DisableSmartScreen",
+    "name": "Disable SmartScreen Filter",
+    "category": "Security"
+  },
+  {
+    "id": "DisableEdgeTelemetry",
+    "name": "Disable Microsoft Edge Telemetry",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableTelemetryScheduledTasks",
+    "name": "Disable Telemetry Scheduled Tasks",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableSettingsSync",
+    "name": "Disable Settings Sync",
+    "category": "Privacy"
+  },
+  {
+    "id": "SetDNSCloudflare",
+    "name": "Set DNS to Cloudflare (1.1.1.1)",
+    "category": "Network"
+  },
+  {
+    "id": "EnableStorageSense",
+    "name": "Enable Storage Sense Auto Cleanup",
+    "category": "Tools"
+  },
+  {
+    "id": "CleanComponentStore",
+    "name": "Clean Windows Component Store",
+    "category": "Tools"
+  },
+  {
+    "id": "DisableRadiosAccess",
+    "name": "Disable App Radio Control Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableMeetNow",
+    "name": "Disable Meet Now Taskbar Button",
+    "category": "Debloat"
+  },
+  {
+    "id": "EnableHWGPUScheduling",
+    "name": "Enable Hardware GPU Scheduling",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisablePowerThrottling",
+    "name": "Disable CPU Power Throttling",
+    "category": "Gaming"
+  },
+  {
+    "id": "CSRSSHighPriority",
+    "name": "Set CSRSS to High Priority",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableGameMode",
+    "name": "Disable Windows Game Mode",
+    "category": "Gaming"
+  },
+  {
+    "id": "OptimizePrefetcherSSD",
+    "name": "Optimize Prefetcher for SSD",
+    "category": "Gaming"
+  },
+  {
+    "id": "LargeSystemCache",
+    "name": "Enable Large System Cache",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableAdapterPowerSaving",
+    "name": "Disable Network Adapter Power Saving",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableConnectedStandby",
+    "name": "Disable Connected Standby",
+    "category": "Power"
+  },
+  {
+    "id": "MMCSSPriority",
+    "name": "Maximize MMCSS Gaming Thread Priority",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableXboxGameMonitoring",
+    "name": "Disable Xbox Game Monitoring Service",
+    "category": "Gaming"
+  },
+  {
+    "id": "ReduceMenuShowDelay",
+    "name": "Reduce Menu Animation Delay",
+    "category": "Windows UI"
+  },
+  {
+    "id": "Win32PrioritySeparation",
+    "name": "Optimize Foreground App Priority",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableMemoryIntegrity",
+    "name": "Disable Core Isolation / Memory Integrity",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableAeroShake",
+    "name": "Disable Aero Shake",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableLockScreen",
+    "name": "Disable Lock Screen",
+    "category": "Windows UI"
+  },
+  {
+    "id": "ClearPageFileShutdown",
+    "name": "Clear Page File at Shutdown",
+    "category": "Security"
+  },
+  {
+    "id": "EnableLastActiveClick",
+    "name": "Enable Last Active Click (Taskbar)",
+    "category": "Windows UI"
+  },
+  {
+    "id": "RepairSystemFiles",
+    "name": "Repair System Files (SFC + DISM)",
+    "category": "Tools"
+  },
+  {
+    "id": "DisableSearchHighlights",
+    "name": "Disable Search Highlights & Web Results",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableRecallAI",
+    "name": "Disable Windows Recall AI",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisablePhoneLink",
+    "name": "Disable Phone Link / Your Phone",
+    "category": "Debloat"
+  },
+  {
+    "id": "DisableNotificationCenter",
+    "name": "Disable Notification Center & Tips",
+    "category": "Windows UI"
+  },
+  {
+    "id": "EnableGPUMSIMode",
+    "name": "Enable GPU MSI Mode (Message Signaled Interrupts)",
+    "category": "Gaming"
+  },
+  {
+    "id": "DisableEdgePrelaunch",
+    "name": "Disable Edge Pre-launch & Pre-load",
+    "category": "Debloat"
+  },
+  {
+    "id": "ExpandEphemeralPorts",
+    "name": "Expand Ephemeral Port Range",
+    "category": "Network"
+  },
+  {
+    "id": "ReduceTCPTimedWaitDelay",
+    "name": "Reduce TCP TIME_WAIT Delay",
+    "category": "Network"
+  },
+  {
+    "id": "OptimizeDNSCache",
+    "name": "Optimize DNS Cache Size",
+    "category": "Network"
+  },
+  {
+    "id": "EnableRSS",
+    "name": "Enable Receive-Side Scaling (RSS)",
+    "category": "Network"
+  },
+  {
+    "id": "DisableTCPAutoTuning",
+    "name": "Disable TCP Auto-Tuning",
+    "category": "Network"
+  },
+  {
+    "id": "DisableNetBIOS",
+    "name": "Disable NetBIOS over TCP/IP",
+    "category": "Network"
+  },
+  {
+    "id": "DisableFastStartup",
+    "name": "Disable Fast Startup",
+    "category": "Power"
+  },
+  {
+    "id": "DisableUSBSelectiveSuspend",
+    "name": "Disable USB Selective Suspend",
+    "category": "Power"
+  },
+  {
+    "id": "DisablePCIeLinkStatePM",
+    "name": "Disable PCIe Link State Power Management",
+    "category": "Power"
+  },
+  {
+    "id": "EnableAggressiveCPUBoost",
+    "name": "Enable Aggressive CPU Boost Mode",
+    "category": "Power"
+  },
+  {
+    "id": "DisableAdaptiveBrightness",
+    "name": "Disable Adaptive Display Brightness",
+    "category": "Power"
+  },
+  {
+    "id": "SetMinCPUState100",
+    "name": "Lock CPU Minimum Performance to 100%",
+    "category": "Power"
+  },
+  {
+    "id": "UltimatePerformancePlan",
+    "name": "Enable Ultimate Performance Power Plan",
+    "category": "Power"
+  },
+  {
+    "id": "IncreaseIRPStackSize",
+    "name": "Increase IRPStackSize",
+    "category": "Network"
+  },
+  {
+    "id": "EnableDNSOverHTTPS",
+    "name": "Enable DNS over HTTPS (DoH)",
+    "category": "Security"
+  },
+  {
+    "id": "SpeedUpShutdown",
+    "name": "Speed Up Shutdown Time",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableAdvertisingID",
+    "name": "Disable Advertising ID",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableLocationCapabilityAccess",
+    "name": "Disable Location Capability Access",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableClipboardCloudHistory",
+    "name": "Disable Clipboard Cloud History",
+    "category": "Privacy"
+  },
+  {
+    "id": "FlushDNSCache",
+    "name": "Flush DNS Cache",
+    "category": "Tools"
+  },
+  {
+    "id": "ResetWinsock",
+    "name": "Reset Winsock Catalog",
+    "category": "Tools"
+  },
+  {
+    "id": "BlockCortana",
+    "name": "Block Cortana",
+    "category": "Privacy"
+  },
+  {
+    "id": "EnableEndTaskTaskbar",
+    "name": "Enable 'End Task' in Taskbar Right-Click",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableStickyKeys",
+    "name": "Disable Sticky Keys Popup",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableIPv6",
+    "name": "Disable IPv6",
+    "category": "Network"
+  },
+  {
+    "id": "DisableWPBT",
+    "name": "Disable Windows Platform Binary Table",
+    "category": "Security"
+  },
+  {
+    "id": "DisableMultiplaneOverlay",
+    "name": "Disable Multiplane Overlay (MPO)",
+    "category": "Gaming"
+  },
+  {
+    "id": "RemoveExplorerHome",
+    "name": "Remove Home from File Explorer",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableStartMenuSuggestions",
+    "name": "Disable Start Menu Recommendations & Suggestions",
+    "category": "Debloat"
+  },
+  {
+    "id": "SetUTCTime",
+    "name": "Set Time to UTC (Dual Boot Fix)",
+    "category": "Tools"
+  },
+  {
+    "id": "DisableAppLaunchTracking",
+    "name": "Disable App Launch Tracking",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableFeedbackFrequency",
+    "name": "Disable Feedback Requests",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableTypingData",
+    "name": "Disable Typing & Inking Data Collection",
+    "category": "Privacy"
+  },
+  {
+    "id": "SetDiagnosticDataMinimum",
+    "name": "Set Diagnostic Data to Minimum",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisablePSTelementry",
+    "name": "Disable PowerShell 7 Telemetry",
+    "category": "Privacy"
+  },
+  {
+    "id": "DisableCrossDeviceResume",
+    "name": "Disable Cross-Device Resume",
+    "category": "Privacy"
+  },
+  {
+    "id": "SetServicesManual",
+    "name": "Set Unnecessary Services to Manual",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableExplorerFolderDiscovery",
+    "name": "Disable Explorer Automatic Folder Discovery",
+    "category": "Performance"
+  },
+  {
+    "id": "DisableLockScreenAdsSpotlight",
+    "name": "Disable Lock Screen Ads & Spotlight",
+    "category": "Debloat"
+  },
+  {
+    "id": "SetDNSMullvad",
+    "name": "Set DNS to Mullvad (100.64.0.4)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSAdGuard",
+    "name": "Set DNS to AdGuard (94.140.14.14)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSQuad9",
+    "name": "Set DNS to Quad9 (9.9.9.9)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSNextDNS",
+    "name": "Set DNS to NextDNS (45.90.28.0)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSOpenDNS",
+    "name": "Set DNS to OpenDNS / Cisco Umbrella (208.67.222.222)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSControlD",
+    "name": "Set DNS to Control D (76.76.2.0)",
+    "category": "Network"
+  },
+  {
+    "id": "SetDNSGoogle",
+    "name": "Set DNS to Google (8.8.8.8)",
+    "category": "Network"
+  },
+  {
+    "id": "ResetDNSDefault",
+    "name": "Reset DNS to ISP Default (DHCP)",
+    "category": "Network"
+  },
+  {
+    "id": "ClassicContextMenu",
+    "name": "Classic Context Menu (Win 11)",
+    "category": "Windows UI"
+  },
+  {
+    "id": "ShowHiddenFiles",
+    "name": "Show Hidden Files",
+    "category": "Windows UI"
+  },
+  {
+    "id": "ShowFileExtensions",
+    "name": "Show File Extensions",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableActionCenter",
+    "name": "Disable Action Center",
+    "category": "Windows UI"
+  },
+  {
+    "id": "DisableLockScreen",
+    "name": "Disable Lock Screen",
+    "category": "Windows UI"
+  }
+]

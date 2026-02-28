@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, CornerDownLeft, Sparkles, Cpu, Activity, Wifi, Settings as SettingsIcon, ShieldAlert } from 'lucide-react';
+import { Search, CornerDownLeft, Sparkles, Cpu, Activity, Wifi, Settings as SettingsIcon, ShieldAlert, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import tweaksData from '../data/tweaks.json';
 
@@ -19,28 +19,64 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
     const inputRef = useRef<HTMLInputElement>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    // Semantic Filter logic
-    const filteredTweaks = tweaksData.filter(t => {
-        const query = searchQuery.toLowerCase();
-        // Create an aggregate semantic string to search against for semantic filtering
-        const searchDomain = `${t.name} ${t.description} ${t.category} ${t.educationalContext.howItWorks} ${t.educationalContext.pros} ${t.educationalContext.cons}`.toLowerCase();
+    const [filteredTweaks, setFilteredTweaks] = useState<typeof tweaksData>(tweaksData.slice(0, 8));
+    const [workerState, setWorkerState] = useState<{ status: string, progress?: number, file?: string }>({ status: 'idle' });
+    const workerRef = useRef<Worker | null>(null);
 
-        // Add synonyms mapping - basic semantic grouping
-        const extraTerms = [];
-        if (query.includes("speed up internet") || query.includes("lag") || query.includes("ping")) {
-            extraTerms.push("network", "nagle", "throttling");
+    // Initialize Semantic Search Worker when palette opens
+    useEffect(() => {
+        if (!isOpen && !workerRef.current) return;
+
+        if (isOpen && !workerRef.current) {
+            workerRef.current = new Worker(new URL('../lib/semanticWorker.ts', import.meta.url), { type: 'module' });
+
+            workerRef.current.onmessage = (e) => {
+                const data = e.data;
+                if (data.status === 'progress') {
+                    setWorkerState({ status: 'downloading', progress: data.progress.progress, file: data.progress.file });
+                } else if (data.status === 'init_start') {
+                    setWorkerState({ status: 'initializing' });
+                } else if (data.status === 'init_ready') {
+                    setWorkerState({ status: 'ready' });
+                } else if (data.status === 'search_results') {
+                    const topTweaks = data.results.slice(0, 8).map((res: any) =>
+                        tweaksData.find(t => t.id === res.id)
+                    ).filter(Boolean);
+                    setFilteredTweaks(topTweaks);
+                } else if (data.status === 'error') {
+                    console.error("Semantic search worker error:", data.message);
+                }
+            };
+
+            workerRef.current.postMessage({ type: 'INIT', payload: { tweaksData } });
         }
-        if (query.includes("gaming") || query.includes("stutter") || query.includes("fps")) {
-            extraTerms.push("game", "priority", "fso", "core parking");
-        }
-        if (query.includes("spyware") || query.includes("tracking")) {
-            extraTerms.push("telemetry", "privacy");
+    }, [isOpen]);
+
+    // Handle Search Queries
+    useEffect(() => {
+        if (!isOpen) return;
+
+        if (searchQuery.trim() === '') {
+            setFilteredTweaks(tweaksData.slice(0, 8));
+            return;
         }
 
-        const hasSynonymMatch = extraTerms.some(term => searchDomain.includes(term));
-
-        return searchDomain.includes(query) || hasSynonymMatch;
-    }).slice(0, 8); // limited to 8 items to prevent overflow in the modal
+        if (workerState.status === 'ready' && workerRef.current) {
+            const timer = setTimeout(() => {
+                workerRef.current?.postMessage({ type: 'SEARCH', payload: { query: searchQuery } });
+            }, 100); // slight debounce
+            return () => clearTimeout(timer);
+        } else {
+            // Basic fallback while model is downloading
+            const lower = searchQuery.toLowerCase();
+            const basicMatch = tweaksData.filter(t =>
+                t.name.toLowerCase().includes(lower) ||
+                t.description.toLowerCase().includes(lower) ||
+                t.category.toLowerCase().includes(lower)
+            ).slice(0, 8);
+            setFilteredTweaks(basicMatch);
+        }
+    }, [searchQuery, isOpen, workerState.status]);
 
     useEffect(() => {
         if (isOpen) {
@@ -119,6 +155,20 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
                                     <span className="text-[10px] font-bold text-slate-400 bg-white/5 border border-white/10 px-2 py-1 rounded">ESC</span>
                                 </div>
                             </div>
+
+                            {/* AI Status Banner */}
+                            {workerState.status === 'downloading' && (
+                                <div className="px-4 py-2 bg-blue-500/10 border-b border-blue-500/20 flex items-center">
+                                    <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin mr-2" />
+                                    <span className="text-[11px] text-blue-400 font-medium">Downloading AI Search Model ({workerState.file})... {workerState.progress ? Math.round(workerState.progress) : 0}%</span>
+                                </div>
+                            )}
+                            {workerState.status === 'initializing' && (
+                                <div className="px-4 py-2 bg-blue-500/10 border-b border-blue-500/20 flex items-center">
+                                    <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin mr-2" />
+                                    <span className="text-[11px] text-blue-400 font-medium">Initializing AI Vector space...</span>
+                                </div>
+                            )}
 
                             {/* Results */}
                             <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-2">

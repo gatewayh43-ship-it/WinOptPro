@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { BatteryMedium, Zap, Activity, Info, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { usePower, type PowerPlan } from "../hooks/usePower";
+import { motion } from "framer-motion";
+import { usePower } from "../hooks/usePower";
 
 export function PowerPage() {
     const { plans, isLoading, isChanging, setActivePlan } = usePower();

@@ -11,11 +11,13 @@ import { ProcessPage } from "./pages/ProcessPage";
 import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
 import { AppsPage } from "./pages/AppsPage";
 import { PowerPage } from "./pages/PowerPage";
+import { DefenderPage } from "./pages/DefenderPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AIAssistantChat } from "./components/AI/AIAssistantChat";
 
 function App() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -65,6 +67,7 @@ function App() {
     profiles: <ProfilesPage />,
     apps: <AppsPage />,
     power_manager: <PowerPage />,
+    defender: <DefenderPage />,
   };
 
   const handleSelectTweak = (tweak: any) => {
@@ -83,6 +86,7 @@ function App() {
         <ErrorBoundary>
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
           <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} />
+          <AIAssistantChat />
           <MainLayout currentView={currentView} setView={setCurrentView}>
             <ErrorBoundary>
               {views[currentView] || (

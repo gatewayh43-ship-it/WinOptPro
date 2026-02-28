@@ -52,16 +52,13 @@ async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String
         ])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .kill_on_drop(true)
         .spawn()
         .map_err(|e| format!("Failed to spawn PowerShell: {}", e))?;
 
     let output = timeout(TWEAK_TIMEOUT, child.wait_with_output())
         .await
-        .map_err(|_| {
-            // Timeout fired — kill the hanging process
-            let _ = child.start_kill();
-            "Tweak timed out after 30 seconds".to_string()
-        })?
+        .map_err(|_| "Tweak timed out after 30 seconds".to_string())?
         .map_err(|e| format!("PowerShell execution failed: {}", e))?;
 
     let duration_ms = start.elapsed().as_millis() as i64;

@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::process::Stdio;
 use tauri::command;
 use tokio::process::Command;
@@ -61,7 +61,7 @@ pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String
             .map_err(|e| format!("Failed to write temp script: {}", e))?;
 
         // Execute with elevated privileges using PowerShell Start-Process -Verb RunAs
-        let mut child = Command::new("powershell")
+        let child = Command::new("powershell")
             .args([
                 "-NoProfile",
                 "-NonInteractive",
@@ -75,15 +75,13 @@ pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String
             ])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
+            .kill_on_drop(true)
             .spawn()
             .map_err(|e| format!("Failed to spawn elevated process: {}", e))?;
 
         let result = timeout(ELEVATION_TIMEOUT, child.wait_with_output())
             .await
-            .map_err(|_| {
-                let _ = child.start_kill();
-                "Elevated command timed out after 60 seconds".to_string()
-            })?
+            .map_err(|_| "Elevated command timed out after 60 seconds".to_string())?
             .map_err(|e| format!("Elevated command failed: {}", e))?;
 
         // Read output files
@@ -111,6 +109,112 @@ pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String
             output: String::new(),
             error: "UAC elevation is only supported on Windows.".to_string(),
         })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DefenderStatus {
+    pub realtime_protection_enabled: bool,
+    pub signature_out_of_date: bool,
+    pub antivirus_signature_age: u32,
+    pub quick_scan_age: u32,
+    pub full_scan_age: u32,
+}
+
+#[command]
+pub async fn defender_get_status() -> Result<DefenderStatus, String> {
+    #[cfg(windows)]
+    {
+        let output = tokio::process::Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                r#"
+                $status = Get-MpComputerStatus
+                @{
+                    realtimeProtectionEnabled = [bool]$status.RealTimeProtectionEnabled
+                    signatureOutOfDate = [bool]($status.AntivirusSignatureUpdateInProgress -eq $false -and $status.AntivirusSignatureAge -gt 14)
+                    antivirusSignatureAge = if ($null -eq $status.AntivirusSignatureAge) { 0 } else { [uint32]$status.AntivirusSignatureAge }
+                    quickScanAge = if ($null -eq $status.QuickScanAge) { 0 } else { [uint32]$status.QuickScanAge }
+                    fullScanAge = if ($null -eq $status.FullScanAge) { 0 } else { [uint32]$status.FullScanAge }
+                } | ConvertTo-Json
+                "#,
+            ])
+            .output()
+            .await
+            .map_err(|e| format!("Failed to execute powershell: {}", e))?;
+
+        if !output.status.success() {
+            let err = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Failed to get Defender status: {}", err));
+        }
+
+        let json = String::from_utf8_lossy(&output.stdout);
+        let status: DefenderStatus = serde_json::from_str(&json).map_err(|e| format!("JSON parsing error: {} - '{}'", e, json))?;
+        Ok(status)
+    }
+    #[cfg(not(windows))]
+    {
+        Err("Windows Defender is only available on Windows.".to_string())
+    }
+}
+
+#[command]
+pub async fn defender_run_scan(scan_type: String) -> Result<String, String> {
+    #[cfg(windows)]
+    {
+        let type_arg = if scan_type.to_lowercase() == "full" { "FullScan" } else { "QuickScan" };
+        let code = format!("Start-MpScan -ScanType {}", type_arg);
+        let res = elevate_and_execute(code).await?;
+        if res.success {
+            Ok("Scan started successfully.".to_string())
+        } else {
+            Err(res.error)
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = scan_type;
+        Err("Windows Defender is only available on Windows.".to_string())
+    }
+}
+
+#[command]
+pub async fn defender_update_signatures() -> Result<String, String> {
+    #[cfg(windows)]
+    {
+        let res = elevate_and_execute("Update-MpSignature".to_string()).await?;
+        if res.success {
+            Ok("Signatures updated successfully.".to_string())
+        } else {
+            Err(res.error)
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        Err("Windows Defender is only available on Windows.".to_string())
+    }
+}
+
+#[command]
+pub async fn defender_set_realtime(enabled: bool) -> Result<String, String> {
+    #[cfg(windows)]
+    {
+        let val = if enabled { "$false" } else { "$true" };
+        let code = format!("Set-MpPreference -DisableRealtimeMonitoring {}", val);
+        let res = elevate_and_execute(code).await?;
+        if res.success {
+            Ok("Real-time protection setting updated.".to_string())
+        } else {
+            Err(res.error)
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = enabled;
+        Err("Windows Defender is only available on Windows.".to_string())
     }
 }
 

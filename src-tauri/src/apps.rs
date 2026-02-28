@@ -33,22 +33,20 @@ async fn run_cmd(
     args: &[&str],
     time_limit: Duration,
 ) -> Result<(String, String, i32), String> {
-    use std::os::windows::process::CommandExt;
+
 
     let mut child = Command::new(program)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .kill_on_drop(true)
         .creation_flags(0x08000000) // CREATE_NO_WINDOW
         .spawn()
         .map_err(|e| format!("Failed to spawn {}: {}", program, e))?;
 
     let output = timeout(time_limit, child.wait_with_output())
         .await
-        .map_err(|_| {
-            let _ = child.start_kill();
-            format!("{} timed out after {}s", program, time_limit.as_secs())
-        })?
+        .map_err(|_| format!("{} timed out after {}s", program, time_limit.as_secs()))?
         .map_err(|e| format!("{} execution failed: {}", program, e))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();

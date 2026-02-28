@@ -136,7 +136,7 @@ pub async fn open_file_location(pid: u32) -> Result<bool, String> {
                 return Ok(true);
             }
         } else {
-            return Err("Executable path not available (Admin privileges mapped needed).".to_string());
+            return Err("Executable path not available (Admin privileges may be needed).".to_string());
         }
     }
 

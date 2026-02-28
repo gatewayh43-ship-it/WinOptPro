@@ -75,6 +75,7 @@ export interface UserSettings {
   autoRefreshVitals: boolean;
   autoRefreshIntervalMs: number;
   showDeployConfirmation: boolean;
+  aiAssistantEnabled: boolean;
 }
 
 // ── Store Interface ──────────────────────────────────────────────────────
@@ -123,6 +124,7 @@ export const useAppStore = create<AppState>()(
         autoRefreshVitals: true,
         autoRefreshIntervalMs: 3000,
         showDeployConfirmation: true,
+        aiAssistantEnabled: false,
       },
 
       // Session defaults

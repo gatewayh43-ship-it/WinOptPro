@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { HardDrive, RefreshCcw, Trash2, ShieldAlert } from "lucide-react";
 import { useStorage } from "../hooks/useStorage";
@@ -7,8 +7,8 @@ export function StoragePage() {
     const { items, diskHealth, isScanning, isCleaning, error, scan, executeCleanup } = useStorage();
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-    // Auto-select safe items by default on load
-    useMemo(() => {
+    // Auto-select all items when scan results first load
+    useEffect(() => {
         if (items.length > 0 && selectedIds.size === 0) {
             setSelectedIds(new Set(items.map(i => i.id)));
         }
