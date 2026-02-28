@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, setupUser, waitFor } from "@/test/utils";
 import { CommandPalette } from "@/components/CommandPalette";
 
+// Mock Web Worker — JSDOM doesn't support it
+class MockWorker {
+    onmessage: ((e: MessageEvent) => void) | null = null;
+    postMessage(_msg: unknown) {}
+    terminate() {}
+}
+vi.stubGlobal("Worker", MockWorker);
+
 // Framer Motion animates layout in DOM — stub out to keep tests deterministic
 vi.mock("framer-motion", async () => {
     const actual = await vi.importActual<typeof import("framer-motion")>("framer-motion");
