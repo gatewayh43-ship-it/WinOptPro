@@ -38,6 +38,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const utilNavItems: NavItem[] = [
+    { id: "gaming_optimizer", label: "Gaming Optimizer", lucideIcon: Gamepad2 },
     { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
     { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
     { id: "defender", label: "Defender Support", lucideIcon: Shield },

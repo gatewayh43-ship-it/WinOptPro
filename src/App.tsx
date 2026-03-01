@@ -15,12 +15,26 @@ import { DefenderPage } from "./pages/DefenderPage";
 import { PrivacyAuditPage } from "./pages/PrivacyAuditPage";
 import { DriverManagerPage } from "./pages/DriverManagerPage";
 import { SystemReportPage } from "./pages/SystemReportPage";
+import { GamingPage } from "./pages/GamingPage";
+import { GamingOverlayPage } from "./pages/GamingOverlayPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AIAssistantChat } from "./components/AI/AIAssistantChat";
+
+// Detect if this webview is the gaming overlay window (hash set by Rust at window creation)
+const IS_GAMING_OVERLAY = window.location.hash === "#gaming-overlay";
+
+// Overlay shell — renders independently, no sidebar or chrome
+function OverlayApp() {
+  return (
+    <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+      <GamingOverlayPage />
+    </ThemeProvider>
+  );
+}
 
 function App() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -56,6 +70,7 @@ function App() {
     network_tweaks: <TweaksPage categoryTitle="Network" />,
     tools: <TweaksPage categoryTitle="Tools" />,
     gaming: <TweaksPage categoryTitle="Gaming" />,
+    gaming_optimizer: <GamingPage />,
     power: <TweaksPage categoryTitle="Power" />,
     security: <TweaksPage categoryTitle="Security" />,
     debloat: <TweaksPage categoryTitle="Debloat" />,
@@ -120,4 +135,10 @@ function App() {
   );
 }
 
-export default App;
+// Root: render overlay or full app depending on window context
+function Root() {
+  if (IS_GAMING_OVERLAY) return <OverlayApp />;
+  return <App />;
+}
+
+export default Root;

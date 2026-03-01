@@ -1,7 +1,14 @@
+use aes_gcm::{
+    aead::{Aead, AeadCore, KeyInit, OsRng},
+    Aes256Gcm, Nonce,
+};
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use rusqlite::{params, Connection, Result as SqlResult};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 use std::sync::Mutex;
 use tauri::{command, AppHandle, Manager, State};
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 /// Wrapper for the SQLite connection, stored in Tauri managed state.
 pub struct DbState(pub Mutex<Connection>);
@@ -21,6 +28,69 @@ pub struct TweakHistoryEntry {
     pub exit_code: i32,
     pub status: String, // "SUCCESS" | "FAILED" | "TIMEOUT"
 }
+
+// ── Encryption helpers ─────────────────────────────────────────────────────
+
+/// Derive a 256-bit key from the Windows machine GUID using SHA-256.
+/// Uses a static fallback if the registry key is unavailable.
+fn derive_db_key() -> [u8; 32] {
+    let machine_id = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey("SOFTWARE\\Microsoft\\Cryptography")
+        .and_then(|k| k.get_value::<String, _>("MachineGuid"))
+        .unwrap_or_else(|_| "winopt-fallback-no-registry-guid".to_string());
+
+    let mut hasher = Sha256::new();
+    hasher.update(b"winopt-audit-log-v1:");
+    hasher.update(machine_id.as_bytes());
+    hasher.finalize().into()
+}
+
+/// Encrypt a log field with AES-256-GCM. Returns `"enc:<base64>"` on success,
+/// or the original text if it is empty or encryption fails.
+pub fn encrypt_log_field(text: &str) -> String {
+    if text.is_empty() {
+        return text.to_string();
+    }
+    let key_bytes = derive_db_key();
+    let key = aes_gcm::Key::<Aes256Gcm>::from_slice(&key_bytes);
+    let cipher = Aes256Gcm::new(key);
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+
+    match cipher.encrypt(&nonce, text.as_bytes()) {
+        Ok(ciphertext) => {
+            let mut combined = nonce.as_slice().to_vec();
+            combined.extend_from_slice(&ciphertext);
+            format!("enc:{}", B64.encode(&combined))
+        }
+        Err(_) => text.to_string(),
+    }
+}
+
+/// Decrypt a log field previously encrypted by `encrypt_log_field`.
+/// Transparently returns the raw string for pre-encryption rows (no `enc:` prefix).
+pub fn decrypt_log_field(text: &str) -> String {
+    if !text.starts_with("enc:") {
+        return text.to_string(); // unencrypted row — backward compatible
+    }
+    let encoded = &text[4..];
+    let Ok(combined) = B64.decode(encoded) else {
+        return text.to_string();
+    };
+    if combined.len() < 12 {
+        return text.to_string();
+    }
+    let key_bytes = derive_db_key();
+    let key = aes_gcm::Key::<Aes256Gcm>::from_slice(&key_bytes);
+    let cipher = Aes256Gcm::new(key);
+    let nonce = Nonce::<Aes256Gcm>::from_slice(&combined[..12]);
+
+    cipher
+        .decrypt(nonce, &combined[12..])
+        .map(|b| String::from_utf8_lossy(&b).to_string())
+        .unwrap_or_else(|_| text.to_string())
+}
+
+// ── Database init ──────────────────────────────────────────────────────────
 
 /// Initialize the database: create tables if they don't exist.
 pub fn init_db(app: &AppHandle) -> SqlResult<Connection> {
@@ -57,7 +127,9 @@ pub fn init_db(app: &AppHandle) -> SqlResult<Connection> {
     Ok(conn)
 }
 
-/// Insert a new history entry.
+// ── CRUD ───────────────────────────────────────────────────────────────────
+
+/// Insert a new history entry with sensitive fields AES-256-GCM encrypted.
 pub fn insert_history(conn: &Connection, entry: &TweakHistoryEntry) -> SqlResult<()> {
     conn.execute(
         "INSERT INTO tweak_history (id, tweak_id, tweak_name, action, timestamp, duration_ms, command_executed, stdout, stderr, exit_code, status)
@@ -69,9 +141,9 @@ pub fn insert_history(conn: &Connection, entry: &TweakHistoryEntry) -> SqlResult
             entry.action,
             entry.timestamp,
             entry.duration_ms,
-            entry.command_executed,
-            entry.stdout,
-            entry.stderr,
+            encrypt_log_field(&entry.command_executed),
+            encrypt_log_field(&entry.stdout),
+            encrypt_log_field(&entry.stderr),
             entry.exit_code,
             entry.status,
         ],
@@ -109,9 +181,9 @@ pub fn get_tweak_history(
                 action: row.get(3)?,
                 timestamp: row.get(4)?,
                 duration_ms: row.get(5)?,
-                command_executed: row.get(6)?,
-                stdout: row.get(7)?,
-                stderr: row.get(8)?,
+                command_executed: decrypt_log_field(&row.get::<_, String>(6)?),
+                stdout: decrypt_log_field(&row.get::<_, String>(7)?),
+                stderr: decrypt_log_field(&row.get::<_, String>(8)?),
                 exit_code: row.get(9)?,
                 status: row.get(10)?,
             })

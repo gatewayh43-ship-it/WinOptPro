@@ -2,6 +2,7 @@ mod apps;
 mod backup;
 mod db;
 mod drivers;
+mod gaming;
 mod network;
 mod power;
 mod privacy;
@@ -95,6 +96,13 @@ pub fn run() {
             scheduler::create_maintenance_task,
             scheduler::delete_maintenance_task,
             scheduler::run_maintenance_task_now,
+            // Gaming
+            gaming::detect_active_game,
+            gaming::get_gpu_metrics,
+            gaming::set_gpu_power_limit,
+            gaming::list_known_games,
+            gaming::show_gaming_overlay,
+            gaming::hide_gaming_overlay,
             // AI
             ai::start_ollama,
             ai::stop_ollama,
