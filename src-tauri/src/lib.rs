@@ -3,6 +3,8 @@ mod backup;
 mod db;
 mod drivers;
 mod gaming;
+mod gpu_driver;
+mod latency;
 mod network;
 mod power;
 mod privacy;
@@ -14,6 +16,7 @@ mod startup;
 mod storage;
 mod system;
 mod tweaks;
+mod wsl;
 mod ai;
 
 use db::DbState;
@@ -58,6 +61,8 @@ pub fn run() {
             storage::scan_junk_files,
             storage::execute_cleanup,
             storage::get_disk_health,
+            storage::get_disk_smart_status,
+            storage::run_trim_optimization,
             // Process
             process::get_processes,
             process::kill_process,
@@ -67,9 +72,12 @@ pub fn run() {
             network::get_network_interfaces,
             network::ping_host,
             // Apps
+            apps::check_choco_available,
             apps::check_app_installed,
             apps::install_app,
-            apps::check_choco_available,
+            apps::search_winget,
+            apps::get_winget_info,
+            apps::scrape_app_metadata,
             // Power
             power::get_power_plans,
             power::set_active_power_plan,
@@ -99,10 +107,37 @@ pub fn run() {
             // Gaming
             gaming::detect_active_game,
             gaming::get_gpu_metrics,
+            gaming::get_cpu_quick,
             gaming::set_gpu_power_limit,
             gaming::list_known_games,
             gaming::show_gaming_overlay,
             gaming::hide_gaming_overlay,
+            // Latency
+            latency::get_latency_status,
+            latency::flush_standby_list,
+            latency::get_bcdedit_settings,
+            // GPU Driver Cleaner
+            gpu_driver::get_gpu_drivers,
+            gpu_driver::uninstall_gpu_drivers,
+            gpu_driver::schedule_safe_mode_removal,
+            gpu_driver::reboot_system,
+            // WSL Manager
+            wsl::get_wsl_status,
+            wsl::list_wsl_distros,
+            wsl::install_wsl_distro,
+            wsl::uninstall_wsl_distro,
+            wsl::set_default_distro,
+            wsl::set_wsl_default_version,
+            wsl::enable_wsl,
+            wsl::disable_wsl,
+            wsl::clean_uninstall_wsl,
+            wsl::get_wsl_config,
+            wsl::set_wsl_config,
+            wsl::check_desktop_envs,
+            wsl::install_desktop_env,
+            wsl::launch_linux_mode,
+            wsl::get_wsl_setup_state,
+            wsl::shutdown_wsl,
             // AI
             ai::start_ollama,
             ai::stop_ollama,

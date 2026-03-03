@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import {
     useAppStore,
     type TweakResult,
@@ -30,6 +30,7 @@ export function useTweakExecution() {
     /** Execute (apply) a single tweak. */
     const applyTweak = useCallback(
         async (tweak: TweakData): Promise<TweakResult | null> => {
+            if (!isTauri()) return null;
             setExecuting(true, tweak.id);
             setError(null);
             try {
@@ -64,6 +65,7 @@ export function useTweakExecution() {
     /** Revert a single tweak. */
     const revertTweak = useCallback(
         async (tweak: TweakData): Promise<TweakResult | null> => {
+            if (!isTauri()) return null;
             setExecuting(true, tweak.id);
             setError(null);
             try {
@@ -98,6 +100,7 @@ export function useTweakExecution() {
     /** Validate a tweak's current state. */
     const validateTweak = useCallback(
         async (tweak: TweakData): Promise<TweakValidationResult | null> => {
+            if (!isTauri()) { setTweakValidation(tweak.id, "Unknown"); return null; }
             try {
                 const result = await invoke<TweakValidationResult>("validate_tweak", {
                     validationCmd: tweak.validationCmd,
@@ -117,6 +120,7 @@ export function useTweakExecution() {
         async (
             tweaks: TweakData[]
         ): Promise<{ results: TweakResult[]; failedIndex: number }> => {
+            if (!isTauri()) return { results: [], failedIndex: -1 };
             setExecuting(true);
             setError(null);
             const results: TweakResult[] = [];
@@ -162,6 +166,7 @@ export function useTweakExecution() {
     /** Rollback previously applied tweaks (in reverse order). */
     const rollbackTweaks = useCallback(
         async (tweaks: TweakData[]): Promise<TweakResult[]> => {
+            if (!isTauri()) return [];
             setExecuting(true);
             const results: TweakResult[] = [];
 

@@ -41,6 +41,7 @@ function MetricPill({
 export function GamingOverlayPage() {
   const [game, setGame] = useState<string | null>(null);
   const [gpu, setGpu] = useState<GpuMetrics | null>(null);
+  const [cpuLoad, setCpuLoad] = useState<number | null>(null);
 
   // Make body transparent so the rounded container shows through
   useEffect(() => {
@@ -67,15 +68,18 @@ export function GamingOverlayPage() {
         powerMaxLimitW: 320,
         isNvidia: true,
       });
+      setCpuLoad(34);
       return;
     }
     try {
-      const [g, metrics] = await Promise.all([
+      const [g, metrics, cpu] = await Promise.all([
         invoke<string | null>("detect_active_game"),
         invoke<GpuMetrics>("get_gpu_metrics"),
+        invoke<number>("get_cpu_quick"),
       ]);
       setGame(g);
       setGpu(metrics);
+      setCpuLoad(cpu);
     } catch {
       // silently ignore
     }
@@ -122,6 +126,11 @@ export function GamingOverlayPage() {
 
         {/* Metrics row */}
         <div className="px-2 py-2 flex gap-1.5 flex-wrap">
+          <MetricPill
+            label="CPU"
+            value={cpuLoad != null ? `${cpuLoad.toFixed(0)}%` : "—"}
+            color="text-sky-400"
+          />
           {gpu?.isNvidia ? (
             <>
               <MetricPill

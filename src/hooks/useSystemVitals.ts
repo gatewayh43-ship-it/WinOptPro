@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useAppStore, type SystemVitals } from "../store/appStore";
 
 /**
@@ -14,6 +14,7 @@ export function useSystemVitals() {
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchVitals = async () => {
+        if (!isTauri()) return;
         try {
             const data = await invoke<SystemVitals>("get_system_vitals");
             setVitals(data);

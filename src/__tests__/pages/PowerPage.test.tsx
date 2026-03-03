@@ -85,10 +85,11 @@ describe("PowerPage", () => {
         expect(screen.getByText("Active")).toBeInTheDocument();
     });
 
-    it("shows GUIDs for each plan", () => {
+    it("renders all three plan cards", () => {
         render(<PowerPage />);
-        expect(screen.getByText("aaa-111")).toBeInTheDocument();
-        expect(screen.getByText("bbb-222")).toBeInTheDocument();
+        expect(screen.getByText("Balanced")).toBeInTheDocument();
+        expect(screen.getByText("Power saver")).toBeInTheDocument();
+        expect(screen.getAllByText("High performance").length).toBeGreaterThanOrEqual(1);
     });
 
     it("clicking an inactive plan card calls setActivePlan", async () => {
@@ -98,8 +99,8 @@ describe("PowerPage", () => {
 
         render(<PowerPage />);
 
-        // Click on "Balanced" card (inactive)
-        const balancedCard = screen.getByText("aaa-111").closest("div[class]")!;
+        // Click on "Balanced" card (inactive) — find via plan name
+        const balancedCard = screen.getByText("Balanced").closest("div[class]")!;
         await user.click(balancedCard as HTMLElement);
 
         await waitFor(() => {
@@ -109,9 +110,9 @@ describe("PowerPage", () => {
 
     it("does not show loading skeleton when isLoading is false", () => {
         render(<PowerPage />);
-        // When not loading, the plan name heading should be visible
+        // When not loading, all plan cards should be visible (not skeleton)
         expect(screen.getAllByText("High performance").length).toBeGreaterThanOrEqual(1);
-        // And the plan cards grid should be present (not skeleton)
-        expect(screen.getByText("aaa-111")).toBeInTheDocument();
+        expect(screen.getByText("Balanced")).toBeInTheDocument();
+        expect(screen.getByText("Power saver")).toBeInTheDocument();
     });
 });

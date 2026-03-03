@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download } from "lucide-react";
+import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
@@ -65,7 +65,7 @@ function SelectOption({ value, options, onChange, label }: {
                 className="bg-white/5 border border-border rounded-lg px-3 py-1.5 text-[12px] font-medium text-foreground outline-none focus:border-primary/40 transition-colors appearance-none cursor-pointer"
             >
                 {options.map(o => (
-                    <option key={o.value} value={o.value} className="bg-[#1a1a2e]">{o.label}</option>
+                    <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
             </select>
         </div>
@@ -179,7 +179,7 @@ export function SettingsPage() {
 
     return (
         <>
-            <div className="space-y-6 pb-12 max-w-3xl">
+            <div className="space-y-6 pt-2 pb-12 max-w-3xl">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -187,11 +187,14 @@ export function SettingsPage() {
                     className="flex items-end justify-between"
                 >
                     <div>
-                        <h2 className="text-3xl font-black tracking-tight text-foreground">
-                            <span className="text-gradient">Settings</span>
+                        <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                <Settings className="w-4 h-4 text-primary" strokeWidth={1.8} />
+                            </div>
+                            Settings
                         </h2>
-                        <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed">
-                            Customize your WinOpt Pro experience.
+                        <p className="text-[13px] text-slate-500 mt-1">
+                            Customize your WinOpt Pro experience
                         </p>
                     </div>
                     <button
@@ -301,6 +304,29 @@ export function SettingsPage() {
 
                     {/* Backup & Restore */}
                     <BackupSection />
+
+                    {/* About */}
+                    <SettingSection icon={Info} title="About WinOpt Pro" description="Version information and project details.">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[13px] font-medium text-slate-300">Version</span>
+                                <span className="text-[12px] font-mono text-slate-400 bg-white/5 border border-border px-2 py-1 rounded-lg">1.0.0</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[13px] font-medium text-slate-300">Built with</span>
+                                <span className="text-[12px] text-slate-500">Tauri 2 · React 19 · Rust</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[13px] font-medium text-slate-300">Total tweaks</span>
+                                <span className="text-[12px] font-mono text-slate-400">162 registry &amp; system tweaks</span>
+                            </div>
+                            <div className="pt-1 border-t border-border/50">
+                                <p className="text-[11px] text-slate-600 leading-relaxed">
+                                    WinOpt Pro is a Windows system optimizer designed for power users and enthusiasts. Always create a restore point before applying system tweaks.
+                                </p>
+                            </div>
+                        </div>
+                    </SettingSection>
                 </div>
             </div>
 

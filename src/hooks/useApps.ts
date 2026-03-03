@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 
 export interface AppCheckResult {
     installed: boolean;
@@ -24,6 +24,7 @@ export function useApps() {
     const [chocoAvailable, setChocoAvailable] = useState<boolean | null>(null);
 
     const checkChocoAvailable = useCallback(async () => {
+        if (!isTauri()) { setChocoAvailable(false); return false; }
         try {
             const available = await invoke<boolean>("check_choco_available");
             setChocoAvailable(available);
@@ -35,6 +36,7 @@ export function useApps() {
     }, []);
 
     const checkInstalled = useCallback(async (wingetId: string, appId: string) => {
+        if (!isTauri()) return false;
         try {
             const result = await invoke<AppCheckResult>("check_app_installed", {
                 wingetId,
@@ -48,6 +50,7 @@ export function useApps() {
 
     const installApp = useCallback(
         async (wingetId: string, chocoId: string, appId: string) => {
+            if (!isTauri()) return { success: false, method: "none", output: "", error: "Not running in Tauri" };
             setInstallingId(appId);
             try {
                 const result = await invoke<AppInstallResult>("install_app", {

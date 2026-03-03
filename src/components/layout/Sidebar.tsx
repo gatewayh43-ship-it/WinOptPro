@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2, MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck, Cpu, FileText } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+    Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2,
+    MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
+    Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
+    ChevronDown
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
-
-// Import Flaticon/Nano vector assets
-import dashIcon from "../../assets/icons/dashboard-flaticon.svg";
-import perfIcon from "../../assets/icons/performance-flaticon.svg";
-import privIcon from "../../assets/icons/privacy-flaticon.svg";
-import netIcon from "../../assets/icons/network-flaticon.svg";
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -17,46 +16,83 @@ const COLOR_SCHEMES = [
     { id: "emerald", color: "#10b981", label: "Emerald" },
 ] as const;
 
-// Nav items grouped by section
 interface NavItem {
     id: string;
     label: string;
-    icon?: string;        // SVG asset path
-    lucideIcon?: React.ElementType; // Lucide fallback
+    lucideIcon?: React.ElementType;
 }
 
-const mainNavItems: NavItem[] = [
-    { id: "dashboard", label: "Overview", icon: dashIcon },
-    { id: "performance", label: "Performance", icon: perfIcon },
-    { id: "privacy", label: "Privacy", icon: privIcon },
-    { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
-    { id: "network_tweaks", label: "Network", icon: netIcon },
-    { id: "power", label: "Power", lucideIcon: BatteryMedium },
-    { id: "debloat", label: "Debloat", lucideIcon: Trash2 },
-    { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
-    { id: "windowsupdate", label: "Updates", lucideIcon: RefreshCcw },
-];
+interface NavGroup {
+    id: string;
+    label: string;
+    items: NavItem[];
+}
 
-const utilNavItems: NavItem[] = [
-    { id: "gaming_optimizer", label: "Gaming Optimizer", lucideIcon: Gamepad2 },
-    { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
-    { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
-    { id: "defender", label: "Defender Support", lucideIcon: Shield },
-    { id: "processes", label: "Process Manager", lucideIcon: Activity },
-    { id: "network", label: "Network Analyzer", lucideIcon: Network },
-    { id: "startup", label: "Startup Apps", lucideIcon: Power },
-    { id: "storage", label: "Storage Optimizer", lucideIcon: HardDrive },
-    { id: "drivers", label: "Driver Manager", lucideIcon: Cpu },
-    { id: "apps", label: "Recommended Apps", lucideIcon: Package },
-    { id: "system_report", label: "System Report", lucideIcon: FileText },
-    { id: "profiles", label: "Profiles", lucideIcon: Layers },
-    { id: "history", label: "History", lucideIcon: Clock },
-    { id: "settings", label: "Settings", lucideIcon: Settings },
+const DASHBOARD_ITEM: NavItem = { id: "dashboard", label: "Overview", lucideIcon: LayoutDashboard };
+
+const NAV_GROUPS: NavGroup[] = [
+    {
+        id: "tuning", label: "System Tuning", items: [
+            { id: "performance", label: "Performance", lucideIcon: Gauge },
+            { id: "privacy", label: "Privacy", lucideIcon: ShieldAlert },
+            { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
+            { id: "network_tweaks", label: "Network", lucideIcon: Globe },
+            { id: "power", label: "Power", lucideIcon: BatteryMedium },
+            { id: "debloat", label: "Debloat", lucideIcon: Trash2 },
+            { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
+            { id: "windowsupdate", label: "Updates", lucideIcon: RefreshCcw },
+        ]
+    },
+    {
+        id: "apps", label: "Apps & Packages", items: [
+            { id: "apps", label: "App Store", lucideIcon: Package },
+            { id: "wsl_manager", label: "WSL Manager", lucideIcon: Terminal },
+            { id: "drivers", label: "Driver Manager", lucideIcon: Cpu },
+            { id: "gpu_driver", label: "GPU Driver Cleaner", lucideIcon: CircuitBoard },
+            { id: "startup", label: "Startup Apps", lucideIcon: Power },
+        ]
+    },
+    {
+        id: "utilities", label: "Utilities", items: [
+            { id: "gaming_optimizer", label: "Gaming Optimizer", lucideIcon: Gamepad2 },
+            { id: "latency", label: "Latency Optimizer", lucideIcon: Timer },
+            { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
+            { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
+            { id: "defender", label: "Defender Support", lucideIcon: Shield },
+            { id: "processes", label: "Process Manager", lucideIcon: Activity },
+            { id: "network", label: "Network Analyzer", lucideIcon: Network },
+            { id: "storage", label: "Storage Optimizer", lucideIcon: HardDrive },
+            { id: "system_report", label: "System Report", lucideIcon: FileText },
+        ]
+    },
+    {
+        id: "system", label: "System", items: [
+            { id: "profiles", label: "Profiles", lucideIcon: Layers },
+            { id: "history", label: "History", lucideIcon: Clock },
+            { id: "settings", label: "Settings", lucideIcon: Settings },
+        ]
+    }
 ];
 
 export function Sidebar({ currentView, setView }: { currentView: string, setView: (s: string) => void }) {
     const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
     const [showColorPicker, setShowColorPicker] = useState(false);
+
+    // Track expanded groups - all expanded by default
+    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+        "tuning": true,
+        "apps": true,
+        "utilities": true,
+        "system": true
+    });
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const toggleGroup = (groupId: string) => {
+        setExpandedGroups(prev => ({
+            ...prev,
+            [groupId]: !prev[groupId]
+        }));
+    };
 
     const renderNavItem = (item: NavItem) => {
         const isActive = currentView === item.id;
@@ -84,16 +120,9 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                 )}
 
                 <div className="relative z-10 flex items-center justify-center">
-                    {item.icon ? (
-                        <img
-                            src={item.icon}
-                            alt={item.label}
-                            className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-sm"
-                            style={{ filter: isActive ? 'drop-shadow(0 0 4px var(--primary)) brightness(1.2)' : 'grayscale(100%)' }}
-                        />
-                    ) : item.lucideIcon ? (
+                    {item.lucideIcon && (
                         <item.lucideIcon className={`w-5 h-5 transition-opacity ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`} strokeWidth={1.8} />
-                    ) : null}
+                    )}
                 </div>
                 <span className="hidden lg:block relative z-10 text-[13px] font-medium tracking-wide">{item.label}</span>
             </button>
@@ -114,34 +143,84 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
 
             {/* Search / Command Menu Trigger */}
             <div className="px-2 lg:px-5 mb-6">
-                <button
-                    onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-                    className="w-full flex items-center justify-center lg:justify-between px-3 py-2 bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] border border-border rounded-xl text-sm text-slate-400 transition-colors"
-                >
-                    <span className="flex items-center"><Search className="w-4 h-4 lg:mr-2" /> <span className="hidden lg:inline">Jump to...</span></span>
-                    <span className="hidden lg:flex items-center text-[10px] bg-black/5 dark:bg-black/40 px-1.5 py-0.5 rounded shadow-inner font-mono font-medium border border-border">
-                        <Command className="w-3 h-3 mr-0.5" /> K
-                    </span>
-                </button>
+                <div className="relative group/search text-slate-400 focus-within:text-primary transition-colors">
+                    <Search className="absolute left-3 lg:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Search modules..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] focus:bg-white/5 border border-transparent focus:border-primary/30 rounded-xl px-3 pl-9 lg:pl-10 py-2 text-sm text-foreground placeholder-slate-500 outline-none transition-all placeholder:opacity-0 lg:placeholder:opacity-100"
+                    />
+                    {/* Fake hotkey hint that still delegates to global Ctrl+K anyway, just for aesthetics if empty */}
+                    {!searchQuery && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center text-[10px] bg-black/5 dark:bg-black/40 px-1.5 py-0.5 rounded shadow-inner font-mono font-medium opacity-50 pointer-events-none">
+                            <Command className="w-3 h-3 mr-0.5" /> K
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 px-2 lg:px-3 overflow-y-auto custom-scrollbar space-y-6">
-                {/* System Tuning section */}
-                <div>
-                    <p className="hidden lg:block px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 select-none">System Tuning</p>
-                    <nav className="space-y-1">
-                        {mainNavItems.map(renderNavItem)}
-                    </nav>
+            <div className="flex-1 px-2 lg:px-3 overflow-y-auto custom-scrollbar space-y-4 lg:space-y-6">
+
+                {/* Flat Dashboard Item */}
+                <div className="mb-2 lg:mb-4">
+                    {renderNavItem(DASHBOARD_ITEM)}
                 </div>
 
-                {/* Utilities section */}
-                <div>
-                    <p className="hidden lg:block px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 select-none">Utilities</p>
-                    <nav className="space-y-1">
-                        {utilNavItems.map(renderNavItem)}
-                    </nav>
-                </div>
+                {/* Collapsible Groups */}
+                {NAV_GROUPS.map(group => {
+                    // Filter items if there is a search query
+                    const query = searchQuery.toLowerCase().trim();
+                    const filteredItems = query
+                        ? group.items.filter(item => item.label.toLowerCase().includes(query))
+                        : group.items;
+
+                    if (filteredItems.length === 0) return null;
+
+                    const isExpanded = query ? true : expandedGroups[group.id];
+                    return (
+                        <div key={group.id} className="group/section">
+                            {/* Group Header - Only visible on desktop or as tooltip anchor on mobile */}
+                            <button
+                                onClick={() => !query && toggleGroup(group.id)}
+                                className={`hidden w-full px-3 py-1.5 items-center justify-between transition-colors outline-none ${query ? 'lg:flex text-primary/70 cursor-default' : 'lg:flex text-slate-500 hover:text-foreground group-hover/section:text-foreground'}`}
+                            >
+                                <p className="text-[10px] font-bold uppercase tracking-widest select-none">
+                                    {group.label} {query && <span className="ml-1 opacity-50">({filteredItems.length})</span>}
+                                </p>
+                                {!query && (
+                                    <motion.div
+                                        animate={{ rotate: isExpanded ? 0 : -90 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                                    </motion.div>
+                                )}
+                            </button>
+
+                            {/* Mobile-only separator */}
+                            <div className="lg:hidden mx-4 my-3 h-px bg-white/5" />
+
+                            <AnimatePresence initial={false}>
+                                {(isExpanded || window.innerWidth < 1024) && (
+                                    <motion.div
+                                        initial={window.innerWidth >= 1024 ? { height: 0, opacity: 0 } : undefined}
+                                        animate={window.innerWidth >= 1024 ? { height: "auto", opacity: 1 } : undefined}
+                                        exit={window.innerWidth >= 1024 ? { height: 0, opacity: 0 } : undefined}
+                                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                                        className="space-y-1 overflow-hidden"
+                                    >
+                                        <div className="py-1">
+                                            {filteredItems.map(renderNavItem)}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Theme Controls */}
@@ -178,6 +257,20 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                         <div className="w-4 h-4 rounded-full border-2 border-current opacity-60" style={{ backgroundColor: COLOR_SCHEMES.find(s => s.id === colorScheme)?.color ?? "#4318FF" }} />
                     </button>
                 </div>
+            </div>
+
+            {/* Command Palette Trigger */}
+            <div className="hidden lg:block px-5 mb-2">
+                <button
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5 text-slate-500 text-xs"
+                    onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
+                >
+                    <Search className="w-3.5 h-3.5" />
+                    <span>Jump to...</span>
+                    <span className="ml-auto flex items-center text-[10px] bg-black/5 dark:bg-black/40 px-1.5 py-0.5 rounded font-mono opacity-50">
+                        <Command className="w-2.5 h-2.5 mr-0.5" /> K
+                    </span>
+                </button>
             </div>
 
             {/* Footer */}

@@ -1,8 +1,145 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { HardDrive, RefreshCcw, Trash2, ShieldAlert, Clock, Plus, PlayCircle, X, Loader2 } from "lucide-react";
+import { HardDrive, RefreshCcw, Trash2, ShieldAlert, Clock, Plus, PlayCircle, X, Loader2, Database, Thermometer, AlertTriangle } from "lucide-react";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useStorage } from "../hooks/useStorage";
 import { useScheduler, PREDEFINED_TASKS } from "../hooks/useScheduler";
+import { useToast } from "@/components/ToastSystem";
+
+interface DiskSmartInfo {
+    friendlyName: string;
+    mediaType: string;
+    healthStatus: string;
+    wearPct: number | null;
+    temperatureC: number | null;
+    readErrors: number | null;
+    writeErrors: number | null;
+    sizeGb: number;
+}
+
+function DriveHealthSection() {
+    const [disks, setDisks] = useState<DiskSmartInfo[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isTrimming, setIsTrimming] = useState(false);
+    const { addToast } = useToast();
+
+    useEffect(() => {
+        if (!isTauri()) {
+            setDisks([
+                { friendlyName: "Samsung SSD 980 PRO 1TB", mediaType: "SSD", healthStatus: "Healthy", wearPct: 12, temperatureC: 38, readErrors: 0, writeErrors: 0, sizeGb: 931 },
+                { friendlyName: "Seagate Barracuda 2TB", mediaType: "HDD", healthStatus: "Healthy", wearPct: null, temperatureC: 32, readErrors: 0, writeErrors: 0, sizeGb: 1863 },
+            ]);
+            setIsLoading(false);
+            return;
+        }
+        invoke<DiskSmartInfo[]>("get_disk_smart_status")
+            .then(setDisks)
+            .catch(() => { })
+            .finally(() => setIsLoading(false));
+    }, []);
+
+    const runTrim = async () => {
+        setIsTrimming(true);
+        try {
+            const ok = await invoke<boolean>("run_trim_optimization");
+            addToast({ type: ok ? "success" : "error", title: ok ? "TRIM complete" : "TRIM failed", message: ok ? "Drive C: optimized successfully." : "Run WinOpt Pro as Administrator." });
+        } catch (e) {
+            addToast({ type: "error", title: "Error", message: String(e) });
+        } finally {
+            setIsTrimming(false);
+        }
+    };
+
+    const healthColor = (s: string) =>
+        s === "Healthy" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+            : s === "Warning" ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                : "bg-red-500/10 text-red-400 border-red-500/20";
+
+    const mediaLabel = (m: string) =>
+        m === "SSD" ? "SSD" : m === "HDD" ? "HDD" : m === "SCM" ? "NVMe" : m || "Disk";
+
+    const hasSSD = disks.some(d => d.mediaType === "SSD" || d.mediaType === "SCM");
+
+    return (
+        <div className="bento-card p-5 space-y-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Database className="w-4 h-4 text-primary" />
+                    <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Drive Health</span>
+                </div>
+                {hasSSD && (
+                    <button
+                        onClick={runTrim}
+                        disabled={isTrimming}
+                        title="Run TRIM on C: (requires admin)"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[11px] font-bold transition-colors disabled:opacity-50"
+                    >
+                        {isTrimming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
+                        Run TRIM
+                    </button>
+                )}
+            </div>
+
+            {isLoading ? (
+                <div className="flex items-center gap-2 text-slate-500 text-[12px] py-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Reading drive health...
+                </div>
+            ) : disks.length === 0 ? (
+                <p className="text-[12px] text-slate-600 py-2">No physical disks detected.</p>
+            ) : (
+                <div className="space-y-3">
+                    {disks.map((disk, i) => (
+                        <div key={i} className="p-3 rounded-xl border border-border bg-white/[0.02] space-y-2">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <p className="text-[13px] font-semibold text-foreground truncate">{disk.friendlyName}</p>
+                                    <p className="text-[11px] text-slate-500">{mediaLabel(disk.mediaType)} · {disk.sizeGb} GB</p>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    {disk.temperatureC != null && (
+                                        <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                                            <Thermometer className="w-3 h-3" /> {disk.temperatureC}°C
+                                        </span>
+                                    )}
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${healthColor(disk.healthStatus)}`}>
+                                        {disk.healthStatus}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {(disk.mediaType === "SSD" || disk.mediaType === "SCM") && (
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-slate-500">Wear</span>
+                                        <span className="text-slate-400 font-medium">
+                                            {disk.wearPct != null ? `${disk.wearPct}%` : "N/A"}
+                                        </span>
+                                    </div>
+                                    {disk.wearPct != null && (
+                                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all ${disk.wearPct > 80 ? "bg-red-500" : disk.wearPct > 50 ? "bg-amber-500" : "bg-emerald-500"
+                                                    }`}
+                                                style={{ width: `${disk.wearPct}%` }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {((disk.readErrors ?? 0) > 0 || (disk.writeErrors ?? 0) > 0) && (
+                                <div className="flex items-center gap-1.5 text-[11px] text-red-400">
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    R errors: {disk.readErrors ?? 0} · W errors: {disk.writeErrors ?? 0}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 function ScheduledMaintenanceSection() {
     const { tasks, isLoading, isWorking, fetchTasks, createTask, deleteTask, runNow } = useScheduler();
@@ -140,9 +277,9 @@ export function StoragePage() {
                 </div>
 
                 <button
-                    onClick={scan}
-                    disabled={isScanning || isCleaning}
-                    className="p-2 rounded-xl bg-white/[0.02] border border-border/50 text-slate-400 hover:text-primary hover:border-primary/50 transition-colors disabled:opacity-50"
+                    onClick={() => scan(true)}
+                    disabled={isScanning}
+                    className="px-5 py-2.5 bg-white/[0.03] hover:bg-white/[0.08] text-white text-[13px] font-bold rounded-xl flex items-center gap-2 border border-white/10 transition-colors disabled:opacity-50 shadow-sm"
                     title="Rescan Drive"
                 >
                     <RefreshCcw className={`w-5 h-5 ${isScanning ? "animate-spin" : ""}`} />
@@ -150,7 +287,7 @@ export function StoragePage() {
             </motion.div>
 
             {/* Overview Card */}
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bento-card p-6 overflow-hidden relative">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card p-6 overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
@@ -193,7 +330,7 @@ export function StoragePage() {
             </motion.div>
 
             {/* List */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bento-card overflow-hidden flex flex-col min-h-[400px]">
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card overflow-hidden flex flex-col min-h-[400px]">
                 <div className="p-4 border-b border-border/50 flex items-center justify-between bg-white/[0.01]">
                     <div className="flex items-center gap-3">
                         <button
@@ -282,6 +419,9 @@ export function StoragePage() {
                     </div>
                 )}
             </motion.div>
+
+            {/* Drive Health */}
+            <DriveHealthSection />
 
             {/* Scheduled Maintenance */}
             <ScheduledMaintenanceSection />

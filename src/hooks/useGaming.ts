@@ -20,6 +20,21 @@ export interface KnownGame {
   name: string;
 }
 
+export interface GpuSnapshot {
+  gpu: GpuMetrics;
+  cpu: number;
+  timestamp: number;
+}
+
+const GAMING_TWEAK_IDS = [
+  "SystemResponsiveness",
+  "GamePriority",
+  "DisableDynamicTick",
+  "EnableHWGPUScheduling",
+  "DisableCoreParking",
+  "DisableNetworkThrottling",
+];
+
 const MOCK_GPU: GpuMetrics = {
   name: "NVIDIA GeForce RTX 3080",
   temperatureC: 65,
@@ -36,20 +51,38 @@ const MOCK_GPU: GpuMetrics = {
 export function useGaming() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [gpuMetrics, setGpuMetrics] = useState<GpuMetrics | null>(null);
+  const [cpuLoad, setCpuLoad] = useState<number | null>(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isLoadingGpu, setIsLoadingGpu] = useState(true);
   const [isSettingLimit, setIsSettingLimit] = useState(false);
+  const [autoOptimize, setAutoOptimizeState] = useState<boolean>(
+    () => localStorage.getItem("gaming-auto-optimize") === "true"
+  );
+  const [baseline, setBaseline] = useState<GpuSnapshot | null>(() => {
+    try {
+      const raw = localStorage.getItem("gaming-baseline");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
   const { addToast } = useToast();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevGameRef = useRef<string | null>(null);
 
   const fetchGpuMetrics = useCallback(async () => {
     if (!isTauri()) {
       setGpuMetrics(MOCK_GPU);
+      setCpuLoad(34);
       return;
     }
     try {
-      const metrics = await invoke<GpuMetrics>("get_gpu_metrics");
+      const [metrics, cpu] = await Promise.all([
+        invoke<GpuMetrics>("get_gpu_metrics"),
+        invoke<number>("get_cpu_quick"),
+      ]);
       setGpuMetrics(metrics);
+      setCpuLoad(cpu);
     } catch {
       // silently ignore — nvidia-smi may not be present
     }
@@ -67,6 +100,33 @@ export function useGaming() {
       // ignore
     }
   }, []);
+
+  const setAutoOptimize = useCallback((val: boolean) => {
+    setAutoOptimizeState(val);
+    localStorage.setItem("gaming-auto-optimize", String(val));
+  }, []);
+
+  const captureBaseline = useCallback(() => {
+    if (!gpuMetrics || cpuLoad === null) return;
+    const snap: GpuSnapshot = { gpu: gpuMetrics, cpu: cpuLoad, timestamp: Date.now() };
+    setBaseline(snap);
+    localStorage.setItem("gaming-baseline", JSON.stringify(snap));
+    addToast({ type: "success", title: "Baseline captured", message: "Current GPU/CPU snapshot saved." });
+  }, [gpuMetrics, cpuLoad, addToast]);
+
+  // Auto-optimize: apply batch gaming tweaks when a game is detected
+  useEffect(() => {
+    if (!isTauri()) return;
+    if (autoOptimize && activeGame !== null && prevGameRef.current === null) {
+      invoke("execute_batch_tweaks", { tweakIds: GAMING_TWEAK_IDS }).catch(() => {});
+      addToast({
+        type: "info",
+        title: "Auto-optimize applied",
+        message: `Gaming tweaks applied for ${activeGame}`,
+      });
+    }
+    prevGameRef.current = activeGame;
+  }, [activeGame, autoOptimize, addToast]);
 
   const setGpuPowerLimit = useCallback(
     async (watts: number) => {
@@ -158,9 +218,14 @@ export function useGaming() {
   return {
     activeGame,
     gpuMetrics,
+    cpuLoad,
     isOverlayVisible,
     isLoadingGpu,
     isSettingLimit,
+    autoOptimize,
+    baseline,
+    setAutoOptimize,
+    captureBaseline,
     setGpuPowerLimit,
     showOverlay,
     hideOverlay,

@@ -19,7 +19,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [failedBatchIndex, setFailedBatchIndex] = useState(-1);
     const [revertTarget, setRevertTarget] = useState<typeof tweaksData[0] | null>(null);
     const [isReverting, setIsReverting] = useState(false);
-    const [isValidating, setIsValidating] = useState(false);
+    const [isValidating] = useState(false);
     const [showBannerExpertConfirm, setShowBannerExpertConfirm] = useState(false);
 
     const { applyTweak, revertTweak, validateTweak, rollbackTweaks, isExecuting } = useTweakExecution();
@@ -50,7 +50,6 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
         if (tweaksToValidate.length === 0) return;
 
         let cancelled = false;
-        setIsValidating(true);
 
         (async () => {
             const settled = await Promise.allSettled(
@@ -74,8 +73,6 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     removeAppliedTweak(tweak.id);
                 }
             }
-
-            setIsValidating(false);
         })();
 
         return () => { cancelled = true; };
@@ -230,40 +227,14 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
             <div className="flex flex-col lg:flex-row h-full gap-8">
                 {/* Configuration Grid */}
                 <div className="flex-1 flex flex-col h-full min-h-[500px]">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6 gap-4">
-                        <div className="flex-1">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
+                        <div className="flex-1 min-w-0">
                             <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center">
                                 {categoryTitle} <span className="text-gradient ml-2">Tuning</span>
                             </h2>
                             <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                                 Select granular registry optimizations to dynamically inject into the operating system.
                             </p>
-
-                            {/* Risk Level Filter Chips */}
-                            {tweaks.length > 0 && (
-                                <div className="flex gap-2 flex-wrap mt-4">
-                                    <span className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1 self-center">
-                                        <Filter className="w-3 h-3 mr-1" />Filter
-                                    </span>
-                                    {(["All", "Green", "Yellow", "Red"] as const).map(risk => {
-                                        const count = risk === "All" ? tweaks.length : tweaks.filter(t => t.riskLevel === risk).length;
-                                        if (count === 0 && risk !== "All") return null;
-                                        return (
-                                            <button
-                                                key={risk}
-                                                onClick={() => setFilterRisk(risk)}
-                                                className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all ${filterRisk === risk ? riskFilterStyles[risk].active : riskFilterStyles[risk].inactive}`}
-                                            >
-                                                {risk !== "All" && (
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${riskStyles[risk].dot}`}></span>
-                                                )}
-                                                {risk}
-                                                <span className="opacity-60 font-normal">({count})</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
                         </div>
 
                         {selectedTweaks.length === 0 && (
@@ -277,6 +248,32 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             </button>
                         )}
                     </div>
+
+                    {/* Risk Level Filter Chips */}
+                    {tweaks.length > 0 && (
+                        <div className="flex items-center gap-2 mb-4 flex-wrap">
+                            <span className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1 shrink-0">
+                                <Filter className="w-3 h-3 mr-1" />Filter
+                            </span>
+                            {(["All", "Green", "Yellow", "Red"] as const).map(risk => {
+                                const count = risk === "All" ? tweaks.length : tweaks.filter(t => t.riskLevel === risk).length;
+                                if (count === 0 && risk !== "All") return null;
+                                return (
+                                    <button
+                                        key={risk}
+                                        onClick={() => setFilterRisk(risk)}
+                                        className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all ${filterRisk === risk ? riskFilterStyles[risk].active : riskFilterStyles[risk].inactive}`}
+                                    >
+                                        {risk !== "All" && (
+                                            <span className={`w-1.5 h-1.5 rounded-full ${riskStyles[risk].dot}`}></span>
+                                        )}
+                                        {risk}
+                                        <span className="opacity-60 font-normal">({count})</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {/* Expert mode banner */}
                     {hiddenByExpertMode > 0 && (
@@ -307,7 +304,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             ))
                         ) : (<>
                             <AnimatePresence mode="popLayout">
-                                {visibleTweaks.map((tweak, i) => {
+                                {visibleTweaks.map((tweak) => {
                                     const isSelected = selectedTweaks.includes(tweak.id);
                                     const isApplied = appliedTweaks.includes(tweak.id);
                                     const isActive = activeTweak?.id === tweak.id;
@@ -327,7 +324,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                             initial={{ opacity: 0, y: 15 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.98 }}
-                                            transition={{ delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                                            transition={{ duration: 0.15, ease: "easeOut" }}
                                             key={tweak.id}
                                             className={`bento-card relative overflow-hidden p-5 cursor-pointer flex items-start gap-4 ${isActive ? "" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
                                             onClick={() => setActiveTweak(isActive ? null : tweak)}

@@ -35,6 +35,7 @@ describe("StoragePage", () => {
         vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
             if (cmd === "scan_junk_files") return mockItems;
             if (cmd === "get_disk_health") return mockDiskHealth;
+            if (cmd === "get_disk_smart_status") return [];
             if (cmd === "execute_cleanup") return mockCleanupResult;
             return null;
         });
@@ -88,6 +89,7 @@ describe("StoragePage", () => {
         vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
             if (cmd === "scan_junk_files") return [];
             if (cmd === "get_disk_health") return [];
+            if (cmd === "get_disk_smart_status") return [];
             return null;
         });
         render(<StoragePage />);
@@ -98,6 +100,7 @@ describe("StoragePage", () => {
         vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
             if (cmd === "scan_junk_files") throw new Error("Permission denied");
             if (cmd === "get_disk_health") return [];
+            if (cmd === "get_disk_smart_status") return [];
             return null;
         });
         render(<StoragePage />);

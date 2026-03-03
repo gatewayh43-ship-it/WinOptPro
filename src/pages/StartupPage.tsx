@@ -26,7 +26,7 @@ export function StartupPage() {
                 </div>
 
                 <button
-                    onClick={refresh}
+                    onClick={() => refresh()}
                     disabled={isLoading}
                     className="p-2 rounded-xl bg-white/[0.02] border border-border/50 text-slate-400 hover:text-primary hover:border-primary/50 transition-colors disabled:opacity-50"
                     title="Refresh List"
@@ -36,7 +36,7 @@ export function StartupPage() {
             </motion.div>
 
             {/* Search */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }}>
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                     <input
@@ -50,7 +50,7 @@ export function StartupPage() {
             </motion.div>
 
             {/* List */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bento-card overflow-hidden">
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card overflow-hidden">
                 <div className="p-4 border-b border-border/50 flex items-center justify-between bg-white/[0.01]">
                     <div className="flex items-center gap-2 text-sm font-bold text-slate-300">
                         <Settings2 className="w-4 h-4 text-primary" />

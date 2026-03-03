@@ -107,7 +107,7 @@ export function ProcessPage() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="bento-card p-4 flex items-center gap-4">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 border border-orange-500/20">
                         <Activity className="w-6 h-6" />
                     </div>
@@ -117,7 +117,7 @@ export function ProcessPage() {
                     </div>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="bento-card p-4 flex items-center gap-4">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
                         <MemoryStick className="w-6 h-6" />
                     </div>
@@ -127,7 +127,7 @@ export function ProcessPage() {
                     </div>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bento-card p-4 flex items-center gap-4 relative overflow-hidden">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card p-4 flex items-center gap-4 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -translate-y-1/2 translate-x-1/4 rounded-full" />
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 relative z-10">
                         <Cpu className="w-6 h-6" />
@@ -139,7 +139,7 @@ export function ProcessPage() {
                 </motion.div>
 
                 {!isAdmin && (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25 }} className="bento-card p-4 flex items-center gap-4 bg-orange-500/5 border-orange-500/20">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card p-4 flex items-center gap-4 bg-orange-500/5 border-orange-500/20">
                         <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400">
                             <ShieldAlert className="w-5 h-5" />
                         </div>
@@ -152,7 +152,7 @@ export function ProcessPage() {
             </div>
 
             {/* List */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bento-card overflow-hidden flex flex-col h-[600px]">
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card overflow-hidden flex flex-col h-[600px]">
                 {/* Header Controls */}
                 <div className="p-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/[0.01]">
                     <div className="relative max-w-md w-full">

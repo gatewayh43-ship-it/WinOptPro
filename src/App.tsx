@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { TweaksPage } from "./pages/TweaksPage";
@@ -17,8 +18,13 @@ import { DriverManagerPage } from "./pages/DriverManagerPage";
 import { SystemReportPage } from "./pages/SystemReportPage";
 import { GamingPage } from "./pages/GamingPage";
 import { GamingOverlayPage } from "./pages/GamingOverlayPage";
+import { LatencyPage } from "./pages/LatencyPage";
+import { GpuDriverPage } from "./pages/GpuDriverPage";
+import { WslPage } from "./pages/WslPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
+import { useGlobalCache } from "./hooks/useGlobalCache";
+import { GlobalLoadingScreen } from "./components/GlobalLoadingScreen";
 import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -40,6 +46,65 @@ function App() {
   const [currentView, setCurrentView] = useState("dashboard");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const { isAppReady, setAppReady, setCacheObject, updateLoadingProgress } = useGlobalCache();
+
+  // App-wide Boot Sequence
+  useEffect(() => {
+    if (isAppReady) return;
+
+    async function bootSequence() {
+      try {
+        if (!isTauri()) {
+          setTimeout(() => setAppReady(true), 1500); // Mock boot
+          return;
+        }
+
+        updateLoadingProgress(10, "Fetching System Drivers...");
+        const drivers = await invoke("list_drivers").catch(() => []);
+        setCacheObject("drivers", drivers);
+
+        updateLoadingProgress(25, "Inspecting Network Interfaces...");
+        const network = await invoke("get_network_interfaces").catch(() => []);
+        setCacheObject("network", network);
+
+        updateLoadingProgress(40, "Checking disk health...");
+        const storageItems = await invoke("scan_junk_files").catch(() => []);
+        const storageHealth = await invoke("get_disk_health").catch(() => []);
+        setCacheObject("storage_items", storageItems);
+        setCacheObject("storage_health", storageHealth);
+
+        updateLoadingProgress(60, "Reticulating splines...");
+        const wslStatus = await invoke("get_wsl_status").catch(() => null);
+        const wslConfig = await invoke("get_wsl_config").catch(() => null);
+        const wslSetup = await invoke("get_wsl_setup_state").catch(() => null);
+        setCacheObject("wsl_status", wslStatus);
+        setCacheObject("wsl_config", wslConfig);
+        setCacheObject("wsl_setup", wslSetup);
+
+        updateLoadingProgress(75, "Overclocking progress bar...");
+        const powerPlans = await invoke("get_power_plans").catch(() => []);
+        const batteryHealth = await invoke("get_battery_health").catch(() => null);
+        setCacheObject("power_plans", powerPlans);
+        setCacheObject("battery_health", batteryHealth);
+
+        updateLoadingProgress(85, "Analyzing processes...");
+        const processes = await invoke("get_processes").catch(() => []);
+        setCacheObject("processes", processes);
+
+        updateLoadingProgress(95, "Syncing RGB lighting...");
+        const startupItems = await invoke("get_startup_items").catch(() => []);
+        setCacheObject("startup_items", startupItems);
+
+        updateLoadingProgress(100, "Optimization Complete.");
+        setTimeout(() => setAppReady(true), 400);
+
+      } catch (e) {
+        console.error("Boot error:", e);
+        setAppReady(true);
+      }
+    }
+    bootSequence();
+  }, [isAppReady, setAppReady, setCacheObject, updateLoadingProgress]);
 
   // Show onboarding only on first visit
   useEffect(() => {
@@ -71,6 +136,7 @@ function App() {
     tools: <TweaksPage categoryTitle="Tools" />,
     gaming: <TweaksPage categoryTitle="Gaming" />,
     gaming_optimizer: <GamingPage />,
+    latency: <LatencyPage setView={setCurrentView} />,
     power: <TweaksPage categoryTitle="Power" />,
     security: <TweaksPage categoryTitle="Security" />,
     debloat: <TweaksPage categoryTitle="Debloat" />,
@@ -89,6 +155,8 @@ function App() {
     privacy_audit: <PrivacyAuditPage />,
     drivers: <DriverManagerPage />,
     system_report: <SystemReportPage />,
+    gpu_driver: <GpuDriverPage />,
+    wsl_manager: <WslPage />,
   };
 
   const handleSelectTweak = (tweak: any) => {
@@ -101,14 +169,18 @@ function App() {
     }, 100);
   };
 
+  if (!isAppReady) {
+    return <GlobalLoadingScreen />;
+  }
+
   return (
     <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
       <ToastProvider>
         <ErrorBoundary>
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
-          <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} />
+          <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} simpleOnly={true} />
           <AIAssistantChat />
-          <MainLayout currentView={currentView} setView={setCurrentView}>
+          <MainLayout currentView={currentView} setView={setCurrentView} onOpenSearch={() => setShowCommandPalette(true)}>
             <ErrorBoundary>
               {views[currentView] || (
                 <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-8 select-none">

@@ -1,5 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
+import { useGlobalCache } from "./useGlobalCache";
+
+const MOCK_INTERFACES: NetworkInterface[] = [
+    { name: "Ethernet", macAddress: "AA:BB:CC:DD:EE:FF", receivedBytes: 1_234_567_890, transmittedBytes: 987_654_321, ipV4: "192.168.1.100" },
+    { name: "Wi-Fi", macAddress: "11:22:33:44:55:66", receivedBytes: 456_789_012, transmittedBytes: 123_456_789, ipV4: "192.168.1.101" },
+];
 
 export interface NetworkInterface {
     name: string;
@@ -20,18 +26,33 @@ export interface PingResult {
 }
 
 export function useNetwork() {
-    const [interfaces, setInterfaces] = useState<NetworkInterface[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [interfaces, setInterfaces] = useState<NetworkInterface[]>(() => useGlobalCache.getState().getCacheObject("network") || []);
+    const [isLoading, setIsLoading] = useState(() => !useGlobalCache.getState().getCacheObject("network"));
     const [error, setError] = useState<string | null>(null);
 
     const [pinging, setPinging] = useState(false);
     const [pingResult, setPingResult] = useState<PingResult | null>(null);
     const [pingError, setPingError] = useState<string | null>(null);
 
-    const fetchInterfaces = useCallback(async () => {
+    const fetchInterfaces = useCallback(async (force = false) => {
+        if (!force) {
+            const cached = useGlobalCache.getState().getCacheObject("network");
+            if (cached) {
+                setInterfaces(cached);
+                setIsLoading(false);
+                return;
+            }
+        }
+
         try {
+            if (!isTauri()) {
+                setInterfaces(MOCK_INTERFACES);
+                useGlobalCache.getState().setCacheObject("network", MOCK_INTERFACES);
+                return;
+            }
             const data = await invoke<NetworkInterface[]>("get_network_interfaces");
             setInterfaces(data);
+            useGlobalCache.getState().setCacheObject("network", data);
             setError(null);
         } catch (err) {
             console.error("Failed to fetch network interfaces:", err);
@@ -53,6 +74,13 @@ export function useNetwork() {
         setPingResult(null);
         setPingError(null);
 
+        if (!isTauri()) {
+            await new Promise(r => setTimeout(r, 800));
+            setPingResult({ host: host.trim(), latencyMs: 12, minMs: 10, maxMs: 18, jitterMs: 2, packetLossPct: 0, success: true });
+            setPinging(false);
+            return;
+        }
+
         try {
             const result = await invoke<PingResult>("ping_host", { host: host.trim() });
             setPingResult(result);
@@ -67,7 +95,7 @@ export function useNetwork() {
         interfaces,
         isLoading,
         error,
-        refresh: fetchInterfaces,
+        refresh: () => fetchInterfaces(true),
         pingHost,
         pinging,
         pingResult,

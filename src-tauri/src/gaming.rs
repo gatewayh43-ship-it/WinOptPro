@@ -192,6 +192,16 @@ pub fn show_gaming_overlay(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// Get a quick CPU usage reading (two samples 200ms apart for accuracy).
+#[command]
+pub fn get_cpu_quick() -> Result<f32, String> {
+    let mut sys = System::new();
+    sys.refresh_cpu_usage();
+    std::thread::sleep(std::time::Duration::from_millis(200));
+    sys.refresh_cpu_usage();
+    Ok(sys.global_cpu_usage())
+}
+
 /// Close the gaming overlay window if it is open.
 #[command]
 pub fn hide_gaming_overlay(app: AppHandle) -> Result<(), String> {

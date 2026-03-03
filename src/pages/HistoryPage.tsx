@@ -152,7 +152,7 @@ export function HistoryPage() {
 
                             <div className="relative ml-5 border-l-2 border-border/50 space-y-3 pl-6">
                                 <AnimatePresence>
-                                    {items.map((entry, i) => {
+                                    {items.map((entry) => {
                                         const isExpanded = expandedId === entry.id;
                                         const time = new Date(entry.timestamp).toLocaleTimeString("en-US", {
                                             hour: "2-digit", minute: "2-digit", second: "2-digit"
@@ -163,7 +163,7 @@ export function HistoryPage() {
                                                 key={entry.id}
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: i * 0.03 }}
+                                                transition={{ duration: 0.15, ease: "easeOut" }}
                                                 className="relative"
                                             >
                                                 {/* Timeline dot */}

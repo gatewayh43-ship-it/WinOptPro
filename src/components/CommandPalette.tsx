@@ -14,7 +14,7 @@ const getCategoryIcon = (category: string) => {
     }
 };
 
-export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boolean; onClose: () => void; onSelectTweak: (tweak: any) => void }) {
+export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = false }: { isOpen: boolean; onClose: () => void; onSelectTweak: (tweak: any) => void; simpleOnly?: boolean; }) {
     const [searchQuery, setSearchQuery] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -23,9 +23,9 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
     const [workerState, setWorkerState] = useState<{ status: string, progress?: number, file?: string }>({ status: 'idle' });
     const workerRef = useRef<Worker | null>(null);
 
-    // Initialize Semantic Search Worker when palette opens
+    // Initialize Semantic Search Worker when palette opens (skip if simpleOnly)
     useEffect(() => {
-        if (!isOpen && !workerRef.current) return;
+        if (!isOpen || simpleOnly) return;
 
         if (isOpen && !workerRef.current) {
             workerRef.current = new Worker(new URL('../lib/semanticWorker.ts', import.meta.url), { type: 'module' });
@@ -61,13 +61,13 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
             return;
         }
 
-        if (workerState.status === 'ready' && workerRef.current) {
+        if (!simpleOnly && workerState.status === 'ready' && workerRef.current) {
             const timer = setTimeout(() => {
                 workerRef.current?.postMessage({ type: 'SEARCH', payload: { query: searchQuery } });
             }, 100); // slight debounce
             return () => clearTimeout(timer);
         } else {
-            // Basic fallback while model is downloading
+            // Basic fallback while model is downloading, or if simpleOnly is enabled
             const lower = searchQuery.toLowerCase();
             const basicMatch = tweaksData.filter(t =>
                 t.name.toLowerCase().includes(lower) ||
@@ -76,7 +76,7 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
             ).slice(0, 8);
             setFilteredTweaks(basicMatch);
         }
-    }, [searchQuery, isOpen, workerState.status]);
+    }, [searchQuery, isOpen, workerState.status, simpleOnly]);
 
     useEffect(() => {
         if (isOpen) {
@@ -157,16 +157,25 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak }: { isOpen: boo
                             </div>
 
                             {/* AI Status Banner */}
-                            {workerState.status === 'downloading' && (
+                            {!simpleOnly && workerState.status === 'downloading' && (
                                 <div className="px-4 py-2 bg-blue-500/10 border-b border-blue-500/20 flex items-center">
                                     <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin mr-2" />
                                     <span className="text-[11px] text-blue-400 font-medium">Downloading AI Search Model ({workerState.file})... {workerState.progress ? Math.round(workerState.progress) : 0}%</span>
                                 </div>
                             )}
-                            {workerState.status === 'initializing' && (
+                            {!simpleOnly && workerState.status === 'initializing' && (
                                 <div className="px-4 py-2 bg-blue-500/10 border-b border-blue-500/20 flex items-center">
                                     <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin mr-2" />
                                     <span className="text-[11px] text-blue-400 font-medium">Initializing AI Vector space...</span>
+                                </div>
+                            )}
+                            {simpleOnly && (
+                                <div className="px-4 py-1.5 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <Search className="w-3.5 h-3.5 text-slate-400 mr-2" />
+                                        <span className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">Quick Search Mode</span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-500 bg-white/5 px-2 py-0.5 rounded cursor-help" title="To use Semantic AI Search, use the search bar located at the top of the individual module pages.">AI Search Disabled</span>
                                 </div>
                             )}
 

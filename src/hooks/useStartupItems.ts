@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
+import { useGlobalCache } from "./useGlobalCache";
 
 export interface StartupItem {
     id: string;
@@ -11,17 +12,29 @@ export interface StartupItem {
 }
 
 export function useStartupItems() {
-    const [items, setItems] = useState<StartupItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const cached = useGlobalCache.getState().getCacheObject("startup_items");
+    const [items, setItems] = useState<StartupItem[]>(() => cached || []);
+    const [isLoading, setIsLoading] = useState(() => !cached);
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
 
-    const fetchItems = useCallback(async () => {
+    const fetchItems = useCallback(async (force = false) => {
+        if (!force) {
+            const cached = useGlobalCache.getState().getCacheObject("startup_items");
+            if (cached && cached.length > 0) {
+                setItems(cached);
+                setIsLoading(false);
+                return;
+            }
+        }
+
+        if (!isTauri()) { setItems([]); setIsLoading(false); return; }
         setIsLoading(true);
         setError(null);
         try {
             const data = await invoke<StartupItem[]>("get_startup_items");
             setItems(data);
+            useGlobalCache.getState().setCacheObject("startup_items", data);
         } catch (err) {
             console.error("Failed to fetch startup items:", err);
             setError(err instanceof Error ? err.message : String(err));
@@ -57,5 +70,5 @@ export function useStartupItems() {
         }
     };
 
-    return { items, isLoading, error, refresh: fetchItems, toggleItem };
+    return { items, isLoading, error, refresh: () => fetchItems(true), toggleItem };
 }

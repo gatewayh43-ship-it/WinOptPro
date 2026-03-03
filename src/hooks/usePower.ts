@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
+import { useGlobalCache } from "./useGlobalCache";
 
 export interface PowerPlan {
     guid: string;
@@ -48,28 +49,42 @@ export const POWER_SETTING_KEYS = {
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 export function usePower() {
-    const [plans, setPlans] = useState<PowerPlan[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const cachedPlans = useGlobalCache.getState().getCacheObject("power_plans");
+    const cachedBattery = useGlobalCache.getState().getCacheObject("battery_health");
+
+    const [plans, setPlans] = useState<PowerPlan[]>(() => cachedPlans || []);
+    const [isLoading, setIsLoading] = useState(() => !cachedPlans);
     const [isChanging, setIsChanging] = useState(false);
-    const [batteryHealth, setBatteryHealth] = useState<BatteryHealth | null>(null);
+    const [batteryHealth, setBatteryHealth] = useState<BatteryHealth | null>(() => cachedBattery || null);
     const [powerSettings, setPowerSettings] = useState<PowerSettings | null>(null);
     const [isLoadingSettings, setIsLoadingSettings] = useState(false);
     const { addToast } = useToast();
 
-    const fetchPlans = useCallback(async () => {
+    const fetchPlans = useCallback(async (force = true) => {
+        if (!force) {
+            const cached = useGlobalCache.getState().getCacheObject("power_plans");
+            if (cached) {
+                setPlans(cached);
+                setIsLoading(false);
+                return;
+            }
+        }
         setIsLoading(true);
         try {
             if (!isTauri) {
-                await new Promise(r => setTimeout(r, 800));
-                setPlans([
+                const mockObj = [
                     { guid: "381b4222-f694-41f0-9685-ff5bb260df2e", name: "Balanced", is_active: false },
                     { guid: "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", name: "High performance", is_active: true },
                     { guid: "a1841308-3541-4fab-bc81-f71556f20b4a", name: "Power saver", is_active: false }
-                ]);
+                ];
+                await new Promise(r => setTimeout(r, 800));
+                setPlans(mockObj);
+                useGlobalCache.getState().setCacheObject("power_plans", mockObj);
                 return;
             }
             const result = await invoke<PowerPlan[]>("get_power_plans");
             setPlans(result);
+            useGlobalCache.getState().setCacheObject("power_plans", result);
         } catch (error) {
             console.error("Failed to fetch power plans:", error);
             addToast({ type: "error", title: "Power Config Error", message: String(error) });
@@ -78,19 +93,29 @@ export function usePower() {
         }
     }, [addToast]);
 
-    const fetchBatteryHealth = useCallback(async () => {
+    const fetchBatteryHealth = useCallback(async (force = false) => {
+        if (!force) {
+            const cached = useGlobalCache.getState().getCacheObject("battery_health");
+            if (cached) {
+                setBatteryHealth(cached);
+                return;
+            }
+        }
         try {
             if (!isTauri) {
-                setBatteryHealth({
+                const mockBat = {
                     has_battery: false,
                     charge_percent: 0,
                     is_charging: false,
                     status: "No battery detected"
-                });
+                };
+                setBatteryHealth(mockBat);
+                useGlobalCache.getState().setCacheObject("battery_health", mockBat);
                 return;
             }
             const result = await invoke<BatteryHealth>("get_battery_health");
             setBatteryHealth(result);
+            useGlobalCache.getState().setCacheObject("battery_health", result);
         } catch (error) {
             console.error("Failed to fetch battery health:", error);
         }
@@ -144,7 +169,7 @@ export function usePower() {
     }, [addToast]);
 
     useEffect(() => {
-        fetchPlans();
+        fetchPlans(false);
         fetchBatteryHealth();
     }, [fetchPlans, fetchBatteryHealth]);
 

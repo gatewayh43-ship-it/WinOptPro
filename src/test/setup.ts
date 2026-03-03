@@ -1,10 +1,12 @@
 import "@testing-library/jest-dom";
 import { vi, beforeEach } from "vitest";
+import { useGlobalCache } from "../hooks/useGlobalCache";
 
 // ── Tauri API global mock ────────────────────────────────────────────────────
 // Tauri's IPC bridge is unavailable in jsdom; stub the entire module.
 vi.mock("@tauri-apps/api/core", () => ({
     invoke: vi.fn(() => Promise.resolve(null)),
+    isTauri: vi.fn(() => true),
 }));
 
 vi.mock("@tauri-apps/plugin-opener", () => ({
@@ -29,6 +31,7 @@ vi.stubGlobal("localStorage", localStorageMock);
 
 beforeEach(() => {
     localStorageMock.clear();
+    useGlobalCache.getState().clearCache();
 });
 
 // ── matchMedia (JSDOM doesn't implement it) ───────────────────────────────────

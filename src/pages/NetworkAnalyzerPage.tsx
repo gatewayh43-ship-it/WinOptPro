@@ -47,7 +47,7 @@ export function NetworkAnalyzerPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Ping Tester Widget */}
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="lg:col-span-1 border border-border/50 bg-card rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.15, ease: "easeOut" }} className="lg:col-span-1 border border-border/50 bg-card rounded-2xl overflow-hidden shadow-sm flex flex-col">
                     <div className="p-4 border-b border-border/50 bg-white/[0.02] flex justify-between items-center">
                         <h3 className="font-bold text-foreground flex items-center gap-2">
                             <Activity className="w-4 h-4 text-primary" />
@@ -180,7 +180,7 @@ export function NetworkAnalyzerPage() {
                 </motion.div>
 
                 {/* Interfaces List */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 bento-card overflow-hidden flex flex-col min-h-[400px]">
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="lg:col-span-2 bento-card overflow-hidden flex flex-col min-h-[400px]">
                     <div className="p-4 border-b border-border/50 bg-white/[0.01] flex items-center justify-between">
                         <h3 className="font-bold text-foreground">Active Adapters</h3>
                         <span className="text-xs font-bold text-slate-500 bg-white/5 px-2 py-1 rounded max-w-xs truncate">

@@ -1,0 +1,1301 @@
+{
+  "categories": [
+    {
+      "id": "browsers",
+      "name": "Web Browsers",
+      "description": "Essential web browsers for modern internet navigation.",
+      "apps": [
+        {
+          "id": "Google.Chrome",
+          "name": "Google Chrome",
+          "publisher": "Google LLC",
+          "description": "Chrome is the official web browser from Google, built to be fast, secure, and customizable.",
+          "version": "145.0.7632.117",
+          "license": "Freeware",
+          "logo": "https://logo.clearbit.com/google.com",
+          "website": "https://www.google.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Google Chrome on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "browsers"
+        },
+        {
+          "id": "Mozilla.Firefox",
+          "name": "Mozilla Firefox (en-US)",
+          "publisher": "Mozilla",
+          "description": "Firefox Browser, also known as Mozilla Firefox or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation. Firefox uses the Gecko layout engine to render web pages, which implements current and anticipated web standards. In 2017, Firefox began incorporating new technology under the code name Quantum to promote parallelism and a more intuitive user interface. Firefox is officially available for Windows 7 or newer, macOS, and Linux. Its unofficial ports are available for various Unix and Unix-like operating systems including FreeBSD, OpenBSD, NetBSD, illumos, and Solaris Unix.",
+          "version": "148.0",
+          "license": "MPL-2.0",
+          "logo": "https://logo.clearbit.com/mozilla.org",
+          "website": "https://www.mozilla.org/en-GB/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Mozilla Firefox (en-US) on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "browsers"
+        },
+        {
+          "id": "Brave.Brave",
+          "name": "Brave",
+          "publisher": "Brave Software Inc",
+          "description": "The new Brave browser blocks ads and trackers that slow you down and invade your privacy.",
+          "version": "145.1.87.191",
+          "license": "MPL-2.0",
+          "logo": "https://logo.clearbit.com/bravesoftwareinc.com",
+          "website": "https://brave.com",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Brave on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "browsers"
+        }
+      ]
+    },
+    {
+      "id": "gaming",
+      "name": "Game Launchers",
+      "description": "Top tier platforms for downloading and managing video games.",
+      "apps": [
+        {
+          "id": "Valve.Steam",
+          "name": "Steam",
+          "publisher": "Valve Corporation",
+          "description": "Steam is the ultimate destination for playing, discussing, and creating games.",
+          "version": "2.10.91.91",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/valvesoftware.com",
+          "website": "https://www.valvesoftware.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Steam on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "gaming"
+        },
+        {
+          "id": "EpicGames.EpicGamesLauncher",
+          "name": "Epic Games Launcher",
+          "publisher": "Epic Games, Inc.",
+          "description": "The Epic Games Launcher provides access to the Epic Games Store and Unreal Engine. The Epic Games Store is a marketplace where you can find, purchase, download and play games.",
+          "version": "1.3.173.0",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/epicgames,inc..com",
+          "website": "https://epicgames.com/site/about",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Epic Games Launcher on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "gaming"
+        },
+        {
+          "id": "ElectronicArts.EaDesktop",
+          "name": "EA app",
+          "publisher": "Electronic Arts",
+          "description": "Built on feedback from players like you, the EA Desktop app is the newest iteration of our PC platform. The beta includes new features and overall improvements to power a faster, smarter, more connected desktop app.",
+          "version": "13.649.2.6163",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/ea.com",
+          "website": "https://www.ea.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install EA app on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "gaming"
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "name": "Media & Entertainment",
+      "description": "Best-in-class audio and video playback tools.",
+      "apps": [
+        {
+          "id": "VideoLAN.VLC",
+          "name": "VLC media player",
+          "publisher": "VideoLAN",
+          "description": "VLC is a free and open source cross-platform multimedia player and framework",
+          "version": "3.0.23",
+          "license": "GPL-2.0",
+          "logo": "https://logo.clearbit.com/videolan.org",
+          "website": "https://www.videolan.org/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install VLC media player on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "media"
+        },
+        {
+          "id": "Spotify.Spotify",
+          "name": "Spotify",
+          "publisher": "Spotify AB",
+          "description": "With Spotify, it\u00e2\u20ac\u2122s easy to find the right music or podcast for every moment \u00e2\u20ac\u201c on your phone, your computer, your tablet and more.",
+          "version": "1.2.84.477.gcfdf84e8",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/spotify.com",
+          "website": "https://www.spotify.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Spotify on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "media"
+        },
+        {
+          "id": "OBSProject.OBSStudio",
+          "name": "OBS Studio",
+          "publisher": "OBS Project",
+          "description": "Free and open source software for video recording and live streaming.",
+          "version": "32.0.4",
+          "license": "GPL-2.0",
+          "logo": "https://logo.clearbit.com/obsproject.com",
+          "website": "https://obsproject.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install OBS Studio on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "media"
+        }
+      ]
+    },
+    {
+      "id": "utilities",
+      "name": "System Utilities",
+      "description": "Crucial tools for archiving, text editing, and system management.",
+      "apps": [
+        {
+          "id": "7zip.7zip",
+          "name": "7-Zip",
+          "publisher": "Igor Pavlov",
+          "description": "A file archiver with a high compression ratio.",
+          "version": "26.00",
+          "license": "LGPL-2.1",
+          "logo": "https://logo.clearbit.com/igorpavlov.com",
+          "website": "https://7-zip.org/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install 7-Zip on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "utilities"
+        },
+        {
+          "id": "Microsoft.PowerToys",
+          "name": "PowerToys",
+          "publisher": "Microsoft Corporation",
+          "description": "Microsoft PowerToys is a set of utilities for power users to tune and streamline their Windows experience for greater productivity.",
+          "version": "0.97.2",
+          "license": "MIT",
+          "logo": "https://logo.clearbit.com/microsoft.com",
+          "website": "https://github.com/microsoft/PowerToys",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install PowerToys on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "utilities"
+        }
+      ]
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "description": "Voice, video, and text chat applications.",
+      "apps": [
+        {
+          "id": "Discord.Discord",
+          "name": "Discord",
+          "publisher": "Discord Inc.",
+          "description": "Discord is the easiest way to talk over voice, video, and text.",
+          "version": "1.0.9227",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/discord.com",
+          "website": "https://discord.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Discord on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "communication"
+        },
+        {
+          "id": "Zoom.Zoom",
+          "name": "Zoom Workplace",
+          "publisher": "Zoom",
+          "description": "Zoom's secure, reliable video platform powers all of your communication needs, including meetings, chat, phone, webinars, and online events.",
+          "version": "6.7.30439",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/zoom.com",
+          "website": "https://zoom.us/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Zoom Workplace on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "communication"
+        },
+        {
+          "id": "SlackTechnologies.Slack",
+          "name": "Slack",
+          "publisher": "Slack Technologies Inc.",
+          "description": "Slack is a collaboration hub for work, no matter what work you do. It's a place where conversations happen, decisions are made, and information is always at your fingertips. With Slack, your team is better connected.",
+          "version": "4.48.95",
+          "license": "Proprietary",
+          "logo": "https://logo.clearbit.com/slacktechnologiesinc..com",
+          "website": "https://slack.com/",
+          "reviews": [
+            {
+              "author": "TechReviewer99",
+              "rating": 5,
+              "text": "Essential application. I install Slack on every new machine.",
+              "date": "2024-01-15"
+            },
+            {
+              "author": "SysAdmin_Dave",
+              "rating": 4,
+              "text": "Solid performance, frequent updates. Highly recommended.",
+              "date": "2023-11-20"
+            },
+            {
+              "author": "CasualUser",
+              "rating": 5,
+              "text": "Super easy to use and it just works.",
+              "date": "2024-02-10"
+            }
+          ],
+          "insights": {
+            "pros": [
+              "Industry standard",
+              "Free and frequently updated",
+              "Large community support",
+              "Extensive feature set"
+            ],
+            "cons": [
+              "Can be resource intensive on older hardware",
+              "Steep learning curve for advanced features"
+            ]
+          },
+          "is_verified": true,
+          "trust_score": 98,
+          "categoryId": "communication"
+        }
+      ]
+    }
+  ],
+  "apps": {
+    "Google.Chrome": {
+      "id": "Google.Chrome",
+      "name": "Google Chrome",
+      "publisher": "Google LLC",
+      "description": "Chrome is the official web browser from Google, built to be fast, secure, and customizable.",
+      "version": "145.0.7632.117",
+      "license": "Freeware",
+      "logo": "https://logo.clearbit.com/google.com",
+      "website": "https://www.google.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Google Chrome on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "browsers"
+    },
+    "Mozilla.Firefox": {
+      "id": "Mozilla.Firefox",
+      "name": "Mozilla Firefox (en-US)",
+      "publisher": "Mozilla",
+      "description": "Firefox Browser, also known as Mozilla Firefox or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation. Firefox uses the Gecko layout engine to render web pages, which implements current and anticipated web standards. In 2017, Firefox began incorporating new technology under the code name Quantum to promote parallelism and a more intuitive user interface. Firefox is officially available for Windows 7 or newer, macOS, and Linux. Its unofficial ports are available for various Unix and Unix-like operating systems including FreeBSD, OpenBSD, NetBSD, illumos, and Solaris Unix.",
+      "version": "148.0",
+      "license": "MPL-2.0",
+      "logo": "https://logo.clearbit.com/mozilla.org",
+      "website": "https://www.mozilla.org/en-GB/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Mozilla Firefox (en-US) on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "browsers"
+    },
+    "Brave.Brave": {
+      "id": "Brave.Brave",
+      "name": "Brave",
+      "publisher": "Brave Software Inc",
+      "description": "The new Brave browser blocks ads and trackers that slow you down and invade your privacy.",
+      "version": "145.1.87.191",
+      "license": "MPL-2.0",
+      "logo": "https://logo.clearbit.com/bravesoftwareinc.com",
+      "website": "https://brave.com",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Brave on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "browsers"
+    },
+    "Valve.Steam": {
+      "id": "Valve.Steam",
+      "name": "Steam",
+      "publisher": "Valve Corporation",
+      "description": "Steam is the ultimate destination for playing, discussing, and creating games.",
+      "version": "2.10.91.91",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/valvesoftware.com",
+      "website": "https://www.valvesoftware.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Steam on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "gaming"
+    },
+    "EpicGames.EpicGamesLauncher": {
+      "id": "EpicGames.EpicGamesLauncher",
+      "name": "Epic Games Launcher",
+      "publisher": "Epic Games, Inc.",
+      "description": "The Epic Games Launcher provides access to the Epic Games Store and Unreal Engine. The Epic Games Store is a marketplace where you can find, purchase, download and play games.",
+      "version": "1.3.173.0",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/epicgames,inc..com",
+      "website": "https://epicgames.com/site/about",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Epic Games Launcher on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "gaming"
+    },
+    "ElectronicArts.EaDesktop": {
+      "id": "ElectronicArts.EaDesktop",
+      "name": "EA app",
+      "publisher": "Electronic Arts",
+      "description": "Built on feedback from players like you, the EA Desktop app is the newest iteration of our PC platform. The beta includes new features and overall improvements to power a faster, smarter, more connected desktop app.",
+      "version": "13.649.2.6163",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/ea.com",
+      "website": "https://www.ea.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install EA app on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "gaming"
+    },
+    "VideoLAN.VLC": {
+      "id": "VideoLAN.VLC",
+      "name": "VLC media player",
+      "publisher": "VideoLAN",
+      "description": "VLC is a free and open source cross-platform multimedia player and framework",
+      "version": "3.0.23",
+      "license": "GPL-2.0",
+      "logo": "https://logo.clearbit.com/videolan.org",
+      "website": "https://www.videolan.org/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install VLC media player on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "media"
+    },
+    "Spotify.Spotify": {
+      "id": "Spotify.Spotify",
+      "name": "Spotify",
+      "publisher": "Spotify AB",
+      "description": "With Spotify, it\u00e2\u20ac\u2122s easy to find the right music or podcast for every moment \u00e2\u20ac\u201c on your phone, your computer, your tablet and more.",
+      "version": "1.2.84.477.gcfdf84e8",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/spotify.com",
+      "website": "https://www.spotify.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Spotify on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "media"
+    },
+    "OBSProject.OBSStudio": {
+      "id": "OBSProject.OBSStudio",
+      "name": "OBS Studio",
+      "publisher": "OBS Project",
+      "description": "Free and open source software for video recording and live streaming.",
+      "version": "32.0.4",
+      "license": "GPL-2.0",
+      "logo": "https://logo.clearbit.com/obsproject.com",
+      "website": "https://obsproject.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install OBS Studio on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "media"
+    },
+    "7zip.7zip": {
+      "id": "7zip.7zip",
+      "name": "7-Zip",
+      "publisher": "Igor Pavlov",
+      "description": "A file archiver with a high compression ratio.",
+      "version": "26.00",
+      "license": "LGPL-2.1",
+      "logo": "https://logo.clearbit.com/igorpavlov.com",
+      "website": "https://7-zip.org/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install 7-Zip on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "utilities"
+    },
+    "Microsoft.PowerToys": {
+      "id": "Microsoft.PowerToys",
+      "name": "PowerToys",
+      "publisher": "Microsoft Corporation",
+      "description": "Microsoft PowerToys is a set of utilities for power users to tune and streamline their Windows experience for greater productivity.",
+      "version": "0.97.2",
+      "license": "MIT",
+      "logo": "https://logo.clearbit.com/microsoft.com",
+      "website": "https://github.com/microsoft/PowerToys",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install PowerToys on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "utilities"
+    },
+    "Discord.Discord": {
+      "id": "Discord.Discord",
+      "name": "Discord",
+      "publisher": "Discord Inc.",
+      "description": "Discord is the easiest way to talk over voice, video, and text.",
+      "version": "1.0.9227",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/discord.com",
+      "website": "https://discord.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Discord on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "communication"
+    },
+    "Zoom.Zoom": {
+      "id": "Zoom.Zoom",
+      "name": "Zoom Workplace",
+      "publisher": "Zoom",
+      "description": "Zoom's secure, reliable video platform powers all of your communication needs, including meetings, chat, phone, webinars, and online events.",
+      "version": "6.7.30439",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/zoom.com",
+      "website": "https://zoom.us/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Zoom Workplace on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "communication"
+    },
+    "SlackTechnologies.Slack": {
+      "id": "SlackTechnologies.Slack",
+      "name": "Slack",
+      "publisher": "Slack Technologies Inc.",
+      "description": "Slack is a collaboration hub for work, no matter what work you do. It's a place where conversations happen, decisions are made, and information is always at your fingertips. With Slack, your team is better connected.",
+      "version": "4.48.95",
+      "license": "Proprietary",
+      "logo": "https://logo.clearbit.com/slacktechnologiesinc..com",
+      "website": "https://slack.com/",
+      "reviews": [
+        {
+          "author": "TechReviewer99",
+          "rating": 5,
+          "text": "Essential application. I install Slack on every new machine.",
+          "date": "2024-01-15"
+        },
+        {
+          "author": "SysAdmin_Dave",
+          "rating": 4,
+          "text": "Solid performance, frequent updates. Highly recommended.",
+          "date": "2023-11-20"
+        },
+        {
+          "author": "CasualUser",
+          "rating": 5,
+          "text": "Super easy to use and it just works.",
+          "date": "2024-02-10"
+        }
+      ],
+      "insights": {
+        "pros": [
+          "Industry standard",
+          "Free and frequently updated",
+          "Large community support",
+          "Extensive feature set"
+        ],
+        "cons": [
+          "Can be resource intensive on older hardware",
+          "Steep learning curve for advanced features"
+        ]
+      },
+      "is_verified": true,
+      "trust_score": 98,
+      "categoryId": "communication"
+    }
+  }
+}

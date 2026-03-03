@@ -53,9 +53,9 @@ export function DriverManagerPage() {
                         Export JSON
                     </button>
                     <button
-                        onClick={fetchDrivers}
+                        onClick={() => fetchDrivers(true)}
                         disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors disabled:opacity-50"
+                        className="p-2 bg-surface border border-border/50 text-slate-400 rounded-xl hover:text-white hover:border-white/20 transition-all disabled:opacity-50"
                     >
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                         Refresh
@@ -86,11 +86,10 @@ export function DriverManagerPage() {
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors border ${
-                                filter === f
-                                    ? "bg-primary/10 border-primary/30 text-primary"
-                                    : "border-border text-slate-500 hover:text-foreground hover:border-white/20"
-                            }`}
+                            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors border ${filter === f
+                                ? "bg-primary/10 border-primary/30 text-primary"
+                                : "border-border text-slate-500 hover:text-foreground hover:border-white/20"
+                                }`}
                         >
                             {f.charAt(0).toUpperCase() + f.slice(1)}
                         </button>
@@ -143,7 +142,7 @@ export function DriverManagerPage() {
                                     key={`${d.inf_name}-${i}`}
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: Math.min(i * 0.01, 0.3) }}
+                                    transition={{ duration: 0.15, ease: "easeOut" }}
                                     className="border-b border-border/50 hover:bg-white/[0.02] transition-colors"
                                 >
                                     <td className="px-4 py-3">

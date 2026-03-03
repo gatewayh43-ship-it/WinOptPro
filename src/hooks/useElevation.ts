@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 
 interface ElevationResult {
     success: boolean;
@@ -12,6 +12,7 @@ export function useElevation() {
     const [isElevating, setIsElevating] = useState(false);
 
     const checkAdmin = useCallback(async () => {
+        if (!isTauri()) { setIsAdmin(false); return false; }
         try {
             const admin = await invoke<boolean>("is_admin");
             setIsAdmin(admin);
@@ -23,6 +24,7 @@ export function useElevation() {
     }, []);
 
     const elevateAndExecute = useCallback(async (code: string): Promise<ElevationResult> => {
+        if (!isTauri()) return { success: false, output: "", error: "Not running in Tauri" };
         setIsElevating(true);
         try {
             const result = await invoke<ElevationResult>("elevate_and_execute", { code });

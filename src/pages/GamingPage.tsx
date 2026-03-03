@@ -10,9 +10,13 @@ import {
   ToggleRight,
   RefreshCw,
   AlertTriangle,
+  TrendingUp,
+  Camera,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useGaming, GpuMetrics } from "@/hooks/useGaming";
+import { useGaming, GpuMetrics, GpuSnapshot } from "@/hooks/useGaming";
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
@@ -60,8 +64,9 @@ function BarMeter({
       <div className="flex justify-between text-[12px]">
         <span className="text-slate-400 font-medium">{label}</span>
         <span className="text-foreground font-semibold">
-          {value.toFixed(unit === "GB" ? 1 : 0)}
-          {unit === "GB" ? ` / ${(max / 1024).toFixed(0)} GB` : `${unit} / ${max.toFixed(0)}${unit}`}
+          {unit === "GB"
+            ? `${(value / 1024).toFixed(1)} / ${(max / 1024).toFixed(0)} GB`
+            : `${value.toFixed(0)}${unit} / ${max.toFixed(0)}${unit}`}
         </span>
       </div>
       <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -227,15 +232,182 @@ function PowerLimitPanel({
   );
 }
 
+const AUTO_OPTIMIZE_TWEAKS = [
+  "SystemResponsiveness",
+  "GamePriority",
+  "DisableDynamicTick",
+  "EnableHWGPUScheduling",
+  "DisableCoreParking",
+  "DisableNetworkThrottling",
+];
+
+function AutoOptimizePanel({
+  autoOptimize,
+  setAutoOptimize,
+}: {
+  autoOptimize: boolean;
+  setAutoOptimize: (v: boolean) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="glass-panel rounded-2xl p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <TrendingUp className="w-5 h-5 text-emerald-400" strokeWidth={1.8} />
+          <div>
+            <p className="text-[14px] font-bold text-foreground">Auto-Optimize on Launch</p>
+            <p className="text-[12px] text-slate-500 mt-0.5">
+              Automatically apply gaming tweaks when a game is detected
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setAutoOptimize(!autoOptimize)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-[13px] transition-all ${
+            autoOptimize
+              ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+              : "bg-white/5 border border-border text-slate-400 hover:text-foreground"
+          }`}
+        >
+          {autoOptimize ? (
+            <><ToggleRight className="w-4 h-4" /> On</>
+          ) : (
+            <><ToggleLeft className="w-4 h-4" /> Off</>
+          )}
+        </button>
+      </div>
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-400 transition-colors"
+      >
+        {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        {expanded ? "Hide" : "Show"} tweaks that will be applied
+      </button>
+      {expanded && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {AUTO_OPTIMIZE_TWEAKS.map(id => (
+            <span key={id} className="px-2 py-0.5 rounded-md bg-white/5 border border-border text-[11px] font-mono text-slate-400">
+              {id}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BeforeAfterPanel({
+  gpuMetrics,
+  cpuLoad,
+  baseline,
+  captureBaseline,
+}: {
+  gpuMetrics: GpuMetrics | null;
+  cpuLoad: number | null;
+  baseline: GpuSnapshot | null;
+  captureBaseline: () => void;
+}) {
+  const rows: Array<{ label: string; before: string; now: string; delta: number | null }> =
+    gpuMetrics && baseline
+      ? [
+          {
+            label: "GPU %",
+            before: `${baseline.gpu.gpuUtilPct.toFixed(0)}%`,
+            now: `${gpuMetrics.gpuUtilPct.toFixed(0)}%`,
+            delta: gpuMetrics.gpuUtilPct - baseline.gpu.gpuUtilPct,
+          },
+          {
+            label: "CPU %",
+            before: `${baseline.cpu.toFixed(0)}%`,
+            now: cpuLoad != null ? `${cpuLoad.toFixed(0)}%` : "—",
+            delta: cpuLoad != null ? cpuLoad - baseline.cpu : null,
+          },
+          {
+            label: "Power",
+            before: `${baseline.gpu.powerDrawW.toFixed(0)}W`,
+            now: `${gpuMetrics.powerDrawW.toFixed(0)}W`,
+            delta: gpuMetrics.powerDrawW - baseline.gpu.powerDrawW,
+          },
+          {
+            label: "GPU Temp",
+            before: `${baseline.gpu.temperatureC.toFixed(0)}°C`,
+            now: `${gpuMetrics.temperatureC.toFixed(0)}°C`,
+            delta: gpuMetrics.temperatureC - baseline.gpu.temperatureC,
+          },
+        ]
+      : [];
+
+  return (
+    <div className="glass-panel rounded-2xl p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Camera className="w-5 h-5 text-violet-400" strokeWidth={1.8} />
+          <div>
+            <p className="text-[14px] font-bold text-foreground">Before / After</p>
+            <p className="text-[12px] text-slate-500 mt-0.5">
+              {baseline
+                ? `Baseline: ${new Date(baseline.timestamp).toLocaleTimeString()}`
+                : "Capture a baseline before applying tweaks"}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={captureBaseline}
+          disabled={!gpuMetrics}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-400 font-semibold text-[13px] transition-all disabled:opacity-40"
+        >
+          <Camera className="w-3.5 h-3.5" />
+          Capture Baseline
+        </button>
+      </div>
+
+      {baseline && gpuMetrics && (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="bg-white/[0.03] border-b border-border">
+                <th className="text-left px-3 py-2 text-slate-500 font-semibold">Metric</th>
+                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Before</th>
+                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Now</th>
+                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.label} className="border-b border-border/50 last:border-0">
+                  <td className="px-3 py-2 text-slate-400 font-medium">{row.label}</td>
+                  <td className="px-3 py-2 text-right text-slate-500">{row.before}</td>
+                  <td className="px-3 py-2 text-right text-foreground font-semibold">{row.now}</td>
+                  <td className={`px-3 py-2 text-right font-bold ${
+                    row.delta === null ? "text-slate-600" :
+                    row.delta < 0 ? "text-emerald-400" : row.delta > 0 ? "text-red-400" : "text-slate-500"
+                  }`}>
+                    {row.delta === null ? "—" : `${row.delta > 0 ? "+" : ""}${row.delta.toFixed(0)}`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────
 
 export function GamingPage() {
   const {
     activeGame,
     gpuMetrics,
+    cpuLoad,
     isOverlayVisible,
     isLoadingGpu,
     isSettingLimit,
+    autoOptimize,
+    baseline,
+    setAutoOptimize,
+    captureBaseline,
     setGpuPowerLimit,
     showOverlay,
     hideOverlay,
@@ -332,6 +504,17 @@ export function GamingPage() {
             )}
           </button>
         </div>
+
+        {/* Auto-optimize */}
+        <AutoOptimizePanel autoOptimize={autoOptimize} setAutoOptimize={setAutoOptimize} />
+
+        {/* Before / After */}
+        <BeforeAfterPanel
+          gpuMetrics={gpuMetrics}
+          cpuLoad={cpuLoad}
+          baseline={baseline}
+          captureBaseline={captureBaseline}
+        />
 
         {/* Note about game tweaks */}
         <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15 text-[12px] text-slate-400">

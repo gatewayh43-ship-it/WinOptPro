@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
+import { useGlobalCache } from "./useGlobalCache";
 
 export interface ProcessItem {
     pid: number;
@@ -13,15 +14,28 @@ export interface ProcessItem {
 }
 
 export function useProcesses() {
-    const [processes, setProcesses] = useState<ProcessItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const cached = useGlobalCache.getState().getCacheObject("processes");
+    const [processes, setProcesses] = useState<ProcessItem[]>(() => cached || []);
+    const [isLoading, setIsLoading] = useState(() => !cached);
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
 
-    const fetchProcesses = useCallback(async () => {
+    const fetchProcesses = useCallback(async (force = false) => {
+        if (!force) {
+            const cached = useGlobalCache.getState().getCacheObject("processes");
+            if (cached) {
+                setProcesses(cached);
+                setIsLoading(false);
+                return;
+            }
+        }
+
+        if (!isTauri()) { setIsLoading(false); return; }
+
         try {
             const data = await invoke<ProcessItem[]>("get_processes");
             setProcesses(data);
+            useGlobalCache.getState().setCacheObject("processes", data);
             setError(null);
         } catch (err) {
             console.error("Failed to fetch processes:", err);
@@ -97,5 +111,5 @@ export function useProcesses() {
         }
     };
 
-    return { processes, isLoading, error, refresh: fetchProcesses, killProcess, setProcessPriority, openFileLocation };
+    return { processes, isLoading, error, refresh: () => fetchProcesses(true), killProcess, setProcessPriority, openFileLocation };
 }

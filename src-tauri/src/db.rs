@@ -1,6 +1,6 @@
 use aes_gcm::{
-    aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Nonce,
+    aead::{generic_array::GenericArray, Aead, AeadCore, KeyInit, OsRng},
+    Aes256Gcm,
 };
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use rusqlite::{params, Connection, Result as SqlResult};
@@ -82,7 +82,7 @@ pub fn decrypt_log_field(text: &str) -> String {
     let key_bytes = derive_db_key();
     let key = aes_gcm::Key::<Aes256Gcm>::from_slice(&key_bytes);
     let cipher = Aes256Gcm::new(key);
-    let nonce = Nonce::<Aes256Gcm>::from_slice(&combined[..12]);
+    let nonce = GenericArray::from_slice(&combined[..12]);
 
     cipher
         .decrypt(nonce, &combined[12..])

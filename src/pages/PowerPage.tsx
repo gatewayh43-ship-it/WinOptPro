@@ -263,7 +263,6 @@ export function PowerPage() {
                             </div>
                             <div className="mt-4 flex flex-col gap-1 items-start">
                                 <h4 className={`text-base font-bold truncate ${plan.is_active ? "text-foreground" : "text-slate-300"}`}>{plan.name}</h4>
-                                <code className="text-[10px] text-slate-500 font-mono tracking-tight truncate w-full group-hover:text-slate-400 transition-colors">{plan.guid}</code>
                             </div>
                             {!plan.is_active && (
                                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-[var(--bento-radius)] flex flex-col items-center justify-center backdrop-blur-sm">

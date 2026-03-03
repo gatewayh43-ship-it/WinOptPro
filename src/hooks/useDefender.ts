@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 
 export interface DefenderStatus {
@@ -17,6 +17,7 @@ export function useDefender() {
     const { addToast } = useToast();
 
     const fetchStatus = useCallback(async () => {
+        if (!isTauri()) { setLoading(false); return; }
         setLoading(true);
         try {
             const data = await invoke<DefenderStatus>("defender_get_status");

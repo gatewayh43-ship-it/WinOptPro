@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
+use std::os::windows::process::CommandExt;
 use tauri::command;
 use walkdir::WalkDir;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CleanupItem {
@@ -267,6 +270,114 @@ fn clean_directory(path: &str) -> (u64, usize, Vec<String>) {
     }
     
     (freed, removed, errors)
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiskSmartInfo {
+    pub friendly_name: String,
+    pub media_type: String,
+    pub health_status: String,
+    pub wear_pct: Option<u32>,
+    pub temperature_c: Option<u32>,
+    pub read_errors: Option<u64>,
+    pub write_errors: Option<u64>,
+    pub size_gb: u64,
+}
+
+/// Get physical disk health, wear, and temperature via PowerShell Get-PhysicalDisk + Get-StorageReliabilityCounter.
+#[command]
+pub fn get_disk_smart_status() -> Result<Vec<DiskSmartInfo>, String> {
+    let script = r#"
+$results = @()
+Get-PhysicalDisk | ForEach-Object {
+    $disk = $_
+    $counter = $null
+    try { $counter = Get-StorageReliabilityCounter -PhysicalDisk $disk -ErrorAction SilentlyContinue } catch {}
+    $obj = [PSCustomObject]@{
+        FriendlyName  = $disk.FriendlyName
+        MediaType     = $disk.MediaType
+        HealthStatus  = $disk.HealthStatus
+        SizeBytes     = $disk.Size
+        Wear          = if ($counter) { $counter.Wear } else { $null }
+        Temperature   = if ($counter) { $counter.Temperature } else { $null }
+        ReadErrors    = if ($counter) { $counter.ReadErrorsTotal } else { $null }
+        WriteErrors   = if ($counter) { $counter.WriteErrorsTotal } else { $null }
+    }
+    $results += $obj
+}
+$results | ConvertTo-Json -Depth 3
+"#;
+
+    let out = std::process::Command::new("powershell")
+        .args(["-NoProfile", "-NonInteractive", "-Command", script])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    let text = String::from_utf8_lossy(&out.stdout);
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Ok(vec![]);
+    }
+
+    // PowerShell may return a single object (not array) if only one disk — wrap in array
+    let json_str = if trimmed.starts_with('{') {
+        format!("[{}]", trimmed)
+    } else {
+        trimmed.to_string()
+    };
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    struct RawDisk {
+        friendly_name: Option<String>,
+        media_type: Option<String>,
+        health_status: Option<String>,
+        size_bytes: Option<u64>,
+        wear: Option<serde_json::Value>,
+        temperature: Option<serde_json::Value>,
+        read_errors: Option<serde_json::Value>,
+        write_errors: Option<serde_json::Value>,
+    }
+
+    let raw: Vec<RawDisk> = serde_json::from_str(&json_str).unwrap_or_default();
+
+    fn parse_num<T: std::str::FromStr>(v: &Option<serde_json::Value>) -> Option<T> {
+        v.as_ref()?.as_u64().and_then(|n| T::from_str(&n.to_string()).ok())
+    }
+
+    let disks = raw
+        .into_iter()
+        .map(|r| DiskSmartInfo {
+            friendly_name: r.friendly_name.unwrap_or_else(|| "Unknown".into()),
+            media_type: r.media_type.unwrap_or_else(|| "Unspecified".into()),
+            health_status: r.health_status.unwrap_or_else(|| "Unknown".into()),
+            size_gb: r.size_bytes.unwrap_or(0) / 1_073_741_824,
+            wear_pct: parse_num::<u32>(&r.wear),
+            temperature_c: parse_num::<u32>(&r.temperature),
+            read_errors: parse_num::<u64>(&r.read_errors),
+            write_errors: parse_num::<u64>(&r.write_errors),
+        })
+        .collect();
+
+    Ok(disks)
+}
+
+/// Run TRIM optimization on the C: drive. Requires administrator privileges.
+#[command]
+pub fn run_trim_optimization() -> Result<bool, String> {
+    let out = std::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Optimize-Volume -DriveLetter C -ReTrim -Verbose",
+        ])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output()
+        .map_err(|e| e.to_string())?;
+    Ok(out.status.success())
 }
 
 #[command]

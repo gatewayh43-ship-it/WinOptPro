@@ -3134,5 +3134,105 @@
       "revertCode": "Remove-ItemProperty -Path 'HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer' -Name 'DisableNotificationCenter' -EA SilentlyContinue; Stop-Process -Name explorer -Force -EA SilentlyContinue"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer' -EA SilentlyContinue).DisableNotificationCenter"
+  },
+  {
+    "id": "DisableVBS",
+    "name": "Disable Virtualization-Based Security (VBS)",
+    "category": "Security",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Disables VBS to recover 5–15% GPU/CPU performance lost to hypervisor overhead. Requires reboot.",
+    "educationalContext": {
+      "howItWorks": "VBS uses Windows Hypervisor to create an isolated virtual environment protecting kernel memory. It runs even on non-Hyper-V systems and incurs a measurable performance cost.",
+      "pros": "Recovers 5–15% GPU performance in games; reduces CPU overhead; useful on older hardware.",
+      "cons": "Removes kernel-level memory isolation. Windows Defender Credential Guard will be disabled. Increases risk from kernel exploits.",
+      "expertDetails": "Sets the bootloader entry 'hypervisorlaunchtype' to 'off' via bcdedit. VBS is enabled by default on Windows 11. Disabling it also disables HVCI (Memory Integrity) since that feature depends on VBS. Reboot is required for changes to take effect.",
+      "interactions": "Disabling VBS automatically disables HVCI/Memory Integrity (DisableMemoryIntegrity tweak becomes redundant). Conflicts with Credential Guard."
+    },
+    "execution": {
+      "code": "bcdedit /set hypervisorlaunchtype off",
+      "revertCode": "bcdedit /set hypervisorlaunchtype auto"
+    },
+    "validationCmd": "bcdedit /enum {current} | findstr /i hypervisorlaunchtype"
+  },
+  {
+    "id": "DisableMemoryCompression",
+    "name": "Disable Memory Compression",
+    "category": "Performance",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Disables Windows memory compression to reduce CPU overhead when RAM is plentiful.",
+    "educationalContext": {
+      "howItWorks": "Windows compresses infrequently accessed memory pages to fit more data in RAM, reducing paging to disk. This uses CPU cycles for compression/decompression.",
+      "pros": "Eliminates CPU overhead from memory compression. Can reduce micro-stutters on high-RAM systems (32GB+).",
+      "cons": "On systems with less RAM, disabling compression increases paging to disk which is much slower. Not recommended for systems with less than 16GB RAM.",
+      "expertDetails": "Uses the 'Disable-MMAgent -MemoryCompression' PowerShell cmdlet. The Memory Manager Agent (MMAgent) also handles page combining. Current state can be checked with 'Get-MMAgent'.",
+      "interactions": "Only beneficial if you have 32GB+ RAM. On systems with 8–16GB, keeping compression enabled is better for overall performance."
+    },
+    "execution": {
+      "code": "Disable-MMAgent -MemoryCompression",
+      "revertCode": "Enable-MMAgent -MemoryCompression"
+    },
+    "validationCmd": "(Get-MMAgent).MemoryCompression"
+  },
+  {
+    "id": "DisableDynamicTick",
+    "name": "Disable Dynamic Tick (Consistent Timer)",
+    "category": "Gaming",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Forces a consistent system timer tick rate instead of Windows' power-saving variable tick. Reduces latency jitter.",
+    "educationalContext": {
+      "howItWorks": "Windows uses a dynamic tick by default — it slows the timer when the system is idle to save power. This causes variable timer resolution which adds jitter to frame times.",
+      "pros": "More consistent frame pacing and reduced input latency variance. Useful for competitive gaming.",
+      "cons": "Slightly increases power consumption (prevents CPU from entering deep sleep between ticks). Requires reboot.",
+      "expertDetails": "Sets 'disabledynamictick yes' via bcdedit. Works alongside timer resolution settings. On modern Windows 11, this has less impact than on Windows 10 due to improved scheduler changes, but still measurable on some hardware.",
+      "interactions": "Pairs well with SystemResponsiveness and GamePriority tweaks. Has synergy with disabling HPET (DisableHPET) for lowest-latency timer behavior."
+    },
+    "execution": {
+      "code": "bcdedit /set disabledynamictick yes",
+      "revertCode": "bcdedit /set disabledynamictick no"
+    },
+    "validationCmd": "bcdedit /enum {current} | findstr /i disabledynamictick"
+  },
+  {
+    "id": "EnableWriteBackCache",
+    "name": "Enable Disk Write-Back Cache",
+    "category": "Performance",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Enables write-back caching on all disks for faster write performance. Risk: data loss on power failure without UPS.",
+    "educationalContext": {
+      "howItWorks": "Write-back caching buffers disk writes in RAM and acknowledges them immediately to the application, flushing to disk asynchronously. This dramatically speeds up write-heavy workloads.",
+      "pros": "Significantly faster disk write performance for games, compilers, and file operations.",
+      "cons": "If power is lost before the cache is flushed, buffered writes are lost. Not recommended without a UPS or on laptops where sudden shutdown is possible.",
+      "expertDetails": "Uses 'Set-Disk -IsWriteCacheEnabled $true' PowerShell cmdlet for each connected disk. This is equivalent to enabling 'Write caching' in Device Manager > Disk Drive Properties > Policies tab.",
+      "interactions": "SSDs typically have their own internal write-back cache. This setting enables the Windows disk driver cache layer on top. Combined effect is larger buffer, faster sequential writes."
+    },
+    "execution": {
+      "code": "Get-Disk | ForEach-Object { try { Set-Disk -Number $_.Number -IsWriteCacheEnabled $true -ErrorAction SilentlyContinue } catch {} }",
+      "revertCode": "Get-Disk | ForEach-Object { try { Set-Disk -Number $_.Number -IsWriteCacheEnabled $false -ErrorAction SilentlyContinue } catch {} }"
+    },
+    "validationCmd": "(Get-Disk | Select-Object -First 1).IsWriteCacheEnabled"
+  },
+  {
+    "id": "DisableFTH",
+    "name": "Disable Fault Tolerant Heap (FTH)",
+    "category": "Performance",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Disables the Fault Tolerant Heap which silently patches crashing apps, adding overhead to all heap allocations.",
+    "educationalContext": {
+      "howItWorks": "The Fault Tolerant Heap (FTH) monitors applications for heap corruption crashes and automatically applies compatibility shims (heap mitigations) to prevent future crashes. These shims add overhead to memory allocations.",
+      "pros": "Removes heap allocation overhead. Games and apps that FTH has 'shimmed' will see reduced CPU overhead in memory-intensive operations.",
+      "cons": "Applications that genuinely crash due to heap corruption will crash more often instead of being silently patched. Useful only on stable systems.",
+      "expertDetails": "Disables FTH by setting 'HKLM:\\SOFTWARE\\Microsoft\\FTH' Enabled=0. FTH is part of the Application Compatibility subsystem. On a stable gaming system with no crashing apps, the shims provide zero benefit.",
+      "interactions": "Has no interaction with other tweaks. Independent of memory compression and VBS settings."
+    },
+    "execution": {
+      "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -Name 'Enabled' -Value 0 -Type DWord -Force",
+      "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -Name 'Enabled' -Value 1 -Type DWord -Force"
+    },
+    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -EA SilentlyContinue).Enabled"
   }
 ]
