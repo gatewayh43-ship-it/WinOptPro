@@ -21,6 +21,7 @@ import { GamingOverlayPage } from "./pages/GamingOverlayPage";
 import { LatencyPage } from "./pages/LatencyPage";
 import { GpuDriverPage } from "./pages/GpuDriverPage";
 import { WslPage } from "./pages/WslPage";
+import { HelpPage } from "./pages/HelpPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { useGlobalCache } from "./hooks/useGlobalCache";
@@ -157,6 +158,7 @@ function App() {
     system_report: <SystemReportPage />,
     gpu_driver: <GpuDriverPage />,
     wsl_manager: <WslPage />,
+    help: <HelpPage />,
   };
 
   const handleSelectTweak = (tweak: any) => {

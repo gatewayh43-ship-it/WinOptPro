@@ -3,7 +3,7 @@ import {
     Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2,
     MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
     Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
-    ChevronDown
+    ChevronDown, HelpCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
@@ -70,6 +70,7 @@ const NAV_GROUPS: NavGroup[] = [
             { id: "profiles", label: "Profiles", lucideIcon: Layers },
             { id: "history", label: "History", lucideIcon: Clock },
             { id: "settings", label: "Settings", lucideIcon: Settings },
+            { id: "help", label: "Help & Docs", lucideIcon: HelpCircle },
         ]
     }
 ];
