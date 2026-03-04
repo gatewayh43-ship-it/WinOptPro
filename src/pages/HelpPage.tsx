@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     BookOpen, Search, Zap, ShieldAlert, Gamepad2, Terminal, CircuitBoard, Timer,
@@ -9,6 +9,8 @@ import {
     LayoutGrid, List, TriangleAlert, MousePointer
 } from "lucide-react";
 import tweaksData from "../data/tweaks.json";
+import { useTweakExecution } from "../hooks/useTweakExecution";
+import { useAppStore } from "../store/appStore";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -178,14 +180,20 @@ function TroubleCard({ title, symptoms, solutions }: { title: string; symptoms: 
 
 // ─── Tweak card ───────────────────────────────────────────────────────────────
 
-function TweakCard({ tweak }: { tweak: Tweak }) {
+function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
+    tweak: Tweak;
+    isApplied: boolean;
+    isExecutingThis: boolean;
+    onToggle: () => void;
+}) {
     const [open, setOpen] = useState(false);
     return (
-        <div className={`rounded-xl border transition-colors ${open ? "border-cyan-500/25 bg-cyan-500/5" : "border-border bg-black/5 dark:bg-white/[0.02]"}`}>
-            <button onClick={() => setOpen(v => !v)} className="w-full flex items-start gap-3 px-4 py-3 text-left outline-none">
-                <div className="flex-1 min-w-0">
+        <div className={`rounded-xl border transition-colors ${open ? "border-cyan-500/25 bg-cyan-500/5" : isApplied ? "border-emerald-500/25 bg-emerald-500/5" : "border-border bg-black/5 dark:bg-white/[0.02]"}`}>
+            <div className="flex items-start gap-3 px-4 py-3">
+                <button onClick={() => setOpen(v => !v)} className="flex-1 min-w-0 text-left outline-none">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[13px] font-semibold text-foreground truncate">{tweak.name}</span>
+                        <span className={`text-[13px] font-semibold truncate ${isApplied ? "text-emerald-400" : "text-foreground"}`}>{tweak.name}</span>
+                        {isApplied && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">✓ Applied</span>}
                         {tweak.requiresExpertMode && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 border border-red-500/30 text-red-400">Expert</span>}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
@@ -193,9 +201,24 @@ function TweakCard({ tweak }: { tweak: Tweak }) {
                         <span className="text-[11px] text-slate-500">{tweak.category}</span>
                     </div>
                     {!open && <p className="text-[12px] text-slate-400 mt-1.5 line-clamp-1">{tweak.description}</p>}
+                </button>
+                <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                    <button
+                        onClick={onToggle}
+                        disabled={isExecutingThis}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isApplied
+                                ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                                : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                        }`}
+                    >
+                        {isExecutingThis ? "…" : isApplied ? "Disable" : "Enable"}
+                    </button>
+                    <button onClick={() => setOpen(v => !v)} className="outline-none">
+                        {open ? <ChevronDown className="w-4 h-4 text-cyan-400" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                    </button>
                 </div>
-                {open ? <ChevronDown className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" /> : <ChevronRight className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />}
-            </button>
+            </div>
             <AnimatePresence initial={false}>
                 {open && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
@@ -845,6 +868,18 @@ function TweaksBrowserSection() {
     const [expertOnly, setExpertOnly] = useState(false);
     const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
+    const { applyTweak, revertTweak, executingTweakId } = useTweakExecution();
+    const appliedTweaks = useAppStore(s => s.appliedTweaks);
+
+    const handleToggle = useCallback(async (tweak: Tweak) => {
+        const t = { ...tweak, validationCmd: tweak.validationCmd ?? "" };
+        if (appliedTweaks.includes(tweak.id)) {
+            await revertTweak(t);
+        } else {
+            await applyTweak(t);
+        }
+    }, [appliedTweaks, applyTweak, revertTweak]);
+
     const filtered = useMemo(() => {
         const q = search.toLowerCase().trim();
         return ALL_TWEAKS.filter(t => {
@@ -913,7 +948,15 @@ function TweaksBrowserSection() {
 
             {/* Results */}
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-2" : "flex flex-col gap-2"}>
-                {filtered.map(tweak => <TweakCard key={tweak.id} tweak={tweak} />)}
+                {filtered.map(tweak => (
+                    <TweakCard
+                        key={tweak.id}
+                        tweak={tweak}
+                        isApplied={appliedTweaks.includes(tweak.id)}
+                        isExecutingThis={executingTweakId === tweak.id}
+                        onToggle={() => handleToggle(tweak)}
+                    />
+                ))}
                 {filtered.length === 0 && (
                     <div className="flex flex-col items-center py-16 text-slate-500">
                         <Search className="w-10 h-10 opacity-20 mb-3" />
