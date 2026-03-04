@@ -3234,5 +3234,65 @@
       "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -Name 'Enabled' -Value 1 -Type DWord -Force"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\FTH' -EA SilentlyContinue).Enabled"
+  },
+  {
+    "id": "DisableHVCI",
+    "name": "Disable HVCI / Memory Integrity",
+    "category": "Security",
+    "riskLevel": "Red",
+    "requiresExpertMode": true,
+    "description": "Disables Hypervisor-Protected Code Integrity (Memory Integrity) to recover CPU performance lost to kernel code verification overhead.",
+    "educationalContext": {
+      "howItWorks": "HVCI runs kernel code integrity checks inside a VBS hypervisor enclave. Every kernel module load is verified in the isolated environment, adding CPU overhead — typically 3–7% in games.",
+      "pros": "Recovers 3–7% CPU overhead in performance-sensitive workloads. Reduces DPC latency on some hardware.",
+      "cons": "Removes hypervisor-enforced driver code integrity. Malicious or vulnerable kernel drivers can execute without this protection layer.",
+      "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity Enabled=0 via registry. Requires a reboot. Note: if VBS (DisableVBS) is also disabled, HVCI is implicitly disabled — applying both tweaks is redundant but harmless.",
+      "interactions": "Redundant if DisableVBS is applied (VBS must be running for HVCI to function). Conflicts with Credential Guard and Windows Defender Kernel Protection features."
+    },
+    "execution": {
+      "code": "if (!(Test-Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity')) { New-Item -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 0 -Type DWord -Force",
+      "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 1 -Type DWord -Force"
+    },
+    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -EA SilentlyContinue).Enabled"
+  },
+  {
+    "id": "EnableHAGS",
+    "name": "Enable Hardware-Accelerated GPU Scheduling",
+    "category": "Gaming",
+    "riskLevel": "Yellow",
+    "requiresExpertMode": false,
+    "description": "Enables HAGS, letting the GPU manage its own memory scheduling directly instead of routing through the CPU. Reduces GPU latency on supported hardware.",
+    "educationalContext": {
+      "howItWorks": "Normally the Windows GPU scheduler (running on the CPU) manages GPU memory pages. HAGS offloads this to the GPU's own scheduler firmware, reducing round-trip latency between CPU command submission and GPU execution.",
+      "pros": "Reduces GPU frame latency by 1–5ms on supported GPUs. Improves frame pacing. Beneficial in CPU-bottlenecked scenarios.",
+      "cons": "Can cause instability or driver crashes on older GPUs or with outdated drivers. Some titles report lower average FPS with HAGS on certain driver versions. Requires WDDM 2.7+ driver and Windows 10 2004+.",
+      "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers HwSchMode=2 (2=enabled, 1=disabled). Requires a modern NVIDIA (GTX 1000+) or AMD (RX 5000+) GPU with an updated driver. Intel Arc also supports it.",
+      "interactions": "Works alongside DisableDynamicTick and SystemResponsiveness for lower overall GPU latency. No conflicts with other tweaks."
+    },
+    "execution": {
+      "code": "if (!(Test-Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers')) { New-Item -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -Name 'HwSchMode' -Value 2 -Type DWord -Force",
+      "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -Name 'HwSchMode' -Value 1 -Type DWord -Force"
+    },
+    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -EA SilentlyContinue).HwSchMode"
+  },
+  {
+    "id": "SetPriorityBoost",
+    "name": "Enable CPU Priority Boost",
+    "category": "Performance",
+    "riskLevel": "Green",
+    "requiresExpertMode": false,
+    "description": "Restores Windows' dynamic CPU priority boost, ensuring foreground threads and I/O completion threads receive additional scheduling priority for better responsiveness.",
+    "educationalContext": {
+      "howItWorks": "Windows boosts thread priorities temporarily after I/O completion and for foreground applications. Setting PrioritySeparation=38 enables 2-quantum foreground boost with variable quantum lengths — the classic 'gaming' scheduler setting.",
+      "pros": "Improves foreground app responsiveness and reduces perceived input lag. Ensures game threads are scheduled ahead of background tasks. No reboot required.",
+      "cons": "Minimal. Background tasks may receive slightly less CPU time while a foreground game is running. Effectively a no-op if the system is not CPU-bottlenecked.",
+      "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl PrioritySeparation=38 (hex 0x26). Value 38 = foreground boost enabled, variable quantums, 2:1 foreground:background ratio. Default Windows value is 2.",
+      "interactions": "Pairs well with SystemResponsiveness and GamePriority tweaks. Independent of memory or disk tweaks."
+    },
+    "execution": {
+      "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl' -Name 'PrioritySeparation' -Value 38 -Type DWord -Force",
+      "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl' -Name 'PrioritySeparation' -Value 2 -Type DWord -Force"
+    },
+    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl').PrioritySeparation"
   }
 ]
