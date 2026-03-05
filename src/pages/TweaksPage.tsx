@@ -11,7 +11,6 @@ import { useAppStore } from "../store/appStore";
 export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [selectedTweaks, setSelectedTweaks] = useState<string[]>([]);
     const [activeTweak, setActiveTweak] = useState<typeof tweaksData[0] | null>(null);
-    const [filterRisk, setFilterRisk] = useState<string>("All");
     const [showConfirm, setShowConfirm] = useState(false);
     const [showProgress, setShowProgress] = useState(false);
     const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
@@ -30,6 +29,12 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const updateSettings = useAppStore(s => s.updateSettings);
     const addAppliedTweak = useAppStore(s => s.addAppliedTweak);
     const removeAppliedTweak = useAppStore(s => s.removeAppliedTweak);
+    const filterRisk = useAppStore(s => s.tweakFilterRisk);
+    const tweakFilterCategory = useAppStore(s => s.tweakFilterCategory);
+    const tweakSearchQuery = useAppStore(s => s.tweakSearchQuery);
+    const setTweakFilter = useAppStore(s => s.setTweakFilter);
+
+    const setFilterRisk = (risk: string) => setTweakFilter(tweakFilterCategory, risk, tweakSearchQuery);
 
     // All tweaks in this category
     const allCategoryTweaks = tweaksData.filter(t => t.category === categoryTitle);
@@ -130,10 +135,10 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
             className="space-y-6"
         >
             <div>
-                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center">
+                <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center">
                     <Cpu className="w-3.5 h-3.5 mr-1.5" /> Mechanical Summary
                 </h4>
-                <p className="text-slate-300 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-black/5 dark:bg-[#121215] p-4 rounded-2xl border border-border/50">
+                <p className="text-slate-700 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-black/5 dark:bg-[#121215] p-4 rounded-2xl border border-border/50">
                     {tweak.educationalContext.howItWorks}
                 </p>
             </div>
@@ -154,27 +159,23 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                 </div>
             </div>
 
-            {/* @ts-ignore - added dynamically via patch scripts */}
             {tweak.educationalContext.expertDetails && (
                 <div className="pt-2">
-                    <h4 className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest mb-2 flex items-center">
+                    <h4 className="text-[11px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-2 flex items-center">
                         <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Deep Research
                     </h4>
-                    <p className="text-slate-300 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-indigo-500/[0.04] p-4 rounded-2xl border border-indigo-500/10">
-                        {/* @ts-ignore */}
+                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-indigo-500/[0.04] p-4 rounded-2xl border border-indigo-500/10">
                         {tweak.educationalContext.expertDetails}
                     </p>
                 </div>
             )}
 
-            {/* @ts-ignore */}
             {tweak.educationalContext.interactions && (
                 <div className="pt-2">
-                    <h4 className="text-[11px] font-bold text-pink-400 uppercase tracking-widest mb-2 flex items-center">
+                    <h4 className="text-[11px] font-bold text-pink-500 dark:text-pink-400 uppercase tracking-widest mb-2 flex items-center">
                         <GitMerge className="w-3.5 h-3.5 mr-1.5" /> Interactions & Conflicts
                     </h4>
-                    <p className="text-slate-300 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-pink-500/[0.04] p-4 rounded-2xl border border-pink-500/10">
-                        {/* @ts-ignore */}
+                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-pink-500/[0.04] p-4 rounded-2xl border border-pink-500/10">
                         {tweak.educationalContext.interactions}
                     </p>
                 </div>
@@ -232,7 +233,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center">
                                 {categoryTitle} <span className="text-gradient ml-2">Tuning</span>
                             </h2>
-                            <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                            <p className="text-slate-600 dark:text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                                 Select granular registry optimizations to dynamically inject into the operating system.
                             </p>
                         </div>
@@ -385,7 +386,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-100/60 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-500"}`}>
+                                                <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-700/80 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-600 dark:text-slate-500"}`}>
                                                     {tweak.description}
                                                 </p>
                                             </div>
@@ -400,7 +401,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                     <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                                         <Zap className="w-5 h-5 text-primary opacity-50" />
                                     </div>
-                                    <p className="text-[14px] font-bold text-slate-400">No optimizations yet</p>
+                                    <p className="text-[14px] font-bold text-slate-500 dark:text-slate-400">No optimizations yet</p>
                                     <p className="text-[12px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Configurations for this module are being developed.</p>
                                 </div>
                             ) : visibleTweaks.length === 0 ? (
@@ -442,8 +443,8 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                             animate={{ opacity: 1 }}
                                             className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50"
                                         >
-                                            <Info className="w-10 h-10 text-slate-600 stroke-1" />
-                                            <p className="text-[13px] font-medium text-slate-400 max-w-[200px] leading-relaxed">
+                                            <Info className="w-10 h-10 text-slate-500 dark:text-slate-600 stroke-1" />
+                                            <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 max-w-[200px] leading-relaxed">
                                                 Select a configuration module to intercept its behavioral profile.
                                             </p>
                                         </motion.div>

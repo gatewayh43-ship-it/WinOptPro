@@ -138,13 +138,13 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                     <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
                 </div>
                 <h1 className="hidden lg:flex text-xl font-bold font-heading tracking-tight text-foreground items-center">
-                    WinOpt<span className="text-slate-400 font-medium">Pro</span>
+                    WinOpt<span className="text-slate-500 dark:text-slate-400 font-medium">Pro</span>
                 </h1>
             </div>
 
             {/* Search / Command Menu Trigger */}
             <div className="px-2 lg:px-5 mb-6">
-                <div className="relative group/search text-slate-400 focus-within:text-primary transition-colors">
+                <div className="relative group/search text-slate-500 dark:text-slate-400 focus-within:text-primary transition-colors">
                     <Search className="absolute left-3 lg:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors" />
                     <input
                         type="text"
@@ -186,7 +186,7 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                             {/* Group Header - Only visible on desktop or as tooltip anchor on mobile */}
                             <button
                                 onClick={() => !query && toggleGroup(group.id)}
-                                className={`hidden w-full px-3 py-1.5 items-center justify-between transition-colors outline-none ${query ? 'lg:flex text-primary/70 cursor-default' : 'lg:flex text-slate-500 hover:text-foreground group-hover/section:text-foreground'}`}
+                                className={`hidden w-full px-3 py-1.5 items-center justify-between transition-colors outline-none ${query ? 'lg:flex text-primary/70 cursor-default' : 'lg:flex text-slate-600 dark:text-slate-500 hover:text-foreground group-hover/section:text-foreground'}`}
                             >
                                 <p className="text-[10px] font-bold uppercase tracking-widest select-none">
                                     {group.label} {query && <span className="ml-1 opacity-50">({filteredItems.length})</span>}

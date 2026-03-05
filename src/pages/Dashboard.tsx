@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldAlert, Zap, Cpu, Activity, HardDrive, Wifi, Sparkles, ChevronRight, PlayCircle, Trophy } from "lucide-react";
+import { ShieldAlert, Zap, Cpu, Activity, HardDrive, Wifi, Sparkles, ChevronRight, PlayCircle, Trophy, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSystemVitals } from "../hooks/useSystemVitals";
 import { useAppStore } from "../store/appStore";
@@ -109,6 +109,15 @@ function ramBadge(pct: number) {
     if (pct > 85) return { label: "High Usage", bg: "bg-red-400/10", text: "text-red-400", border: "border-red-400/20" };
     if (pct > 60) return { label: "Moderate", bg: "bg-amber-400/10", text: "text-amber-400", border: "border-amber-400/20" };
     return { label: "Optimal", bg: "bg-emerald-400/10", text: "text-emerald-400", border: "border-emerald-400/20" };
+}
+
+function formatUptime(seconds: number): string {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (d > 0) return `${d}d ${h}h`;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
 }
 
 export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => void; setView?: (v: string) => void }) {
@@ -310,6 +319,29 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                             </p>
                             <p className="text-sm font-semibold text-orange-500 dark:text-orange-400">
                                 {primaryNet ? `${(primaryNet.data.transmittedBytes / (1024 * 1024 * 1024)).toFixed(1)} GB sent` : "—"}
+                            </p>
+                        </div>
+                    </BentoCard>
+
+                    {/* Uptime Card */}
+                    <BentoCard delay={0.3}>
+                        <div className="flex justify-between items-start mb-6">
+                            <BlinkistIcon icon={Clock} colorClass="bg-sky-500/10 text-sky-400 border border-sky-500/20" />
+                        </div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Uptime</p>
+                        <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">
+                            System Session
+                        </h3>
+                        <div className="flex items-baseline justify-between mt-auto">
+                            <p className="text-3xl font-black text-foreground tracking-tighter">
+                                {vitals?.system?.uptimeSeconds != null
+                                    ? formatUptime(vitals.system.uptimeSeconds)
+                                    : "—"}
+                            </p>
+                            <p className="text-sm font-semibold text-sky-500 dark:text-sky-400">
+                                {vitals?.system?.uptimeSeconds != null
+                                    ? `${Math.floor(vitals.system.uptimeSeconds / 3600)}h total`
+                                    : ""}
                             </p>
                         </div>
                     </BentoCard>

@@ -9,10 +9,20 @@ import {
     LayoutGrid, List, TriangleAlert, MousePointer
 } from "lucide-react";
 import tweaksData from "../data/tweaks.json";
+import featuresData from "../data/features.json";
 import { useTweakExecution } from "../hooks/useTweakExecution";
 import { useAppStore } from "../store/appStore";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
+
+interface FeatureData {
+    id: string;
+    title: string;
+    description: string;
+    technicalDeepDive: string;
+    keyCapabilities: string[];
+    expertNote: string;
+}
 
 interface Tweak {
     id: string;
@@ -38,14 +48,14 @@ const CATEGORIES = ["All", ...Array.from(new Set(ALL_TWEAKS.map(t => t.category)
 // ─── Nav sections ─────────────────────────────────────────────────────────────
 
 const SECTIONS = [
-    { id: "home",           icon: BookOpen,     label: "Overview",         color: "text-violet-400" },
-    { id: "setup",          icon: Zap,          label: "Setup Guide",      color: "text-blue-400"   },
-    { id: "guides",         icon: Star,         label: "User Guides",      color: "text-amber-400"  },
-    { id: "features",       icon: LayoutGrid,   label: "All Features",     color: "text-emerald-400"},
-    { id: "tweaks",         icon: Gauge,        label: "Tweaks Browser",   color: "text-cyan-400"   },
-    { id: "faq",            icon: HelpCircle,   label: "FAQ",              color: "text-pink-400"   },
-    { id: "troubleshoot",   icon: Wrench,       label: "Troubleshooting",  color: "text-orange-400" },
-    { id: "shortcuts",      icon: Keyboard,     label: "Shortcuts",        color: "text-slate-400"  },
+    { id: "home", icon: BookOpen, label: "Overview", color: "text-violet-400" },
+    { id: "setup", icon: Zap, label: "Setup Guide", color: "text-blue-400" },
+    { id: "guides", icon: Star, label: "User Guides", color: "text-amber-400" },
+    { id: "features", icon: LayoutGrid, label: "All Features", color: "text-emerald-400" },
+    { id: "tweaks", icon: Gauge, label: "Tweaks Browser", color: "text-cyan-400" },
+    { id: "faq", icon: HelpCircle, label: "FAQ", color: "text-pink-400" },
+    { id: "troubleshoot", icon: Wrench, label: "Troubleshooting", color: "text-orange-400" },
+    { id: "shortcuts", icon: Keyboard, label: "Shortcuts", color: "text-slate-500 dark:text-slate-400" },
 ];
 
 // ─── Shared animation variants ────────────────────────────────────────────────
@@ -54,16 +64,16 @@ const SECTIONS = [
 const fadeUp: any = {
     hidden: { opacity: 0, y: 18 },
     visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.35, ease: "easeOut" } }),
-    exit:   { opacity: 0, y: -10, transition: { duration: 0.2 } }
+    exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
 };
 
 // ─── Risk badge ───────────────────────────────────────────────────────────────
 
 function RiskBadge({ level }: { level: string }) {
     const map: Record<string, string> = {
-        Green:  "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+        Green: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
         Yellow: "bg-amber-500/15   text-amber-400   border-amber-500/30",
-        Red:    "bg-red-500/15     text-red-400     border-red-500/30",
+        Red: "bg-red-500/15     text-red-400     border-red-500/30",
     };
     const emoji: Record<string, string> = { Green: "🟢", Yellow: "🟡", Red: "🔴" };
     return (
@@ -89,7 +99,7 @@ function AccordionItem({ q, a, defaultOpen = false }: { q: string; a: string | R
             <AnimatePresence initial={false}>
                 {open && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                        <div className="px-4 pb-4 ml-[26px] text-[13px] text-slate-300 leading-relaxed space-y-2">{a}</div>
+                        <div className="px-4 pb-4 ml-[26px] text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed space-y-2">{a}</div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -114,7 +124,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
             </div>
             <div className="flex-1 pb-6">
                 <p className="font-bold text-[14px] text-foreground mb-2">{title}</p>
-                <div className="text-[13px] text-slate-300 leading-relaxed space-y-1">{children}</div>
+                <div className="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed space-y-1">{children}</div>
             </div>
         </div>
     );
@@ -122,20 +132,20 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 
 // ─── Feature card ─────────────────────────────────────────────────────────────
 
-function FeatureCard({ icon: Icon, title, color, badge, children }: {
-    icon: React.ElementType; title: string; color: string; badge?: string; children: React.ReactNode;
+function FeatureCard({ icon: Icon, title, color, badge, onClick, children }: {
+    icon: React.ElementType; title: string; color: string; badge?: string; onClick: () => void; children: React.ReactNode;
 }) {
     return (
-        <motion.div variants={fadeUp} className="rounded-2xl border border-border bg-black/5 dark:bg-white/[0.02] p-5 flex flex-col gap-3 hover:border-primary/30 transition-colors">
-            <div className="flex items-start justify-between">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-black/20 border border-white/5`}>
+        <motion.button variants={fadeUp} onClick={onClick} className="rounded-2xl border border-slate-200 dark:border-border bg-slate-50/80 dark:bg-white/[0.02] p-5 flex flex-col gap-3 hover:border-primary/30 outline-none text-left transition-all active:scale-[0.98] hover:shadow-lg">
+            <div className="flex w-full items-start justify-between">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-black/[0.03] dark:bg-black/20 border border-slate-200 dark:border-white/5`}>
                     <Icon className={`w-5 h-5 ${color}`} />
                 </div>
                 {badge && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">{badge}</span>}
             </div>
             <p className="font-bold text-[14px] text-foreground">{title}</p>
-            <p className="text-[12px] text-slate-400 leading-relaxed">{children}</p>
-        </motion.div>
+            <p className="text-[12px] text-slate-500 dark:text-slate-500 dark:text-slate-400 leading-relaxed">{children}</p>
+        </motion.button>
     );
 }
 
@@ -157,15 +167,15 @@ function TroubleCard({ title, symptoms, solutions }: { title: string; symptoms: 
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                         <div className="px-4 pb-4 space-y-3 text-[13px]">
                             <div>
-                                <p className="font-semibold text-slate-300 mb-1">Symptoms</p>
-                                <ul className="list-disc list-inside text-slate-400 space-y-0.5">
+                                <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">Symptoms</p>
+                                <ul className="list-disc list-inside text-slate-500 dark:text-slate-400 space-y-0.5">
                                     {symptoms.map((s, i) => <li key={i}>{s}</li>)}
                                 </ul>
                             </div>
                             {solutions.map((sol, i) => (
                                 <div key={i} className="bg-black/20 rounded-lg p-3 border border-white/5">
                                     <p className="font-semibold text-slate-200 mb-1.5">{sol.cause}</p>
-                                    <ol className="list-decimal list-inside text-slate-400 space-y-1">
+                                    <ol className="list-decimal list-inside text-slate-500 dark:text-slate-400 space-y-1">
                                         {sol.steps.map((s, j) => <li key={j}>{s}</li>)}
                                     </ol>
                                 </div>
@@ -200,17 +210,16 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
                         <RiskBadge level={tweak.riskLevel} />
                         <span className="text-[11px] text-slate-500">{tweak.category}</span>
                     </div>
-                    {!open && <p className="text-[12px] text-slate-400 mt-1.5 line-clamp-1">{tweak.description}</p>}
+                    {!open && <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-1">{tweak.description}</p>}
                 </button>
                 <div className="flex items-center gap-2 shrink-0 mt-0.5">
                     <button
                         onClick={onToggle}
                         disabled={isExecutingThis}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                            isApplied
-                                ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                                : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
-                        }`}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isApplied
+                            ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                            : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                            }`}
                     >
                         {isExecutingThis ? "…" : isApplied ? "Disable" : "Enable"}
                     </button>
@@ -222,32 +231,32 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
             <AnimatePresence initial={false}>
                 {open && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                        <div className="px-4 pb-4 space-y-3 text-[12px] text-slate-300">
+                        <div className="px-4 pb-4 space-y-3 text-[12px] text-slate-600 dark:text-slate-300">
                             <p className="leading-relaxed">{tweak.description}</p>
                             {tweak.educationalContext?.howItWorks && (
                                 <div className="bg-black/20 rounded-lg p-3 border border-white/5">
                                     <p className="font-semibold text-slate-200 mb-1">How it works</p>
-                                    <p className="text-slate-400 leading-relaxed">{tweak.educationalContext.howItWorks}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.howItWorks}</p>
                                 </div>
                             )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 {tweak.educationalContext?.pros && (
                                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-emerald-400 mb-1">Benefits</p>
-                                        <p className="text-slate-400 leading-relaxed">{tweak.educationalContext.pros}</p>
+                                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.pros}</p>
                                     </div>
                                 )}
                                 {tweak.educationalContext?.cons && (
                                     <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-red-400 mb-1">Risks / Cons</p>
-                                        <p className="text-slate-400 leading-relaxed">{tweak.educationalContext.cons}</p>
+                                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.cons}</p>
                                     </div>
                                 )}
                             </div>
                             {tweak.educationalContext?.expertDetails && (
                                 <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
                                     <p className="font-semibold text-violet-400 mb-1">Expert Details</p>
-                                    <p className="text-slate-400 leading-relaxed">{tweak.educationalContext.expertDetails}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.expertDetails}</p>
                                 </div>
                             )}
                             {tweak.educationalContext?.interactions && (
@@ -263,7 +272,7 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
 
 // ─── HOME section ─────────────────────────────────────────────────────────────
 
-function HomeSection() {
+function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) => void }) {
     return (
         <div className="flex flex-col gap-8">
             {/* Hero */}
@@ -277,10 +286,10 @@ function HomeSection() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-black text-foreground">WinOpt Pro Help</h1>
-                            <p className="text-sm text-slate-400">Complete documentation for every feature</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Complete documentation for every feature</p>
                         </div>
                     </div>
-                    <p className="text-[14px] text-slate-300 leading-relaxed max-w-2xl">
+                    <p className="text-[14px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
                         WinOpt Pro is an all-in-one Windows optimization tool with <strong className="text-foreground">165 system tweaks</strong>, a gaming optimizer, GPU driver cleaner, WSL manager, privacy audit, latency optimizer, and much more — all fully reversible.
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
@@ -301,17 +310,17 @@ function HomeSection() {
                 <motion.p variants={fadeUp} custom={1} initial="hidden" animate="visible" className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Quick Access</motion.p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
-                        { icon: Zap,       label: "New User?",      sub: "Setup guide",      color: "text-blue-400",    bg: "bg-blue-500/10 border-blue-500/20"    },
-                        { icon: Gamepad2,  label: "Gamer?",         sub: "Gaming guide",     color: "text-green-400",   bg: "bg-green-500/10 border-green-500/20"  },
-                        { icon: Settings,  label: "Power User?",    sub: "Expert guide",     color: "text-violet-400",  bg: "bg-violet-500/10 border-violet-500/20"},
-                        { icon: HelpCircle,label: "Need help?",     sub: "Troubleshoot",     color: "text-orange-400",  bg: "bg-orange-500/10 border-orange-500/20"},
+                        { icon: Zap, label: "New User?", sub: "Setup guide", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20", target: "setup", tab: undefined },
+                        { icon: Gamepad2, label: "Gamer?", sub: "Gaming guide", color: "text-green-400", bg: "bg-green-500/10 border-green-500/20", target: "guides", tab: 1 },
+                        { icon: Settings, label: "Power User?", sub: "Expert guide", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20", target: "guides", tab: 2 },
+                        { icon: HelpCircle, label: "Need help?", sub: "Troubleshoot", color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20", target: "troubleshoot", tab: undefined },
                     ].map((c, i) => (
-                        <motion.div key={c.label} variants={fadeUp} custom={2 + i} initial="hidden" animate="visible"
-                            className={`rounded-2xl border p-4 flex flex-col gap-2 cursor-default ${c.bg}`}>
+                        <motion.button key={c.label} onClick={() => onNavigate(c.target, c.tab)} variants={fadeUp} custom={2 + i} initial="hidden" animate="visible"
+                            className={`rounded-2xl border p-4 flex flex-col items-start gap-2 text-left outline-none hover:brightness-110 active:scale-[0.98] transition-all ${c.bg}`}>
                             <c.icon className={`w-5 h-5 ${c.color}`} />
                             <p className="font-bold text-[13px] text-foreground">{c.label}</p>
-                            <p className="text-[11px] text-slate-400">{c.sub}</p>
-                        </motion.div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{c.sub}</p>
+                        </motion.button>
                     ))}
                 </div>
             </div>
@@ -330,7 +339,7 @@ function HomeSection() {
                                 <span className="text-xl mt-0.5">{r.emoji}</span>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-[13px] text-foreground">{r.label}</p>
-                                    <p className="text-[12px] text-slate-300 mt-0.5 leading-relaxed">{r.desc}</p>
+                                    <p className="text-[12px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{r.desc}</p>
                                     <p className="text-[11px] text-slate-500 mt-1"><span className="font-medium">Examples: </span>{r.examples}</p>
                                 </div>
                             </div>
@@ -344,14 +353,14 @@ function HomeSection() {
                 <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Key Principles</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {[
-                        { icon: RefreshCcw, color: "text-blue-400",   title: "Every tweak is reversible",  desc: "Every change stores the original value. Revert any tweak individually or restore from a backup." },
-                        { icon: Eye,        color: "text-violet-400", title: "Full transparency",           desc: "The app shows you exactly which registry key or command it runs before applying anything." },
-                        { icon: Lock,       color: "text-emerald-400",title: "Expert gate protects you",   desc: "Dangerous Red tweaks are hidden behind Expert Mode. You have to deliberately unlock them." },
+                        { icon: RefreshCcw, color: "text-blue-400", title: "Every tweak is reversible", desc: "Every change stores the original value. Revert any tweak individually or restore from a backup." },
+                        { icon: Eye, color: "text-violet-400", title: "Full transparency", desc: "The app shows you exactly which registry key or command it runs before applying anything." },
+                        { icon: Lock, color: "text-emerald-400", title: "Expert gate protects you", desc: "Dangerous Red tweaks are hidden behind Expert Mode. You have to deliberately unlock them." },
                     ].map((p) => (
                         <div key={p.title} className="rounded-xl border border-border bg-black/5 dark:bg-white/[0.02] p-4 flex flex-col gap-2">
                             <p.icon className={`w-5 h-5 ${p.color}`} />
                             <p className="font-bold text-[13px] text-foreground">{p.title}</p>
-                            <p className="text-[12px] text-slate-400 leading-relaxed">{p.desc}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed">{p.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -376,7 +385,7 @@ function SetupSection() {
         <div className="flex flex-col gap-6">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Zap className="w-5 h-5 text-blue-400" /> Setup Guide</h2>
-                <p className="text-sm text-slate-400">Everything you need to install, configure, and safely start using WinOpt Pro.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Everything you need to install, configure, and safely start using WinOpt Pro.</p>
             </motion.div>
 
             {/* Requirements */}
@@ -396,7 +405,7 @@ function SetupSection() {
                                 ["Arch", "64-bit (x86-64) only"],
                                 ["Rights", "Administrator account"],
                             ].map(([k, v]) => (
-                                <div key={k} className="flex gap-2"><span className="text-slate-500 w-12 shrink-0">{k}</span><span className="text-slate-300">{v}</span></div>
+                                <div key={k} className="flex gap-2"><span className="text-slate-500 w-12 shrink-0">{k}</span><span className="text-slate-600 dark:text-slate-300">{v}</span></div>
                             ))}
                         </div>
                     </div>
@@ -410,7 +419,7 @@ function SetupSection() {
                                 ["Display", "1280×720 or higher"],
                                 ["Internet", "For App Store & AI Assistant"],
                             ].map(([k, v]) => (
-                                <div key={k} className="flex gap-2"><span className="text-slate-500 w-14 shrink-0">{k}</span><span className="text-slate-300">{v}</span></div>
+                                <div key={k} className="flex gap-2"><span className="text-slate-500 w-14 shrink-0">{k}</span><span className="text-slate-600 dark:text-slate-300">{v}</span></div>
                             ))}
                         </div>
                     </div>
@@ -420,13 +429,13 @@ function SetupSection() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
                         {[
                             { f: "AI Assistant", r: "Ollama installed locally, at least one model pulled (ollama pull llama3)" },
-                            { f: "GPU Overlay",  r: "NVIDIA: nvidia-smi must be in PATH (installed with NVIDIA drivers)" },
+                            { f: "GPU Overlay", r: "NVIDIA: nvidia-smi must be in PATH (installed with NVIDIA drivers)" },
                             { f: "WSL / Linux Mode", r: "Windows 11 or Win10 21H2+ for WSLg desktop environments" },
                             { f: "Scheduled Tasks", r: "Windows Task Scheduler service must be running" },
                         ].map(({ f, r }) => (
                             <div key={f} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                 <p className="font-semibold text-slate-200">{f}</p>
-                                <p className="text-slate-400 mt-0.5">{r}</p>
+                                <p className="text-slate-500 dark:text-slate-400 mt-0.5">{r}</p>
                             </div>
                         ))}
                     </div>
@@ -439,7 +448,7 @@ function SetupSection() {
                 <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div className="text-[13px]">
                     <p className="font-semibold text-amber-300 mb-1">Windows SmartScreen Warning — Expected</p>
-                    <p className="text-slate-300 leading-relaxed">WinOpt Pro is an unsigned application (code-signing certificates cost ~$400/yr for open-source projects). SmartScreen may show "Windows protected your PC." To proceed: click <strong className="text-white">More info</strong> → <strong className="text-white">Run anyway</strong>. Verify the download hash against the SHA256SUMS file in the GitHub release if you want to confirm authenticity.</p>
+                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">WinOpt Pro is an unsigned application (code-signing certificates cost ~$400/yr for open-source projects). SmartScreen may show "Windows protected your PC." To proceed: click <strong className="text-white">More info</strong> → <strong className="text-white">Run anyway</strong>. Verify the download hash against the SHA256SUMS file in the GitHub release if you want to confirm authenticity.</p>
                 </div>
             </motion.div>
 
@@ -482,8 +491,8 @@ function SetupSection() {
 
 const GUIDE_TABS = ["Beginners", "Gamers", "Experts"];
 
-function GuidesSection() {
-    const [tab, setTab] = useState(0);
+function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
+    const [tab, setTab] = useState(defaultTab);
 
     const guides = [
         {
@@ -502,14 +511,14 @@ function GuidesSection() {
                         <p className="font-bold text-[14px] text-foreground mb-3">What WinOpt Pro can do for you</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[12px]">
                             {[
-                                { icon: Gauge,     title: "Faster PC",      desc: "Disable background services and bloat that slow down your daily use." },
-                                { icon: ShieldAlert,title: "Better privacy", desc: "Stop Windows from collecting and sending data about your activity." },
-                                { icon: Gamepad2,  title: "More FPS",       desc: "Reduce OS overhead so your games get more CPU and GPU time." },
+                                { icon: Gauge, title: "Faster PC", desc: "Disable background services and bloat that slow down your daily use." },
+                                { icon: ShieldAlert, title: "Better privacy", desc: "Stop Windows from collecting and sending data about your activity." },
+                                { icon: Gamepad2, title: "More FPS", desc: "Reduce OS overhead so your games get more CPU and GPU time." },
                             ].map(c => (
                                 <div key={c.title} className="rounded-xl border border-border bg-black/5 p-3 flex flex-col gap-2">
                                     <c.icon className="w-4 h-4 text-primary" />
                                     <p className="font-bold text-foreground">{c.title}</p>
-                                    <p className="text-slate-400">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-400">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -520,14 +529,14 @@ function GuidesSection() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {[
                                 { cat: "Performance", tweaks: ["Disable SysMain (Superfetch)", "Disable Search Indexer", "Disable Startup Delay", "Speed Up Shutdown Time"] },
-                                { cat: "Privacy",     tweaks: ["Disable Telemetry", "Disable Advertising ID", "Disable Bing Search in Start Menu", "Disable Activity History", "Disable Cortana"] },
-                                { cat: "Debloat",     tweaks: ["Disable Widgets Board", "Disable Windows Copilot", "Disable Meet Now", "Disable Teams Autostart"] },
-                                { cat: "Windows UI",  tweaks: ["Show File Extensions", "Restore Classic Right-Click Menu", "Disable Sticky Keys Popup", "Align Taskbar to Left"] },
+                                { cat: "Privacy", tweaks: ["Disable Telemetry", "Disable Advertising ID", "Disable Bing Search in Start Menu", "Disable Activity History", "Disable Cortana"] },
+                                { cat: "Debloat", tweaks: ["Disable Widgets Board", "Disable Windows Copilot", "Disable Meet Now", "Disable Teams Autostart"] },
+                                { cat: "Windows UI", tweaks: ["Show File Extensions", "Restore Classic Right-Click Menu", "Disable Sticky Keys Popup", "Align Taskbar to Left"] },
                             ].map(({ cat, tweaks }) => (
                                 <div key={cat} className="rounded-xl border border-border bg-black/5 p-3">
-                                    <p className="font-bold text-[12px] text-slate-300 mb-2">{cat}</p>
+                                    <p className="font-bold text-[12px] text-slate-600 dark:text-slate-300 mb-2">{cat}</p>
                                     <ul className="space-y-1">
-                                        {tweaks.map(t => <li key={t} className="text-[12px] text-slate-400 flex items-center gap-1.5"><span className="text-emerald-400">✓</span>{t}</li>)}
+                                        {tweaks.map(t => <li key={t} className="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><span className="text-emerald-400">✓</span>{t}</li>)}
                                     </ul>
                                 </div>
                             ))}
@@ -546,7 +555,7 @@ function GuidesSection() {
                             ].map((s, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                     <span className="w-6 h-6 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[11px] font-bold text-primary shrink-0">{i + 1}</span>
-                                    <p className="text-slate-300 pt-0.5">{s}</p>
+                                    <p className="text-slate-600 dark:text-slate-300 pt-0.5">{s}</p>
                                 </div>
                             ))}
                         </div>
@@ -565,7 +574,7 @@ function GuidesSection() {
                             ].map(([t, d]) => (
                                 <div key={t as string} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                     <p className="font-semibold text-slate-200">{t}</p>
-                                    <p className="text-slate-400 mt-0.5">{d}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 mt-0.5">{d}</p>
                                 </div>
                             ))}
                         </div>
@@ -589,14 +598,14 @@ function GuidesSection() {
                         <p className="font-bold text-[14px] text-foreground mb-3">Recommended Gaming Tweaks</p>
                         <div className="flex flex-col gap-2">
                             {[
-                                { risk: "Green",  tweaks: ["Increase Game CPU/GPU Priority", "Disable Game DVR Background Recording", "Disable Network Adapter Power Saving", "Disable Mouse Acceleration", "Disable Xbox Game Monitoring Service", "Optimize System Responsiveness", "Enable CPU Priority Boost"] },
+                                { risk: "Green", tweaks: ["Increase Game CPU/GPU Priority", "Disable Game DVR Background Recording", "Disable Network Adapter Power Saving", "Disable Mouse Acceleration", "Disable Xbox Game Monitoring Service", "Optimize System Responsiveness", "Enable CPU Priority Boost"] },
                                 { risk: "Yellow", tweaks: ["Enable Hardware-Accelerated GPU Scheduling (HAGS)", "Disable Full-Screen Optimizations", "Disable Multiplane Overlay (MPO)", "Disable Windows Game Mode", "Maximize MMCSS Gaming Thread Priority"] },
-                                { risk: "Red",    tweaks: ["Disable Dynamic Tick (Consistent Timer)", "Disable HPET (High Precision Timer)", "Disable CPU Power Throttling", "Enable GPU MSI Mode (Interrupt Signaling)", "CSRSSHighPriority", "Disable Memory Integrity (HVCI)"] },
+                                { risk: "Red", tweaks: ["Disable Dynamic Tick (Consistent Timer)", "Disable HPET (High Precision Timer)", "Disable CPU Power Throttling", "Enable GPU MSI Mode (Interrupt Signaling)", "CSRSSHighPriority", "Disable Memory Integrity (HVCI)"] },
                             ].map(({ risk, tweaks }) => (
                                 <div key={risk} className="rounded-xl border border-border bg-black/5 p-3">
                                     <div className="flex items-center gap-2 mb-2"><RiskBadge level={risk} /></div>
                                     <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                        {tweaks.map(t => <span key={t} className="text-[12px] text-slate-400 flex items-center gap-1"><span className={risk === "Green" ? "text-emerald-400" : risk === "Yellow" ? "text-amber-400" : "text-red-400"}>•</span>{t}</span>)}
+                                        {tweaks.map(t => <span key={t} className="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1"><span className={risk === "Green" ? "text-emerald-400" : risk === "Yellow" ? "text-amber-400" : "text-red-400"}>•</span>{t}</span>)}
                                     </div>
                                 </div>
                             ))}
@@ -614,7 +623,7 @@ function GuidesSection() {
                             ].map(c => (
                                 <div key={c.title} className="rounded-xl border border-border bg-black/5 p-3">
                                     <p className="font-bold text-slate-200 mb-1">{c.title}</p>
-                                    <p className="text-slate-400 leading-relaxed">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -622,7 +631,7 @@ function GuidesSection() {
 
                     <div>
                         <p className="font-bold text-[14px] text-foreground mb-3">Power Settings for Gaming</p>
-                        <div className="text-[13px] text-slate-300 space-y-2">
+                        <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-2">
                             <p>Go to <strong className="text-white">Utilities → Power Manager</strong> and:</p>
                             {[
                                 "Apply the Ultimate Performance power plan (or use the tweak to create it if missing).",
@@ -640,7 +649,7 @@ function GuidesSection() {
 
                     <div>
                         <p className="font-bold text-[14px] text-foreground mb-3">Latency Optimizer</p>
-                        <p className="text-[13px] text-slate-300 mb-3">Navigate to <strong className="text-white">Utilities → Latency Optimizer</strong> for timer resolution and standby RAM management:</p>
+                        <p className="text-[13px] text-slate-600 dark:text-slate-300 mb-3">Navigate to <strong className="text-white">Utilities → Latency Optimizer</strong> for timer resolution and standby RAM management:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
                             {[
                                 { title: "Timer Resolution", desc: "Shows your current resolution. Games request ~1ms via DirectX. Optimal is 0.5–1ms." },
@@ -648,7 +657,7 @@ function GuidesSection() {
                             ].map(c => (
                                 <div key={c.title} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                     <p className="font-semibold text-slate-200">{c.title}</p>
-                                    <p className="text-slate-400 mt-0.5">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 mt-0.5">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -656,7 +665,7 @@ function GuidesSection() {
 
                     <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
                         <p className="font-bold text-[14px] text-green-300 mb-3">Full Gaming Optimization Checklist</p>
-                        <div className="space-y-1.5 text-[13px] text-slate-300">
+                        <div className="space-y-1.5 text-[13px] text-slate-600 dark:text-slate-300">
                             {[
                                 "Apply all Green gaming tweaks in the Gaming category",
                                 "Enable HAGS (requires modern GPU + driver)",
@@ -696,13 +705,13 @@ function GuidesSection() {
                         {
                             title: "VBS and HVCI — Security vs Performance",
                             content: (
-                                <div className="text-[13px] text-slate-300 space-y-3">
+                                <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
                                     <p><strong className="text-white">Virtualization-Based Security (VBS)</strong> isolates a secure memory region using the hardware hypervisor. <strong className="text-white">HVCI (Memory Integrity)</strong> uses VBS to verify kernel code before it executes — preventing malicious drivers from loading.</p>
                                     <p>Performance cost: <strong className="text-amber-300">5–15% GPU/CPU throughput reduction</strong> on some systems, particularly notable in GPU-bound scenarios (games). On modern CPUs with dedicated MBEC hardware support, the cost is smaller (~2–5%).</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                             <p className="font-semibold text-red-400 mb-1">When to disable</p>
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-400 text-[12px]">
+                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-400 text-[12px]">
                                                 <li>Dedicated gaming machine, isolated network</li>
                                                 <li>GPU bottlenecked and want every % back</li>
                                                 <li>Software incompatible with HVCI (some hypervisors)</li>
@@ -710,7 +719,7 @@ function GuidesSection() {
                                         </div>
                                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
                                             <p className="font-semibold text-emerald-400 mb-1">Keep enabled if</p>
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-400 text-[12px]">
+                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-400 text-[12px]">
                                                 <li>Corporate/work machine</li>
                                                 <li>Playing Valorant (Vanguard requires HVCI)</li>
                                                 <li>You download software from varied sources</li>
@@ -724,7 +733,7 @@ function GuidesSection() {
                         {
                             title: "Timer Resolution and Scheduling Internals",
                             content: (
-                                <div className="text-[13px] text-slate-300 space-y-3">
+                                <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
                                     <p>Windows' system timer drives thread scheduling. The default resolution is <strong className="text-white">~15.6ms</strong> (64 ticks/sec). Applications can call <code className="text-emerald-400 bg-black/30 px-1 rounded">NtSetTimerResolution</code> to request finer resolution — down to <strong className="text-white">0.5ms</strong> on most hardware. DirectX games do this automatically.</p>
                                     <p><strong className="text-white">Dynamic Tick</strong> (DisableDynamicTick) — Windows slows the timer during CPU idle states to save power. This adds jitter to wake-up latency. Disabling it forces a constant tick rate. Cost: ~0.5–2W additional power draw, prevents deep CPU sleep states.</p>
                                     <p><strong className="text-white">HPET (DisableHPET)</strong> — On modern systems, the TSC (Timestamp Counter) timer is more accurate and lower-latency than the legacy HPET. Disabling HPET forces Windows to use TSC. On some motherboards this can reduce DPC (Deferred Procedure Call) latency by 20–50%.</p>
@@ -735,11 +744,11 @@ function GuidesSection() {
                         {
                             title: "Spectre / Meltdown Mitigations",
                             content: (
-                                <div className="text-[13px] text-slate-300 space-y-3">
+                                <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
                                     <p>CVE-2017-5753 (Spectre v1), CVE-2017-5715 (Spectre v2), and CVE-2017-5754 (Meltdown) are CPU microarchitecture vulnerabilities. Windows applies software mitigations that incur a performance cost — worst on older CPUs (Haswell/Broadwell: 10–30% reduction on I/O-heavy workloads).</p>
                                     <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-red-400 mb-1">⚠️ Only disable on isolated machines</p>
-                                        <p className="text-slate-400 text-[12px]">Disabling mitigations allows a malicious program or browser JS to read kernel memory. Only consider this on a gaming-only machine that runs no untrusted code and has no sensitive data.</p>
+                                        <p className="text-slate-500 dark:text-slate-400 text-[12px]">Disabling mitigations allows a malicious program or browser JS to read kernel memory. Only consider this on a gaming-only machine that runs no untrusted code and has no sensitive data.</p>
                                     </div>
                                     <p>Performance gain on modern CPUs (Zen 4, 12th/13th gen Intel): ~1–3%. On 4th-7th gen Intel: potentially 10–25% on I/O-heavy workloads.</p>
                                 </div>
@@ -748,7 +757,7 @@ function GuidesSection() {
                         {
                             title: "Memory Management Deep Dive",
                             content: (
-                                <div className="text-[13px] text-slate-300 space-y-3">
+                                <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
                                     <p><strong className="text-white">Memory Compression (DisableMemoryCompression)</strong> — Windows 10+ compresses infrequently-accessed RAM pages to store more in physical RAM. The CPU overhead is low on modern CPUs (~0.5–1% CPU for compression). Disabling it means RAM pressure causes disk paging sooner. Only beneficial on systems with 32GB+ RAM where compression is never needed anyway.</p>
                                     <p><strong className="text-white">Standby List Flush</strong> — Windows keeps a "standby" list of recently-evicted memory pages as a soft cache. Before a game session, flushing the standby list (NtSetSystemInformation SystemMemoryListCommand=4) clears these cached pages so the game gets fresh RAM immediately instead of waiting for gradual eviction.</p>
                                     <p><strong className="text-white">Write-Back Cache (EnableWriteBackCache)</strong> — Enables disk write-back caching at the controller level. Data writes are acknowledged immediately and flushed to disk asynchronously. Performance benefit: significant on HDD systems. Risk: data loss on power failure before the cache is written to disk. Always use with a UPS or on SSDs with power-loss protection.</p>
@@ -758,7 +767,7 @@ function GuidesSection() {
                         {
                             title: "Audit Log Encryption Details",
                             content: (
-                                <div className="text-[13px] text-slate-300 space-y-3">
+                                <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
                                     <p>The History page reads from <code className="text-emerald-400 bg-black/30 px-1 rounded">history.db</code> (SQLite). Sensitive fields (<code className="text-emerald-400 bg-black/30 px-1 rounded">command_executed</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stdout</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stderr</code>) are encrypted with <strong className="text-white">AES-256-GCM</strong>.</p>
                                     <p>Key derivation: <code className="text-emerald-400 bg-black/30 px-1 rounded">key = SHA-256(MachineGuid)</code> where MachineGuid is read from <code className="text-emerald-400 bg-black/30 px-1 rounded">HKLM\SOFTWARE\Microsoft\Cryptography</code>. This key is unique per Windows installation and never leaves your machine.</p>
                                     <p>Encrypted entries are stored as <code className="text-emerald-400 bg-black/30 px-1 rounded">enc:&lt;base64(nonce + ciphertext + tag)&gt;</code>. Legacy unencrypted entries (before v0.7) are readable as plaintext.</p>
@@ -784,7 +793,7 @@ function GuidesSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Star className="w-5 h-5 text-amber-400" /> User Guides</h2>
-                <p className="text-sm text-slate-400">Tailored guidance based on your experience level and goals.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Tailored guidance based on your experience level and goals.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex gap-2">
@@ -792,7 +801,7 @@ function GuidesSection() {
                     const G = guides[i];
                     return (
                         <button key={t} onClick={() => setTab(i)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border transition-colors outline-none ${tab === i ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-400 hover:text-foreground"}`}>
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border transition-colors outline-none ${tab === i ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400 hover:text-foreground"}`}>
                             <G.icon className={`w-4 h-4 ${tab === i ? "text-primary" : G.color}`} />
                             {t}
                         </button>
@@ -807,7 +816,7 @@ function GuidesSection() {
                             <guide.icon className={`w-5 h-5 ${guide.color}`} />
                             <p className="font-bold text-[16px] text-foreground">{guide.title}</p>
                         </div>
-                        <p className="text-sm text-slate-400">{guide.intro}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{guide.intro}</p>
                     </div>
                     {guide.content}
                 </motion.div>
@@ -820,42 +829,134 @@ function GuidesSection() {
 
 function FeaturesSection() {
     const features = [
-        { icon: LayoutGrid,  color: "text-violet-400",  title: "System Tweaks",          badge: "165 tweaks", desc: "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context." },
-        { icon: Activity,    color: "text-red-400",      title: "Dashboard",              badge: "Live",       desc: "Real-time system vitals — CPU, RAM, GPU, disk usage. Health score, quick-action cards, and recent activity feed." },
-        { icon: Gamepad2,    color: "text-green-400",    title: "Gaming Optimizer",       badge: "Auto",       desc: "Detects running games, applies a gaming tweak pack automatically, shows an always-on-top GPU/CPU/VRAM overlay, before/after performance baseline." },
-        { icon: CircuitBoard,color: "text-orange-400",   title: "GPU Driver Cleaner",     badge: "DDU-style",  desc: "Clean uninstall NVIDIA, AMD, or Intel display drivers via pnputil + registry sweep. Schedule removal in Safe Mode for cleanest results." },
-        { icon: Terminal,    color: "text-cyan-400",     title: "WSL Manager",            badge: "WSLg",       desc: "Full Linux subsystem lifecycle: enable WSL, install 8 distros, edit .wslconfig, launch XFCE4/KDE/GNOME desktop via WSLg. 7-step setup wizard." },
-        { icon: Timer,       color: "text-yellow-400",   title: "Latency Optimizer",      badge: null,         desc: "Windows timer resolution display, standby RAM flusher (shows MB freed), boot config viewer (dynamic tick, platform clock, hypervisor state)." },
-        { icon: ShieldAlert, color: "text-rose-400",     title: "Privacy Audit",          badge: "9 checks",   desc: "Scans telemetry services, registry keys, and privacy settings. Shows severity (Critical/Warning/OK). One-click fix all." },
-        { icon: Cpu,         color: "text-teal-400",     title: "Driver Manager",         badge: null,         desc: "List all installed PnP drivers via WMI. Detect unsigned drivers. Export driver list. Links to Windows Update for updates." },
-        { icon: Activity,    color: "text-purple-400",   title: "Process Manager",        badge: "Live",       desc: "Real-time CPU%, memory, disk read/write per process. Kill processes, set priority (Realtime to Idle), open file location." },
-        { icon: Network,     color: "text-sky-400",      title: "Network Analyzer",       badge: null,         desc: "Network interface list with MAC, IP, rx/tx bytes. Ping tool with min/max/average/jitter/packet loss. Auto-refreshes every 3s." },
-        { icon: HardDrive,   color: "text-amber-400",    title: "Storage Optimizer",      badge: "SMART",      desc: "Drive health via SMART (wear %, temp, errors). TRIM optimization. Storage Sense integration. Scheduled maintenance tasks." },
-        { icon: BatteryMedium,color: "text-emerald-400", title: "Power Manager",          badge: null,         desc: "Switch power plans. Battery health status. Per-plan CPU min/max, display timeout, sleep timeout (separate AC/DC settings)." },
-        { icon: Power,       color: "text-indigo-400",   title: "Startup Apps",           badge: null,         desc: "View and manage all startup entries (registry + startup folder). Enable or disable with a toggle. Instant effect." },
-        { icon: Package,     color: "text-pink-400",     title: "App Store",              badge: "winget",     desc: "Curated catalog of popular Windows apps with logos and descriptions. Install via winget or Chocolatey. Tracks installation status." },
-        { icon: FileText,    color: "text-slate-400",    title: "System Report",          badge: "HTML",       desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
-        { icon: Layers,      color: "text-blue-400",     title: "Profiles & Backup",      badge: null,         desc: "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine." },
-        { icon: Clock,       color: "text-zinc-400",     title: "History / Audit Log",    badge: "Encrypted",  desc: "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history." },
-        { icon: Shield,      color: "text-red-300",      title: "Windows Defender",       badge: null,         desc: "View and toggle Defender components, quarantine, real-time protection, and exclusions." },
-        { icon: Star,        color: "text-yellow-300",   title: "AI Assistant",           badge: "Offline",    desc: "Chat with a local Ollama LLM for optimization advice. Fully offline — your data never leaves your machine. Configurable endpoint." },
-        { icon: Search,      color: "text-violet-300",   title: "Command Palette",        badge: "Ctrl+K",     desc: "Instantly search and navigate to any feature or tweak using fuzzy text search. Semantic Web Worker for fast matching." },
+        { icon: LayoutGrid, color: "text-violet-400", title: "System Tweaks", badge: "165 tweaks", desc: "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context." },
+        { icon: Activity, color: "text-red-400", title: "Dashboard", badge: "Live", desc: "Real-time system vitals — CPU, RAM, GPU, disk usage. Health score, quick-action cards, and recent activity feed." },
+        { icon: Gamepad2, color: "text-green-400", title: "Gaming Optimizer", badge: "Auto", desc: "Detects running games, applies a gaming tweak pack automatically, shows an always-on-top GPU/CPU/VRAM overlay, before/after performance baseline." },
+        { icon: CircuitBoard, color: "text-orange-400", title: "GPU Driver Cleaner", badge: "DDU-style", desc: "Clean uninstall NVIDIA, AMD, or Intel display drivers via pnputil + registry sweep. Schedule removal in Safe Mode for cleanest results." },
+        { icon: Terminal, color: "text-cyan-400", title: "WSL Manager", badge: "WSLg", desc: "Full Linux subsystem lifecycle: enable WSL, install 8 distros, edit .wslconfig, launch XFCE4/KDE/GNOME desktop via WSLg. 7-step setup wizard." },
+        { icon: Timer, color: "text-yellow-400", title: "Latency Optimizer", badge: null, desc: "Windows timer resolution display, standby RAM flusher (shows MB freed), boot config viewer (dynamic tick, platform clock, hypervisor state)." },
+        { icon: ShieldAlert, color: "text-rose-400", title: "Privacy Audit", badge: "9 checks", desc: "Scans telemetry services, registry keys, and privacy settings. Shows severity (Critical/Warning/OK). One-click fix all." },
+        { icon: Cpu, color: "text-teal-400", title: "Driver Manager", badge: null, desc: "List all installed PnP drivers via WMI. Detect unsigned drivers. Export driver list. Links to Windows Update for updates." },
+        { icon: Activity, color: "text-purple-400", title: "Process Manager", badge: "Live", desc: "Real-time CPU%, memory, disk read/write per process. Kill processes, set priority (Realtime to Idle), open file location." },
+        { icon: Network, color: "text-sky-400", title: "Network Analyzer", badge: null, desc: "Network interface list with MAC, IP, rx/tx bytes. Ping tool with min/max/average/jitter/packet loss. Auto-refreshes every 3s." },
+        { icon: HardDrive, color: "text-amber-400", title: "Storage Optimizer", badge: "SMART", desc: "Drive health via SMART (wear %, temp, errors). TRIM optimization. Storage Sense integration. Scheduled maintenance tasks." },
+        { icon: BatteryMedium, color: "text-emerald-400", title: "Power Manager", badge: null, desc: "Switch power plans. Battery health status. Per-plan CPU min/max, display timeout, sleep timeout (separate AC/DC settings)." },
+        { icon: Power, color: "text-indigo-400", title: "Startup Apps", badge: null, desc: "View and manage all startup entries (registry + startup folder). Enable or disable with a toggle. Instant effect." },
+        { icon: Package, color: "text-pink-400", title: "App Store", badge: "winget", desc: "Curated catalog of popular Windows apps with logos and descriptions. Install via winget or Chocolatey. Tracks installation status." },
+        { icon: FileText, color: "text-slate-500 dark:text-slate-400", title: "System Report", badge: "HTML", desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
+        { icon: Layers, color: "text-blue-400", title: "Profiles & Backup", badge: null, desc: "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine." },
+        { icon: Clock, color: "text-zinc-400", title: "History / Audit Log", badge: "Encrypted", desc: "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history." },
+        { icon: Shield, color: "text-red-300", title: "Windows Defender", badge: null, desc: "View and toggle Defender components, quarantine, real-time protection, and exclusions." },
+        { icon: Star, color: "text-yellow-300", title: "AI Assistant", badge: "Offline", desc: "Chat with a local Ollama LLM for optimization advice. Fully offline — your data never leaves your machine. Configurable endpoint." },
+        { icon: Search, color: "text-violet-300", title: "Command Palette", badge: "Ctrl+K", desc: "Instantly search and navigate to any feature or tweak using fuzzy text search. Semantic Web Worker for fast matching." },
     ];
 
+    const featureDb = featuresData as FeatureData[];
+    const [selectedFeature, setSelectedFeature] = useState<FeatureData | null>(null);
+
+    const getIconForTitle = (title: string) => {
+        return features.find(f => f.title === title)?.icon || LayoutGrid;
+    };
+
+    const getColorForTitle = (title: string) => {
+        return features.find(f => f.title === title)?.color || "text-slate-500 dark:text-slate-400";
+    };
+
+    if (selectedFeature) {
+        const Icon = getIconForTitle(selectedFeature.title);
+        const color = getColorForTitle(selectedFeature.title);
+
+        return (
+            <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
+                <button onClick={() => setSelectedFeature(null)} className="flex items-center gap-2 text-[13px] font-medium text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-primary transition-colors hover:-translate-x-1 outline-none self-start">
+                    <ChevronRight className="w-4 h-4 rotate-180" /> Back to Features
+                </button>
+
+                <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-border bg-slate-50/80 dark:bg-white/[0.02] p-8 mt-2">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+                    <div className="relative z-10 flex flex-col gap-4">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-black/5 dark:bg-black/20 border border-slate-200 dark:border-white/5`}>
+                            <Icon className={`w-7 h-7 ${color}`} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-foreground mb-2">{selectedFeature.title}</h2>
+                            <p className="text-[15px] text-slate-600 dark:text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">{selectedFeature.description}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div className="lg:col-span-2 flex flex-col gap-5">
+                        <div className="rounded-2xl border border-slate-200 dark:border-border p-6 bg-slate-50/80 dark:bg-white/[0.02]">
+                            <h3 className="text-[15px] font-bold text-foreground mb-3 flex items-center gap-2">
+                                <CircuitBoard className="w-4 h-4 text-cyan-600 dark:text-cyan-400" /> Technical Deep Dive
+                            </h3>
+                            <p className="text-[13px] text-slate-600 dark:text-slate-600 dark:text-slate-300 leading-relaxed max-w-none">
+                                {selectedFeature.technicalDeepDive}
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 dark:border-border p-6 bg-slate-50/80 dark:bg-white/[0.02]">
+                            <h3 className="text-[15px] font-bold text-foreground mb-4 flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Key Engineering Capabilities
+                            </h3>
+                            <div className="space-y-3">
+                                {selectedFeature.keyCapabilities.map((cap, i) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                                            <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                        </div>
+                                        <p className="text-[13px] text-slate-600 dark:text-slate-600 dark:text-slate-300">{cap}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-5">
+                        <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 relative overflow-hidden">
+                            <ShieldAlert className="absolute -right-4 -bottom-4 w-24 h-24 text-red-500/10 pointer-events-none" />
+                            <h3 className="text-[14px] font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" /> Expert Note
+                            </h3>
+                            <p className="text-[12px] text-slate-700 dark:text-slate-600 dark:text-slate-300 leading-relaxed relative z-10">
+                                {selectedFeature.expertNote}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
+
     return (
-        <div className="flex flex-col gap-5">
+        <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><LayoutGrid className="w-5 h-5 text-emerald-400" /> All Features</h2>
-                <p className="text-sm text-slate-400">Every module in WinOpt Pro, documented.</p>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><LayoutGrid className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> All Features</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">Every module in WinOpt Pro, documented. Click a card for an engineering deep-dive.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                {features.map((f) => (
-                    <FeatureCard key={f.title} icon={f.icon} title={f.title} color={f.color} badge={f.badge ?? undefined}>
-                        {f.desc}
-                    </FeatureCard>
-                ))}
+                {features.map((f) => {
+                    // Match to database
+                    const stringId = f.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                    const mappedId = `features-${stringId}`;
+                    const targetData = featureDb.find(db => db.id === mappedId) || featureDb[0];
+
+                    return (
+                        <FeatureCard
+                            key={f.title}
+                            icon={f.icon}
+                            title={f.title}
+                            color={f.color}
+                            badge={f.badge ?? undefined}
+                            onClick={() => setSelectedFeature({ ...targetData, title: f.title, description: f.desc })}
+                        >
+                            {f.desc}
+                        </FeatureCard>
+                    );
+                })}
             </motion.div>
-        </div>
+        </motion.div>
     );
 }
 
@@ -902,13 +1003,13 @@ function TweaksBrowserSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Gauge className="w-5 h-5 text-cyan-400" /> Tweaks Browser</h2>
-                <p className="text-sm text-slate-400">Browse, search, and read documentation for all {ALL_TWEAKS.length} tweaks.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Browse, search, and read documentation for all {ALL_TWEAKS.length} tweaks.</p>
             </motion.div>
 
             {/* Stats pills */}
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex flex-wrap gap-2">
                 {[
-                    { label: `${ALL_TWEAKS.length} total`, color: "bg-white/5 border-border text-slate-400" },
+                    { label: `${ALL_TWEAKS.length} total`, color: "bg-white/5 border-border text-slate-500 dark:text-slate-400" },
                     { label: `${counts.g} 🟢 Safe`, color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" },
                     { label: `${counts.y} 🟡 Caution`, color: "bg-amber-500/10 border-amber-500/20 text-amber-400" },
                     { label: `${counts.r} 🔴 Expert`, color: "bg-red-500/10 border-red-500/20 text-red-400" },
@@ -918,7 +1019,7 @@ function TweaksBrowserSection() {
             {/* Filters */}
             <motion.div variants={fadeUp} custom={2} initial="hidden" animate="visible" className="flex flex-col gap-2">
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none" />
                     <input type="text" placeholder="Search tweaks by name, description, or ID..."
                         value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full bg-black/5 dark:bg-white/5 border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder-slate-500 outline-none focus:border-primary/40 transition-colors" />
@@ -930,11 +1031,11 @@ function TweaksBrowserSection() {
                     </select>
                     {["All", "Green", "Yellow", "Red"].map(r => (
                         <button key={r} onClick={() => setRisk(r)}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors ${risk === r ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-400 hover:text-foreground"}`}>
+                            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors ${risk === r ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400 hover:text-foreground"}`}>
                             {r === "All" ? "All Risks" : <><RiskBadge level={r} /></>}
                         </button>
                     ))}
-                    <label className="flex items-center gap-1.5 cursor-pointer text-[12px] text-slate-400 select-none">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[12px] text-slate-500 dark:text-slate-400 select-none">
                         <input type="checkbox" checked={expertOnly} onChange={e => setExpertOnly(e.target.checked)} className="rounded" />
                         Expert only
                     </label>
@@ -1008,10 +1109,10 @@ function FAQSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><HelpCircle className="w-5 h-5 text-pink-400" /> Frequently Asked Questions</h2>
-                <p className="text-sm text-slate-400">{allFAQ.length} questions answered. Search to find anything quickly.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{allFAQ.length} questions answered. Search to find anything quickly.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none" />
                 <input type="text" placeholder="Search questions..." value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full bg-black/5 dark:bg-white/5 border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder-slate-500 outline-none focus:border-primary/40 transition-colors" />
             </motion.div>
@@ -1106,7 +1207,7 @@ function TroubleshootingSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Wrench className="w-5 h-5 text-orange-400" /> Troubleshooting</h2>
-                <p className="text-sm text-slate-400">Common issues and step-by-step solutions. Click any issue to expand it.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Common issues and step-by-step solutions. Click any issue to expand it.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible"
                 className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300">
@@ -1134,8 +1235,8 @@ function ShortcutsSection() {
     return (
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Keyboard className="w-5 h-5 text-slate-400" /> Keyboard Shortcuts</h2>
-                <p className="text-sm text-slate-400">Speed up your workflow with these keyboard shortcuts.</p>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Keyboard className="w-5 h-5 text-slate-500 dark:text-slate-400" /> Keyboard Shortcuts</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Speed up your workflow with these keyboard shortcuts.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex flex-col gap-2">
                 {shortcuts.map(({ keys, desc, note }) => (
@@ -1150,7 +1251,7 @@ function ShortcutsSection() {
                         </div>
                         <div className="flex-1">
                             <p className="font-semibold text-[13px] text-foreground">{desc}</p>
-                            <p className="text-[12px] text-slate-400 mt-0.5">{note}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{note}</p>
                         </div>
                     </div>
                 ))}
@@ -1169,7 +1270,7 @@ function ShortcutsSection() {
                             <Icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-semibold text-[13px] text-foreground">{title}</p>
-                                <p className="text-[12px] text-slate-400 mt-0.5">{desc}</p>
+                                <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{desc}</p>
                             </div>
                         </div>
                     ))}
@@ -1177,7 +1278,7 @@ function ShortcutsSection() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={3} initial="hidden" animate="visible"
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-300">
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-600 dark:text-slate-300">
                 <ExternalLink className="w-4 h-4 shrink-0" />
                 <p className="text-[13px]">Found a bug or want a new feature? <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Open an issue on GitHub</a>.</p>
             </motion.div>
@@ -1189,16 +1290,17 @@ function ShortcutsSection() {
 
 export function HelpPage() {
     const [section, setSection] = useState("home");
+    const [guideTab, setGuideTab] = useState(0);
 
     const SECTION_COMPONENTS: Record<string, React.ReactNode> = {
-        home:         <HomeSection />,
-        setup:        <SetupSection />,
-        guides:       <GuidesSection />,
-        features:     <FeaturesSection />,
-        tweaks:       <TweaksBrowserSection />,
-        faq:          <FAQSection />,
+        home: <HomeSection onNavigate={(s, t) => { setSection(s); if (t !== undefined) setGuideTab(t); }} />,
+        setup: <SetupSection />,
+        guides: <GuidesSection defaultTab={guideTab} />,
+        features: <FeaturesSection />,
+        tweaks: <TweaksBrowserSection />,
+        faq: <FAQSection />,
         troubleshoot: <TroubleshootingSection />,
-        shortcuts:    <ShortcutsSection />,
+        shortcuts: <ShortcutsSection />,
     };
 
     return (
@@ -1211,7 +1313,7 @@ export function HelpPage() {
                     const active = section === s.id;
                     return (
                         <button key={s.id} onClick={() => setSection(s.id)}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors text-left outline-none ${active ? "bg-primary/10 text-primary border border-primary/20" : "text-slate-400 hover:text-foreground hover:bg-white/5"}`}>
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors text-left outline-none ${active ? "bg-primary/10 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-white/5"}`}>
                             <Icon className={`w-4 h-4 shrink-0 ${active ? "text-primary" : s.color}`} />
                             {s.label}
                         </button>
@@ -1237,7 +1339,7 @@ export function HelpPage() {
                             const Icon = s.icon;
                             return (
                                 <button key={s.id} onClick={() => setSection(s.id)}
-                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${section === s.id ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-400"}`}>
+                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${section === s.id ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400"}`}>
                                     <Icon className="w-3 h-3" />{s.label}
                                 </button>
                             );

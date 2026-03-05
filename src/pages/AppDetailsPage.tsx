@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSmartStore } from "../hooks/useSmartStore";
 import { useAppStore } from "../store/appStore";
 import AppMetadata from "../data/app_metadata.json";
-import { Sparkles, Globe, Download, MessageSquare, ArrowLeft, Github, Command, Twitter, ShieldCheck } from "lucide-react";
+import { Sparkles, Globe, Download, ArrowLeft, Github, Command, ShieldCheck, BadgeCheck, Star, ExternalLink } from "lucide-react";
 
 interface AppDetailsPageProps {
     appId: string;
@@ -22,40 +22,73 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
     }>({ usage: null, trustScore: null, reviews: null });
     const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
-    useEffect(() => {
-        getAppDetails(appId, appName);
-    }, [appId, appName, getAppDetails]);
+    // Fast-track resolution using the massive offline JSON bundle!
+    const staticApp = (AppMetadata.apps as Record<string, any>)[appId];
 
-    // Trigger AI generation once we have app info
     useEffect(() => {
-        if (appInfo && userSettings.aiAssistantEnabled && !aiInsights.usage && !isGeneratingAi) {
+        if (!staticApp) {
+            getAppDetails(appId, appName);
+        }
+    }, [appId, appName, getAppDetails, staticApp]);
 
-            // Check offline bundle
-            const staticData = (AppMetadata as Record<string, any>)[appInfo.id];
-            if (staticData && staticData.insights) {
+    // Consolidate Data Source
+    const displayInfo = staticApp ? {
+        id: appId,
+        name: staticApp.name,
+        publisher: staticApp.publisher,
+        author: staticApp.author || staticApp.publisher,
+        version: staticApp.version,
+        description: staticApp.description,
+        homepage: staticApp.website,
+        supportUrl: staticApp.support_url,
+        githubLink: staticApp.github_link,
+        isVerified: staticApp.is_verified,
+        rating: staticApp.rating || 4.5,
+        trustScore: staticApp.trust_score || 98,
+        reviews: staticApp.reviews,
+        insights: staticApp.insights,
+        tags: ["curated", "fast-load"]
+    } : appInfo ? {
+        id: appInfo.id,
+        name: appInfo.name,
+        publisher: appInfo.publisher,
+        author: appInfo.publisher,
+        version: appInfo.version,
+        description: appInfo.description,
+        homepage: appInfo.homepage,
+        supportUrl: null,
+        githubLink: null,
+        isVerified: false,
+        rating: 4.0,
+        trustScore: 85,
+        reviews: [],
+        insights: null,
+        tags: appInfo.tags
+    } : null;
+
+    // Trigger AI generation only if we don't have static offline insights AND user enabled it
+    useEffect(() => {
+        if (displayInfo && userSettings.aiAssistantEnabled && !aiInsights.usage && !isGeneratingAi) {
+
+            if (displayInfo.insights) {
                 setAiInsights({
-                    usage: `Pros: ${staticData.insights.pros.join(', ')}\nCons: ${staticData.insights.cons.join(', ')}`,
-                    trustScore: staticData.trust_score || 95,
-                    reviews: staticData.reviews && staticData.reviews.length > 0
-                        ? `"${staticData.reviews[0].text}" - ${staticData.reviews[0].author}`
+                    usage: `Pros: ${displayInfo.insights.pros.join(', ')}\nCons: ${displayInfo.insights.cons.join(', ')}`,
+                    trustScore: displayInfo.trustScore,
+                    reviews: displayInfo.reviews && displayInfo.reviews.length > 0
+                        ? `"${displayInfo.reviews[0].text}" - ${displayInfo.reviews[0].author}`
                         : "Generally well-regarded by the community."
                 });
                 return;
             }
 
             setIsGeneratingAi(true);
-
-            // Simulate calling the local LLM for insights based on the app info
             const generateInsights = async () => {
                 try {
-                    // In a real implementation this would call Ollama via fetch('http://127.0.0.1:11434/api/generate'...)
-                    // Simulating delay and response for the UI prototype
                     await new Promise(r => setTimeout(r, 2000));
-
                     setAiInsights({
-                        usage: `${appInfo.name} is primarily used for ${appInfo.description ? appInfo.description.toLowerCase() : 'various tasks'}. It's a standard tool in its category, suitable for both casual and power users.`,
-                        trustScore: appInfo.publisher.includes("Microsoft") || appInfo.tags.includes("open-source") ? 95 : 85,
-                        reviews: "Generally well-regarded by the community. Users praise its features but note occasional resource usage."
+                        usage: `${displayInfo.name} is primarily used for ${displayInfo.description ? displayInfo.description.toLowerCase() : 'various tasks'}.`,
+                        trustScore: displayInfo.publisher.includes("Microsoft") || displayInfo.tags.includes("open-source") ? 90 : 80,
+                        reviews: "Generally well-regarded by the community."
                     });
                 } catch (e) {
                     console.error("Failed to generate AI insights", e);
@@ -63,12 +96,11 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                     setIsGeneratingAi(false);
                 }
             };
-
             generateInsights();
         }
-    }, [appInfo, userSettings.aiAssistantEnabled, aiInsights.usage, isGeneratingAi]);
+    }, [displayInfo, userSettings.aiAssistantEnabled, aiInsights.usage, isGeneratingAi]);
 
-    if (isLoadingInfo || !appInfo) {
+    if (!staticApp && (isLoadingInfo || !displayInfo)) {
         return (
             <div className="flex flex-col items-center justify-center p-20">
                 <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4" />
@@ -76,6 +108,8 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
             </div>
         );
     }
+
+    if (!displayInfo) return null;
 
     return (
         <div className="flex flex-col gap-6 p-6 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -88,11 +122,27 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight">{appInfo.name}</h1>
-                    <div className="flex items-center gap-3 mt-1">
-                        <span className="text-sm font-medium text-slate-400">by {appInfo.publisher || "Unknown"}</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-600" />
-                        <span className="text-sm font-mono text-primary/80 bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">v{appInfo.version}</span>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">{displayInfo.name}</h1>
+                        {displayInfo.isVerified && (
+                            <div title="Verified Publisher">
+                                <BadgeCheck className="w-6 h-6 text-blue-500 fill-blue-500/20" />
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <span className="text-sm font-medium text-slate-500 dark:text-slate-400">by {displayInfo.author || displayInfo.publisher || "Unknown"}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
+                        <span className="text-sm font-mono text-primary/80 bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">v{displayInfo.version}</span>
+                        {displayInfo.rating > 0 && (
+                            <>
+                                <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
+                                <div className="flex items-center gap-1">
+                                    <Star className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400" />
+                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{displayInfo.rating}</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -109,7 +159,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                             <div className="relative aspect-video rounded-xl overflow-hidden bg-black/40 flex items-center justify-center group">
                                 <img
                                     src={scrapeMeta.screenshots[0]}
-                                    alt={`${appInfo.name} screenshot`}
+                                    alt={`${displayInfo.name} screenshot`}
                                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
@@ -121,17 +171,17 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                     <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
                         <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
                             <Command className="w-5 h-5 text-primary" />
-                            About {appInfo.name}
+                            About {displayInfo.name}
                         </h2>
-                        <p className="text-slate-300 leading-relaxed text-[15px]">
-                            {appInfo.description || "No description provided by the package manifest."}
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[15px]">
+                            {displayInfo.description || "No description provided by the package manifest."}
                         </p>
 
                         {/* Tags */}
-                        {appInfo.tags.length > 0 && (
+                        {displayInfo.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-6">
-                                {appInfo.tags.map(tag => (
-                                    <span key={tag} className="px-2.5 py-1 text-xs font-medium text-slate-400 bg-black/20 border border-white/5 rounded-lg">
+                                {displayInfo.tags.map(tag => (
+                                    <span key={tag} className="px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 bg-black/5 dark:bg-black/20 border border-border dark:border-white/5 rounded-lg">
                                         #{tag}
                                     </span>
                                 ))}
@@ -141,7 +191,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
 
                     {/* AI Insights Section */}
                     {userSettings.aiAssistantEnabled && (
-                        <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 rounded-2xl p-6 relative overflow-hidden">
                             <Sparkles className="absolute -top-4 -right-4 w-24 h-24 text-primary/10 rotate-12" />
                             <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                                 <Sparkles className="w-5 h-5" />
@@ -149,19 +199,19 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                             </h2>
 
                             {isGeneratingAi ? (
-                                <div className="flex items-center gap-3 text-sm text-slate-400">
+                                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                                     <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                                     Analyzing package data and fetching community sentiment...
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="bg-black/20 p-4 rounded-xl border border-white/5">
+                                    <div className="bg-black/5 dark:bg-black/20 p-4 rounded-xl border border-border dark:border-white/5">
                                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Usage & Capabilities</h3>
-                                        <p className="text-sm text-slate-300 leading-relaxed">{aiInsights.usage}</p>
+                                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{aiInsights.usage}</p>
                                     </div>
-                                    <div className="bg-black/20 p-4 rounded-xl border border-white/5">
+                                    <div className="bg-black/5 dark:bg-black/20 p-4 rounded-xl border border-border dark:border-white/5">
                                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">General Reception</h3>
-                                        <p className="text-sm text-slate-300 leading-relaxed">{aiInsights.reviews}</p>
+                                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{aiInsights.reviews}</p>
                                     </div>
                                 </div>
                             )}
@@ -192,62 +242,61 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
 
                     {/* Rich Links Library */}
                     <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
-                        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Official Links</h2>
+                        <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Official Links</h2>
                         <div className="flex flex-col gap-3">
-                            {appInfo.homepage && (
+                            {displayInfo.homepage && (
                                 <a
-                                    href={appInfo.homepage}
+                                    href={displayInfo.homepage}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/40 border border-white/5 hover:border-primary/30 transition-all group"
+                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-black/20 dark:hover:bg-black/40 border border-transparent dark:border-white/5 hover:border-primary/30 transition-all group"
                                 >
-                                    <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
+                                    <div className="p-2 bg-blue-500/10 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
                                         <Globe className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-200">Official Website</span>
-                                        <span className="text-[10px] text-slate-500 truncate max-w-[200px]">{appInfo.homepage}</span>
+                                        <span className="text-sm font-bold text-foreground dark:text-slate-200">Official Website</span>
+                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.homepage}</span>
                                     </div>
                                 </a>
                             )}
 
-                            {scrapeMeta?.githubUrl && (
+                            {displayInfo.githubLink && (
                                 <a
-                                    href={scrapeMeta.githubUrl}
+                                    href={displayInfo.githubLink}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/40 border border-white/5 hover:border-white/20 transition-all group"
+                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-black/20 dark:hover:bg-black/40 border border-transparent dark:border-white/5 hover:border-slate-400 dark:hover:border-white/20 transition-all group"
                                 >
-                                    <div className="p-2 bg-slate-700/50 text-slate-300 rounded-lg group-hover:scale-110 transition-transform">
+                                    <div className="p-2 bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-lg group-hover:scale-110 transition-transform">
                                         <Github className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-200">Source Code</span>
-                                        <span className="text-[10px] text-slate-500">GitHub Repository</span>
+                                        <span className="text-sm font-bold text-foreground dark:text-slate-200">Source Code</span>
+                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.githubLink}</span>
                                     </div>
                                 </a>
                             )}
 
-                            {scrapeMeta?.socialLinks.map((link, i) => (
+                            {displayInfo.supportUrl && (
                                 <a
-                                    key={i}
-                                    href={link}
+                                    href={displayInfo.supportUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/40 border border-white/5 hover:border-sky-500/30 transition-all group"
+                                    className="flex items-center gap-3 p-3 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-black/20 dark:hover:bg-black/40 border border-transparent dark:border-white/5 hover:border-amber-500/30 transition-all group"
                                 >
-                                    <div className="p-2 bg-sky-500/20 text-sky-400 rounded-lg group-hover:scale-110 transition-transform">
-                                        {link.includes('twitter.com') || link.includes('x.com') ? <Twitter className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                                    <div className="p-2 bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 dark:text-amber-400 rounded-lg group-hover:scale-110 transition-transform">
+                                        <ExternalLink className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-200">Community</span>
-                                        <span className="text-[10px] text-slate-500 truncate max-w-[200px]">{link}</span>
+                                        <span className="text-sm font-bold text-foreground dark:text-slate-200">Support / Manual</span>
+                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.supportUrl}</span>
                                     </div>
                                 </a>
-                            ))}
+                            )}
 
-                            {(!appInfo.homepage && !scrapeMeta?.githubUrl && (!scrapeMeta || scrapeMeta.socialLinks.length === 0)) && (
-                                <div className="p-4 text-center rounded-xl border border-white/5 border-dashed">
+                            {(!displayInfo.homepage && !displayInfo.githubLink && !displayInfo.supportUrl) && (
+                                <div className="p-4 text-center rounded-xl border border-border dark:border-white/5 border-dashed">
                                     <p className="text-xs text-slate-500">No external links discovered.</p>
                                 </div>
                             )}

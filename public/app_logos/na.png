@@ -1,0 +1,64 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta content="en-us" http-equiv="Content-Language" />
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+	<link href="index.css" rel="stylesheet" type="text/css" />
+	<title>Tran Ky Nam Software</title>
+</head>
+
+<body>
+
+	<div id="fb-root"></div>
+	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v9.0" nonce="5h2MB7mo" type="3b77886d339cd99090f554c9-text/javascript"></script>
+
+	<div id="page" class="marketplace home">
+		<div id="masthead">
+			<div id="navHeader">
+				<h3 id="logo"><a href="/">Tran Ky Nam Software</a></h3>
+			</div>
+			<div style="position:absolute; top:8px; right:16px">
+				<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false"></a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8" type="3b77886d339cd99090f554c9-text/javascript"></script>
+				<div class="fb-like" data-href="https://www.trankynam.com/" data-width="" data-layout="button_count" data-action="like" data-size="large" data-share="true"></div>
+		</div>
+		</div>
+
+		<div id="content">
+			<div id="landing">
+				<h1>Products</h1>
+				<div id="editorial">
+					<div>
+						<a href="atext/">
+							<img alt="AutoText" src="atext/a_224.png" width="224" height="224" /></a>
+						<h2>aText</h2>
+						<p>Typing accelerator, Text Template, Text Expansion utility for Mac and Windows.</p>
+					</div>
+					<div>
+						<a href="xtrafinder/">
+							<img alt="XtraFinder" src="xtrafinder/upload/logo.png" height="224" width="224" /></a>
+						<h2>XtraFinder</h2>
+						<p>Tabs, Dual Panel, and numerous features for Mac's native Finder.</p>
+					</div>
+					<div>
+						<a href="gotv/">
+							<img alt="GoTiengViet" src="gotv/v.png" height="224" width="224" /></a>
+						<h2>GoTiengViet</h2>
+						<p>Chương trình gõ tiếng Việt nhiều tính năng. Hỗ trợ nhiều hệ điều hành.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="footer">
+			<div class="siteNav">
+			</div>
+			<div class="logo">
+				<p>©2023 Trần Kỳ Nam</p>
+			</div>
+		</div>
+	</div>
+<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "7aff364700eb491a9f842b3784f923dc"}' type="3b77886d339cd99090f554c9-text/javascript"></script><!-- Cloudflare Pages Analytics --><script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="3b77886d339cd99090f554c9-|49" defer></script></body>
+
+</html>

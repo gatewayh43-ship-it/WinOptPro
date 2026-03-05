@@ -8,22 +8,9 @@ import { AnimatePresence, motion } from "framer-motion";
 
 function AppIcon({ logoUrl, appName, className = "" }: { logoUrl: string; appName: string; className?: string }) {
     const [imgSrc, setImgSrc] = useState(logoUrl);
-    const [fallbackIndex, setFallbackIndex] = useState(0);
-
-    const domainMatch = logoUrl.match(/https:\/\/(?:icon\.horse\/icon|logo\.clearbit\.com)\/(.+)/);
-    const domain = domainMatch ? domainMatch[1] : null;
-
-    const fallbacks = [
-        logoUrl,
-        domain ? `https://logo.clearbit.com/${domain}` : null,
-        domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null,
-        domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null,
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(appName)}&background=random&color=fff&rounded=true&bold=true&size=128`
-    ].filter(Boolean) as string[];
 
     useEffect(() => {
         setImgSrc(logoUrl);
-        setFallbackIndex(0);
     }, [logoUrl]);
 
     return (
@@ -32,10 +19,8 @@ function AppIcon({ logoUrl, appName, className = "" }: { logoUrl: string; appNam
             alt={appName}
             className={className}
             onError={() => {
-                if (fallbackIndex < fallbacks.length - 1) {
-                    const nextIndex = fallbackIndex + 1;
-                    setFallbackIndex(nextIndex);
-                    setImgSrc(fallbacks[nextIndex]);
+                if (!imgSrc.includes("ui-avatars")) {
+                    setImgSrc(`https://ui-avatars.com/api/?name=${encodeURIComponent(appName)}&background=random&color=fff&rounded=true&bold=true&size=128`);
                 }
             }}
         />
@@ -96,7 +81,7 @@ export function AppsPage() {
                     App Store
                 </h1>
 
-                <p className="text-slate-400 max-w-lg mb-4 text-sm md:text-base relative z-10">
+                <p className="text-slate-500 dark:text-slate-400 max-w-lg mb-4 text-sm md:text-base relative z-10">
                     Search millions of packages via winget. Explore standard apps or enable SMART Search to find apps using natural language.
                 </p>
 
@@ -163,7 +148,7 @@ export function AppsPage() {
             {/* Results or Curated Categories Grid */}
             <div className="flex-1 w-full max-w-[1300px] mx-auto pb-20">
                 {isSearching ? (
-                    <div className="flex flex-col items-center justify-center p-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-400">
                         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
                         <p className="font-medium text-[15px]">Scanning package repositories...</p>
                     </div>
@@ -203,7 +188,7 @@ export function AppsPage() {
                                                 <h3 className="font-bold text-[15px] text-foreground truncate group-hover:text-primary transition-colors">{app.name}</h3>
                                                 <p className="text-xs text-slate-500 truncate mt-0.5">{app.id}</p>
                                                 <div className="flex items-center gap-2 mt-2">
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 border border-border text-slate-400">v{app.version}</span>
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 border border-border text-slate-500 dark:text-slate-400">v{app.version}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -249,13 +234,13 @@ export function AppsPage() {
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => scrollCarousel(category.id, "left")}
-                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                             >
                                                 <ChevronLeft className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => scrollCarousel(category.id, "right")}
-                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                             >
                                                 <ChevronRight className="w-5 h-5" />
                                             </button>

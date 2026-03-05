@@ -3,6 +3,28 @@ import { persist } from "zustand/middleware";
 
 // ── Types ────────────────────────────────────────────────────────────────
 
+export interface Tweak {
+  id: string;
+  name: string;
+  category: string;
+  riskLevel: string;
+  requiresExpertMode: boolean;
+  description: string;
+  educationalContext: {
+    howItWorks: string;
+    pros: string;
+    cons: string;
+    expertDetails?: string;
+    interactions?: string;
+  };
+  execution: {
+    code: string;
+    revertCode: string;
+  };
+  validationCmd?: string;
+  estimatedExecutionTimeMs?: number;
+}
+
 export interface SystemVitals {
   timestamp: number;
   cpu: {
@@ -93,10 +115,16 @@ interface AppState {
   executingTweakId: string | null;
   error: { code: string; message: string } | null;
 
+  // Tweak filter state (persisted)
+  tweakFilterCategory: string;
+  tweakFilterRisk: string;
+  tweakSearchQuery: string;
+
   // Actions — persisted state
   addAppliedTweak: (id: string) => void;
   removeAppliedTweak: (id: string) => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
+  setTweakFilter: (category: string, risk: string, query: string) => void;
 
   // Actions — session state
   toggleSelectedTweak: (id: string) => void;
@@ -135,6 +163,11 @@ export const useAppStore = create<AppState>()(
       executingTweakId: null,
       error: null,
 
+      // Tweak filter defaults
+      tweakFilterCategory: "All",
+      tweakFilterRisk: "All",
+      tweakSearchQuery: "",
+
       // Persisted actions
       addAppliedTweak: (id) =>
         set((s) => ({
@@ -152,6 +185,9 @@ export const useAppStore = create<AppState>()(
         set((s) => ({
           userSettings: { ...s.userSettings, ...settings },
         })),
+
+      setTweakFilter: (category, risk, query) =>
+        set({ tweakFilterCategory: category, tweakFilterRisk: risk, tweakSearchQuery: query }),
 
       // Session actions
       toggleSelectedTweak: (id) =>
@@ -180,6 +216,9 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         appliedTweaks: state.appliedTweaks,
         userSettings: state.userSettings,
+        tweakFilterCategory: state.tweakFilterCategory,
+        tweakFilterRisk: state.tweakFilterRisk,
+        tweakSearchQuery: state.tweakSearchQuery,
       }),
     }
   )

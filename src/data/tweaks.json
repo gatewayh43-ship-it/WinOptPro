@@ -177,7 +177,7 @@
       "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($adapter in $adapters) { $tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -Value 1 -Type DWord -Force -EA SilentlyContinue } }",
       "revertCode": "$tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Remove-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -EA SilentlyContinue; Remove-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -EA SilentlyContinue }"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"$first = Get-ChildItem 'HKLM:\\\\SYSTEM\\\\CurrentControlSet\\\\Services\\\\Tcpip\\\\Parameters\\\\Interfaces' | Select-Object -First 1; if ($first) { (Get-ItemProperty -Path $first.PSPath -EA SilentlyContinue).TcpAckFrequency } else { 'N/A' }\""
   },
   {
     "id": "DisableCoreParking",
@@ -197,7 +197,7 @@
       "code": "powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100; powercfg -setactive scheme_current",
       "revertCode": "powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 5; powercfg -setactive scheme_current"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(powercfg /query SCHEME_CURRENT SUB_PROCESSOR CPMINCORES) | Select-String 'Current AC Power Setting Index'\""
   },
   {
     "id": "DisableActivityHistory",
@@ -317,7 +317,7 @@
       "code": "bcdedit /deletevalue useplatformclock 2>$null; bcdedit /set useplatformtick yes; bcdedit /set disabledynamictick yes",
       "revertCode": "bcdedit /deletevalue useplatformtick 2>$null; bcdedit /deletevalue disabledynamictick 2>$null"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(bcdedit /enum) | Select-String 'useplatformtick'\""
   },
   {
     "id": "MouseAccelOff",
@@ -457,7 +457,7 @@
       "code": "Remove-Item -Path \"$env:TEMP\\*\" -Recurse -Force -EA SilentlyContinue; Remove-Item -Path \"$env:SystemRoot\\Temp\\*\" -Recurse -Force -EA SilentlyContinue; Remove-Item -Path \"$env:SystemRoot\\Prefetch\\*\" -Recurse -Force -EA SilentlyContinue",
       "revertCode": "Write-Output 'Temp files cannot be restored after deletion.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-ChildItem -Path $env:TEMP -EA SilentlyContinue | Measure-Object).Count\""
   },
   {
     "id": "FlushDNS",
@@ -477,7 +477,7 @@
       "code": "ipconfig /flushdns; Clear-DnsClientCache",
       "revertCode": "Write-Output 'DNS cache will repopulate automatically.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-DnsClientCache -EA SilentlyContinue | Measure-Object).Count\""
   },
   {
     "id": "ResetNetworkStack",
@@ -497,7 +497,7 @@
       "code": "netsh winsock reset; netsh int ip reset; netsh advfirewall reset",
       "revertCode": "Write-Output 'Network stack reset cannot be automatically reverted. Reconfigure manually.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(netsh winsock show catalog) | Select-String 'Winsock Catalog' | Select-Object -First 1\""
   },
   {
     "id": "EnableFirewall",
@@ -757,7 +757,7 @@
       "code": "$bloat = @('Microsoft.BingNews','Microsoft.BingWeather','Microsoft.GetHelp','Microsoft.Getstarted','Microsoft.MicrosoftSolitaireCollection','Microsoft.People','Microsoft.PowerAutomate','Microsoft.Todos','Microsoft.WindowsFeedbackHub','Microsoft.ZuneMusic','Microsoft.ZuneVideo','MicrosoftCorporationII.QuickAssist','Microsoft.WindowsMaps','Microsoft.YourPhone','Clipchamp.Clipchamp','Microsoft.MicrosoftOfficeHub','Microsoft.SkypeApp'); foreach ($app in $bloat) { Get-AppxPackage -Name $app -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue; Get-AppxProvisionedPackage -Online -EA SilentlyContinue | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -EA SilentlyContinue }",
       "revertCode": "Write-Output 'Removed apps can be reinstalled from the Microsoft Store.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"if (Get-AppxPackage -Name 'Microsoft.MicrosoftSolitaireCollection' -EA SilentlyContinue) { 'Installed' } else { 'Removed' }\""
   },
   {
     "id": "RemoveOneDrive",
@@ -837,7 +837,7 @@
       "code": "$apps = @('Microsoft.Microsoft3DViewer','Microsoft.3DBuilder','Microsoft.MSPaint','Microsoft.MixedReality.Portal','Microsoft.Print3D'); foreach ($app in $apps) { Get-AppxPackage -Name $app -AllUsers -EA SilentlyContinue | Remove-AppxPackage -AllUsers -EA SilentlyContinue }",
       "revertCode": "Write-Output 'Reinstall removed apps from the Microsoft Store.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"if (Get-AppxPackage -Name 'Microsoft.Microsoft3DViewer' -EA SilentlyContinue) { 'Installed' } else { 'Removed' }\""
   },
   {
     "id": "DisableWidgets",
@@ -1575,7 +1575,7 @@
       "code": "$tasks = @('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser','\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater','\\Microsoft\\Windows\\Autochk\\Proxy','\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator','\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip','\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector'); foreach ($t in $tasks) { schtasks /Change /TN $t /Disable 2>$null }",
       "revertCode": "$tasks = @('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser','\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater','\\Microsoft\\Windows\\Autochk\\Proxy','\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator','\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip'); foreach ($t in $tasks) { schtasks /Change /TN $t /Enable 2>$null }"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-ScheduledTask -TaskPath '\\Microsoft\\Windows\\Customer Experience Improvement Program\\' -TaskName 'Consolidator' -EA SilentlyContinue).State\""
   },
   {
     "id": "DisableSettingsSync",
@@ -1655,7 +1655,7 @@
       "code": "DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase",
       "revertCode": "Write-Output 'Component store cleanup cannot be reversed.'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(DISM /Online /Cleanup-Image /AnalyzeComponentStore) | Select-String 'Recommended Cleanup'\""
   },
   {
     "id": "DisableRadiosAccess",
@@ -1833,7 +1833,7 @@
       "code": "Get-NetAdapter -Physical | Get-NetAdapterPowerManagement -EA SilentlyContinue | ForEach-Object { $_.AllowComputerToTurnOffDevice = 'Disabled'; $_ | Set-NetAdapterPowerManagement -EA SilentlyContinue }",
       "revertCode": "Get-NetAdapter -Physical | Get-NetAdapterPowerManagement -EA SilentlyContinue | ForEach-Object { $_.AllowComputerToTurnOffDevice = 'Enabled'; $_ | Set-NetAdapterPowerManagement -EA SilentlyContinue }"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-NetAdapter -Physical -EA SilentlyContinue | Select-Object -First 1 | Get-NetAdapterPowerManagement -EA SilentlyContinue).AllowComputerToTurnOffDevice\""
   },
   {
     "id": "DisableConnectedStandby",
@@ -1893,7 +1893,7 @@
       "code": "schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTask' /Disable 2>$null; schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTaskLogon' /Disable 2>$null; if (Get-Service -Name 'xbgm' -EA SilentlyContinue) { Stop-Service -Name 'xbgm' -Force -EA SilentlyContinue; Set-Service -Name 'xbgm' -StartupType Disabled -EA SilentlyContinue }",
       "revertCode": "schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTask' /Enable 2>$null; schtasks /Change /TN '\\Microsoft\\XblGameSave\\XblGameSaveTaskLogon' /Enable 2>$null"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-Service -Name 'xbgm' -EA SilentlyContinue).StartType\""
   },
   {
     "id": "ReduceMenuShowDelay",
@@ -2053,7 +2053,7 @@
       "code": "DISM /Online /Cleanup-Image /RestoreHealth; sfc /scannow",
       "revertCode": "Write-Output 'System file repair cannot be reversed (it restores original files).'"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(sfc /verifyonly 2>&1) | Select-String 'did not find any integrity violations','found integrity violations' | Select-Object -First 1\""
   },
   {
     "id": "DisableSearchHighlights",
@@ -2153,7 +2153,7 @@
       "code": "$gpuDevice = Get-PnpDevice -Class Display -Status OK | Select-Object -First 1; if ($gpuDevice) { $instanceId = $gpuDevice.InstanceId -replace '\\\\','\\\\'; $path = \"HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\$($gpuDevice.InstanceId)\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\"; if (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 1 -Type DWord -Force }",
       "revertCode": "$gpuDevice = Get-PnpDevice -Class Display -Status OK | Select-Object -First 1; if ($gpuDevice) { $path = \"HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\$($gpuDevice.InstanceId)\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties\"; Set-ItemProperty -Path $path -Name 'MSISupported' -Value 0 -Type DWord -Force -EA SilentlyContinue }"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"$gpu = Get-PnpDevice -Class Display -Status OK -EA SilentlyContinue | Select-Object -First 1; if ($gpu) { $path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\' + $gpu.InstanceId + '\\Device Parameters\\Interrupt Management\\MessageSignaledInterruptProperties'; (Get-ItemProperty -Path $path -EA SilentlyContinue).MSISupported } else { 'NoGPU' }\""
   },
   {
     "id": "DisableEdgePrelaunch",
@@ -2293,7 +2293,7 @@
       "code": "$adapters = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter 'IPEnabled=True'; foreach ($a in $adapters) { $a.SetTcpipNetbios(2) | Out-Null }",
       "revertCode": "$adapters = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter 'IPEnabled=True'; foreach ($a in $adapters) { $a.SetTcpipNetbios(0) | Out-Null }"
     },
-    "validationCmd": ""
+    "validationCmd": "powershell -c \"(Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter 'IPEnabled=True' -EA SilentlyContinue | Select-Object -First 1).TcpipNetbiosOptions\""
   },
   {
     "id": "DisableFastStartup",

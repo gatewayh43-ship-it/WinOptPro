@@ -1,0 +1,262 @@
+[
+    {
+        "id": "features-system-tweaks",
+        "title": "System Tweaks",
+        "description": "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context.",
+        "technicalDeepDive": "The System Tweaks engine processes `tweaks.json`, which defines 165 discrete optimization payloads. Under the hood, these payloads are executed securely using Rust's `std::process::Command` library to spawn non-interactive `powershell.exe` instances. For Registry mutations (`Set-ItemProperty`), it writes to `HKLM` or `HKCU`. For Windows Services (`Set-Service`), it manipulates the Service Control Manager database. Every execution relies on an atomic transaction model enforced by the App Hook `useTweakExecution.ts`, which guarantees that the original active value of a key is polled precisely before mutation. This origin state is dumped to the encrypted SQLite `history.db` to allow point-in-time reversibility.",
+        "keyCapabilities": [
+            "Dynamic payload execution (Registry, Services, WMI).",
+            "Point-in-time origin state capture and rollbacks.",
+            "Green, Yellow, and Red (Expert Mode) semantic risk gating.",
+            "AES-256-GCM authenticated encryption of tweak payloads in the History schema."
+        ],
+        "expertNote": "The System Tweaks module bypasses standard Windows Settings GUI restrictions, tapping directly into Group Policy variables and undocumented binary keys. Tweaks affecting core scheduler functions (like disabling Dynamic Tick or HPET) interface with the `bcdedit` boot configuration layer via elevated command prompts."
+    },
+    {
+        "id": "features-dashboard",
+        "title": "Dashboard",
+        "description": "Real-time system vitals — CPU, RAM, GPU, disk usage. Health score, quick-action cards, and recent activity feed.",
+        "technicalDeepDive": "The Dashboard operates as a frontend polling multiplexer. It invokes specialized Tauri commands built on top of the `sysinfo` Rust crate every 1000ms. The `get_system_vitals` backend leverages native Windows API calls to extract accurate hardware utilization. CPU metrics aggregate across all logical cores, while Memory extraction reads the physical RAM footprint excluding the standby page cache list. The dynamic 'System Health Score' is a calculated multi-factor index penalizing the score for high temperatures (extracted via WMI sensor polling), high background process counts, and heavy disk I/O.",
+        "keyCapabilities": [
+            "1000ms real-time system multiplexing via the `sysinfo` crate.",
+            "Algorithmic Health Score calculation based on thermals and load.",
+            "Integrated history event streams.",
+            "Responsive metric visualization and state management."
+        ],
+        "expertNote": "Extracting GPU utilization involves tapping into the Windows 'Performance Logs and Alerts' feature set (PDH API - Performance Data Helper) compiled directly via `winapi-rs`. Standard CPU polling cannot expose 3D adapter utilization reliably."
+    },
+    {
+        "id": "features-gaming-optimizer",
+        "title": "Gaming Optimizer",
+        "description": "Detects running games, applies a gaming tweak pack automatically, shows an always-on-top GPU/CPU/VRAM overlay, before/after performance baseline.",
+        "technicalDeepDive": "This advanced daemon module operates a strict background loop, sweeping process endpoints via the Rust `sysinfo` crate every 5 seconds. It cross-references active executable names (`.exe`) against a curated target list of 32+ high-profile video games (e.g. `Valorant-Win64-Shipping.exe`, `cs2.exe`). Once a collision is detected, context is handed off to React, triggering the 'Auto-Optimize' sequence which sequentially forces the 'Ultimate Performance' power plan, disables specific background scheduling, and triggers `SetPriorityClass` to bump the game to high-priority. The Overlay operates as a completely detached, transparent, Frameless Tauri Webview with `always_on_top` native properties.",
+        "keyCapabilities": [
+            "Passive process-matching daemon running on a 5-second interval heartbeat.",
+            "Transient Auto-Optimization with automated cleanup routines on game exit.",
+            "Independent Window Context (Frameless window) for the Heads-Up Display overlay.",
+            "Before/After performance benchmarking capture logic."
+        ],
+        "expertNote": "To prevent triggering anti-cheat (kernel-level like Vanguard or BattlEye), this module does not attempt to read or write to the game's reserved memory address space. All priority escalation and network traffic shaping is performed strictly at the OS process level."
+    },
+    {
+        "id": "features-gpu-driver-cleaner",
+        "title": "GPU Driver Cleaner",
+        "description": "Clean uninstall NVIDIA, AMD, or Intel display drivers via pnputil + registry sweep. Schedule removal in Safe Mode for cleanest results.",
+        "technicalDeepDive": "Modeled after the functionality of Display Driver Uninstaller (DDU), this module programmatically isolates and destroys display adapter footprints. Through the backend, it sequences calls to `pnputil.exe /enum-drivers`, regex-matching manufacturer names (e.g. `Provider Name: NVIDIA`). It then pipes the `Published Name` (e.g. `oem12.inf`) directly to `pnputil /delete-driver oem12.inf /uninstall /force`. It can also issue `bcdedit /set {globalsettings} advancedoptions true` to forcibly reboot the machine into the Advanced Boot Options payload screen, ensuring a strict Safe Mode deployment for deep registry cleanup without open file handle locks.",
+        "keyCapabilities": [
+            "Regex-based `oem.inf` targeting via native Windows Plug and Play utilities.",
+            "Automatic Safe Mode boot configuration injection.",
+            "Forced uninstallation parameters bypassing locked system directories.",
+            "NVIDIA, AMD, and Intel detection matrices."
+        ],
+        "expertNote": "Deleting display drivers immediately drops the shell to the Microsoft Basic Display Adapter driver. By parsing `pnputil` natively instead of invoking legacy uninstallation `.exe` files, the module bypasses uninstaller software blobs entirely, killing the bare metal `.sys` driver."
+    },
+    {
+        "id": "features-wsl-manager",
+        "title": "WSL Manager",
+        "description": "Full Linux subsystem lifecycle: enable WSL, install 8 distros, edit .wslconfig, launch XFCE4/KDE/GNOME desktop via WSLg. 7-step setup wizard.",
+        "technicalDeepDive": "The WSL Manager translates UI interactions directly to the `wsl.exe` command-line ecosystem. The backbone of the interface utilizes `wsl --list --online` for parsing available distros, and `wsl --install -d <Name>` to instantiate Virtual Hard Disks (.vhdx). By interacting with the `C:\\Users\\<User>\\.wslconfig` file, the tool handles advanced Hyper-V container parameter tuning, allocating specific vCPUs and RAM caps to the Linux lifecycle. The module additionally injects custom bash scripts into the installed Linux distributions via `wsl -d <Name> -u root -- exec bash -c` to automate the deployment of XFCE4/GNOME GUI servers utilizing Microsoft's native WSLg Wayland compositor bridging.",
+        "keyCapabilities": [
+            ".wslconfig generation and deep modification via node/rust FS utilities.",
+            "Live parsing of `wsl` stdout for progress bars and installation tracking.",
+            "Bridged bash injection for automated desktop environment payload deployment.",
+            "Hyper-V resource management parameters."
+        ],
+        "expertNote": "Enabling the WSL feature natively invokes `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`. This strictly requires a motherboard with CPU Virtualization (AMD-V / Intel VT-x) enabled inside the BIOS; otherwise, the subsystem hypervisor fails at boot."
+    },
+    {
+        "id": "features-latency-optimizer",
+        "title": "Latency Optimizer",
+        "description": "Windows timer resolution display, standby RAM flusher (shows MB freed), boot config viewer (dynamic tick, platform clock, hypervisor state).",
+        "technicalDeepDive": "This advanced diagnostic toolkit directly monitors the Windows Kernel Timer tick. Normally resting at 15.6ms, competitive gamers desire 0.500ms intervals for rapid frame polling. By tapping into undocumented APIs like `NtQueryTimerResolution`, this module visualizes real-time timer drift. Furthermore, it incorporates an aggressive memory freeing operation targeting the Standby Page List. Using Microsoft's specific `NtSetSystemInformation` system calls through a Rust payload layer, it forces the OS to evict cached memory blocks without disrupting active user-space allocations, significantly preventing micro-stutters during heavy computational loads.",
+        "keyCapabilities": [
+            "Native parsing of `NtQueryTimerResolution` for precise hardware tick verification.",
+            "Direct API hook to flush the Standby Memory block.",
+            "Analyzes Dynamic Tick constraints.",
+            "Integrates with `HPET` BIOS overrides."
+        ],
+        "expertNote": "Forcing the Windows timer to 0.5ms globally significantly impacts battery life on laptops by preventing the CPU package from entering C3/C6 deep sleep states. It is strictly indicated for heavy gaming scenarios on Desktop architecture."
+    },
+    {
+        "id": "features-privacy-audit",
+        "title": "Privacy Audit",
+        "description": "Scans telemetry services, registry keys, and privacy settings. Shows severity (Critical/Warning/OK). One-click fix all.",
+        "technicalDeepDive": "The Audit engine iterates over a dense JSON rulebook defining known Microsoft Telemetry endpoints. When executing a 'Scan', the module invokes asynchronous read-only requests querying standard targets like `HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection` (AllowTelemetry) and specifically checking the state of the `DiagTrack` (Connected User Experiences and Telemetry) background service. Any deviation from the 'Safe' expected value flags a violation algorithm, compiling a list of vulnerable endpoints. The 'Fix All' button acts as a mass-executor, rapidly piping 'Green' privacy tweaks back through the `useTweakExecution` loop to mass-resolve the flagged points.",
+        "keyCapabilities": [
+            "Deeply validates Policy variables against known telemetry profiles.",
+            "Asynchronous read-only scanning prevents unintended modifications.",
+            "Severity indexing algorithm targeting Critical tracking endpoints.",
+            "Mass resolution via the core Tweak payload infrastructure."
+        ],
+        "expertNote": "Due to Microsoft's implementation of 'Required Diagnostic Data', true 0-telemetry environments require Enterprise/Education level OS licenses. On Windows Home/Pro editions, setting telemetry to '0' falls back to the 'Required' tier (Level 1), though it strips out heavy tracking like diagnostic memory dumps."
+    },
+    {
+        "id": "features-driver-manager",
+        "title": "Driver Manager",
+        "description": "List all installed PnP drivers via WMI. Detect unsigned drivers. Export driver list. Links to Windows Update for updates.",
+        "technicalDeepDive": "Instead of parsing raw inf files or relying heavily on `pnputil`, the Driver Manager executes an intricate `Get-WmiObject -Class Win32_PnPSignedDriver` payload. WMI (Windows Management Instrumentation) allows us to scrape the exact Device Name, Device ID, Driver Version, Manufacturer, and the all-important Digital Signature validation boolean across every piece of hardware detected by the abstraction layer. This yields a massive flat-file representation of installed system hardware which is then filtered, mapped to intuitive UI hardware categories (like 'Bluetooth', 'Display', 'Storage'), and optimized for rapid frontend virtualized rendering.",
+        "keyCapabilities": [
+            "WMI object parsing yielding precise Driver Versions.",
+            "Categorization mapping of chaotic Device IDs.",
+            "Digital Signature (Signed) validation detection.",
+            "Zero-latency hardware export capabilities."
+        ],
+        "expertNote": "Detecting unsigned drivers is a critical security vector constraint. Malicious drivers that bypass driver signing enforcement or exploit vulnerable signed drivers (BYOVD - Bring Your Own Vulnerable Driver) are key culprits for bypassing EDR/Antivirus systems."
+    },
+    {
+        "id": "features-process-manager",
+        "title": "Process Manager",
+        "description": "Real-time CPU%, memory, disk read/write per process. Kill processes, set priority (Realtime to Idle), open file location.",
+        "technicalDeepDive": "An intense data-aggregation module utilizing `sysinfo`. This engine is pulling all active running processes 2-3 times per second. By cross-referencing process PIDs, it aggregates absolute working-set memory footprint alongside CPU cycle calculation divided by logical cores (`cpu_usage()`). Crucially, we manipulate Process Priority classes leveraging native Windows handles. Selecting 'Realtime' calls the native `SetPriorityClass` equivalent, telling the Windows Thread Scheduler to prioritize execution cycles of that specific PID over basically everything else on the system, including network input/output polling.",
+        "keyCapabilities": [
+            "Process Polling via multi-core aggregation.",
+            "Direct PID killing endpoints bypassing standard graceful SIGTERM signals.",
+            "Direct Windows Execution Thread Priority modification.",
+            "Live extraction of active Disk I/O bytes."
+        ],
+        "expertNote": "Elevating a game or application to 'Realtime' priority is highly problematic unless on a heavily loaded system with zero other intensive applications running. It can easily prioritize the game above critical input drivers causing severe mouse or keyboard stutters. 'High' or 'Above Normal' are generally much safer."
+    },
+    {
+        "id": "features-network-analyzer",
+        "title": "Network Analyzer",
+        "description": "Network interface list with MAC, IP, rx/tx bytes. Ping tool with min/max/average/jitter/packet loss. Auto-refreshes every 3s.",
+        "technicalDeepDive": "Operating as a networking diagnostic suite, the analyzer utilizes the underlying `sysinfo::Networks` API structure. It bridges native routing metrics, tracking raw Rx/Tx (Received/Transmitted) byte volumes delta'd over time to produce localized active bandwidth speed indications. Additionally, the integrated Ping Tool utilizes raw system ICMP (Internet Control Message Protocol) packets via `ping.exe` across sequential runs. By parsing the stdout of raw pings targeted to edge gateways (e.g. 1.1.1.1, 8.8.8.8), the module computes true packet transmission loss, mathematical jitter deviation, and latency margins.",
+        "keyCapabilities": [
+            "Low-level Rx/Tx byte volume computation for hardware bandwidth rendering.",
+            "Hardware-level MAC Address and routing IP isolation.",
+            "ICMP ping stdout parsing to formulate specific Packet Loss metrics.",
+            "Jitter indexing algorithms."
+        ],
+        "expertNote": "Latency and jitter variation metrics are the most accurate indicator of bufferbloat or failing copper connections in ISP pipelines. Large jitter implies fluctuating queue times in upstream hardware processing, fatal for precise hit registration in real-time gaming."
+    },
+    {
+        "id": "features-storage-optimizer",
+        "title": "Storage Optimizer",
+        "description": "Drive health via SMART (wear %, temp, errors). TRIM optimization. Storage Sense integration. Scheduled maintenance tasks.",
+        "technicalDeepDive": "By connecting to `Get-PhysicalDisk` and deeper kernel modules evaluating S.M.A.R.T. (Self-Monitoring, Analysis and Reporting Technology), this module provides a hardware health dashboard showing precise NVMe or SSD temperature readouts and overall wear longevity metrics. To accomplish optimization, it fires the native `Optimize-Volume -DriveLetter 'C' -ReTrim` payload passing SSD TRIM commands directly to the drive controller, ensuring cleared NAND flash cells are correctly marked as empty and available for ultra-fast writing operations unburdened by Garbage Collection routines. Finally, it integrates natively with Windows Storage Sense registries enforcing scheduled disk cleanups implicitly.",
+        "keyCapabilities": [
+            "Requires explicit hardware passthrough to read raw S.M.A.R.T attributes.",
+            "NAND Flash 'TRIM' command execution.",
+            "Aggregates Temporary folder caches and AppData blobs for fast clearing.",
+            "Storage Sense registry orchestration."
+        ],
+        "expertNote": "Defragmentation (shifting clusters sequentially) is notoriously dangerous for SSDs, dramatically burning through the drive's TBW (Terabytes Written) lifespan. Therefore, 'optimization' in this module heavily restricts itself to executing Re-TRIM behaviors exclusively for modern media formats."
+    },
+    {
+        "id": "features-power-manager",
+        "title": "Power Manager",
+        "description": "Switch power plans. Battery health status. Per-plan CPU min/max, display timeout, sleep timeout (separate AC/DC settings).",
+        "technicalDeepDive": "Windows power management is inherently tangled inside the `powercfg` command-line executable alongside dense GUID registries. This module translates user-friendly requests into chaotic `powercfg` calls. When switching profiles, the module locates the specific GUID for a plan (e.g. `8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c` for High Performance), and pushes `powercfg /setactive <GUID>`. Manipulating CPU constraints calls further nested sub-GUID parameters like `PROCSUB` mapping onto `PROCTHROTTLEMAX`/`MIN` across defined AC/DC array variables allowing advanced tuning of processor downclocking behavior inside active instances.",
+        "keyCapabilities": [
+            "Translates Windows Power GUID matrices into functional toggles.",
+            "Separates parameters across Alternating Current (AC) and Direct Current (DC).",
+            "Validates active laptop battery capacity via `Win32_Battery` polling.",
+            "Processor throttle manipulation commands."
+        ],
+        "expertNote": "Unlocking the 'Ultimate Performance' plan generally requires forcing its creation by passing `-duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61` directly into `powercfg`. It is specifically geared to prevent secondary hard drives from sleeping and locks PCIe interconnect buses out of lower-power link states."
+    },
+    {
+        "id": "features-startup-apps",
+        "title": "Startup Apps",
+        "description": "View and manage all startup entries (registry + startup folder). Enable or disable with a toggle. Instant effect.",
+        "technicalDeepDive": "Rather than relying exclusively on Task Manager hooks, this tool deeply investigates multiple persistence layers on the operating system. It parses specific locations including `HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run`, `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run`, and the active user shell Start Menu Startup payload directory. Disabling an item shifts the executable target to a known dead-zone registry map, entirely suppressing its activation sequence. Effectively this replicates core `autoruns/msconfig` behavior allowing immediate, safe startup reduction without destructive deletion.",
+        "keyCapabilities": [
+            "Identifies nested registry persistence layers.",
+            "Safe suppression overrides bypassing deletion.",
+            "Reads direct Startup `.lnk` shortcut locations.",
+            "Low-level manipulation matching `Sysinternals Autoruns` behavior."
+        ],
+        "expertNote": "Malware frequently operates outside of traditional Startup paths (for instance, hiding as Scheduled Tasks, WMI event subscriptions, or Service handlers). Disabling standard Startup entries is mostly intended to solve 'System bloat', not as a robust malware-analysis tool."
+    },
+    {
+        "id": "features-app-store",
+        "title": "App Store",
+        "description": "Curated catalog of popular Windows apps with logos and descriptions. Install via winget or Chocolatey. Tracks installation status.",
+        "technicalDeepDive": "The App Store relies heavily on the official `winget.exe` ecosystem, specifically tapping into `winget show` and `winget install` targets managed entirely non-interactively via rust process creation (`--silent --accept-package-agreements`). Instead of generating immense data on-the-fly, the Store is completely augmented by an offline `app_metadata.json` payload scraped pre-production. This offline bundle maps explicit publisher logos using the `Clearbit` API, integrates AI-curated keyword extraction (duckduckgo search routines), and attaches simulated trust ratings derived from explicit GitHub repositories and HTTPs domains, giving an ultra-premium zero-latency frontend.",
+        "keyCapabilities": [
+            "Pipes `--silent` non-interactive software deployment parameters through command instances.",
+            "Zero-latency resolution scaling using a heavily curated static JSON structure.",
+            "Clearbit image mapping via isolated URL schemas.",
+            "Checks global machine state for installed versions automatically."
+        ],
+        "expertNote": "Utilizing Winget directly accesses Microsoft's curated and community-driven application manifests, providing vastly superior download security via SHA256 target verification inside the payload scripts naturally blocking heavily-modified installer blobs."
+    },
+    {
+        "id": "features-system-report",
+        "title": "System Report",
+        "description": "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk.",
+        "technicalDeepDive": "The Reporting engine calls directly to all system subsystems sequentially, freezing the outputs into static memory structs. Hardware metrics are snapshotted (`sysinfo` core constraints), alongside the entirety of the applied History tweak array. Specifically, the payload leverages native DOM API templates, injecting the generated metric JSON payloads dynamically into formatted HTML structures. Then, passing the raw string blob back to Tauri, the engine invokes `std::fs::write` passing a `tauri::api::dialog::save` file picker allowing the user to export heavily formatted diagnostic pages directly anywhere on disk.",
+        "keyCapabilities": [
+            "Multi-subsystem snapshot freezing.",
+            "DOM-based dynamic JSON-to-HTML templating models.",
+            "Invokes native OS dialog modules securely via Rust.",
+            "Validates historical payload manipulation streams."
+        ],
+        "expertNote": "Diagnostic HTML dumps are highly valuable on sysadmin forums or generic bug reporting arrays, providing absolute transparency on active configurations and optimization footprints."
+    },
+    {
+        "id": "features-profiles-and-backup",
+        "title": "Profiles & Backup",
+        "description": "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine.",
+        "technicalDeepDive": "This state management feature orchestrates large-scale arrays of the `appliedTweaks` array structure alongside global configuration parameters. Instead of dealing with registry hives individually during a backup process, the algorithm utilizes JSON serialization formats mapping all 'applied' IDs to the file structure. Exporting calls native dialogs to create a `.winopt` schema snapshot. Restoring a subset effectively computes a delta between the target `.winopt` manifest versus the currently running host machine applying/reverting exact endpoints until uniformity is achieved.",
+        "keyCapabilities": [
+            "Structured delta-comparison parsing for configuration deployments.",
+            "JSON Object serialization formats.",
+            "Mass iteration application over arrays of tweaked endpoints.",
+            "Shareable profiles enabling community-driven tuning methodologies."
+        ],
+        "expertNote": "Due to dynamic differences in system architecture (e.g. attempting to apply NVIDIA optimizations to an AMD system), applying foreign profiles inherently forces evaluation bounds bypassing parameters that don't match compatible OS bounds."
+    },
+    {
+        "id": "features-history-audit-log",
+        "title": "History / Audit Log",
+        "description": "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history.",
+        "technicalDeepDive": "Under the hood, all Tweak modifications execute via the `useTweakExecution` loop. If an execution succeeds, it fires a query to a SQLite cache acting as the central immutable log table. However, since the command stdout or registry keys may contain uniquely identifying PC parameters, the sensitive string parameters (`stdout`, `stderr`, `commandline`) are passed through an `AES-256-GCM` encryption handler. The encryption key utilized fundamentally leverages the Windows `MachineGuid` mapped via `SHA-256`, guaranteeing that the SQLite table remains impenetrable if copied entirely to an unauthenticated secondary machine.",
+        "keyCapabilities": [
+            "Intercepts execution boundaries committing Immutable audit events.",
+            "Secure SQLite Table Schema formats.",
+            "AES-256-GCM payload encryption mapped intrinsically to hardware constraints.",
+            "Rollback operations deriving original endpoint values."
+        ],
+        "expertNote": "Using `MachineGuid` cryptography ensures that security environments or corporate systems can evaluate software payloads safely. `AES-256-GCM` specifies authenticated encryption bounds identifying whether a log point was externally tampered with."
+    },
+    {
+        "id": "features-windows-defender",
+        "title": "Windows Defender",
+        "description": "View and toggle Defender components, quarantine, real-time protection, and exclusions.",
+        "technicalDeepDive": "Defender manipulations operate on extreme 'Red' risk matrices, targeting primarily the `Set-MpPreference` PowerShell command suite acting identically to the native interface. Disabling Real-time Protection via `DisableRealtimeMonitoring` registers the payload directly to the WMI Defender Security Provider interface. Furthermore, the Exclusion component maps deeply against `Add-MpPreference -ExclusionPath` explicitly whitelisting complex developer folders from aggressive memory scanning overhead. The UI directly queries `Get-MpPreference` mapping output back to the UI switch matrices matching Windows 11 specifications.",
+        "keyCapabilities": [
+            "Advanced control mapping of the `Set-MpPreference` cmdlet.",
+            "Query validation structure targeting Real-time, Maps, and Behavior domains.",
+            "Whitelist/exclusion payload injectors.",
+            "Active polling on WMI definitions."
+        ],
+        "expertNote": "Microsoft aggressively restricts altering Defender settings unless Tamper Protection is explicitly disabled via the raw Settings GUI. Programmatic alterations via `Set-MpPreference` natively lock out if the anti-tampering driver detects the payload string."
+    },
+    {
+        "id": "features-ai-assistant",
+        "title": "AI Assistant",
+        "description": "Chat with a local Ollama LLM for optimization advice. Fully offline — your data never leaves your machine. Configurable endpoint.",
+        "technicalDeepDive": "Integrated utilizing `framer-motion` as a floating conversational module, the AI completely bypasses web API calls when correctly configured with Ollama endpoints (e.g., `http://localhost:11434`). It operates heavily via LangChain-style instructional prompting, forcing the LLM to format explicit markdown variables and references exclusively aligned to WinOpt's explicit components. When initialized, the LLM receives robust structured data instructions explaining the bounds of modifications. Crucially, all system analysis parameters are passed explicitly avoiding context window issues, enabling accurate local insights.",
+        "keyCapabilities": [
+            "Offline localized LLM interaction constraints utilizing standard REST generation payloads.",
+            "Structured conversation UI mapped identically to WebChat ecosystems.",
+            "Streaming message capabilities mapping active generator callbacks.",
+            "Zero telemetry logic chains preventing API tracking vectors."
+        ],
+        "expertNote": "Local model execution consumes enormous systemic resources during inference, rapidly spiking GPU consumption parameters. Running lightweight 1.5B/3B models (like `qwen2.5`) is highly suggested relative to the system configuration limits to prevent performance choking."
+    },
+    {
+        "id": "features-command-palette",
+        "title": "Command Palette",
+        "description": "Instantly search and navigate to any feature or tweak using fuzzy text search. Semantic Web Worker for fast matching.",
+        "technicalDeepDive": "Triggered universally across the document root element via `keydown` mappings (`Ctrl/Cmd+K`), the Command Palette relies completely on advanced indexing arrays rendering real-time matching indices over massive flat `JSON` datasets. Employing a decoupled processing approach, the structure executes lightweight character matching matrices utilizing heavily tuned fuzzy-logic implementations across specific metadata node titles. For the massive Tweaks array, complex term matching searches across localized component IDs forcing priority-oriented rendering maps placing exact matches cleanly to the top.",
+        "keyCapabilities": [
+            "Universal document context triggering.",
+            "Virtual rendering algorithms processing heavy array structures with zero latency constraints.",
+            "Fuzzy logic implementations mapping context-specific query results gracefully.",
+            "Routing layer interfaces natively switching overarching active application boundaries."
+        ],
+        "expertNote": "Implementing semantic web-worker pipelines via libraries like `transformers.js` unlocks pure contextual similarity indexing, allowing searches for `make pc fast` to trigger exact performance payloads implicitly over direct-keyword string comparisons."
+    }
+]

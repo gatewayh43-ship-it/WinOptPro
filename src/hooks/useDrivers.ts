@@ -43,7 +43,7 @@ export function useDrivers() {
         setIsLoading(true);
         setError(null);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 await new Promise(r => setTimeout(r, 1000));
                 setDrivers(MOCK_DRIVERS);
                 useGlobalCache.getState().setCacheObject("drivers", MOCK_DRIVERS);
@@ -63,7 +63,7 @@ export function useDrivers() {
 
     const exportList = useCallback(async (path: string) => {
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 addToast({ type: "info", title: "Export (Preview Mode)", message: "Export is only available in the desktop app." });
                 return false;
             }

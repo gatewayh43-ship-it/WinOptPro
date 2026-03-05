@@ -27,7 +27,7 @@ function SettingSection({ icon: Icon, title, description, children }: {
                 </div>
                 <div>
                     <h3 className="text-[15px] font-bold text-foreground">{title}</h3>
-                    <p className="text-[13px] text-slate-500 mt-0.5 leading-relaxed">{description}</p>
+                    <p className="text-[13px] text-slate-600 dark:text-slate-500 mt-0.5 leading-relaxed">{description}</p>
                 </div>
             </div>
             <div className="space-y-4 pl-14">{children}</div>
@@ -38,10 +38,10 @@ function SettingSection({ icon: Icon, title, description, children }: {
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
     return (
         <label className="flex items-center justify-between group cursor-pointer">
-            <span className="text-[13px] font-medium text-slate-300 group-hover:text-foreground transition-colors">{label}</span>
+            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 group-hover:text-foreground transition-colors">{label}</span>
             <button
                 onClick={() => onChange(!checked)}
-                className={`relative w-[42px] h-[24px] rounded-full transition-colors ${checked ? "bg-primary" : "bg-white/10 border border-border"}`}
+                className={`relative w-[42px] h-[24px] rounded-full transition-colors ${checked ? "bg-primary" : "bg-black/10 dark:bg-white/10 border border-border"}`}
             >
                 <motion.div
                     className="w-[20px] h-[20px] rounded-full bg-white shadow-sm absolute top-[2px]"
@@ -58,7 +58,7 @@ function SelectOption({ value, options, onChange, label }: {
 }) {
     return (
         <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-slate-300">{label}</span>
+            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">{label}</span>
             <select
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -179,7 +179,7 @@ export function SettingsPage() {
 
     return (
         <>
-            <div className="space-y-6 pt-2 pb-12 max-w-3xl">
+            <div className="space-y-6 pt-2 pb-12 max-w-5xl">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -193,13 +193,13 @@ export function SettingsPage() {
                             </div>
                             Settings
                         </h2>
-                        <p className="text-[13px] text-slate-500 mt-1">
+                        <p className="text-[13px] text-slate-600 dark:text-slate-500 mt-1">
                             Customize your WinOpt Pro experience
                         </p>
                     </div>
                     <button
                         onClick={handleResetDefaults}
-                        className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-400 hover:text-foreground hover:bg-white/5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
                     >
                         <RotateCcw className="w-3.5 h-3.5" /> Reset Defaults
                     </button>
@@ -209,18 +209,18 @@ export function SettingsPage() {
                     {/* Appearance */}
                     <SettingSection icon={Palette} title="Appearance" description="Theme, color scheme, and visual preferences.">
                         <div className="flex items-center justify-between">
-                            <span className="text-[13px] font-medium text-slate-300">Theme</span>
-                            <div className="flex gap-2 bg-white/[0.02] border border-border rounded-xl p-1">
+                            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Theme</span>
+                            <div className="flex gap-2 bg-black/5 dark:bg-white/[0.02] border border-border rounded-xl p-1">
                                 <button
                                     onClick={() => setTheme("dark")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
                                         }`}
                                 >
                                     <Moon className="w-3.5 h-3.5" /> Dark
                                 </button>
                                 <button
                                     onClick={() => setTheme("light")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
                                         }`}
                                 >
                                     <Sun className="w-3.5 h-3.5" /> Light
@@ -229,7 +229,7 @@ export function SettingsPage() {
                         </div>
 
                         <div>
-                            <span className="text-[13px] font-medium text-slate-300 block mb-3">Accent Color</span>
+                            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 block mb-3">Accent Color</span>
                             <div className="flex gap-2.5">
                                 {COLOR_SCHEMES.map(scheme => (
                                     <button
@@ -309,21 +309,36 @@ export function SettingsPage() {
                     <SettingSection icon={Info} title="About WinOpt Pro" description="Version information and project details.">
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-[13px] font-medium text-slate-300">Version</span>
-                                <span className="text-[12px] font-mono text-slate-400 bg-white/5 border border-border px-2 py-1 rounded-lg">1.0.0</span>
+                                <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Version</span>
+                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-white/5 border border-border px-2 py-1 rounded-lg">1.0.0</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-[13px] font-medium text-slate-300">Built with</span>
-                                <span className="text-[12px] text-slate-500">Tauri 2 · React 19 · Rust</span>
+                                <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Built with</span>
+                                <span className="text-[12px] text-slate-600 dark:text-slate-500">Tauri 2 · React 19 · Rust</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-[13px] font-medium text-slate-300">Total tweaks</span>
-                                <span className="text-[12px] font-mono text-slate-400">162 registry &amp; system tweaks</span>
+                                <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Total tweaks</span>
+                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-400">162 registry &amp; system tweaks</span>
                             </div>
                             <div className="pt-1 border-t border-border/50">
                                 <p className="text-[11px] text-slate-600 leading-relaxed">
                                     WinOpt Pro is a Windows system optimizer designed for power users and enthusiasts. Always create a restore point before applying system tweaks.
                                 </p>
+                            </div>
+                            <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Setup Guide</p>
+                                    <p className="text-[11px] text-slate-500 mt-0.5">Restarts the first-run setup guide</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        localStorage.removeItem("onboardingComplete");
+                                        window.location.reload();
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.07] dark:hover:bg-white/[0.07] text-slate-700 dark:text-slate-300 hover:text-foreground text-[12px] font-semibold transition-colors"
+                                >
+                                    View Setup Guide
+                                </button>
                             </div>
                         </div>
                     </SettingSection>

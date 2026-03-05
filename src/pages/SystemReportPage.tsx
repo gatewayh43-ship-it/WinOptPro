@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { FileText, Download, RefreshCw, Loader2 } from "lucide-react";
+import { FileText, Download, RefreshCw, Loader2, Printer } from "lucide-react";
 import { useSystemReport } from "../hooks/useSystemReport";
+
+function exportAsPdf(htmlContent: string) {
+    const win = window.open("", "_blank");
+    win?.document.write(htmlContent);
+    win?.document.close();
+    win?.print();
+}
 
 export function SystemReportPage() {
     const { reportHtml, isGenerating, error, generateReport, saveReport } = useSystemReport();
     const [savePath, setSavePath] = useState("C:\\Users\\Public\\Documents\\WinOpt-SystemReport.html");
+    const [pdfNote, setPdfNote] = useState(false);
 
     return (
         <div className="flex flex-col h-full overflow-hidden p-6 max-w-[1200px] mx-auto space-y-6">
@@ -18,15 +26,37 @@ export function SystemReportPage() {
                         Generate a comprehensive HTML report of your hardware, storage, network, startup items, and running processes.
                     </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     {reportHtml && (
-                        <button
-                            onClick={() => saveReport(savePath)}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors"
-                        >
-                            <Download className="w-4 h-4" />
-                            Save HTML
-                        </button>
+                        <>
+                            <button
+                                onClick={() => saveReport(savePath)}
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors"
+                            >
+                                <Download className="w-4 h-4" />
+                                Save HTML
+                            </button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => {
+                                        exportAsPdf(reportHtml);
+                                        setPdfNote(true);
+                                        setTimeout(() => setPdfNote(false), 4000);
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    Export as PDF
+                                </button>
+                                {pdfNote && (
+                                    <div className="absolute right-0 top-full mt-2 z-10 w-56 bg-card border border-border rounded-xl px-3 py-2 shadow-lg">
+                                        <p className="text-[11px] text-slate-400 leading-relaxed">
+                                            Use your browser's <span className="font-semibold text-foreground">Print &rarr; Save as PDF</span> option in the dialog.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
                     <button
                         onClick={generateReport}

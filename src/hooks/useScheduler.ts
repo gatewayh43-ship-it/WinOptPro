@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 
@@ -101,6 +101,8 @@ export function useScheduler() {
             return false;
         }
     }, [addToast]);
+
+    useEffect(() => { fetchTasks(); }, []);
 
     return { tasks, isLoading, isWorking, fetchTasks, createTask, deleteTask, runNow };
 }

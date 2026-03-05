@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 
 export interface PrivacyIssue {
@@ -17,7 +17,6 @@ export interface PrivacyAuditResult {
     issues: PrivacyIssue[];
 }
 
-const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 const MOCK_ISSUES: PrivacyIssue[] = [
     { id: "diagtrack_svc", category: "Telemetry", title: "Diagnostics Tracking Service running", severity: 3, description: "DiagTrack sends diagnostic data to Microsoft.", fix_cmd: "", is_fixed: false },
@@ -48,7 +47,7 @@ export function usePrivacyAudit() {
         setIsScanning(true);
         setError(null);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 await new Promise(r => setTimeout(r, 1200));
                 const issues = MOCK_ISSUES;
                 setAuditResult({ score: computeMockScore(issues), issues });
@@ -69,7 +68,7 @@ export function usePrivacyAudit() {
         if (ids.length === 0) return;
         setIsFixing(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 await new Promise(r => setTimeout(r, 800));
                 setAuditResult(prev => {
                     if (!prev) return prev;

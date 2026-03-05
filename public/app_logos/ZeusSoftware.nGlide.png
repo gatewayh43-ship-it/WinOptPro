@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<title>Zeus Software</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="Welcome to the website of Zeus Software, a software developer specializing in applications for Microsoft Windows platform." />
+<meta name="google-site-verification" content="qpxzKZMOKyx7akD33g9tck_hzzaRpmIHXrxpcIFlI8k" />
+
+<link rel="stylesheet" href="/css/default.css" type="text/css" media="all" />
+<link rel="stylesheet" href="/css/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="/css/jquery.colorbox.css" type="text/css" media="screen" />
+<link rel="canonical" href="https://www.zeus-software.com/" />
+<link rel="shortcut icon" href="/favicon48.ico" type="image/x-icon" />
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.js"></script>
+<script type="text/javascript" src="/js/jquery.colorbox.js"></script>
+<script type="text/javascript" src="/js/sha1.js"></script>
+<script type="text/javascript" src="/js/functions.js"></script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PHM2RSJ28V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-PHM2RSJ28V');
+</script>
+
+</head>
+
+<body class="background" onload="">
+
+
+<div class="containerbkg">
+<div class="container">
+
+	
+	<div id="alert">
+		<div id="alerttitle">
+			<div id="alerttitlecap"></div>
+			<a id="alerttitleclose" href="#" onclick="$(document).ready(function(){ AlertShow(0, 0, 0, 0, 0); });return false;"></a>
+			<div class="clear"></div>
+		</div>
+		<div id="alertmessage">
+			<div id="alertmessageicon"></div>
+			<div id="alertmessagetext"></div>
+			<div class="clear"></div>
+		</div>
+		<div id="alertbuttons">
+			<a id="alertbutton" href="#" onclick="$(document).ready(function(){ AlertShow(0, 0, 0, 0, 0); });return false;"></a>
+		</div>
+		<div id="alertcorners"></div>
+	</div>
+
+	<div class="headerleft">
+		<a class="logo" title="Zeus Software" href="https://www.zeus-software.com"></a>
+	</div>
+	<div class="headerright">
+		<div class="headerrightshare">
+			<div class="sharebkg">
+				<div class="shareitem1"><a href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fwww.zeus-software.com%2F&amp;t=Zeus%20Software" title="Share with Facebook" target="_blank" rel="nofollow"></a></div>
+				<div class="shareitem2"><a href="https://twitter.com/share?url=https%3A%2F%2Fwww.zeus-software.com%2F&amp;text=Zeus%20Software" title="Share with Twitter" target="_blank" rel="nofollow"></a></div>
+				<div class="shareitem3"><a href="https://plus.google.com/share?url=https%3A%2F%2Fwww.zeus-software.com%2F" title="Share with Google+" target="_blank" rel="nofollow"></a></div>
+				<div class="shareitem4"><a href="https://www.stumbleupon.com/submit?url=https%3A%2F%2Fwww.zeus-software.com%2F&amp;title=Zeus%20Software" title="Share with StumbleUpon" target="_blank" rel="nofollow"></a></div>
+								<div class="shareitem5"><a href="#" onclick="$(document).ready(function(){ ShowPrintWindow('/print-1.html'); }); return false;" title="Print"></a></div>
+				<div class="clear"></div>
+			</div>
+		</div>
+		
+		<ul class="headerrightmenu">
+
+						<li class="menuitem selected">
+					<a href="/">Home</a>
+					<span class="hover"></span>
+
+									</li>
+
+								<li class="menuitem ">
+					<a href="/downloads">Downloads</a>
+					<span class="hover"></span>
+
+															<ul id="submenu1" class="submenu">
+									
+								<li class="submenuitem ">
+									<a href="/downloads/nglide">nGlide</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem ">
+									<a href="/downloads/ntfsaccess">NTFS Access</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem ">
+									<a href="/downloads/readcheck">Read Check</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem last">
+									<a href="/downloads/xripper">X-Ripper</a>
+									<span class="hover"></span>
+								</li>
+
+								 </ul> 				</li>
+
+								<li class="menuitem ">
+					<a href="/forum">Forum</a>
+					<span class="hover"></span>
+
+									</li>
+
+								<li class="menuitem ">
+					<a href="/galleries">Galleries</a>
+					<span class="hover"></span>
+
+															<ul id="submenu3" class="submenu">
+									
+								<li class="submenuitem ">
+									<a href="/galleries/nglide">nGlide</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem ">
+									<a href="/galleries/ntfsaccess">NTFS Access</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem ">
+									<a href="/galleries/readcheck">Read Check</a>
+									<span class="hover"></span>
+								</li>
+
+								
+								<li class="submenuitem last">
+									<a href="/galleries/xripper">X-Ripper</a>
+									<span class="hover"></span>
+								</li>
+
+								 </ul> 				</li>
+
+								<li class="menuitem ">
+					<a href="/contacts">Contacts</a>
+					<span class="hover"></span>
+
+									</li>
+
+				
+		</ul>
+
+	</div>
+	<div class="clear"></div>
+
+
+	<div class="contenttc"></div>
+
+	<div class="content">
+		<div class="banner"><div class="imgframe596"></div></div>
+		<div class="smallboxtop">
+			<div class="smallboxtophd">Welcome</div>
+			<div class="smallboxtopct">
+				<div class="main0txtblock1">
+<strong>Welcome to the website of Zeus Software, a software developer specializing in applications for Microsoft Windows platform.</strong>
+</div>
+
+<div class="space8px"></div>
+<div class="space4px"></div>
+
+<div class="main0txtblock2">
+The complete list of applications is available in <a class="more" href="/downloads">Downloads</a> section.
+</div>
+
+<div class="space8px"></div>
+<div class="space4px"></div>
+
+<div class="main0txtblock2">
+If you need a contact, visit <a class="more" href="/contacts">Contacts</a>
+</div> section.			</div>
+			<div class="smallboxtopbc"></div>
+		</div>
+
+		<div class="boxline"></div>
+
+		<div class="smallboxcontent">
+			<div class="smallboxcontenthd"><h2>Latest news</h2></div>
+			<div class="smallboxcontentct2">
+										<div class="item">
+							<div class="itemleft">
+								<div class="calendar">
+									<div class="month">Jun</div>
+									<div class="day">19</div>
+								</div>
+								<div class="imgframe40"></div>
+							</div>
+
+							<div class="itemright">
+							
+								<a href="/forum/viewtopic.php?f=2&amp;t=2195" class="title">nGlide 2.10 - Integer scaling and bugfixes</a>
+
+								<div class="space8px"></div>
+								<div class="space8px"></div>
+								<a href="/forum/viewtopic.php?f=2&amp;t=2195" class="button">Read more</a>
+
+							</div>
+
+						</div>								<div class="line"></div>
+													<div class="item">
+							<div class="itemleft">
+								<div class="calendar">
+									<div class="month">Dec</div>
+									<div class="day">14</div>
+								</div>
+								<div class="imgframe40"></div>
+							</div>
+
+							<div class="itemright">
+							
+								<a href="/forum/viewtopic.php?f=2&amp;t=2044" class="title">nGlide 2.00 released with a new Vulkan API backend</a>
+
+								<div class="space8px"></div>
+								<div class="space8px"></div>
+								<a href="/forum/viewtopic.php?f=2&amp;t=2044" class="button">Read more</a>
+
+							</div>
+
+						</div>			</div>
+			<div class="smallboxcontentbc"></div>
+		</div>
+		<div class="smallboxcontent">
+			<div class="smallboxcontenthd"><h2>Galleries</h2></div>
+			<div class="smallboxcontentct">
+				<strong>Please feel free to browse Zeus Software galleries.</strong>
+
+<div class="space8px"></div>
+<div class="space8px"></div>
+
+The galleries have been divided into categories corresponding to applications.
+
+<div class="space8px"></div>
+<div class="space4px"></div>
+
+You can browse each gallery with a fullscreen image viewer.
+
+<div class="space8px"></div>
+<div class="space4px"></div>
+
+To activate it, simply click on a thumbnail.
+
+<div class="space8px"></div>
+<div class="space8px"></div>				<a href="/galleries" class="button">Galleries</a>
+			</div>
+			<div class="smallboxcontentbc"></div>
+		</div>
+		<div class="smallboxcontentlast">
+			<div class="smallboxcontenthd"><h2>Applications</h2></div>
+			<div class="smallboxcontentct3">
+											<div class="item">
+								<div class="itemleft">
+									<img src="/img/logos/nglide42.jpg" alt="nGlide" />
+									<div class="imgframe42"></div>
+								</div>
+
+								<div class="itemright">
+								
+									<a href="/downloads/nglide" class="title">nGlide</a>
+
+									<div class="space8px"></div>
+									<a href="/downloads/nglide" class="button">Read more</a>
+
+								</div>
+
+							</div>									<div class="line"></div>
+															<div class="item">
+								<div class="itemleft">
+									<img src="/img/logos/ntfsaccess42.jpg" alt="NTFS Access" />
+									<div class="imgframe42"></div>
+								</div>
+
+								<div class="itemright">
+								
+									<a href="/downloads/ntfsaccess" class="title">NTFS Access</a>
+
+									<div class="space8px"></div>
+									<a href="/downloads/ntfsaccess" class="button">Read more</a>
+
+								</div>
+
+							</div>									<div class="line"></div>
+															<div class="item">
+								<div class="itemleft">
+									<img src="/img/logos/xripper42.jpg" alt="X-Ripper" />
+									<div class="imgframe42"></div>
+								</div>
+
+								<div class="itemright">
+								
+									<a href="/downloads/xripper" class="title">X-Ripper</a>
+
+									<div class="space8px"></div>
+									<a href="/downloads/xripper" class="button">Read more</a>
+
+								</div>
+
+							</div>			</div>
+			<div class="smallboxcontentbc"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="contentbc"></div>
+
+
+	<div class="footer">
+		<div class="copyrightmenubottom">
+			<div class="copyright">
+				Zeus Software &copy; 2026			</div>
+
+			<div class="sep">|</div>
+
+			<div class="menubottom">
+											<a href="/privacy">Privacy Policy</a>
+									</div>
+		</div>
+		<div class="allrights">All rights reserved.</div>
+	</div>
+	<div class="clear"></div>
+
+</div> <!-- end of <div class="container"> -->
+</div> <!-- end of <div class="containerbkg"> -->
+
+<div class="bottombarbkg">
+	<div class="bottombar"></div>
+</div>
+
+
+
+
+		<!-- matomo analytics -->
+		<script type="text/javascript">
+
+		  var _paq = window._paq || [];
+		  _paq.push(['trackPageView']);
+		  _paq.push(['enableLinkTracking']);
+
+		  (function() {
+			var u="//stats40.mydevil.net/";
+			_paq.push(['setTrackerUrl', u+'matomo.php']);
+			_paq.push(['setSiteId', '40']);
+			var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+			g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+		  })();
+
+		</script>
+		<!-- end of matomo analytics -->
+
+		
+</body>
+
+</html>
+

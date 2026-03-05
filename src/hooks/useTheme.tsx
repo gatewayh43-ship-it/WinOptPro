@@ -50,7 +50,8 @@ export function ThemeProvider({
         root.classList.add(theme);
 
         // Manage color schemes
-        root.classList.remove("theme-default", "theme-teal");
+        const themeClasses = ["theme-default", "theme-teal", "theme-rose", "theme-amber", "theme-emerald", "theme-violet"];
+        root.classList.remove(...themeClasses);
         root.classList.add(`theme-${colorScheme}`);
     }, [theme, colorScheme]);
 
