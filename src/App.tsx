@@ -60,40 +60,46 @@ function App() {
           return;
         }
 
-        updateLoadingProgress(10, "Fetching System Drivers...");
-        const drivers = await invoke("list_drivers").catch(() => []);
+        updateLoadingProgress(10, "Fetching system data...");
+
+        // Fire all independent fetches in parallel — dramatically faster startup
+        const [
+          drivers,
+          network,
+          storageItems,
+          storageHealth,
+          wslStatus,
+          wslConfig,
+          wslSetup,
+          powerPlans,
+          batteryHealth,
+          processes,
+          startupItems,
+        ] = await Promise.all([
+          invoke("list_drivers").catch(() => []),
+          invoke("get_network_interfaces").catch(() => []),
+          invoke("scan_junk_files").catch(() => []),
+          invoke("get_disk_health").catch(() => []),
+          invoke("get_wsl_status").catch(() => null),
+          invoke("get_wsl_config").catch(() => null),
+          invoke("get_wsl_setup_state").catch(() => null),
+          invoke("get_power_plans").catch(() => []),
+          invoke("get_battery_health").catch(() => null),
+          invoke("get_processes").catch(() => []),
+          invoke("get_startup_items").catch(() => []),
+        ]);
+
+        updateLoadingProgress(90, "Populating cache...");
         setCacheObject("drivers", drivers);
-
-        updateLoadingProgress(25, "Inspecting Network Interfaces...");
-        const network = await invoke("get_network_interfaces").catch(() => []);
         setCacheObject("network", network);
-
-        updateLoadingProgress(40, "Checking disk health...");
-        const storageItems = await invoke("scan_junk_files").catch(() => []);
-        const storageHealth = await invoke("get_disk_health").catch(() => []);
         setCacheObject("storage_items", storageItems);
         setCacheObject("storage_health", storageHealth);
-
-        updateLoadingProgress(60, "Reticulating splines...");
-        const wslStatus = await invoke("get_wsl_status").catch(() => null);
-        const wslConfig = await invoke("get_wsl_config").catch(() => null);
-        const wslSetup = await invoke("get_wsl_setup_state").catch(() => null);
         setCacheObject("wsl_status", wslStatus);
         setCacheObject("wsl_config", wslConfig);
         setCacheObject("wsl_setup", wslSetup);
-
-        updateLoadingProgress(75, "Overclocking progress bar...");
-        const powerPlans = await invoke("get_power_plans").catch(() => []);
-        const batteryHealth = await invoke("get_battery_health").catch(() => null);
         setCacheObject("power_plans", powerPlans);
         setCacheObject("battery_health", batteryHealth);
-
-        updateLoadingProgress(85, "Analyzing processes...");
-        const processes = await invoke("get_processes").catch(() => []);
         setCacheObject("processes", processes);
-
-        updateLoadingProgress(95, "Syncing RGB lighting...");
-        const startupItems = await invoke("get_startup_items").catch(() => []);
         setCacheObject("startup_items", startupItems);
 
         updateLoadingProgress(100, "Optimization Complete.");

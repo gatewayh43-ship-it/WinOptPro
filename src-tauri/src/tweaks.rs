@@ -78,7 +78,10 @@ pub async fn execute_tweak(
     code: String,
 ) -> Result<TweakResult, String> {
     let (stdout, stderr, exit_code, duration_ms) = run_powershell(&code).await?;
-    let success = exit_code == 0 && stderr.is_empty();
+    // Use exit code only — PowerShell cmdlets routinely write progress/verbose
+    // output to the error stream even on success, so checking stderr.is_empty()
+    // produces false failures for legitimate tweaks.
+    let success = exit_code == 0;
 
     // Record in history
     let entry = TweakHistoryEntry {
@@ -156,7 +159,7 @@ pub async fn revert_tweak(
     revert_code: String,
 ) -> Result<TweakResult, String> {
     let (stdout, stderr, exit_code, duration_ms) = run_powershell(&revert_code).await?;
-    let success = exit_code == 0 && stderr.is_empty();
+    let success = exit_code == 0;
 
     let entry = TweakHistoryEntry {
         id: uuid::Uuid::new_v4().to_string(),

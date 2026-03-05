@@ -89,6 +89,7 @@ pub async fn get_startup_items() -> Result<Vec<StartupItem>, String> {
                 name: String,
                 display_name: String,
                 path_name: Option<String>,
+                #[allow(dead_code)]
                 state: String,
             }
 

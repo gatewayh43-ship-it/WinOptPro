@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System};
 use tauri::command;
+use tokio::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -28,8 +29,8 @@ pub async fn get_processes() -> Result<Vec<ProcessItem>, String> {
         ProcessRefreshKind::nothing().with_cpu(),
     );
     
-    // Sleep briefly to allow CPU time accumulation
-    std::thread::sleep(std::time::Duration::from_millis(200));
+    // Sleep briefly to allow CPU time accumulation (async-safe — does not block executor)
+    tokio::time::sleep(Duration::from_millis(200)).await;
     
     // Second refresh to calculate actual usage percentages
     sys.refresh_processes_specifics(
