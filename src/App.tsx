@@ -30,6 +30,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AIAssistantChat } from "./components/AI/AIAssistantChat";
+import { UpdateNotification } from "./components/UpdateNotification";
 
 // Detect if this webview is the gaming overlay window (hash set by Rust at window creation)
 const IS_GAMING_OVERLAY = window.location.hash === "#gaming-overlay";
@@ -182,6 +183,7 @@ function App() {
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
           <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} simpleOnly={true} />
           <AIAssistantChat />
+          <UpdateNotification />
           <MainLayout currentView={currentView} setView={setCurrentView} onOpenSearch={() => setShowCommandPalette(true)}>
             <ErrorBoundary>
               {views[currentView] || (

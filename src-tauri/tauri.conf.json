@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "winoptimizerrevamp",
-  "version": "0.1.0",
-  "identifier": "com.user.winoptimizerrevamp",
+  "productName": "WinOpt Pro",
+  "version": "1.0.0",
+  "identifier": "com.winoptpro.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -26,12 +26,38 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "WinOpt Pro",
+    "category": "Utility",
+    "copyright": "© 2026 WinOpt Pro",
+    "shortDescription": "Windows system optimizer for power users",
+    "longDescription": "WinOpt Pro is a comprehensive Windows optimization suite featuring 160+ system tweaks, privacy controls, performance tuning, gaming optimizations, and real-time system monitoring. Built with Tauri 2, React 19, and Rust.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "wix": {
+        "language": "en-US"
+      },
+      "nsis": {
+        "language": "1033",
+        "installMode": "currentUser"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "REPLACE_WITH_YOUR_PUBLIC_KEY",
+      "endpoints": [
+        "https://github.com/user/WinOptPro/releases/latest/download/latest.json"
+      ],
+      "dialog": false,
+      "windows": {
+        "installerArgs": ["/passive"]
+      }
+    }
   }
 }

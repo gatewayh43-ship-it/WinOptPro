@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings } from "lucide-react";
+import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, RefreshCw, CheckCircle2, ArrowUpCircle } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
 import { useBackup } from "../hooks/useBackup";
+import { triggerUpdateCheck, subscribeUpdatePhase, getUpdatePhase } from "../components/UpdateNotification";
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -69,6 +70,87 @@ function SelectOption({ value, options, onChange, label }: {
                 ))}
             </select>
         </div>
+    );
+}
+
+function UpdatesSection() {
+    const [phase, setPhase] = useState(() => getUpdatePhase());
+
+    useEffect(() => {
+        return subscribeUpdatePhase(({ phase: p }) => setPhase(p));
+    }, []);
+
+    const isChecking = phase.type === "checking";
+    const hasUpdate = phase.type === "available";
+    const isDownloading = phase.type === "downloading";
+    const isReady = phase.type === "ready";
+
+    return (
+        <SettingSection icon={ArrowUpCircle} title="App Updates" description="Keep WinOpt Pro up to date with the latest features and security patches.">
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-[13px] font-semibold text-slate-300">Current Version</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5 font-mono">v1.0.0</p>
+                    </div>
+                    {isReady ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[12px] font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Ready to Install
+                        </div>
+                    ) : hasUpdate ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[12px] font-bold">
+                            <ArrowUpCircle className="w-3.5 h-3.5" />
+                            v{(phase as any).update?.version} Available
+                        </div>
+                    ) : isDownloading ? (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[12px] font-bold">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Downloading…
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[12px] font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Up to Date
+                        </div>
+                    )}
+                </div>
+
+                {isDownloading && (
+                    <div className="space-y-1.5">
+                        <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+                            <motion.div
+                                className="h-full rounded-full bg-gradient-to-r from-primary to-blue-400"
+                                animate={{
+                                    width: (phase as any).total > 0
+                                        ? `${Math.min(100, ((phase as any).progress / (phase as any).total) * 100).toFixed(1)}%`
+                                        : "50%"
+                                }}
+                                transition={{ duration: 0.3 }}
+                            />
+                        </div>
+                        <p className="text-[11px] text-slate-500">
+                            {(phase as any).total > 0
+                                ? `${((phase as any).progress / 1024 / 1024).toFixed(1)} / ${((phase as any).total / 1024 / 1024).toFixed(1)} MB`
+                                : "Downloading…"}
+                        </p>
+                    </div>
+                )}
+
+                <button
+                    onClick={triggerUpdateCheck}
+                    disabled={isChecking || isDownloading}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-slate-300 hover:text-white text-[12px] font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`} />
+                    {isChecking ? "Checking…" : "Check for Updates"}
+                </button>
+
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                    Updates are checked automatically on launch. Your current settings and profiles are preserved across updates.
+                </p>
+            </div>
+        </SettingSection>
     );
 }
 
@@ -301,6 +383,9 @@ export function SettingsPage() {
                             </div>
                         )}
                     </SettingSection>
+
+                    {/* App Updates */}
+                    <UpdatesSection />
 
                     {/* Backup & Restore */}
                     <BackupSection />
