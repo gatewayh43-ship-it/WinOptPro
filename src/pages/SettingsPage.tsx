@@ -130,7 +130,7 @@ function BackupSection() {
     );
 }
 
-export function SettingsPage() {
+export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }) {
     const { userSettings, updateSettings } = useAppStore();
     const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
     const { addToast } = useToast();
@@ -333,7 +333,7 @@ export function SettingsPage() {
                                 <button
                                     onClick={() => {
                                         localStorage.removeItem("onboardingComplete");
-                                        window.location.reload();
+                                        onTriggerGuide?.();
                                     }}
                                     className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.07] dark:hover:bg-white/[0.07] text-slate-700 dark:text-slate-300 hover:text-foreground text-[12px] font-semibold transition-colors"
                                 >

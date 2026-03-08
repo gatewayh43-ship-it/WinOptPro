@@ -886,6 +886,392 @@
                     "is_verified": true,
                     "trust_score": 98,
                     "rating": 4.0
+                },
+                {
+                    "id": "ItchIo.Itch",
+                    "name": "itch.io",
+                    "publisher": "Leaf Corcoran",
+                    "author": "Leaf Corcoran",
+                    "description": "itch.io is an open marketplace for independent digital creators with a focus on independent video games. The itch.io desktop app lets you install and launch your purchased games without opening a browser.",
+                    "version": "27.0.0",
+                    "license": "MIT",
+                    "logo": "/app_logos/ItchIo.Itch.png",
+                    "website": "https://itch.io/",
+                    "support_url": "https://itch.io/support",
+                    "github_link": "https://github.com/itchio/itch",
+                    "reviews": [
+                        {
+                            "author": "IndieGamer77",
+                            "rating": 4.4,
+                            "text": "Best place for indie games. The desktop app makes managing your library effortless.",
+                            "date": "2024-03-10"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Great indie game marketplace",
+                            "Open source client",
+                            "Pay-what-you-want pricing support"
+                        ],
+                        "cons": [
+                            "Smaller catalog than major platforms",
+                            "Less polished than Steam or Epic"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 88,
+                    "rating": 4.4
+                },
+                {
+                    "id": "Playnite.Playnite",
+                    "name": "Playnite",
+                    "publisher": "Josef Nemec",
+                    "author": "Josef Nemec",
+                    "description": "Playnite is an open-source video game library manager with one interface for all your games. It supports Steam, GOG, Origin, Battle.net, Ubisoft Connect, and many more, giving you a unified game library.",
+                    "version": "10.35",
+                    "license": "MIT",
+                    "logo": "/app_logos/Playnite.Playnite.png",
+                    "website": "https://playnite.link/",
+                    "support_url": "https://playnite.link/forum/",
+                    "github_link": "https://github.com/JosefNemec/Playnite",
+                    "reviews": [
+                        {
+                            "author": "UnifiedLibrary",
+                            "rating": 4.8,
+                            "text": "Best way to manage all my games from every platform in one place. Highly extensible.",
+                            "date": "2024-04-05"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Unifies all game libraries",
+                            "Completely free and open source",
+                            "Massive plugin ecosystem"
+                        ],
+                        "cons": [
+                            "Setup requires some configuration",
+                            "Full-screen mode is resource-hungry"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 92,
+                    "rating": 4.8
+                },
+                {
+                    "id": "HeroicGamesLauncher.HeroicGamesLauncher",
+                    "name": "Heroic Games Launcher",
+                    "publisher": "Heroic Games Launcher",
+                    "author": "Flavio Lima",
+                    "description": "Heroic is an open-source game launcher for Epic Games Store, GOG and Amazon Games. It supports Windows, Linux and macOS and aims to provide a seamless gaming experience outside of the official launchers.",
+                    "version": "2.16.0",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/HeroicGamesLauncher.HeroicGamesLauncher.png",
+                    "website": "https://heroicgameslauncher.com/",
+                    "support_url": "https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/issues",
+                    "github_link": "https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher",
+                    "reviews": [
+                        {
+                            "author": "CrossPlatformGamer",
+                            "rating": 4.5,
+                            "text": "Amazing alternative launcher for Epic and GOG. Works great on Linux too.",
+                            "date": "2024-02-20"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Free and open source",
+                            "Supports Epic, GOG and Amazon Games",
+                            "Cross-platform including Linux"
+                        ],
+                        "cons": [
+                            "Occasional sync issues with official launchers",
+                            "Some features lag behind official clients"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 87,
+                    "rating": 4.5
+                },
+                {
+                    "id": "Rockstar.RockstarGamesLauncher",
+                    "name": "Rockstar Games Launcher",
+                    "publisher": "Rockstar Games",
+                    "author": "Rockstar Games",
+                    "description": "The Rockstar Games Launcher is a Windows application that allows you to access and play your Rockstar Games PC collection, including Red Dead Redemption 2 and Grand Theft Auto V.",
+                    "version": "1.0.112.1",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Rockstar.RockstarGamesLauncher.png",
+                    "website": "https://www.rockstargames.com/",
+                    "support_url": "https://support.rockstargames.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "GTAFan2025",
+                            "rating": 3.8,
+                            "text": "Required to play Rockstar titles. Does the job but nothing special.",
+                            "date": "2024-01-30"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Required for Rockstar titles like GTA V and RDR2",
+                            "Auto-updates games",
+                            "Includes Social Club integration"
+                        ],
+                        "cons": [
+                            "Mandatory for Rockstar games only",
+                            "Heavier than it needs to be"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 88,
+                    "rating": 3.8
+                },
+                {
+                    "id": "NexusMods.Vortex",
+                    "name": "Vortex Mod Manager",
+                    "publisher": "Nexus Mods",
+                    "author": "Nexus Mods",
+                    "description": "Vortex is the new, modern mod manager from Nexus Mods. It is designed to make modding your game as simple as possible for new users, while still providing enough control for veterans.",
+                    "version": "1.13.8",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/NexusMods.Vortex.png",
+                    "website": "https://www.nexusmods.com/about/vortex/",
+                    "support_url": "https://wiki.nexusmods.com/index.php/Vortex_Support",
+                    "github_link": "https://github.com/Nexus-Mods/Vortex",
+                    "reviews": [
+                        {
+                            "author": "ModderElite",
+                            "rating": 4.3,
+                            "text": "Makes managing mods for Skyrim, Fallout and hundreds of other games a breeze.",
+                            "date": "2024-05-12"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Integrates directly with Nexus Mods",
+                            "Supports hundreds of games",
+                            "LOOT sorting built in"
+                        ],
+                        "cons": [
+                            "Can be confusing for beginners",
+                            "Deployment system has a learning curve"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 88,
+                    "rating": 4.3
+                },
+                {
+                    "id": "Overwolf.CurseForge",
+                    "name": "CurseForge",
+                    "publisher": "Overwolf",
+                    "author": "Overwolf Ltd.",
+                    "description": "CurseForge is the ultimate mod manager and platform for Minecraft, World of Warcraft, The Sims 4, and hundreds of other games. Easily install, manage, and update your mods.",
+                    "version": "2.7.0",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Overwolf.CurseForge.png",
+                    "website": "https://www.curseforge.com/",
+                    "support_url": "https://support.curseforge.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "MinecraftModder",
+                            "rating": 4.2,
+                            "text": "Essential for Minecraft modpacks. Makes installing and updating mods very easy.",
+                            "date": "2024-03-18"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Huge mod library for many games",
+                            "Easy modpack installation",
+                            "Automatic mod updates"
+                        ],
+                        "cons": [
+                            "Bundled with Overwolf",
+                            "Can be slow to launch"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 85,
+                    "rating": 4.2
+                },
+                {
+                    "id": "Overwolf.Overwolf",
+                    "name": "Overwolf",
+                    "publisher": "Overwolf Ltd.",
+                    "author": "Overwolf Ltd.",
+                    "description": "Overwolf is an all-in-one platform for building, sharing, and monetizing in-game apps. It provides a suite of tools and overlay apps that enhance your gaming experience with real-time stats, guides, and more.",
+                    "version": "0.257.1.3",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Overwolf.Overwolf.png",
+                    "website": "https://www.overwolf.com/",
+                    "support_url": "https://support.overwolf.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "OverlayUser",
+                            "rating": 3.9,
+                            "text": "Useful for in-game overlays and stats but can be resource heavy.",
+                            "date": "2024-02-14"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Extensive in-game overlay app ecosystem",
+                            "Real-time stats and guides",
+                            "Required for CurseForge and other apps"
+                        ],
+                        "cons": [
+                            "Noticeable performance overhead",
+                            "Installs background services"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 80,
+                    "rating": 3.9
+                },
+                {
+                    "id": "Nvidia.GeForceNow",
+                    "name": "NVIDIA GeForce NOW",
+                    "publisher": "NVIDIA Corporation",
+                    "author": "NVIDIA Corporation",
+                    "description": "GeForce NOW is NVIDIA's cloud gaming service that streams your existing game library at up to 4K resolution. Play PC games you already own on any device without a high-end GPU.",
+                    "version": "2.0.79.128",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Nvidia.GeForceNow.png",
+                    "website": "https://www.nvidia.com/en-us/geforce-now/",
+                    "support_url": "https://www.nvidia.com/en-us/geforce-now/support/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "CloudGamer",
+                            "rating": 4.1,
+                            "text": "Great cloud gaming service. Low latency on a fast connection and plays your existing library.",
+                            "date": "2024-04-22"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Streams existing game library",
+                            "Up to 4K and RTX support",
+                            "No need for expensive local GPU"
+                        ],
+                        "cons": [
+                            "Requires fast internet connection",
+                            "Not all games supported",
+                            "Premium tier required for best features"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 90,
+                    "rating": 4.1
+                },
+                {
+                    "id": "Wargaming.WargamingGameCenter",
+                    "name": "Wargaming Game Center",
+                    "publisher": "Wargaming Group Limited",
+                    "author": "Wargaming Group Limited",
+                    "description": "Wargaming Game Center is the launcher for Wargaming titles including World of Tanks, World of Warships, and World of Warplanes. It manages game updates and provides account management.",
+                    "version": "24.13.0.5095",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Wargaming.WargamingGameCenter.png",
+                    "website": "https://wargaming.net/",
+                    "support_url": "https://eu.wargaming.net/support/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "TankCommander",
+                            "rating": 3.7,
+                            "text": "Required for World of Tanks. Basic launcher that gets the job done.",
+                            "date": "2024-01-08"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Required for Wargaming titles",
+                            "Manages multiple Wargaming games",
+                            "Automatic game updates"
+                        ],
+                        "cons": [
+                            "Only useful if you play Wargaming titles",
+                            "Dated interface"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 82,
+                    "rating": 3.7
+                },
+                {
+                    "id": "ArcGames.ArcClient",
+                    "name": "Arc (Arc Games)",
+                    "publisher": "Perfect World Entertainment",
+                    "author": "Perfect World Entertainment",
+                    "description": "Arc is a free-to-play game platform from Perfect World Entertainment. It provides access to titles like Neverwinter, Star Trek Online, and other free-to-play games.",
+                    "version": "2.1.0.74",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/ArcGames.ArcClient.png",
+                    "website": "https://www.arcgames.com/",
+                    "support_url": "https://support.arcgames.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "F2PGamer",
+                            "rating": 3.5,
+                            "text": "Required for Arc Games titles. Basic launcher, nothing special.",
+                            "date": "2024-01-12"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Access to free-to-play titles",
+                            "Lightweight launcher",
+                            "Simple account management"
+                        ],
+                        "cons": [
+                            "Only relevant for Arc Games titles",
+                            "Smaller game library"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 75,
+                    "rating": 3.5
+                },
+                {
+                    "id": "ModOrganizer2.ModOrganizer2",
+                    "name": "Mod Organizer 2",
+                    "publisher": "Mod Organizer 2 Team",
+                    "author": "Tannin42",
+                    "description": "Mod Organizer 2 is an advanced mod manager for games like Skyrim, Fallout, and other Bethesda titles. It uses a virtual file system to keep your game installation clean while applying mods.",
+                    "version": "2.5.4",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/ModOrganizer2.ModOrganizer2.png",
+                    "website": "https://www.modorganizer.org/",
+                    "support_url": "https://github.com/ModOrganizer2/modorganizer/issues",
+                    "github_link": "https://github.com/ModOrganizer2/modorganizer",
+                    "reviews": [
+                        {
+                            "author": "SkyrimModder",
+                            "rating": 4.7,
+                            "text": "The gold standard for modding Bethesda games. Virtual file system is a game changer.",
+                            "date": "2024-06-01"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Virtual file system keeps game clean",
+                            "Profile system for different mod setups",
+                            "Preferred by serious modders"
+                        ],
+                        "cons": [
+                            "Steep learning curve for beginners",
+                            "Primarily supports Bethesda titles"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 90,
+                    "rating": 4.7
                 }
             ]
         },
@@ -1103,6 +1489,532 @@
                     "is_verified": true,
                     "trust_score": 98,
                     "rating": 4.7
+                },
+                {
+                    "id": "GIMP.GIMP",
+                    "name": "GIMP",
+                    "publisher": "The GIMP Team",
+                    "author": "The GIMP Team",
+                    "description": "GIMP is a cross-platform image editor available for GNU/Linux, macOS, Windows and more operating systems. It is free software, you can change its source code and distribute your changes.",
+                    "version": "2.10.38",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/GIMP.GIMP.png",
+                    "website": "https://www.gimp.org/",
+                    "support_url": "https://www.gimp.org/docs/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "PixelArtist",
+                            "rating": 4.4,
+                            "text": "Powerful free alternative to Photoshop. Takes time to learn but very capable.",
+                            "date": "2024-02-08"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Completely free and open source",
+                            "Professional-grade image editing",
+                            "Extensive plugin ecosystem"
+                        ],
+                        "cons": [
+                            "Different UI than Photoshop",
+                            "Some features require plugins"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 95,
+                    "rating": 4.4
+                },
+                {
+                    "id": "Inkscape.Inkscape",
+                    "name": "Inkscape",
+                    "publisher": "Inkscape",
+                    "author": "Inkscape Contributors",
+                    "description": "Inkscape is a free and open-source vector graphics editor. It can be used to create or edit vector graphics such as illustrations, diagrams, line arts, charts, logos and complex paintings.",
+                    "version": "1.4.2",
+                    "license": "GPL-2.0",
+                    "logo": "/app_logos/Inkscape.Inkscape.png",
+                    "website": "https://inkscape.org/",
+                    "support_url": "https://inkscape.org/community/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "VectorDesigner",
+                            "rating": 4.5,
+                            "text": "Best free vector editor available. Great for logo and icon design.",
+                            "date": "2024-03-15"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Free alternative to Adobe Illustrator",
+                            "Full SVG support",
+                            "Active development community"
+                        ],
+                        "cons": [
+                            "Can be slow with complex files",
+                            "UI less polished than commercial alternatives"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 94,
+                    "rating": 4.5
+                },
+                {
+                    "id": "KDE.Kdenlive",
+                    "name": "Kdenlive",
+                    "publisher": "KDE",
+                    "author": "KDE Community",
+                    "description": "Kdenlive is a free and open-source video editing software based on the MLT Framework. It features multi-track editing, a wide range of effects and transitions, and supports most audio and video formats.",
+                    "version": "24.12.3",
+                    "license": "GPL-2.0",
+                    "logo": "/app_logos/KDE.Kdenlive.png",
+                    "website": "https://kdenlive.org/",
+                    "support_url": "https://kdenlive.org/en/community/",
+                    "github_link": "https://invent.kde.org/multimedia/kdenlive",
+                    "reviews": [
+                        {
+                            "author": "VideoEditor",
+                            "rating": 4.3,
+                            "text": "Solid free video editor. Multi-track editing works well and it handles most formats.",
+                            "date": "2024-04-01"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Free and open source video editor",
+                            "Multi-track timeline",
+                            "Wide format support via FFmpeg"
+                        ],
+                        "cons": [
+                            "Occasional stability issues",
+                            "Rendering can be slow"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 88,
+                    "rating": 4.3
+                },
+                {
+                    "id": "BlackmagicDesign.DaVinciResolve",
+                    "name": "DaVinci Resolve",
+                    "publisher": "Blackmagic Design",
+                    "author": "Blackmagic Design Pty. Ltd.",
+                    "description": "DaVinci Resolve is the world's only solution that combines professional 8K editing, color correction, visual effects and audio post production all in one software tool.",
+                    "version": "20.0.0.60",
+                    "license": "Freeware",
+                    "logo": "/app_logos/BlackmagicDesign.DaVinciResolve.png",
+                    "website": "https://www.blackmagicdesign.com/products/davinciresolve",
+                    "support_url": "https://www.blackmagicdesign.com/support/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "ProVideoEditor",
+                            "rating": 4.8,
+                            "text": "Industry-leading color grading and professional editing in a free package. Incredible value.",
+                            "date": "2024-05-20"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Professional-grade color grading",
+                            "Free version is extremely capable",
+                            "All-in-one editing, VFX, and audio"
+                        ],
+                        "cons": [
+                            "Requires a capable GPU",
+                            "High memory usage",
+                            "Steep learning curve"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 95,
+                    "rating": 4.8
+                },
+                {
+                    "id": "Mp3tag.Mp3tag",
+                    "name": "Mp3tag",
+                    "publisher": "Florian Heidenreich",
+                    "author": "Florian Heidenreich",
+                    "description": "Mp3tag is a powerful and easy-to-use tool to edit metadata of audio files. It supports batch tag editing of MP3, MP4/M4A/AAC, OGG, FLAC, OPUS, and many more formats.",
+                    "version": "3.28",
+                    "license": "Freeware",
+                    "logo": "/app_logos/Mp3tag.Mp3tag.png",
+                    "website": "https://www.mp3tag.de/en/",
+                    "support_url": "https://community.mp3tag.de/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "MusicLibraryPro",
+                            "rating": 4.8,
+                            "text": "The definitive tool for editing audio metadata. Fast, reliable, and feature-rich.",
+                            "date": "2024-01-20"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Excellent batch tag editing",
+                            "Supports many audio formats",
+                            "Free to use"
+                        ],
+                        "cons": [
+                            "Windows only",
+                            "UI is dated but functional"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 96,
+                    "rating": 4.8
+                },
+                {
+                    "id": "Stremio.Stremio",
+                    "name": "Stremio",
+                    "publisher": "Smart Code Ltd.",
+                    "author": "Smart Code Ltd.",
+                    "description": "Stremio is a one-stop hub for video content aggregation. Easily discover, organize and watch video from many different sources, including popular streaming services.",
+                    "version": "5.1.7",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Stremio.Stremio.png",
+                    "website": "https://www.stremio.com/",
+                    "support_url": "https://stremio.zendesk.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "StreamingFan",
+                            "rating": 4.4,
+                            "text": "Excellent video aggregator. Add-ons make it extremely versatile for streaming.",
+                            "date": "2024-03-30"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Aggregates multiple video sources",
+                            "Add-on ecosystem",
+                            "Cross-device sync"
+                        ],
+                        "cons": [
+                            "Some add-ons may link to unofficial content",
+                            "Requires account for sync"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 82,
+                    "rating": 4.4
+                },
+                {
+                    "id": "Jellyfin.JellyfinMediaPlayer",
+                    "name": "Jellyfin Media Player",
+                    "publisher": "Jellyfin Contributors",
+                    "author": "Jellyfin Contributors",
+                    "description": "Jellyfin Media Player is a desktop client for Jellyfin, the free open-source media server. It lets you stream your personal media collection from a Jellyfin server with a polished desktop experience.",
+                    "version": "1.12.1",
+                    "license": "GPL-2.0",
+                    "logo": "/app_logos/Jellyfin.JellyfinMediaPlayer.png",
+                    "website": "https://jellyfin.org/",
+                    "support_url": "https://jellyfin.org/docs/",
+                    "github_link": "https://github.com/jellyfin/jellyfin-media-player",
+                    "reviews": [
+                        {
+                            "author": "HomeMediaServer",
+                            "rating": 4.6,
+                            "text": "Perfect companion app for a Jellyfin server. Great playback and UI.",
+                            "date": "2024-02-25"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Free and open source",
+                            "Native desktop experience for Jellyfin",
+                            "Excellent codec support"
+                        ],
+                        "cons": [
+                            "Requires a Jellyfin server",
+                            "Limited without a server"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 90,
+                    "rating": 4.6
+                },
+                {
+                    "id": "clsid2.mpc-hc",
+                    "name": "MPC-HC",
+                    "publisher": "MPC-HC Team",
+                    "author": "MPC-HC Contributors",
+                    "description": "Media Player Classic - Home Cinema (MPC-HC) is a free and open-source video and audio player for Windows. It is lightweight and supports a wide range of media formats.",
+                    "version": "2.3.0",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/clsid2.mpc-hc.png",
+                    "website": "https://github.com/clsid2/mpc-hc",
+                    "support_url": "https://github.com/clsid2/mpc-hc/issues",
+                    "github_link": "https://github.com/clsid2/mpc-hc",
+                    "reviews": [
+                        {
+                            "author": "LightweightUser",
+                            "rating": 4.5,
+                            "text": "Incredibly lightweight player with excellent format support. Still the best minimal player.",
+                            "date": "2024-04-10"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Very lightweight and fast",
+                            "Wide format support",
+                            "Open source and actively maintained fork"
+                        ],
+                        "cons": [
+                            "Windows only",
+                            "Interface is dated"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 92,
+                    "rating": 4.5
+                },
+                {
+                    "id": "IrfanView.IrfanView",
+                    "name": "IrfanView",
+                    "publisher": "Irfan Skiljan",
+                    "author": "Irfan Skiljan",
+                    "description": "IrfanView is a fast, compact, and innovative freeware image viewer for Windows. It can handle a large number of formats including JPEG, PNG, BMP, TIFF, ICO, and many more.",
+                    "version": "4.67",
+                    "license": "Freeware",
+                    "logo": "/app_logos/IrfanView.IrfanView.png",
+                    "website": "https://www.irfanview.com/",
+                    "support_url": "https://www.irfanview.com/faq.htm",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "ImageViewerFan",
+                            "rating": 4.6,
+                            "text": "The fastest image viewer on Windows. Perfect for quickly browsing large photo collections.",
+                            "date": "2024-01-18"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Extremely fast and lightweight",
+                            "Supports hundreds of formats",
+                            "Batch conversion and renaming"
+                        ],
+                        "cons": [
+                            "Windows only",
+                            "UI design is dated"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 96,
+                    "rating": 4.6
+                },
+                {
+                    "id": "XnSoft.XnViewMP",
+                    "name": "XnView MP",
+                    "publisher": "XnSoft",
+                    "author": "XnSoft",
+                    "description": "XnView MP is a versatile and powerful photo viewer, image management and editor software. It supports more than 500 image formats and can convert, resize, and apply effects to images.",
+                    "version": "1.8.1",
+                    "license": "Freeware",
+                    "logo": "/app_logos/XnSoft.XnViewMP.png",
+                    "website": "https://www.xnview.com/en/xnviewmp/",
+                    "support_url": "https://newsgroup.xnview.com/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "PhotoOrganizer",
+                            "rating": 4.4,
+                            "text": "Excellent photo manager and viewer. Handles an enormous range of formats.",
+                            "date": "2024-02-28"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Supports 500+ image formats",
+                            "Cross-platform",
+                            "Good batch processing tools"
+                        ],
+                        "cons": [
+                            "Free for non-commercial use only",
+                            "UI can feel cluttered"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 88,
+                    "rating": 4.4
+                },
+                {
+                    "id": "calibre.calibre",
+                    "name": "calibre",
+                    "publisher": "Kovid Goyal",
+                    "author": "Kovid Goyal",
+                    "description": "calibre is a powerful and easy to use e-book manager. Users say it's outstanding and indispensable. It'll allow you to do nearly everything and it takes things a step beyond normal e-book software.",
+                    "version": "7.26.0",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/calibre.calibre.png",
+                    "website": "https://calibre-ebook.com/",
+                    "support_url": "https://calibre-ebook.com/help",
+                    "github_link": "https://github.com/kovidgoyal/calibre",
+                    "reviews": [
+                        {
+                            "author": "EbookReader",
+                            "rating": 4.7,
+                            "text": "The best ebook management tool bar none. Conversion between formats works perfectly.",
+                            "date": "2024-03-05"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Comprehensive ebook management",
+                            "Converts between many ebook formats",
+                            "Free and open source"
+                        ],
+                        "cons": [
+                            "UI looks dated",
+                            "Can be overwhelming for new users"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 95,
+                    "rating": 4.7
+                },
+                {
+                    "id": "PeterPavlishak.foobar2000",
+                    "name": "foobar2000",
+                    "publisher": "Peter Pawliszak",
+                    "author": "Peter Pawliszak",
+                    "description": "foobar2000 is an advanced freeware audio player for the Windows platform. It includes audio format support for MP3, MP4, AAC, FLAC, Ogg Vorbis, WAV and many more.",
+                    "version": "2.24.4",
+                    "license": "Freeware",
+                    "logo": "/app_logos/PeterPavlishak.foobar2000.png",
+                    "website": "https://www.foobar2000.org/",
+                    "support_url": "https://wiki.hydrogenaud.io/index.php?title=Foobar2000",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "AudiophilePC",
+                            "rating": 4.7,
+                            "text": "Best audio player on Windows. Extremely customizable and audiophile-grade sound.",
+                            "date": "2024-04-18"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Highly customizable interface",
+                            "Excellent audio quality",
+                            "Massive plugin library"
+                        ],
+                        "cons": [
+                            "Default UI is minimal and plain",
+                            "Requires configuration to look modern"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 95,
+                    "rating": 4.7
+                },
+                {
+                    "id": "ShareX.ShareX",
+                    "name": "ShareX",
+                    "publisher": "ShareX Team",
+                    "author": "ShareX Team",
+                    "description": "ShareX is a free and open source program that lets you capture or record any area of your screen and share it with a single press of a key. It also allows uploading images, text or other types of files to many supported destinations.",
+                    "version": "17.1.0",
+                    "license": "GPL-3.0",
+                    "logo": "/app_logos/ShareX.ShareX.png",
+                    "website": "https://getsharex.com/",
+                    "support_url": "https://getsharex.com/docs/",
+                    "github_link": "https://github.com/ShareX/ShareX",
+                    "reviews": [
+                        {
+                            "author": "ScreenCapturePro",
+                            "rating": 4.9,
+                            "text": "The most feature-complete screenshot and screen recorder on Windows. Completely free.",
+                            "date": "2024-05-10"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Extremely feature-rich screenshot tool",
+                            "Free and open source",
+                            "Supports dozens of upload destinations"
+                        ],
+                        "cons": [
+                            "Overwhelming amount of options",
+                            "Workflow setup takes time"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 97,
+                    "rating": 4.9
+                },
+                {
+                    "id": "Plex.Plex",
+                    "name": "Plex",
+                    "publisher": "Plex, Inc.",
+                    "author": "Plex, Inc.",
+                    "description": "Plex brings together all the media that matters to you. Organize your personal video, music and photo collections and enjoy them on all your devices with a beautiful interface.",
+                    "version": "1.109.0.3728",
+                    "license": "Proprietary",
+                    "logo": "/app_logos/Plex.Plex.png",
+                    "website": "https://www.plex.tv/",
+                    "support_url": "https://support.plex.tv/",
+                    "github_link": null,
+                    "reviews": [
+                        {
+                            "author": "HomeServerAdmin",
+                            "rating": 4.5,
+                            "text": "Best personal media server experience. Works seamlessly across all my devices.",
+                            "date": "2024-03-22"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Beautiful and polished UI",
+                            "Excellent multi-device streaming",
+                            "Smart metadata and organization"
+                        ],
+                        "cons": [
+                            "Some features require Plex Pass subscription",
+                            "Requires a server running Plex Media Server"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 90,
+                    "rating": 4.5
+                },
+                {
+                    "id": "XBMC.Kodi",
+                    "name": "Kodi",
+                    "publisher": "XBMC Foundation",
+                    "author": "XBMC Foundation",
+                    "description": "Kodi is a free and open-source media player software application developed by the XBMC Foundation, a non-profit technology consortium. Kodi is available for multiple operating systems and hardware platforms.",
+                    "version": "21.2",
+                    "license": "GPL-2.0",
+                    "logo": "/app_logos/XBMC.Kodi.png",
+                    "website": "https://kodi.tv/",
+                    "support_url": "https://forum.kodi.tv/",
+                    "github_link": "https://github.com/xbmc/xbmc",
+                    "reviews": [
+                        {
+                            "author": "HTPlayerUser",
+                            "rating": 4.6,
+                            "text": "The ultimate home theater software. Incredibly flexible with the right add-ons.",
+                            "date": "2024-02-12"
+                        }
+                    ],
+                    "insights": {
+                        "pros": [
+                            "Free and open source",
+                            "Huge add-on ecosystem",
+                            "Excellent home theater experience"
+                        ],
+                        "cons": [
+                            "Add-on quality varies widely",
+                            "Initial setup can be complex"
+                        ]
+                    },
+                    "is_verified": true,
+                    "trust_score": 93,
+                    "rating": 4.6
                 }
             ]
         },

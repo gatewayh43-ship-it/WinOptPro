@@ -2333,7 +2333,7 @@
       "code": "powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0; powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0; powercfg -setactive SCHEME_CURRENT",
       "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1; powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1; powercfg -setactive SCHEME_CURRENT"
     },
-    "validationCmd": ""
+    "validationCmd": "powercfg /query SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226"
   },
   {
     "id": "DisablePCIeLinkStatePM",
@@ -2353,7 +2353,7 @@
       "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0; powercfg -setactive SCHEME_CURRENT",
       "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 2; powercfg -setactive SCHEME_CURRENT"
     },
-    "validationCmd": ""
+    "validationCmd": "powercfg /query SCHEME_CURRENT SUB_PCIEXPRESS ASPM"
   },
   {
     "id": "EnableAggressiveCPUBoost",
@@ -2373,7 +2373,7 @@
       "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 2; powercfg -setactive SCHEME_CURRENT",
       "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 1; powercfg -setactive SCHEME_CURRENT"
     },
-    "validationCmd": ""
+    "validationCmd": "powercfg /query SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE"
   },
   {
     "id": "DisableAdaptiveBrightness",
@@ -2393,7 +2393,7 @@
       "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0; powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0; powercfg -setactive SCHEME_CURRENT",
       "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 1; powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 1; powercfg -setactive SCHEME_CURRENT"
     },
-    "validationCmd": ""
+    "validationCmd": "powercfg /query SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT"
   },
   {
     "id": "SetMinCPUState100",
@@ -2413,7 +2413,7 @@
       "code": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 100; powercfg -setactive SCHEME_CURRENT",
       "revertCode": "powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 5; powercfg -setactive SCHEME_CURRENT"
     },
-    "validationCmd": ""
+    "validationCmd": "powercfg /query SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN"
   },
   {
     "id": "UltimatePerformancePlan",
@@ -2573,7 +2573,7 @@
       "code": "Clear-DnsClientCache; ipconfig /flushdns",
       "revertCode": "Write-Output 'DNS cache is rebuilt automatically as you browse.'"
     },
-    "validationCmd": ""
+    "validationCmd": "Get-DnsClientCache | Measure-Object | Select-Object -ExpandProperty Count"
   },
   {
     "id": "ResetWinsock",
@@ -2593,7 +2593,7 @@
       "code": "netsh winsock reset; netsh int ip reset",
       "revertCode": "Write-Output 'Winsock reset cannot be explicitly reversed. Network will reconfigure on reboot.'"
     },
-    "validationCmd": ""
+    "validationCmd": "netsh winsock show catalog | Select-String 'Winsock Catalog'"
   },
   {
     "id": "BlockCortana",
@@ -2933,7 +2933,7 @@
       "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -Value 'NotSpecified' -Type String -Force -EA SilentlyContinue",
       "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -EA SilentlyContinue"
     },
-    "validationCmd": ""
+    "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell').FolderType"
   },
   {
     "id": "DisableLockScreenAdsSpotlight",

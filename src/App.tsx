@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import type { Tweak } from "./store/appStore";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
@@ -148,7 +149,7 @@ function App() {
     storage: <StoragePage />,
     processes: <ProcessPage />,
     network: <NetworkAnalyzerPage />,
-    settings: <SettingsPage />,
+    settings: <SettingsPage onTriggerGuide={() => setShowOnboarding(true)} />,
     profiles: <ProfilesPage />,
     apps: <AppsPage />,
     power_manager: <PowerPage />,
@@ -161,7 +162,7 @@ function App() {
     help: <HelpPage />,
   };
 
-  const handleSelectTweak = (tweak: any) => {
+  const handleSelectTweak = (tweak: Tweak) => {
     const categoryLower = tweak.category.toLowerCase();
     setCurrentView(categoryLower);
 
