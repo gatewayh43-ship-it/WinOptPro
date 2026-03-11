@@ -12,6 +12,50 @@ _Changes staged for the next release will appear here._
 
 ---
 
+## [1.1.0] - 2026-03-11
+
+### Summary
+
+Post-launch enhancements: expanded game detection library, comprehensive Help Center with interactive tweak browser, complete app catalog metadata, and extended test coverage.
+
+### Added
+
+- **Help Center** (`HelpPage.tsx`) — searchable knowledge base with:
+  - Interactive Tweaks Browser: browse all 162 tweaks by category with live Enable/Disable toggle; uses shared `useAppStore` state so changes reflect immediately on the Tweaks page
+  - Category guides (Performance, Gaming, Privacy, Network, Power, Security, Debloat, Windows UI)
+  - Keyboard shortcuts reference panel
+  - FAQ accordion (common questions and answers)
+  - Getting Started quick-start section
+- Help Center nav item added to Sidebar under the System group
+- `validationCmd` populated for 8 tweaks that were missing it (USB Selective Suspend, PCIe Link State PM, Adaptive Brightness, CPU Boost mode, Min CPU State, Flush DNS, Reset Winsock, Explorer Folder Discovery)
+
+### Changed
+
+- **Gaming Optimizer** — game detection expanded from 32 → 190+ known executables across categories: AAA titles, competitive FPS, open-world RPGs, survival, simulation, strategy, VR, indie, and all major game launchers (Steam, Battle.net, Epic, GOG, EA, Rockstar, Ubisoft, itch.io, etc.)
+- **App Store** — all 391 apps now have complete metadata:
+  - GitHub repository links for 105+ open-source apps
+  - SourceForge links for legacy open-source projects (7-Zip, Dual Monitor Tools, FFmpeg Batch, SDIO)
+  - Microsoft Store links for 60+ proprietary/freeware apps (Discord, Spotify, iTunes, foobar2000, etc.)
+  - Official download page links for remaining apps
+  - Fixed corrupted `HWiNFO®` name encoding
+  - Fixed 14 broken logo paths (new Game Launcher + Media apps now use UI-avatars)
+  - Expanded 12 short descriptions to full detail
+- Removed unused npm dependencies: `radix-ui`, `class-variance-authority`, `clsx`
+
+### Fixed
+
+- `App.tsx`: `handleSelectTweak` typed as `(tweak: Tweak)` (was `any`)
+- `SettingsPage`: onboarding re-trigger now calls `onTriggerGuide?.()` instead of `window.location.reload()`
+
+### Tests
+
+- Test suite expanded from 417 → **643 tests across 58 files**
+- 19 new test files added:
+  - Pages: Dashboard, GamingPage, HelpPage, PrivacyAuditPage, LatencyPage, DriverManagerPage, GamingOverlayPage, SystemReportPage, AppDetailsPage, TweaksPage
+  - Hooks: useBackup, useDrivers, useGaming, useGlobalCache, useLatency, usePrivacyAudit, useScheduler, useSmartStore, useSystemReport
+
+---
+
 ## [1.0.0] - 2026-03-04
 
 ### Summary
@@ -332,7 +376,8 @@ Full initial production release of WinOpt Pro. This release represents the compl
 
 ---
 
-[Unreleased]: https://github.com/[your-org]/winopt-pro/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/[your-org]/winopt-pro/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/[your-org]/winopt-pro/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/[your-org]/winopt-pro/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/[your-org]/winopt-pro/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/[your-org]/winopt-pro/compare/v0.7.0...v0.8.0

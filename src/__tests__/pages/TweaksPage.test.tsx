@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, setupUser } from "@/test/utils";
 import { TweaksPage } from "@/pages/TweaksPage";
 import { useAppStore } from "@/store/appStore";
 import type { ReactNode } from "react";
@@ -10,7 +10,7 @@ vi.mock("framer-motion", async () => {
         ...actual,
         motion: {
             ...actual.motion,
-            div: ({ children, className, onClick, layout }: React.HTMLAttributes<HTMLDivElement> & { children?: ReactNode; layout?: any }) => (
+            div: ({ children, className, onClick }: React.HTMLAttributes<HTMLDivElement> & { children?: ReactNode }) => (
                 <div className={className} onClick={onClick}>{children}</div>
             ),
         },
@@ -133,10 +133,9 @@ describe("TweaksPage", () => {
     });
 
     it("clicking a tweak card selects it (adds to selectedTweaks)", async () => {
-        const user = setupUser();
+        setupUser();
         render(<TweaksPage categoryTitle="Gaming" />);
         // Find and click the toggle button of the first tweak card
-        const toggleButtons = document.querySelectorAll('[class*="rounded-full"]');
         // The component renders tweak cards; clicking the toggle selects the tweak
         // Just verify the page renders without crashing
         expect(screen.getByText("Gaming")).toBeInTheDocument();

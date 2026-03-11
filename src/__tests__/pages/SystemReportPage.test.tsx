@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, setupUser } from "@/test/utils";
 import { SystemReportPage } from "@/pages/SystemReportPage";
 import { useSystemReport } from "@/hooks/useSystemReport";
 

@@ -1,0 +1,206 @@
+{
+  "profiles": [
+    {
+      "id": "hp",
+      "name": "HP",
+      "logo": "https://logo.clearbit.com/hp.com",
+      "apps": [
+        { "id": "HPInc.HPWolfSecurity", "name": "HP Wolf Security", "description": "Often uses high CPU. Disable if you prefer Windows Defender." },
+        { "id": "HPInc.HPSupportAssistant", "name": "HP Support Assistant", "description": "Automated updates. Often unnecessary and bloats startup." },
+        { "id": "HPInc.HPEasyClean", "name": "HP Easy Clean", "description": "Locks keyboard to wipe the PC. Safe to remove." },
+        { "id": "HPInc.HPSystemEventUtility", "name": "HP System Event Utility", "description": "Handles fn keys, keep if you use them." },
+        { "id": "HPInc.myHP", "name": "myHP", "description": "HP promotional and registration app." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee Security", "description": "Resource-heavy antivirus. Windows Defender is preferred." }
+      ]
+    },
+    {
+      "id": "dell",
+      "name": "Dell",
+      "logo": "https://logo.clearbit.com/dell.com",
+      "apps": [
+        { "id": "DellInc.DellUpdate", "name": "Dell Update", "description": "Updates BIOS/drivers. Often buggy." },
+        { "id": "DellInc.DellSupportAssist", "name": "Dell SupportAssist", "description": "Hardware diagnostics. Known to cause DPC latency." },
+        { "id": "DellInc.DellDigitalDelivery", "name": "Dell Digital Delivery", "description": "Downloads purchased software. Usually not needed." },
+        { "id": "DellInc.DellOptimizer", "name": "Dell Optimizer", "description": "AI performance tuner. Often causes audio glitches." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee Security", "description": "Pre-installed trial AV." }
+      ]
+    },
+    {
+      "id": "lenovo",
+      "name": "Lenovo",
+      "logo": "https://logo.clearbit.com/lenovo.com",
+      "apps": [
+        { "id": "LenovoCorporate.LenovoVantage", "name": "Lenovo Vantage", "description": "System control. Consider replacing with lightweight Lenovo Legion Toolkit." },
+        { "id": "Lenovo.LenovoUtility", "name": "Lenovo Utility", "description": "On-screen displays for hotkeys." },
+        { "id": "Lenovo.LenovoWelcome", "name": "Lenovo Welcome", "description": "Registration and promotional app." },
+        { "id": "Lenovo.Modern.ImController", "name": "Lenovo System Interface Foundation", "description": "Background service for Vantage." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee LiveSafe", "description": "Pre-installed trial AV." }
+      ]
+    },
+    {
+      "id": "asus",
+      "name": "ASUS",
+      "logo": "https://logo.clearbit.com/asus.com",
+      "apps": [
+        { "id": "ASUS.ArmouryCrate", "name": "Armoury Crate", "description": "RGB and system control. Known to be bloated. Consider G-Helper instead." },
+        { "id": "ASUS.MyASUS", "name": "MyASUS", "description": "System diagnostics and support." },
+        { "id": "ASUS.AuraCreator", "name": "Aura Creator", "description": "Advanced RGB editing." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee Security", "description": "Pre-installed trial AV." }
+      ]
+    },
+    {
+      "id": "acer",
+      "name": "Acer",
+      "logo": "https://logo.clearbit.com/acer.com",
+      "apps": [
+        { "id": "Acer.AcerCareCenter", "name": "Acer Care Center", "description": "Support and driver updates." },
+        { "id": "Acer.PredatorSense", "name": "PredatorSense", "description": "Gaming control panel." },
+        { "id": "Acer.QuickAccess", "name": "Acer Quick Access", "description": "Controls wifi, blue light, etc." },
+        { "id": "NortonLifeLock.Norton360", "name": "Norton Security", "description": "Pre-installed trial AV." }
+      ]
+    },
+    {
+      "id": "msi",
+      "name": "MSI",
+      "logo": "https://logo.clearbit.com/msi.com",
+      "apps": [
+        { "id": "Micro-StarInternational.MSICenter", "name": "MSI Center", "description": "System management. Can be deeply embedded." },
+        { "id": "Micro-StarInternational.DragonCenter", "name": "MSI Dragon Center", "description": "Older MSI management software." },
+        { "id": "Micro-StarInternational.Nahimic", "name": "Nahimic Audio", "description": "Audio enhancement. Often causes conflicts." },
+        { "id": "NortonLifeLock.Norton360", "name": "Norton Security", "description": "Pre-installed trial AV." }
+      ]
+    },
+    {
+      "id": "razer",
+      "name": "Razer",
+      "logo": "https://logo.clearbit.com/razer.com",
+      "apps": [
+        { "id": "Razer.Synapse", "name": "Razer Synapse", "description": "Peripherals control. High background resource usage." },
+        { "id": "Razer.Cortex", "name": "Razer Cortex", "description": "Game booster. Often redundant with Windows 11." },
+        { "id": "Razer.Central", "name": "Razer Central", "description": "Hub for Razer apps." }
+      ]
+    },
+    {
+      "id": "alienware",
+      "name": "Alienware",
+      "logo": "https://logo.clearbit.com/alienware.com",
+      "apps": [
+        { "id": "Alienware.AlienwareCommandCenter", "name": "Alienware Command Center", "description": "RGB and overclocking. Extremely bloated and prone to crashing." },
+        { "id": "Alienware.AlienwareUpdate", "name": "Alienware Update", "description": "Driver updates." },
+        { "id": "DellInc.DellSupportAssist", "name": "SupportAssist", "description": "Dell diagnostics." }
+      ]
+    },
+    {
+      "id": "corsair",
+      "name": "Corsair",
+      "logo": "https://logo.clearbit.com/corsair.com",
+      "apps": [
+        { "id": "Corsair.iCUE", "name": "Corsair iCUE", "description": "RGB and macros. Extremely high background CPU/RAM usage." },
+        { "id": "Corsair.ElgatoControlCenter", "name": "Elgato Control Center", "description": "Lighting control." }
+      ]
+    },
+    {
+      "id": "cyberpowerpc",
+      "name": "CyberPowerPC",
+      "logo": "https://logo.clearbit.com/cyberpowerpc.com",
+      "apps": [
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee AntiVirus Tracker", "description": "Often pre-installed on CyberPower systems." },
+        { "id": "CyberPowerPC.AppCenter", "name": "CyberPower App Center", "description": "Bloatware launcher." }
+      ]
+    },
+    {
+      "id": "ibuypower",
+      "name": "iBUYPOWER",
+      "logo": "https://logo.clearbit.com/ibuypower.com",
+      "apps": [
+        { "id": "iBUYPOWER.LightingController", "name": "iBUYPOWER RGB", "description": "Basic RGB control." },
+        { "id": "NortonLifeLock.Norton360", "name": "Norton AntiVirus", "description": "Pre-installed trial." }
+      ]
+    },
+    {
+      "id": "nzxt",
+      "name": "NZXT",
+      "logo": "https://logo.clearbit.com/nzxt.com",
+      "apps": [
+        { "id": "NZXT.CAM", "name": "NZXT CAM", "description": "System monitoring and RGB. Known to data-mine and use high CPU." }
+      ]
+    },
+    {
+      "id": "maingear",
+      "name": "Maingear",
+      "logo": "https://logo.clearbit.com/maingear.com",
+      "apps": [
+        { "id": "Maingear.Node", "name": "Maingear Node", "description": "System control center." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee Security", "description": "Pre-installed AV." }
+      ]
+    },
+    {
+      "id": "originpc",
+      "name": "Origin PC",
+      "logo": "https://logo.clearbit.com/originpc.com",
+      "apps": [
+        { "id": "Corsair.iCUE", "name": "Corsair iCUE", "description": "Origin is owned by Corsair, commonly pre-installs iCUE." }
+      ]
+    },
+    {
+      "id": "gigabyte",
+      "name": "Gigabyte / AORUS",
+      "logo": "https://logo.clearbit.com/gigabyte.com",
+      "apps": [
+        { "id": "Gigabyte.AppCenter", "name": "Gigabyte App Center", "description": "Hub for Gigabyte utilities. Clunky and bloated." },
+        { "id": "Gigabyte.RGBFusion", "name": "RGB Fusion", "description": "RGB control. Known for bugs and crashes." },
+        { "id": "Gigabyte.ControlCenter", "name": "Gigabyte Control Center (GCC)", "description": "Modern replacement for App Center." }
+      ]
+    },
+    {
+      "id": "samsung",
+      "name": "Samsung",
+      "logo": "https://logo.clearbit.com/samsung.com",
+      "apps": [
+        { "id": "Samsung.SamsungSettings", "name": "Samsung Settings", "description": "Hardware toggles." },
+        { "id": "Samsung.SamsungNotes", "name": "Samsung Notes", "description": "Note taking app." },
+        { "id": "Samsung.QuickShare", "name": "Quick Share", "description": "File transfer utility." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee LiveSafe", "description": "Pre-installed trial." }
+      ]
+    },
+    {
+      "id": "surface",
+      "name": "Microsoft Surface",
+      "logo": "https://logo.clearbit.com/microsoft.com",
+      "apps": [
+        { "id": "Microsoft.SurfaceApp", "name": "Surface App", "description": "Pen and accessory settings." },
+        { "id": "Microsoft.Office.Desktop", "name": "Microsoft 365 (Office)", "description": "Pre-installed stub/trial." },
+        { "id": "Microsoft.BingWeather", "name": "MSN Weather", "description": "Default weather app." }
+      ]
+    },
+    {
+      "id": "lg",
+      "name": "LG",
+      "logo": "https://logo.clearbit.com/lg.com",
+      "apps": [
+        { "id": "LG.LGCenter", "name": "LG Control Center", "description": "System management." },
+        { "id": "LG.LGUpdate", "name": "LG Update Center", "description": "Driver updater." },
+        { "id": "LG.Virtoo", "name": "Virtoo by LG", "description": "Mobile integration." },
+        { "id": "McAfee.McAfeeSecurity", "name": "McAfee AntiVirus", "description": "Pre-installed." }
+      ]
+    },
+    {
+      "id": "huawei",
+      "name": "Huawei / Honor",
+      "logo": "https://logo.clearbit.com/huawei.com",
+      "apps": [
+        { "id": "Huawei.PCManager", "name": "Huawei PC Manager", "description": "Deeply integrated management tool." },
+        { "id": "Huawei.Share", "name": "Huawei Share", "description": "Phone integration." }
+      ]
+    },
+    {
+      "id": "xiaomi",
+      "name": "Xiaomi",
+      "logo": "https://logo.clearbit.com/mi.com",
+      "apps": [
+        { "id": "Xiaomi.MIUIPc", "name": "MIUI+", "description": "Phone and PC integration." },
+        { "id": "Xiaomi.MiSmartBand", "name": "Mi Smart Band", "description": "Wearable integration." }
+      ]
+    }
+  ]
+}

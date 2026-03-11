@@ -48,13 +48,14 @@ describe("Sidebar", () => {
 
     it("renders all main System Tuning nav items", () => {
         renderSidebar("dashboard");
-        expect(screen.getByTitle("Overview")).toBeInTheDocument();
+        expect(screen.getByTitle("Home")).toBeInTheDocument();
+        expect(screen.getByTitle("System Dashboard")).toBeInTheDocument();
         expect(screen.getByTitle("Performance")).toBeInTheDocument();
         expect(screen.getByTitle("Privacy")).toBeInTheDocument();
         expect(screen.getByTitle("Gaming")).toBeInTheDocument();
         expect(screen.getByTitle("Network")).toBeInTheDocument();
         expect(screen.getByTitle("Power")).toBeInTheDocument();
-        expect(screen.getByTitle("Debloat")).toBeInTheDocument();
+        expect(screen.getByTitle("Debloater Wizard")).toBeInTheDocument();
         expect(screen.getByTitle("Windows UI")).toBeInTheDocument();
         expect(screen.getByTitle("Updates")).toBeInTheDocument();
     });

@@ -3,6 +3,7 @@ import type { Tweak } from "./store/appStore";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
+import { HomePage } from "./pages/HomePage";
 import { TweaksPage } from "./pages/TweaksPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -23,6 +24,7 @@ import { LatencyPage } from "./pages/LatencyPage";
 import { GpuDriverPage } from "./pages/GpuDriverPage";
 import { WslPage } from "./pages/WslPage";
 import { HelpPage } from "./pages/HelpPage";
+import { PrebuiltDebloatPage } from "./pages/PrebuiltDebloatPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { useGlobalCache } from "./hooks/useGlobalCache";
@@ -45,7 +47,7 @@ function OverlayApp() {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState("dashboard");
+  const [currentView, setCurrentView] = useState("home");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { isAppReady, setAppReady, setCacheObject, updateLoadingProgress } = useGlobalCache();
@@ -131,6 +133,7 @@ function App() {
   }, []);
 
   const views: Record<string, React.ReactNode> = {
+    home: <HomePage setView={setCurrentView} />,
     dashboard: <Dashboard onTriggerGuide={() => setShowOnboarding(true)} setView={setCurrentView} />,
     performance: <TweaksPage categoryTitle="Performance" />,
     privacy: <TweaksPage categoryTitle="Privacy" />,
@@ -159,6 +162,7 @@ function App() {
     system_report: <SystemReportPage />,
     gpu_driver: <GpuDriverPage />,
     wsl_manager: <WslPage />,
+    prebuilt_debloater: <PrebuiltDebloatPage />,
     help: <HelpPage />,
   };
 

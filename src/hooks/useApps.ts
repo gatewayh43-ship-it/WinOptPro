@@ -78,6 +78,27 @@ export function useApps() {
         []
     );
 
+    const uninstallApp = useCallback(
+        async (wingetId: string, appId: string) => {
+            if (!isTauri()) return { success: false, method: "none", output: "", error: "Not running in Tauri" };
+            setInstallingId(appId);
+            try {
+                const result = await invoke<AppInstallResult>("uninstall_app", {
+                    wingetId,
+                });
+                if (result.success) {
+                    setInstalledApps((prev) => ({ ...prev, [appId]: false }));
+                }
+                return result;
+            } catch (e) {
+                return { success: false, method: "none", output: "", error: String(e) };
+            } finally {
+                setInstallingId(null);
+            }
+        },
+        []
+    );
+
     return {
         installingId,
         installResults,
@@ -86,5 +107,6 @@ export function useApps() {
         checkChocoAvailable,
         checkInstalled,
         installApp,
+        uninstallApp,
     };
 }

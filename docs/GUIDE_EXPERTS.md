@@ -851,8 +851,8 @@ Run tests after adding new features:
 npx vitest run
 ```
 
-All 417+ existing tests must continue to pass before committing.
+All 643+ existing tests must continue to pass before committing.
 
 ---
 
-*WinOpt Pro — Advanced / Expert Guide | Last updated: 2026-03-04*
+*WinOpt Pro — Advanced / Expert Guide | Last updated: 2026-03-11*

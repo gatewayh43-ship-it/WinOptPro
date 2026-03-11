@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-    Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium, Trash2,
+    Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium,
     MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
     Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
     ChevronDown, HelpCircle
@@ -28,17 +28,18 @@ interface NavGroup {
     items: NavItem[];
 }
 
-const DASHBOARD_ITEM: NavItem = { id: "dashboard", label: "Overview", lucideIcon: LayoutDashboard };
+const HOME_ITEM: NavItem = { id: "home", label: "Home", lucideIcon: LayoutDashboard };
 
 const NAV_GROUPS: NavGroup[] = [
     {
         id: "tuning", label: "System Tuning", items: [
+            { id: "dashboard", label: "System Dashboard", lucideIcon: Activity },
             { id: "performance", label: "Performance", lucideIcon: Gauge },
             { id: "privacy", label: "Privacy", lucideIcon: ShieldAlert },
             { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
             { id: "network_tweaks", label: "Network", lucideIcon: Globe },
             { id: "power", label: "Power", lucideIcon: BatteryMedium },
-            { id: "debloat", label: "Debloat", lucideIcon: Trash2 },
+            { id: "prebuilt_debloater", label: "Debloater Wizard", lucideIcon: Zap },
             { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
             { id: "windowsupdate", label: "Updates", lucideIcon: RefreshCcw },
         ]
@@ -165,9 +166,9 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
             {/* Navigation */}
             <div className="flex-1 px-2 lg:px-3 overflow-y-auto custom-scrollbar space-y-4 lg:space-y-6">
 
-                {/* Flat Dashboard Item */}
+                {/* Flat Home Item */}
                 <div className="mb-2 lg:mb-4">
-                    {renderNavItem(DASHBOARD_ITEM)}
+                    {renderNavItem(HOME_ITEM)}
                 </div>
 
                 {/* Collapsible Groups */}

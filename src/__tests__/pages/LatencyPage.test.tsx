@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, setupUser } from "@/test/utils";
 import { LatencyPage } from "@/pages/LatencyPage";
 import { useLatency } from "@/hooks/useLatency";
 import type { ReactNode } from "react";

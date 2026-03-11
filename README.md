@@ -10,7 +10,7 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-FFC131?logo=tauri&logoColor=white)](https://tauri.app)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Rust](https://img.shields.io/badge/Rust-1.77%2B-CE422B?logo=rust&logoColor=white)](https://rust-lang.org)
-[![Tests](https://img.shields.io/badge/tests-417%20passing-brightgreen?logo=vitest)](https://vitest.dev)
+[![Tests](https://img.shields.io/badge/tests-643%20passing-brightgreen?logo=vitest)](https://vitest.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-informational)](https://github.com/your-org/winopt-pro/releases)
 
@@ -21,7 +21,7 @@
 ## Features
 
 - **165 system tweaks** across 10 categories — from network latency to privacy telemetry, all reversible
-- **Gaming Optimizer** — auto-detects running games, applies a curated tweak pack, shows a real-time GPU/CPU/VRAM overlay window, and captures before/after performance baselines
+- **Gaming Optimizer** — auto-detects running games (190+ known game executables), applies a curated tweak pack, shows a real-time GPU/CPU/VRAM overlay window, and captures before/after performance baselines
 - **GPU Driver Cleaner** — DDU-style driver removal via `pnputil` + registry sweep; optionally schedules clean removal on next Safe Mode boot
 - **WSL Manager** — full Linux subsystem lifecycle: enable/disable features, install 8 distros, edit `.wslconfig`, launch WSLg desktop environments (XFCE4, KDE, GNOME), guided 7-step Setup Wizard
 - **Privacy Audit** — scans 9 telemetry, registry, and service vectors; one-click remediation
@@ -106,8 +106,9 @@ The installer (`*.msi` / `*.exe`) is output to `src-tauri/target/release/bundle/
 | **Storage Optimizer** | SMART health (PowerShell), TRIM, scheduled maintenance, Storage Sense | Some actions |
 | **Power Manager** | Power plans, battery health, per-setting AC/DC timeouts | Some settings |
 | **Startup Apps** | Enable/disable startup entries (registry + Task Scheduler) | No |
-| **App Store** | Curated app catalog, install via winget/chocolatey | Yes (install) |
+| **App Store** | 391-app curated catalog with full metadata (logos, pros/cons, GitHub/MS Store links), install via winget/chocolatey | Yes (install) |
 | **System Report** | Generates full HTML system report, save to disk | No |
+| **Help Center** | Searchable tweak browser with enable/disable, category guides, keyboard shortcuts, FAQ | No |
 | **Backup & Restore** | Export/import settings profiles as `.winopt` JSON files | No |
 | **Profiles** | Save and load named configuration sets | No |
 | **Command Palette** | Ctrl+K semantic search across all tweaks and features | No |
@@ -179,7 +180,7 @@ WinOpt Pro
 │   ├── Database — SQLite via rusqlite with AES-256-GCM field encryption
 │   └── System tools — sysinfo, pnputil, bcdedit, powercfg, schtasks
 │
-└── Tests — Vitest 417 tests across hooks, pages, components, utils
+└── Tests — Vitest 643 tests across 58 files (hooks, pages, components, utils)
 ```
 
 ### Key Technology Choices
@@ -271,7 +272,7 @@ WinOptimizerRevamp/
 │   │   └── ...                   # Shared components
 │   ├── hooks/                    # 20+ custom React hooks
 │   ├── data/                     # tweaks.json, apps.json, app_metadata.json
-│   ├── __tests__/                # 417 Vitest tests
+│   ├── __tests__/                # 643 Vitest tests
 │   │   ├── hooks/                # Hook unit tests
 │   │   ├── pages/                # Page integration tests
 │   │   ├── components/           # Component tests

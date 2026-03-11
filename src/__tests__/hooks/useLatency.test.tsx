@@ -207,7 +207,7 @@ describe("useLatency", () => {
             vi.mocked(tauriCore.invoke).mockResolvedValue(REAL_STATUS);
 
             vi.useFakeTimers();
-            const { result } = renderHook(() => useLatency());
+            renderHook(() => useLatency());
 
             // Flush the initial mount fetch using act + advanceTimersByTime
             await act(async () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, setupUser } from "@/test/utils";
 import { AppDetailsPage } from "@/pages/AppDetailsPage";
 import { useSmartStore } from "@/hooks/useSmartStore";
 
@@ -22,6 +22,10 @@ vi.mock("@/hooks/useSmartStore", () => ({
         appInfo: mockAppInfo,
         scrapeMeta: mockScrapeMeta,
         isLoadingInfo: false,
+        isSearching: false,
+        searchResults: [],
+        searchError: null,
+        searchApps: vi.fn(),
     })),
 }));
 
@@ -107,6 +111,10 @@ describe("AppDetailsPage", () => {
             appInfo: null,
             scrapeMeta: null,
             isLoadingInfo: true,
+            isSearching: false,
+            searchResults: [],
+            searchError: null,
+            searchApps: vi.fn(),
         });
         render(<AppDetailsPage appId="SomeApp" appName="Some App" onBack={onBack} />);
         expect(screen.getByText(/Fetching deep metadata/i)).toBeInTheDocument();

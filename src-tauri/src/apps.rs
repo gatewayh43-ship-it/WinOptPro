@@ -397,3 +397,87 @@ pub async fn install_app(winget_id: String, choco_id: String) -> Result<AppInsta
         }),
     }
 }
+
+/// Uninstall an app using winget, falling back to Remove-AppxPackage.
+#[command]
+pub async fn uninstall_app(winget_id: String) -> Result<AppInstallResult, String> {
+    log::info!("Attempting to uninstall app: {}", winget_id);
+
+    // ── Attempt 1: winget ───────────────────────────────────────────────────
+    match run_cmd(
+        "cmd",
+        &[
+            "/C",
+            "winget",
+            "uninstall",
+            "--id",
+            &winget_id,
+            "--silent",
+            "--accept-source-agreements"
+        ],
+        INSTALL_TIMEOUT,
+    )
+    .await
+    {
+        Ok((stdout, stderr, code)) => {
+            if code == 0 || stdout.contains("Successfully uninstalled") || stdout.contains("No installed package found") {
+                log::info!("winget uninstalled successfully: {}", winget_id);
+                return Ok(AppInstallResult {
+                    success: true,
+                    method: "winget".to_string(),
+                    output: stdout,
+                    error: String::new(),
+                });
+            } else {
+                log::warn!(
+                    "winget uninstall failed for {}: exit={}, stderr={}",
+                    winget_id,
+                    code,
+                    stderr
+                );
+            }
+        }
+        Err(e) => {
+            log::warn!("winget not available or errored during uninstall: {}", e);
+        }
+    }
+
+    // ── Attempt 2: PowerShell Remove-AppxPackage ──────────────────────────────
+    log::info!("winget failed or app is not a winget package. Trying Remove-AppxPackage for {}", winget_id);
+    let ps_cmd = format!("Get-AppxPackage *{}* | Remove-AppxPackage -AllUsers", winget_id);
+    match run_cmd(
+        "powershell",
+        &["-NoProfile", "-NonInteractive", "-Command", &ps_cmd],
+        INSTALL_TIMEOUT,
+    )
+    .await
+    {
+        Ok((stdout, stderr, code)) => {
+            if code == 0 {
+                log::info!("Remove-AppxPackage succeeded for {}", winget_id);
+                return Ok(AppInstallResult {
+                    success: true,
+                    method: "powershell".to_string(),
+                    output: stdout,
+                    error: String::new(),
+                });
+            } else {
+                log::error!("Remove-AppxPackage failed for {}: {}", winget_id, stderr);
+                return Ok(AppInstallResult {
+                    success: false,
+                    method: "powershell".to_string(),
+                    output: stdout,
+                    error: format!("Uninstall failed via winget and powershell. PsError: {}", stderr),
+                });
+            }
+        }
+        Err(e) => {
+            return Ok(AppInstallResult {
+                success: false,
+                method: "none".to_string(),
+                output: String::new(),
+                error: format!("Failed to execute powershell uninstall fallback: {}", e)
+            });
+        }
+    }
+}

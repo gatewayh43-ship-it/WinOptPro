@@ -91,13 +91,13 @@ However, **use common sense**: do not apply tweaks that disable security feature
 
 The Gaming Optimizer does three things:
 
-1. **Detects active games** by polling the running process list every 5 seconds against a list of 32 known game executable names.
+1. **Detects active games** by polling the running process list every 5 seconds against a list of 190+ known game executable names.
 2. **Auto-optimize** (when toggled on) batch-applies a curated set of performance tweaks the moment a game is detected and reverts them when you stop the session. Tweaks include: Game Mode, HAGS, disabling dynamic tick, disabling Xbox Game Bar, and disabling network throttling.
 3. **Overlay** — launches a transparent always-on-top widget showing CPU%, GPU%, VRAM, temperature, and power draw so you can monitor performance without alt-tabbing.
 
 ### 11. My game is not detected. What do I do?
 
-The detection list includes 32 common game processes. If your game uses an unusual executable name it may not be detected automatically.
+The detection list includes 190+ common game processes. If your game uses an unusual executable name it may not be detected automatically.
 
 Workarounds:
 - Submit a GitHub Issue with the process name of your game (check in Task Manager) to have it added to the list
@@ -266,4 +266,4 @@ Full recovery steps are in the TROUBLESHOOTING.md file.
 
 ---
 
-*Last updated: 2026-03-04*
+*Last updated: 2026-03-11*

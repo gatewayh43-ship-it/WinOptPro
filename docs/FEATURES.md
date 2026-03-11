@@ -31,7 +31,8 @@ This document is the canonical reference for every module and feature in WinOpt 
 23. [System — Profiles](#system--profiles)
 24. [System — History & Audit Log](#system--history--audit-log)
 25. [System — Settings](#system--settings)
-26. [Cross-Cutting Features](#cross-cutting-features)
+26. [System — Help Center](#system--help-center)
+27. [Cross-Cutting Features](#cross-cutting-features)
 
 ---
 
@@ -310,7 +311,7 @@ Each debloat tweak removes the APPX package via PowerShell `Remove-AppxPackage` 
 
 ## Apps & Packages — App Store
 
-**What it is:** A curated catalog of popular Windows applications with one-click install via winget or Chocolatey.
+**What it is:** A curated catalog of popular Windows applications with one-click install via winget or Chocolatey. WinOpt Pro ships with a hand-curated catalog of 391 apps across 7 categories (Web Browsers, Game Launchers, Media & Entertainment, System Utilities, Communication, Other Tools, Development & IT), each with full metadata including logos, detailed descriptions, pros/cons, user reviews, and source/store links (GitHub for open-source, Microsoft Store for proprietary apps).
 
 **When to use it:** After a fresh Windows install to quickly get your preferred software without browsing the web.
 
@@ -542,7 +543,7 @@ Disabled items are shown with reduced opacity and a "Disabled" badge.
 
 ### Active Game Detection
 
-WinOpt Pro polls the running process list every 5 seconds and compares against a list of 32 known game executable names including:
+WinOpt Pro polls the running process list every 5 seconds and compares against a list of 190+ known game executable names including:
 `steam.exe, EpicGamesLauncher.exe, csgo.exe, cs2.exe, valorant.exe, fortnite.exe, cod.exe, rdr2.exe, cyberpunk2077.exe, eldenring.exe`, and more.
 
 When a game is detected, the page header displays the detected game name and a "Game Active" badge.
@@ -933,6 +934,55 @@ A toggle to unlock Red-risk tweaks application-wide. Equivalent to the toggle on
 - Tauri and WebView2 runtime versions
 - Link to GitHub repository
 - License information (MIT)
+
+---
+
+## System — Help Center
+
+**What it is:** A comprehensive built-in knowledge base for WinOpt Pro. Provides searchable documentation, an interactive tweak browser, category guides, keyboard shortcuts reference, FAQ, and a getting-started walkthrough — all without leaving the app.
+
+**When to use it:** When you want to understand what a tweak does before applying it, learn keyboard shortcuts, get answers to common questions, or find the right optimization for your goal.
+
+### Tweaks Browser
+
+- Browse all 162 tweaks organized by category
+- Enable/Disable any tweak directly from the Help page — changes sync immediately with the Tweaks page (shared Zustand state via `useAppStore`)
+- Expand each tweak card to see full description, risk level, apply/revert commands, and whether a reboot is required
+- Filter by category tab or use the search input to find tweaks by name or description
+
+### Category Guides
+
+Quick-reference cards for each tweak category explaining what the category covers, who it is for, and recommended starting tweaks:
+
+| Guide | Audience | Focus |
+|-------|----------|-------|
+| Performance | All users | Memory, CPU scheduling, visual effects |
+| Gaming | Gamers | Latency, GPU priority, game mode |
+| Privacy | Privacy-conscious | Telemetry, diagnostic data, advertising ID |
+| Network | All users | TCP tuning, DNS, Nagle algorithm |
+| Power | Laptop/desktop | Power plans, USB power management |
+| Security | All users | Mitigations, VBS, SMBv1, autorun |
+| Debloat | All users | Remove pre-installed apps, Xbox, Widgets |
+| Windows UI | Power users | Taskbar, Start menu, animations |
+
+### Keyboard Shortcuts Reference
+
+A visual panel showing all application keyboard shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| Ctrl + K | Open Command Palette |
+| Ctrl + , | Open Settings |
+| Ctrl + H | Open History / Audit Log |
+| Esc | Close modal or overlay |
+
+### FAQ
+
+An accordion FAQ covering the most common questions about safety, risk levels, admin requirements, Expert Mode, reversibility, and performance expectations.
+
+### Getting Started
+
+A step-by-step quick-start walkthrough for new users, covering first launch, running a Privacy Audit, applying Safe tweaks, and setting up Gaming Optimizer.
 
 ---
 

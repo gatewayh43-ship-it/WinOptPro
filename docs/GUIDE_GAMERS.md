@@ -41,7 +41,7 @@ Navigate to **Gaming Optimizer** in the sidebar to access the full gaming featur
 
 ### Game Detection
 
-WinOpt Pro monitors your running processes and compares them against a list of 32 known game executables (including launchers like Steam, Battle.net, Epic Games, and common game process names). When a match is detected:
+WinOpt Pro monitors your running processes and compares them against a list of 190+ known game executables (including launchers like Steam, Battle.net, Epic Games, and common game process names). When a match is detected:
 
 - The Gaming Optimizer page shows an "Active Game Detected" banner with the game name.
 - If **Auto-Optimize** is enabled, WinOpt Pro automatically applies the configured gaming tweak set.
