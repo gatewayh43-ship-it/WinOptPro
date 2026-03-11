@@ -96,7 +96,7 @@ export function AppsPage() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSearchClick()}
-                                className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-0 text-sm py-2"
+                                className="w-full bg-transparent border-none text-foreground placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-0 text-sm py-2"
                             />
                         </div>
 
@@ -208,7 +208,7 @@ export function AppsPage() {
                                                 disabled={isInstalling || isInstalledLocally}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${isInstalledLocally || isInstalling
                                                     ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
-                                                    : "bg-primary/10 text-primary hover:bg-primary hover:text-white border border-primary/20 hover:border-primary shadow-sm"
+                                                    : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                     }`}
                                             >
                                                 {isInstalling ? <><Loader2 className="w-3 h-3 animate-spin" /> Installing</> : isInstalledLocally ? "Installed" : "Get"}
@@ -305,7 +305,7 @@ export function AppsPage() {
                                                             disabled={isInstalling || isInstalledLocally}
                                                             className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-all flex items-center gap-2 ${isInstalledLocally || isInstalling
                                                                 ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
-                                                                : "bg-primary/10 text-primary hover:bg-primary hover:text-white border border-primary/20 hover:border-primary shadow-sm"
+                                                                : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                                 }`}
                                                         >
                                                             {isInstalling ? <><Loader2 className="w-3 h-3 animate-spin" /> Installing</> : isInstalledLocally ? "Installed" : "Get"}
@@ -365,7 +365,7 @@ export function AppsPage() {
                                                             disabled={isInstalling || isInstalledLocally}
                                                             className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 min-w-[70px] ${isInstalledLocally || isInstalling
                                                                 ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
-                                                                : "bg-primary/10 text-primary hover:bg-primary hover:text-white border border-primary/20 hover:border-primary shadow-sm"
+                                                                : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                                 }`}
                                                         >
                                                             {isInstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : isInstalledLocally ? "Installed" : "Get"}

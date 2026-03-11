@@ -448,4 +448,4 @@ Yes, but be careful about conflicts. If another tool has already applied some of
 
 ---
 
-*WinOpt Pro — Gaming Optimization Guide | Last updated: 2026-03-04*
+*WinOpt Pro — Gaming Optimization Guide | Last updated: 2026-03-11*

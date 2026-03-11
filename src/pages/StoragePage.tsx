@@ -72,7 +72,7 @@ function DriveHealthSection() {
                         onClick={runTrim}
                         disabled={isTrimming}
                         title="Run TRIM on C: (requires admin)"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[11px] font-bold transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 text-[11px] font-bold transition-colors disabled:opacity-50"
                     >
                         {isTrimming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
                         Run TRIM
@@ -156,7 +156,7 @@ function ScheduledMaintenanceSection() {
                 </div>
                 <button
                     onClick={() => setShowAdd(v => !v)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[11px] font-bold transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 text-[11px] font-bold transition-colors"
                 >
                     <Plus className="w-3.5 h-3.5" /> Add Schedule
                 </button>

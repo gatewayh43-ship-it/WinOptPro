@@ -290,13 +290,13 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                         </div>
                     </div>
                     <p className="text-[14px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-                        WinOpt Pro is an all-in-one Windows optimization tool with <strong className="text-foreground">165 system tweaks</strong>, a gaming optimizer, GPU driver cleaner, WSL manager, privacy audit, latency optimizer, and much more — all fully reversible.
+                        WinOpt Pro is an all-in-one Windows optimization tool with <strong className="text-foreground">162+ system tweaks</strong>, a gaming optimizer, GPU driver cleaner, WSL manager, privacy audit, latency optimizer, and much more — all fully reversible.
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
                         {[
-                            { label: "165 tweaks", color: "bg-violet-500/15 text-violet-400 border-violet-500/30" },
-                            { label: "418 tests passing", color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+                            { label: "162+ tweaks", color: "bg-violet-500/15 text-violet-400 border-violet-500/30" },
                             { label: "All reversible", color: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
+                            { label: "391 curated apps", color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
                             { label: "Windows 10/11", color: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30" },
                         ].map(b => (
                             <span key={b.label} className={`px-3 py-1 rounded-full border text-[11px] font-bold ${b.color}`}>{b.label}</span>
@@ -616,7 +616,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                         <p className="font-bold text-[14px] text-foreground mb-3">Gaming Optimizer Module</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
                             {[
-                                { title: "Game Detection", desc: "Monitors processes every 5s against 32+ game executables. Automatically detects Fortnite, Valorant, CS2, GTA V, Cyberpunk 2077, and more." },
+                                { title: "Game Detection", desc: "Monitors processes every 5s against 190+ game executables. Automatically detects Fortnite, Valorant, CS2, GTA V, Cyberpunk 2077, and more." },
                                 { title: "Auto-Optimize", desc: "When enabled, automatically applies the gaming tweak pack the moment a game is detected. Reverts when you exit." },
                                 { title: "Performance Overlay", desc: "Always-on-top transparent widget showing CPU%, GPU%, VRAM, Temperature, and Power draw. Drag anywhere on screen." },
                                 { title: "Before/After Baseline", desc: "Snapshot your GPU/CPU metrics before tweaking, then compare after to see real measured improvement." },
@@ -829,8 +829,9 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
 
 function FeaturesSection() {
     const features = [
-        { icon: LayoutGrid, color: "text-violet-400", title: "System Tweaks", badge: "165 tweaks", desc: "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context." },
-        { icon: Activity, color: "text-red-400", title: "Dashboard", badge: "Live", desc: "Real-time system vitals — CPU, RAM, GPU, disk usage. Health score, quick-action cards, and recent activity feed." },
+        { icon: LayoutGrid, color: "text-violet-400", title: "System Tweaks", badge: "162+ tweaks", desc: "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context." },
+        { icon: Activity, color: "text-red-400", title: "System Dashboard", badge: "Live", desc: "Real-time system vitals — CPU, RAM, GPU, disk usage. Health score, quick-action cards, and recent activity feed." },
+        { icon: Zap, color: "text-lime-400", title: "Debloater Wizard", badge: "Presets", desc: "Apply pre-built debloat profiles (Gaming, Privacy, Minimal, Office) with one click. Each profile bundles a curated set of safe debloat and privacy tweaks." },
         { icon: Gamepad2, color: "text-green-400", title: "Gaming Optimizer", badge: "Auto", desc: "Detects running games, applies a gaming tweak pack automatically, shows an always-on-top GPU/CPU/VRAM overlay, before/after performance baseline." },
         { icon: CircuitBoard, color: "text-orange-400", title: "GPU Driver Cleaner", badge: "DDU-style", desc: "Clean uninstall NVIDIA, AMD, or Intel display drivers via pnputil + registry sweep. Schedule removal in Safe Mode for cleanest results." },
         { icon: Terminal, color: "text-cyan-400", title: "WSL Manager", badge: "WSLg", desc: "Full Linux subsystem lifecycle: enable WSL, install 8 distros, edit .wslconfig, launch XFCE4/KDE/GNOME desktop via WSLg. 7-step setup wizard." },
@@ -842,7 +843,7 @@ function FeaturesSection() {
         { icon: HardDrive, color: "text-amber-400", title: "Storage Optimizer", badge: "SMART", desc: "Drive health via SMART (wear %, temp, errors). TRIM optimization. Storage Sense integration. Scheduled maintenance tasks." },
         { icon: BatteryMedium, color: "text-emerald-400", title: "Power Manager", badge: null, desc: "Switch power plans. Battery health status. Per-plan CPU min/max, display timeout, sleep timeout (separate AC/DC settings)." },
         { icon: Power, color: "text-indigo-400", title: "Startup Apps", badge: null, desc: "View and manage all startup entries (registry + startup folder). Enable or disable with a toggle. Instant effect." },
-        { icon: Package, color: "text-pink-400", title: "App Store", badge: "winget", desc: "Curated catalog of popular Windows apps with logos and descriptions. Install via winget or Chocolatey. Tracks installation status." },
+        { icon: Package, color: "text-pink-400", title: "App Store", badge: "391 apps", desc: "Curated catalog of 391 popular Windows apps across 7 categories, with logos, descriptions, and source links. Install via winget or Chocolatey. Tracks installation status." },
         { icon: FileText, color: "text-slate-500 dark:text-slate-400", title: "System Report", badge: "HTML", desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
         { icon: Layers, color: "text-blue-400", title: "Profiles & Backup", badge: null, desc: "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine." },
         { icon: Clock, color: "text-zinc-400", title: "History / Audit Log", badge: "Encrypted", desc: "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history." },
@@ -1085,8 +1086,8 @@ function FAQSection() {
         { q: "How do I know if a tweak worked?", a: "Check the History page — it confirms the command ran without error. For registry tweaks, open regedit.exe and navigate to the key shown in the tweak's educational overlay. For service tweaks, check services.msc. Some tweaks can be verified with PowerShell commands shown in the overlay." },
         { q: "Will applying tweaks affect Windows Update?", a: "Only tweaks in the Windows Update category change how updates behave. All other categories don't touch Windows Update. Note: Microsoft sometimes resets privacy/telemetry settings during major annual feature updates (23H2, 24H2). Re-run Privacy Audit after major updates." },
         { q: "Will WinOpt Pro get me banned from games / anti-cheat?", a: "No. All changes are OS-level registry and system settings — not game file modifications. Anti-cheat systems (EAC, Battleye, Vanguard, FACEIT) check game files and memory, not Windows power plans or TCP stack settings. However: if you disable HVCI/Memory Integrity, Valorant's Vanguard may refuse to launch since it requires that feature." },
-        { q: "What does the Gaming Optimizer actually do?", a: "Three things: (1) Detects active games by polling processes every 5s against 32+ known game executables. (2) Auto-optimize: batch-applies gaming tweaks the moment a game is detected, reverts when you exit. (3) Overlay: transparent always-on-top widget showing CPU%, GPU%, VRAM, temp, and power draw." },
-        { q: "My game is not detected. What can I do?", a: "The detection list covers 32 common game processes. If your game uses an unusual executable name, submit a GitHub Issue with the process name (find it in Task Manager). You can also manually trigger auto-optimize from the Gaming page without game detection." },
+        { q: "What does the Gaming Optimizer actually do?", a: "Three things: (1) Detects active games by polling processes every 5s against 190+ known game executables. (2) Auto-optimize: batch-applies gaming tweaks the moment a game is detected, reverts when you exit. (3) Overlay: transparent always-on-top widget showing CPU%, GPU%, VRAM, temp, and power draw." },
+        { q: "My game is not detected. What can I do?", a: "The detection list covers 190+ common game processes. If your game uses an unusual executable name, submit a GitHub Issue with the process name (find it in Task Manager). You can also manually trigger auto-optimize from the Gaming page without game detection." },
         { q: "Is the AI Assistant sending data to the cloud?", a: "No. The AI Assistant uses Ollama which runs entirely on your local machine. Your prompts never leave your computer. No account required. The Ollama endpoint is configurable in Settings — default is http://localhost:11434." },
         { q: "What is the audit log and how is it encrypted?", a: "The History page reads from history.db (SQLite). Sensitive fields (command_executed, stdout, stderr) are encrypted with AES-256-GCM. The key is derived from SHA-256(MachineGuid), unique to your Windows installation. The database cannot be read on another machine." },
         { q: "How often should I run the Privacy Audit?", a: "After a fresh Windows install, after each major feature update (annual releases reset some settings), and monthly as a routine check. The audit is read-only and non-destructive — running it frequently has no downside." },
@@ -1323,8 +1324,8 @@ export function HelpPage() {
                 {/* Footer */}
                 <div className="mt-auto pt-4 border-t border-border/50 px-2">
                     <div className="flex flex-col gap-1.5 text-[11px] text-slate-500">
-                        <span className="flex items-center gap-1.5"><CheckCircle className="w-3 h-3 text-emerald-500" /> 418 tests passing</span>
-                        <span className="flex items-center gap-1.5"><Gauge className="w-3 h-3 text-cyan-400" /> 165 tweaks</span>
+                        <span className="flex items-center gap-1.5"><Gauge className="w-3 h-3 text-cyan-400" /> 162+ tweaks</span>
+                        <span className="flex items-center gap-1.5"><Package className="w-3 h-3 text-pink-400" /> 391 curated apps</span>
                         <span className="flex items-center gap-1.5"><RefreshCcw className="w-3 h-3 text-blue-400" /> All reversible</span>
                     </div>
                 </div>

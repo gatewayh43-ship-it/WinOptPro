@@ -104,8 +104,8 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                 title={item.label}
                 onClick={() => setView(item.id)}
                 className={`relative w-full flex items-center justify-center lg:justify-start space-x-0 lg:space-x-3 px-3 py-2.5 rounded-[12px] transition-all duration-200 group outline-none ${isActive
-                    ? "text-primary bg-primary/10 border border-primary/20"
-                    : "text-slate-500 hover:text-foreground hover:bg-white/5"
+                    ? "text-primary font-semibold"
+                    : "text-slate-500 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
                     }`}
             >
                 {isActive && (

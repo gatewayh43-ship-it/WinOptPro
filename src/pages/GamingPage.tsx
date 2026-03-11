@@ -214,7 +214,7 @@ function PowerLimitPanel({
       <button
         onClick={() => onSet(Math.round(pending))}
         disabled={isSettingLimit || Math.round(pending) === Math.round(gpu.powerLimitW)}
-        className="w-full py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 font-semibold text-[13px] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600 border border-amber-600 shadow-sm shadow-amber-500/20 font-semibold text-[13px] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isSettingLimit ? (
           <>

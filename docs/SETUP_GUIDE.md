@@ -114,14 +114,16 @@ Click **Yes**. This elevation is required for the application to read system inf
 
 ## 3. First Launch Walkthrough
 
-### The Dashboard
+### The Home Page
 
-On first launch, you will see the **Dashboard** — the home screen of WinOpt Pro. It displays:
+On first launch, you will see the **Home** page — the starting point of WinOpt Pro. It displays:
 
-- **System Vitals panel** (top): Live CPU usage, RAM usage, disk activity, and GPU information. These update in real time.
-- **Quick Actions panel**: One-click shortcuts to the most common tasks (run Privacy Audit, open Gaming Optimizer, etc.).
-- **Recent Activity**: A short list of the last tweaks applied or actions taken.
-- **System Summary**: Your Windows version, hardware summary, and a score indicating optimization potential.
+- **System Health Score**: An at-a-glance score indicating your current optimization potential.
+- **System Vitals panel**: Live CPU usage, RAM usage, disk activity, and GPU information. These update in real time.
+- **Quick-Action cards**: One-click shortcuts to the most common tasks (run Privacy Audit, open Gaming Optimizer, etc.).
+- **Navigation cards**: Jump directly to key sections of the app.
+
+From the Home page you can navigate to **System Dashboard** (in the System Tuning sidebar group) for deeper real-time system monitoring.
 
 ### Status Indicators
 
@@ -134,14 +136,14 @@ On first launch, you will see the **Dashboard** — the home screen of WinOpt Pr
 
 ### The Sidebar
 
-The left sidebar is your primary navigation. It is organized into groups:
+The left sidebar is your primary navigation. It is organized into four collapsible groups:
 
-- **Tuning**: Tweaks, Profiles, History
-- **Apps**: App Store, Startup Apps, Process Manager
-- **Utilities**: Gaming Optimizer, Privacy Audit, Network Analyzer, Storage Optimizer, Power Manager, Latency Optimizer, Driver Manager, GPU Driver Cleaner, WSL Manager
-- **System**: System Report, Settings, AI Assistant
+- **System Tuning**: System Dashboard, Performance Tweaks, Privacy, Gaming, Network, Power, Debloater Wizard, Windows UI, Windows Updates
+- **Apps & Packages**: App Store (391 curated apps), WSL Manager, Driver Manager, GPU Driver Cleaner, Startup Apps
+- **Utilities**: Gaming Optimizer, Latency Optimizer, Power Manager, Privacy Audit, Defender Support, Process Manager, Network Analyzer, Storage Optimizer, System Report
+- **System**: Profiles, History, Settings, Help & Docs
 
-Click any item to navigate to that page. Groups can be collapsed by clicking the group header.
+The **Home** button at the top of the sidebar always returns you to the starting page. Click any group header to collapse or expand that group.
 
 ---
 
@@ -282,7 +284,7 @@ If any applied tweaks show a "Reboot Required" indicator, restart your PC before
 ### Step 5: Evaluate
 
 After rebooting:
-- Check the Dashboard for updated system vitals.
+- Check the Home page or System Dashboard for updated system vitals.
 - Use the **History** page to review what was applied.
 - If anything feels wrong, use the History page to revert specific tweaks.
 
@@ -421,4 +423,4 @@ Before opening an issue:
 
 ---
 
-*WinOpt Pro — Setup Guide | Last updated: 2026-03-04*
+*WinOpt Pro — Setup Guide | Last updated: 2026-03-11*

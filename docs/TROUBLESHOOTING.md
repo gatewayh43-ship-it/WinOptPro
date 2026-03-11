@@ -266,7 +266,7 @@ Resolution:
 
 ### Symptom: Game is not detected even while running
 
-**Cause:** Your game's process name is not in the 32-entry detection list.
+**Cause:** Your game's process name is not in the 190+ game executable detection list.
 
 Resolution:
 1. Open Task Manager while the game is running
@@ -481,4 +481,4 @@ Please search existing issues before opening a new one — your problem may alre
 
 ---
 
-*Last updated: 2026-03-04*
+*Last updated: 2026-03-11*

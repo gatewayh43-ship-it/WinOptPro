@@ -205,23 +205,23 @@ export function WslPage() {
                     </div>
 
                     {/* Danger zone */}
-                    <div className="glass-panel rounded-2xl border border-red-500/20 p-5">
-                        <p className="text-[13px] font-semibold text-red-400 mb-4">Danger Zone</p>
+                    <div className="glass-panel rounded-2xl border border-red-500/50 dark:border-red-500/20 bg-red-50 dark:bg-transparent p-5">
+                        <p className="text-[13px] font-semibold text-red-600 dark:text-red-400 mb-4">Danger Zone</p>
                         {confirmCleanUninstall ? (
                             <div className="flex flex-col gap-3">
-                                <p className="text-[12px] text-slate-300">
-                                    This will <strong>remove all distros, data, and WSL features</strong>. This cannot be undone. Are you sure?
+                                <p className="text-[12px] text-slate-700 dark:text-slate-300">
+                                    This will <strong className="text-foreground">remove all distros, data, and WSL features</strong>. This cannot be undone. Are you sure?
                                 </p>
                                 <div className="flex gap-2">
                                     <button
                                         onClick={async () => { await cleanUninstall(); setConfirmCleanUninstall(false); }}
-                                        className="px-4 py-2 rounded-xl bg-red-500/30 hover:bg-red-500/40 border border-red-500/50 text-red-300 text-[12px] font-bold transition-colors"
+                                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-sm font-bold text-[12px] transition-colors"
                                     >
                                         Yes, Clean Uninstall WSL
                                     </button>
                                     <button
                                         onClick={() => setConfirmCleanUninstall(false)}
-                                        className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-border text-slate-300 text-[12px] transition-colors"
+                                        className="px-4 py-2 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 border border-border text-slate-600 dark:text-slate-300 text-[12px] transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -230,7 +230,7 @@ export function WslPage() {
                         ) : (
                             <button
                                 onClick={() => setConfirmCleanUninstall(true)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-[12px] font-semibold transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 dark:bg-red-500/10 hover:bg-red-200 dark:hover:bg-red-500/20 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-[12px] font-semibold transition-colors"
                             >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 Clean Uninstall WSL

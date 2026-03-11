@@ -81,12 +81,12 @@ export function MainLayout({
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-10 pt-5 pb-4 sm:pb-6 lg:pb-10 relative z-10 w-full">
                     <div className="max-w-6xl mx-auto h-full">
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence>
                             <motion.div
                                 key={`${currentView}-${refreshKey}`}
-                                initial={{ opacity: 0, y: 10, filter: "blur(2px)" }}
-                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                exit={{ opacity: 0, y: -10, filter: "blur(2px)" }}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
                                 transition={{ duration: 0.15, ease: "easeOut" }}
                                 className="h-full"
                             >

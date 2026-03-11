@@ -192,7 +192,7 @@ Common culprits include: Spotify, Discord, Steam, Teams, OneDrive, Skype, and ma
 
 ## 6. Step-by-Step: Installing Apps
 
-WinOpt Pro includes an **App Store** — a curated list of popular, trusted applications you can install with one click. It uses Windows package managers (Winget and Chocolatey) to download and install apps automatically.
+WinOpt Pro includes an **App Store** — a curated catalog of 391 popular, trusted applications you can install with one click, organized across 7 categories. It uses Windows package managers (Winget and Chocolatey) to download and install apps automatically.
 
 **Why use this instead of just downloading from the web?**
 
@@ -203,7 +203,7 @@ WinOpt Pro includes an **App Store** — a curated list of popular, trusted appl
 
 **Step 1:** Click **App Store** in the left sidebar. (It is in the Apps section.)
 
-**Step 2:** Browse the app list. Apps are organized by category (Browsers, Media, Development, Utilities, etc.). You can filter by category using the buttons at the top.
+**Step 2:** Browse the app list. Apps are organized across 7 categories (Browsers, Media, Development, Utilities, Games, Security, Communication). You can filter by category using the buttons at the top.
 
 **Step 3:** Click **Install** next to any app you want. You can install multiple apps — they will queue.
 
@@ -331,4 +331,4 @@ A technique used in network communications that bundles small packets together b
 
 ---
 
-*WinOpt Pro — Beginner's Guide | Last updated: 2026-03-04*
+*WinOpt Pro — Beginner's Guide | Last updated: 2026-03-11*

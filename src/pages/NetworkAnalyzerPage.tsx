@@ -71,7 +71,7 @@ export function NetworkAnalyzerPage() {
                                 value={targetHost}
                                 onChange={e => setTargetHost(e.target.value)}
                                 placeholder="e.g. 8.8.8.8 or google.com"
-                                className="w-full bg-black/20 border border-border/50 rounded-xl pl-9 pr-24 py-3 text-[14px] text-foreground font-medium focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all font-mono"
+                                className="w-full bg-black/5 dark:bg-black/20 border border-border/50 rounded-xl pl-9 pr-24 py-3 text-[14px] text-foreground font-medium focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all font-mono"
                                 required
                             />
                             <button
