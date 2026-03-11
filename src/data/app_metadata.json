@@ -16,7 +16,7 @@
           "logo": "/app_logos/Google.Chrome.png",
           "website": "https://www.google.com/",
           "support_url": "https://support.google.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpfftq037jwmhs",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -156,7 +156,7 @@
           "logo": "/app_logos/Microsoft.Edge.png",
           "website": "https://www.microsoft.com/en-US",
           "support_url": "https://support.microsoft.com/en-us/microsoft-edge",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpfftq037jwmhs",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -471,7 +471,7 @@
           "logo": "/app_logos/Vivaldi.Vivaldi.png",
           "website": "https://vivaldi.com/",
           "support_url": "https://help.vivaldi.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8cdznhdb6k0d",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -618,7 +618,7 @@
           "logo": "/app_logos/Valve.Steam.png",
           "website": "https://www.valvesoftware.com/",
           "support_url": "https://help.steampowered.com/",
-          "github_link": null,
+          "github_link": "https://store.steampowered.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -653,7 +653,7 @@
           "logo": "/app_logos/EpicGames.EpicGamesLauncher.png",
           "website": "https://epicgames.com/site/about",
           "support_url": "https://epicgames.com/help/",
-          "github_link": null,
+          "github_link": "https://store.epicgames.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -688,7 +688,7 @@
           "logo": "/app_logos/ElectronicArts.EaDesktop.png",
           "website": "https://www.ea.com/",
           "support_url": "https://help.ea.com/",
-          "github_link": null,
+          "github_link": "https://www.ea.com/ea-app",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -723,7 +723,7 @@
           "logo": "/app_logos/GOG.Galaxy.png",
           "website": "https://www.gog.com/",
           "support_url": "https://support.gog.com/",
-          "github_link": null,
+          "github_link": "https://www.gog.com/galaxy",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -758,7 +758,7 @@
           "logo": "/app_logos/Amazon.Games.png",
           "website": "https://www.amazon.com/",
           "support_url": "https://www.amazongames.com/en-us/support/prime-gaming/contact-us",
-          "github_link": null,
+          "github_link": "https://gaming.amazon.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -793,7 +793,7 @@
           "logo": "/app_logos/Ubisoft.Connect.png",
           "website": "https://www.ubisoft.com/en-us",
           "support_url": "https://www.ubisoft.com/en-us/help",
-          "github_link": null,
+          "github_link": "https://ubisoftconnect.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -828,7 +828,7 @@
           "logo": "/app_logos/Parsec.Parsec.png",
           "website": "https://parsec.app/",
           "support_url": "https://support.parsec.app/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9pmkrmfnmmfd",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -1003,7 +1003,7 @@
           "logo": "https://ui-avatars.com/api/?name=Rockstar%20Games%20Launcher&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.rockstargames.com/",
           "support_url": "https://support.rockstargames.com/",
-          "github_link": null,
+          "github_link": "https://socialclub.rockstargames.com/",
           "reviews": [
             {
               "author": "GTAFan2025",
@@ -1073,7 +1073,7 @@
           "logo": "https://ui-avatars.com/api/?name=CurseForge&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.curseforge.com/",
           "support_url": "https://support.curseforge.com/",
-          "github_link": null,
+          "github_link": "https://www.curseforge.com/download",
           "reviews": [
             {
               "author": "MinecraftModder",
@@ -1108,7 +1108,7 @@
           "logo": "https://ui-avatars.com/api/?name=Overwolf&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.overwolf.com/",
           "support_url": "https://support.overwolf.com/",
-          "github_link": null,
+          "github_link": "https://www.overwolf.com/download/",
           "reviews": [
             {
               "author": "OverlayUser",
@@ -1143,7 +1143,7 @@
           "logo": "/app_logos/Nvidia.GeForceNow.png",
           "website": "https://www.nvidia.com/en-us/geforce-now/",
           "support_url": "https://www.nvidia.com/en-us/geforce-now/support/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8l4bmpbtkzlq",
           "reviews": [
             {
               "author": "CloudGamer",
@@ -1179,7 +1179,7 @@
           "logo": "https://ui-avatars.com/api/?name=Wargaming%20Game%20Center&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://wargaming.net/",
           "support_url": "https://eu.wargaming.net/support/",
-          "github_link": null,
+          "github_link": "https://wargaming.net/en/games/",
           "reviews": [
             {
               "author": "TankCommander",
@@ -1214,7 +1214,7 @@
           "logo": "https://ui-avatars.com/api/?name=Arc%20(Arc%20Games)&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.arcgames.com/",
           "support_url": "https://support.arcgames.com/",
-          "github_link": null,
+          "github_link": "https://www.arcgames.com/en/download",
           "reviews": [
             {
               "author": "F2PGamer",
@@ -1326,7 +1326,7 @@
           "logo": "/app_logos/Spotify.Spotify.png",
           "website": "https://www.spotify.com/",
           "support_url": "https://support.spotify.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9ncbcszsjrsb",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -1606,7 +1606,7 @@
           "logo": "https://ui-avatars.com/api/?name=DaVinci%20Resolve&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.blackmagicdesign.com/products/davinciresolve",
           "support_url": "https://www.blackmagicdesign.com/support/",
-          "github_link": null,
+          "github_link": "https://www.blackmagicdesign.com/products/davinciresolve",
           "reviews": [
             {
               "author": "ProVideoEditor",
@@ -1642,7 +1642,7 @@
           "logo": "https://ui-avatars.com/api/?name=Mp3tag&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.mp3tag.de/en/",
           "support_url": "https://community.mp3tag.de/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nn77tcq1nc8",
           "reviews": [
             {
               "author": "MusicLibraryPro",
@@ -1782,7 +1782,7 @@
           "logo": "https://ui-avatars.com/api/?name=IrfanView&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.irfanview.com/",
           "support_url": "https://www.irfanview.com/faq.htm",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nl0r0jnnzm0",
           "reviews": [
             {
               "author": "ImageViewerFan",
@@ -1817,7 +1817,7 @@
           "logo": "https://ui-avatars.com/api/?name=XnView%20MP&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.xnview.com/en/xnviewmp/",
           "support_url": "https://newsgroup.xnview.com/",
-          "github_link": null,
+          "github_link": "https://www.xnview.com/en/xnviewmp/#downloads",
           "reviews": [
             {
               "author": "PhotoOrganizer",
@@ -1887,7 +1887,7 @@
           "logo": "https://ui-avatars.com/api/?name=foobar2000&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://www.foobar2000.org/",
           "support_url": "https://wiki.hydrogenaud.io/index.php?title=Foobar2000",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9pb51gm7m33j",
           "reviews": [
             {
               "author": "AudiophilePC",
@@ -1957,7 +1957,7 @@
           "logo": "/app_logos/Plex.Plex.png",
           "website": "https://www.plex.tv/",
           "support_url": "https://support.plex.tv/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp9cdqw6ml4nqn",
           "reviews": [
             {
               "author": "HomeServerAdmin",
@@ -2034,7 +2034,7 @@
           "logo": "/app_logos/7zip.7zip.png",
           "website": "https://7-zip.org/",
           "support_url": "https://7-zip.org/support.html",
-          "github_link": null,
+          "github_link": "https://sourceforge.net/projects/sevenzip/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2104,7 +2104,7 @@
           "logo": "/app_logos/AgileBits.1Password.png",
           "website": "https://1password.com/",
           "support_url": "https://support.1password.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9p6kxl0svnnl",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2174,7 +2174,7 @@
           "logo": "https://ui-avatars.com/api/?name=AnyDesk&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://anydesksoftwaregmbh.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpf6h0jmx1drn6",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2419,7 +2419,7 @@
           "logo": "/app_logos/TGRMNSoftware.BulkRenameUtility.png",
           "website": "https://www.bulkrenameutility.co.uk/",
           "support_url": "https://www.bulkrenameutility.co.uk/forum",
-          "github_link": null,
+          "github_link": "https://www.bulkrenameutility.co.uk/Download.php",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2454,7 +2454,7 @@
           "logo": "/app_logos/HulubuluSoftware.AdvancedRenamer.png",
           "website": "https://www.advancedrenamer.com/",
           "support_url": "https://www.advancedrenamer.com/support",
-          "github_link": null,
+          "github_link": "https://www.advancedrenamer.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2559,7 +2559,7 @@
           "logo": "/app_logos/CPUID.CPU-Z.png",
           "website": "https://www.cpuid.com/",
           "support_url": "https://www.cpuid.com/contact.html",
-          "github_link": null,
+          "github_link": "https://www.cpuid.com/softwares/cpu-z.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2769,7 +2769,7 @@
           "logo": "/app_logos/GNE.DualMonitorTools.png",
           "website": "https://dualmonitortool.sourceforge.net/",
           "support_url": "https://sourceforge.net/projects/dualmonitortool/support",
-          "github_link": null,
+          "github_link": "https://github.com/shogunxam/dualmonitortool",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2874,7 +2874,7 @@
           "logo": "/app_logos/voidtools.Everything.png",
           "website": "https://www.voidtools.com/",
           "support_url": "https://www.voidtools.com/support/everything/",
-          "github_link": null,
+          "github_link": "https://www.voidtools.com/downloads/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -2909,7 +2909,7 @@
           "logo": "/app_logos/eibol.FFmpegBatchAVConverter.png",
           "website": "https://ffmpeg-batch.sourceforge.io/",
           "support_url": "https://sourceforge.net/p/ffmpeg-batch/tickets/",
-          "github_link": null,
+          "github_link": "https://sourceforge.net/projects/ffmpeg-batch/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3014,7 +3014,7 @@
           "logo": "/app_logos/na.png",
           "website": "https://www.trankynam.com/atext/",
           "support_url": "mailto:atext@trankynam.com",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9n68hc1srr0k",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3084,7 +3084,7 @@
           "logo": "/app_logos/Glarysoft.GlaryUtilities.png",
           "website": "https://glarysoft.com/",
           "support_url": "https://www.glarysoft.com/company/contact-us/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9wzdncrdcbhf",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3119,7 +3119,7 @@
           "logo": "/app_logos/Google.GoogleDrive.png",
           "website": "https://www.google.com/",
           "support_url": "https://support.google.com/",
-          "github_link": null,
+          "github_link": "https://drive.google.com/drive/downloads",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3154,7 +3154,7 @@
           "logo": "/app_logos/TechPowerUp.GPU-Z.png",
           "website": "https://www.techpowerup.com/",
           "support_url": "https://www.techpowerup.com/contact/",
-          "github_link": null,
+          "github_link": "https://www.techpowerup.com/gpuz/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3215,7 +3215,7 @@
         },
         {
           "id": "REALiX.HWiNFO",
-          "name": "HWiNFOÂ®",
+          "name": "HWiNFO®",
           "publisher": "Martin Malik, REALiX s.r.o.",
           "author": "REALiX, s.r.o.",
           "description": "Comprehensive Hardware Analysis, Monitoring and Reporting for Windows and DOS.",
@@ -3224,7 +3224,7 @@
           "logo": "/app_logos/REALiX.HWiNFO.png",
           "website": "https://www.hwinfo.com/",
           "support_url": "https://www.hwinfo.com/forum/",
-          "github_link": null,
+          "github_link": "https://www.hwinfo.com/download/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3259,7 +3259,7 @@
           "logo": "/app_logos/CPUID.HWMonitor.png",
           "website": "https://www.cpuid.com/",
           "support_url": "https://www.cpuid.com/contact.html",
-          "github_link": null,
+          "github_link": "https://www.cpuid.com/softwares/hwmonitor.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3364,7 +3364,7 @@
           "logo": "https://ui-avatars.com/api/?name=Link%20Shell%20Extension&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://schinagl.priv.at/",
           "support_url": "https://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html#faq",
-          "github_link": null,
+          "github_link": "http://schinagl.priv.at/nt/hardlinkshellext/linkshellextension.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3469,7 +3469,7 @@
           "logo": "/app_logos/CrystalRich.LockHunter.png",
           "website": "https://crystalrich.com/",
           "support_url": "https://lockhunter.com/support.htm",
-          "github_link": null,
+          "github_link": "https://lockhunter.com/downloadapp.htm",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3504,7 +3504,7 @@
           "logo": "/app_logos/Malwarebytes.Malwarebytes.png",
           "website": "https://www.malwarebytes.com/",
           "support_url": "https://support.malwarebytes.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8lhwlt6mmddg",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3644,7 +3644,7 @@
           "logo": "https://ui-avatars.com/api/?name=MSI%20Afterburner&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://msico.,ltd.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.msi.com/Landing/afterburner/graphics-cards",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3889,7 +3889,7 @@
           "logo": "/app_logos/TechPowerUp.NVCleanstall.png",
           "website": "https://www.techpowerup.com/",
           "support_url": "https://www.techpowerup.com/contact/",
-          "github_link": null,
+          "github_link": "https://www.techpowerup.com/nvcleanstall/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -3924,7 +3924,7 @@
           "logo": "/app_logos/OPAutoClicker.OPAutoClicker.png",
           "website": "https://www.opautoclicker.com/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://github.com/OP-Auto-Clicker/OP-Auto-Clicker",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4134,7 +4134,7 @@
           "logo": "/app_logos/Parsec.Parsec.png",
           "website": "https://parsec.app/",
           "support_url": "https://support.parsec.app/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9pmkrmfnmmfd",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4414,7 +4414,7 @@
           "logo": "/app_logos/Tixati.Tixati.Portable.png",
           "website": "https://tixati.com",
           "support_url": "https://support.tixati.com",
-          "github_link": null,
+          "github_link": "https://www.tixati.com/download/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4484,7 +4484,7 @@
           "logo": "/app_logos/RevoUninstaller.RevoUninstaller.png",
           "website": "https://www.revouninstaller.com/",
           "support_url": "https://www.revouninstaller.com/support/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8crk76kn57kk",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4519,7 +4519,7 @@
           "logo": "/app_logos/WiseCleaner.WiseProgramUninstaller.png",
           "website": "https://www.wisecleaner.com/",
           "support_url": "https://www.wisecleaner.com/help.html",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp9m2sqhz1tgwz",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4624,7 +4624,7 @@
           "logo": "https://ui-avatars.com/api/?name=SageThumbs&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://cherubicsoftware.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://github.com/raspopov/SageThumbs",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4694,7 +4694,7 @@
           "logo": "/app_logos/GlennDelahoy.SnappyDriverInstallerOrigin.png",
           "website": "https://www.glenn.delahoy.com/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://sourceforge.net/projects/snappy-driver-installer-origin/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4764,7 +4764,7 @@
           "logo": "/app_logos/WhirlwindFX.SignalRgb.png",
           "website": "https://www.signalrgb.com/about",
           "support_url": "https://www.signalrgb.com/contact",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpdgb3bkp1k6c2",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -4834,7 +4834,7 @@
           "logo": "https://ui-avatars.com/api/?name=SpaceSniffer&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://uderzosoftware.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.uderzo.it/main_products/space_sniffer/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5009,7 +5009,7 @@
           "logo": "/app_logos/TeamViewer.TeamViewer.png",
           "website": "https://www.teamviewer.com/",
           "support_url": "https://www.teamviewer.com/en/global/support/customer-support/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpdm17hk323c4x",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5044,7 +5044,7 @@
           "logo": "/app_logos/Ghisler.TotalCommander.png",
           "website": "https://www.ghisler.com/",
           "support_url": "https://www.ghisler.com/faq.htm",
-          "github_link": null,
+          "github_link": "https://www.ghisler.com/download.htm",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5079,7 +5079,7 @@
           "logo": "/app_logos/JAMSoftware.TreeSize.Free.png",
           "website": "https://www.jam-software.com/",
           "support_url": "https://knowledgebase.jam-software.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp9m26rsclnt88",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5184,7 +5184,7 @@
           "logo": "https://ui-avatars.com/api/?name=Wazuh%20Agent&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://wazuh,inc..com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://github.com/wazuh/wazuh-agent",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5219,7 +5219,7 @@
           "logo": "/app_logos/Microsoft.WindowsPCHealthCheck.png",
           "website": "https://www.microsoft.com/en-us/",
           "support_url": "https://support.microsoft.com/en-us",
-          "github_link": null,
+          "github_link": "https://aka.ms/GetPCHealthCheckApp",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5324,7 +5324,7 @@
           "logo": "/app_logos/RARLab.WinRAR.png",
           "website": "https://www.rarlab.com/",
           "support_url": "https://www.win-rar.com/support.html",
-          "github_link": null,
+          "github_link": "https://www.rarlab.com/download.htm",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5359,7 +5359,7 @@
           "logo": "/app_logos/WiseCleaner.WiseToys.png",
           "website": "https://www.wisecleaner.com/",
           "support_url": "https://www.wisecleaner.com/help.html",
-          "github_link": null,
+          "github_link": "https://www.wisecleaner.com/wise-care-365.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5394,7 +5394,7 @@
           "logo": "/app_logos/CodeSector.TeraCopy.png",
           "website": "https://codesector.com/",
           "support_url": "https://support.codesector.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nblggh517cg",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5429,7 +5429,7 @@
           "logo": "/app_logos/AntibodySoftware.WizFile.png",
           "website": "https://antibody-software.com/",
           "support_url": "https://antibody-software.com/contact",
-          "github_link": null,
+          "github_link": "https://antibody-software.com/wizfile/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5464,7 +5464,7 @@
           "logo": "/app_logos/AntibodySoftware.WizTree.png",
           "website": "https://antibody-software.com/",
           "support_url": "https://antibody-software.com/contact",
-          "github_link": null,
+          "github_link": "https://antibody-software.com/wiztree/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5534,7 +5534,7 @@
           "logo": "/app_logos/XnSoft.XnView.Classic.png",
           "website": "https://www.xnview.com/en/",
           "support_url": "https://www.xnview.com/en/xnview/#support",
-          "github_link": null,
+          "github_link": "https://www.xnview.com/en/xnview/#downloads",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5604,7 +5604,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.ZoomIt.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/zoomit",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5744,7 +5744,7 @@
           "logo": "/app_logos/GlavSoft.TightVNC.png",
           "website": "https://www.tightvnc.com/",
           "support_url": "https://www.tightvnc.com/contact.php",
-          "github_link": null,
+          "github_link": "https://github.com/TurboVNC/tightvnc",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5814,7 +5814,7 @@
           "logo": "/app_logos/BiniSoft.WindowsFirewallControl.png",
           "website": "https://www.binisoft.org/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.binisoft.org/wfc",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5849,7 +5849,7 @@
           "logo": "/app_logos/ntwind.VistaSwitcher.png",
           "website": "https://www.ntwind.com/",
           "support_url": "https://www.ntwind.com/contact.html",
-          "github_link": null,
+          "github_link": "https://www.ntwind.com/software/vistaswitcher.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -5884,7 +5884,7 @@
           "logo": "https://ui-avatars.com/api/?name=Ambie%20White%20Noise&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://jenius-apps.github.io/ambie/",
           "support_url": "mailto:ambie_app@outlook.com",
-          "github_link": null,
+          "github_link": "https://github.com/jenius-apps/ambie",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6094,7 +6094,7 @@
           "logo": "https://ui-avatars.com/api/?name=JoyToKey&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://jtksoftware.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://joytokey.net/en/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6129,7 +6129,7 @@
           "logo": "/app_logos/Dropbox.Dropbox.png",
           "website": "https://www.dropbox.com/",
           "support_url": "https://help.dropbox.com/",
-          "github_link": null,
+          "github_link": "https://www.dropbox.com/install",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6234,7 +6234,7 @@
           "logo": "/app_logos/Maxon.CinebenchR23.png",
           "website": "https://maxon.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.maxon.net/cinebench",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6269,7 +6269,7 @@
           "logo": "/app_logos/Piriform.Speccy.png",
           "website": "https://www.ccleaner.com",
           "support_url": "http://support.ccleaner.com",
-          "github_link": null,
+          "github_link": "https://www.ccleaner.com/speccy/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6346,7 +6346,7 @@
           "logo": "/app_logos/Discord.Discord.png",
           "website": "https://discord.com/",
           "support_url": "https://support.discord.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpdc2rh70k22mn",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6381,7 +6381,7 @@
           "logo": "/app_logos/Zoom.Zoom.png",
           "website": "https://zoom.us/",
           "support_url": "https://support.zoom.us/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp99j3kp4xz4vv",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6416,7 +6416,7 @@
           "logo": "/app_logos/SlackTechnologies.Slack.png",
           "website": "https://slack.com/",
           "support_url": "https://slack.com/help",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9wzdncrdk3wp",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6591,7 +6591,7 @@
           "logo": "/app_logos/BelledonneCommunications.Linphone.png",
           "website": "https://linphone.org/",
           "support_url": "https://linphone.org/contact",
-          "github_link": null,
+          "github_link": "https://github.com/BelledonneCommunications/linphone-desktop",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6731,7 +6731,7 @@
           "logo": "/app_logos/Microsoft.Teams.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.microsoft.com/teams",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8bt8dw290mpq",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6766,7 +6766,7 @@
           "logo": "/app_logos/Telegram.TelegramDesktop.png",
           "website": "https://telegram.org",
           "support_url": "https://telegram.org/support",
-          "github_link": null,
+          "github_link": "https://github.com/telegramdesktop/tdesktop",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6906,7 +6906,7 @@
           "logo": "/app_logos/Rakuten.Viber.png",
           "website": "https://www.rakuten.com/",
           "support_url": "https://help.viber.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpfm5p5kdwf0jp",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6948,7 +6948,7 @@
           "logo": "/app_logos/Adobe.Acrobat.Reader.64-bit.png",
           "website": "https://adobe.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpdp273c0xhqh2",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -6983,7 +6983,7 @@
           "logo": "/app_logos/Famatech.AdvancedIPScanner.png",
           "website": "https://www.advanced-ip-scanner.com/",
           "support_url": "https://www.advanced-ip-scanner.com/support/",
-          "github_link": null,
+          "github_link": "https://www.advanced-ip-scanner.com/download.php",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7053,7 +7053,7 @@
           "logo": "/app_logos/AIMP.AIMP.png",
           "website": "https://www.aimp.ru",
           "support_url": "https://www.aimp.ru/forum/index.php",
-          "github_link": null,
+          "github_link": "https://www.aimp.ru/?do=download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7193,7 +7193,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.Autoruns.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7228,7 +7228,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.RDCMan.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/rdcman",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7403,7 +7403,7 @@
           "logo": "/app_logos/CloneHeroTeam.CloneHero.png",
           "website": "https://clonehero.net",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://clonehero.net/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7543,7 +7543,7 @@
           "logo": "/app_logos/Nlitesoft.NTLite.png",
           "website": "https://www.ntlite.com/",
           "support_url": "https://www.ntlite.com/support/",
-          "github_link": null,
+          "github_link": "https://www.ntlite.com/download/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7823,7 +7823,7 @@
           "logo": "/app_logos/ElectronicArts.EADesktop.png",
           "website": "https://www.ea.com/",
           "support_url": "https://help.ea.com/",
-          "github_link": null,
+          "github_link": "https://www.ea.com/ea-app",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -7963,7 +7963,7 @@
           "logo": "/app_logos/EpicGames.EpicGamesLauncher.png",
           "website": "https://epicgames.com/site/about",
           "support_url": "https://epicgames.com/help/",
-          "github_link": null,
+          "github_link": "https://store.epicgames.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8033,7 +8033,7 @@
           "logo": "/app_logos/FireAlpaca.FireAlpaca.png",
           "website": "https://firealpaca.com/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://firealpaca.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8103,7 +8103,7 @@
           "logo": "/app_logos/Skillbrains.Lightshot.png",
           "website": "https://prnt.sc",
           "support_url": "https://app.prntscr.com/en/help.html",
-          "github_link": null,
+          "github_link": "https://app.prntscr.com/en/download.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8138,7 +8138,7 @@
           "logo": "https://ui-avatars.com/api/?name=foobar2000&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://perkele.cc/",
           "support_url": "https://www.foobar2000.org/support",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9pb51gm7m33j",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8173,7 +8173,7 @@
           "logo": "/app_logos/Foxit.PhantomPDF.png",
           "website": "https://www.foxit.com/",
           "support_url": "https://kb.foxit.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpdnzd76fp5jr7",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8208,7 +8208,7 @@
           "logo": "/app_logos/Foxit.FoxitReader.png",
           "website": "https://www.foxit.com/",
           "support_url": "https://kb.foxit.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpfcg5nrkxqpkt",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8313,7 +8313,7 @@
           "logo": "/app_logos/Nvidia.GeForceNow.png",
           "website": "https://www.nvidia.com/",
           "support_url": "https://www.nvidia.com/en-us/geforce-now/support",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp8l4bmpbtkzlq",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8383,7 +8383,7 @@
           "logo": "/app_logos/GOG.Galaxy.png",
           "website": "https://www.gog.com/",
           "support_url": "https://support.gog.com/",
-          "github_link": null,
+          "github_link": "https://www.gog.com/galaxy",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8488,7 +8488,7 @@
           "logo": "/app_logos/Harmonoid.Harmonoid.png",
           "website": "https://harmonoid.com",
           "support_url": "https://harmonoid.com",
-          "github_link": null,
+          "github_link": "https://github.com/harmonoid/harmonoid",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8628,7 +8628,7 @@
           "logo": "/app_logos/LIGHTNINGUK.ImgBurn.png",
           "website": "https://www.imgburn.com/",
           "support_url": "https://forum.imgburn.com/",
-          "github_link": null,
+          "github_link": "https://www.imgburn.com/index.php?act=download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8733,7 +8733,7 @@
           "logo": "/app_logos/Apple.iTunes.png",
           "website": "https://www.apple.com/",
           "support_url": "https://support.apple.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9pb2mz1zmb0s",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -8908,7 +8908,7 @@
           "logo": "/app_logos/CodecGuide.K-LiteCodecPack.Standard.png",
           "website": "https://codecguide.com/",
           "support_url": "https://codecguide.com/forum.htm",
-          "github_link": null,
+          "github_link": "https://codecguide.com/download_kl.htm",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9293,7 +9293,7 @@
           "logo": "/app_logos/na.png",
           "website": "https://www.trankynam.com/atext/",
           "support_url": "mailto:atext@trankynam.com",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9n68hc1srr0k",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9363,7 +9363,7 @@
           "logo": "/app_logos/SergeySerkov.TagScanner.png",
           "website": "https://www.xdlab.ru/en/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.xdlab.ru/en/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9468,7 +9468,7 @@
           "logo": "/app_logos/ZeusSoftware.nGlide.png",
           "website": "https://www.zeus-software.com/",
           "support_url": "https://www.zeus-software.com/contacts",
-          "github_link": null,
+          "github_link": "https://www.zeus-software.com/downloads/nglide",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9573,7 +9573,7 @@
           "logo": "/app_logos/Obsidian.Obsidian.png",
           "website": "https://obsidian.md/",
           "support_url": "https://help.obsidian.md/",
-          "github_link": null,
+          "github_link": "https://obsidian.md/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9643,7 +9643,7 @@
           "logo": "/app_logos/Microsoft.OneDrive.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.microsoft.com/",
-          "github_link": null,
+          "github_link": "https://www.microsoft.com/en-us/microsoft-365/onedrive/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9748,7 +9748,7 @@
           "logo": "/app_logos/OpenVPNTechnologies.OpenVPNConnect.png",
           "website": "https://openvpn.net/",
           "support_url": "https://support.openvpn.com/",
-          "github_link": null,
+          "github_link": "https://openvpn.net/client/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9818,7 +9818,7 @@
           "logo": "/app_logos/Daum.PotPlayer.png",
           "website": "https://potplayer.tv/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://potplayer.daum.net/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9853,7 +9853,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.ProcessExplorer.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/process-explorer",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9888,7 +9888,7 @@
           "logo": "/app_logos/dotPDN.PaintDotNet.png",
           "website": "https://dotpdn.com/",
           "support_url": "https://getpaint.net/contact.html",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nbhcs1lx4r0",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -9923,7 +9923,7 @@
           "logo": "/app_logos/geeksoftwareGmbH.PDF24Creator.png",
           "website": "https://www.pdf24.org/en/",
           "support_url": "https://help.pdf24.org/en/",
-          "github_link": null,
+          "github_link": "https://www.pdf24.org/en/creator/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10028,7 +10028,7 @@
           "logo": "/app_logos/Plex.PlexMediaServer.png",
           "website": "https://www.plex.tv/",
           "support_url": "https://support.plex.tv/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xpfm11z0w10r7g",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10063,7 +10063,7 @@
           "logo": "/app_logos/Plex.Plex.png",
           "website": "https://www.plex.tv/",
           "support_url": "https://support.plex.tv/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/xp9cdqw6ml4nqn",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10133,7 +10133,7 @@
           "logo": "/app_logos/Microsoft.PowerAutomateDesktop.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.microsoft.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nftch6j7fhv",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10168,7 +10168,7 @@
           "logo": "/app_logos/Microsoft.PowerBI.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.fabric.microsoft.com/support/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9ntxr16hnw1t",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10308,7 +10308,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.ProcessMonitor.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/procmon",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10343,7 +10343,7 @@
           "logo": "/app_logos/PlayStation.PSRemotePlay.png",
           "website": "https://www.playstation.com/en-us/",
           "support_url": "https://www.playstation.com/en-us/support",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9phjklsh75hs",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10378,7 +10378,7 @@
           "logo": "/app_logos/PuTTY.PuTTY.png",
           "website": "https://www.chiark.greenend.org.uk/",
           "support_url": "https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html",
-          "github_link": null,
+          "github_link": "https://www.chiark.greenend.org.uk/~sgtatham/putty/download.html",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10588,7 +10588,7 @@
           "logo": "/app_logos/Valve.Steam.png",
           "website": "https://www.valvesoftware.com/",
           "support_url": "https://help.steampowered.com/",
-          "github_link": null,
+          "github_link": "https://store.steampowered.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10693,7 +10693,7 @@
           "logo": "/app_logos/PDFgear.PDFgear.png",
           "website": "https://pdfgear.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.pdfgear.com/download/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10728,7 +10728,7 @@
           "logo": "/app_logos/Microsoft.SQLServerManagementStudio.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://aka.ms/ssms-feedback/",
-          "github_link": null,
+          "github_link": "https://aka.ms/ssmsfullsetup",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10798,7 +10798,7 @@
           "logo": "/app_logos/Microsoft.Sysinternals.TCPView.png",
           "website": "https://www.sysinternals.com/",
           "support_url": "https://learn.microsoft.com/en-us/answers/tags/435/sysinternals",
-          "github_link": null,
+          "github_link": "https://learn.microsoft.com/en-us/sysinternals/downloads/tcpview",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10868,7 +10868,7 @@
           "logo": "/app_logos/9NNCB5BS59PH.png",
           "website": "https://tidal.com/",
           "support_url": "mailto:support@tidal.com",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nncb5bs59ph",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10903,7 +10903,7 @@
           "logo": "/app_logos/Ubisoft.Connect.png",
           "website": "https://www.ubisoft.com/en-us",
           "support_url": "https://www.ubisoft.com/en-us/help",
-          "github_link": null,
+          "github_link": "https://ubisoftconnect.com/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10938,7 +10938,7 @@
           "logo": "/app_logos/Microsoft.VCRedist.2015+.x86.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.microsoft.com/",
-          "github_link": null,
+          "github_link": "https://aka.ms/vs/17/release/vc_redist.x86.exe",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -10973,7 +10973,7 @@
           "logo": "/app_logos/Microsoft.VCRedist.2015+.x64.png",
           "website": "https://www.microsoft.com/",
           "support_url": "https://support.microsoft.com/",
-          "github_link": null,
+          "github_link": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11113,7 +11113,7 @@
           "logo": "/app_logos/VB-Audio.Voicemeeter.png",
           "website": "https://vb-audio.com/index.htm",
           "support_url": "https://vb-audio.com/Services/support.htm",
-          "github_link": null,
+          "github_link": "https://vb-audio.com/Voicemeeter/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11148,7 +11148,7 @@
           "logo": "/app_logos/VB-Audio.Voicemeeter.Potato.png",
           "website": "https://vb-audio.com/index.htm",
           "support_url": "https://vb-audio.com/Services/support.htm",
-          "github_link": null,
+          "github_link": "https://vb-audio.com/Voicemeeter/potato.htm",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11183,7 +11183,7 @@
           "logo": "https://ui-avatars.com/api/?name=Virtual%20Desktop%20Streamer&background=random&color=fff&rounded=true&bold=true&size=128",
           "website": "https://virtualdesktop,inc..com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://www.vrdesktop.net/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11638,7 +11638,7 @@
           "logo": "/app_logos/NDI.NDITools.png",
           "website": "https://ndi.video/",
           "support_url": "https://ndi.video/resources/support/",
-          "github_link": null,
+          "github_link": "https://ndi.video/tools/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11785,7 +11785,7 @@
           "logo": "/app_logos/Anaconda.Anaconda3.png",
           "website": "https://www.anaconda.com/",
           "support_url": "https://anaconda.cloud/support-center",
-          "github_link": null,
+          "github_link": "https://www.anaconda.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -11925,7 +11925,7 @@
           "logo": "/app_logos/Docker.DockerDesktop.png",
           "website": "https://www.docker.com/",
           "support_url": "https://www.docker.com/support",
-          "github_link": null,
+          "github_link": "https://github.com/docker/desktop",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12450,7 +12450,7 @@
           "logo": "/app_logos/JetBrains.Toolbox.png",
           "website": "https://www.jetbrains.com/",
           "support_url": "https://www.jetbrains.com/support/",
-          "github_link": null,
+          "github_link": "https://www.jetbrains.com/toolbox-app/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12625,7 +12625,7 @@
           "logo": "/app_logos/Postman.Postman.png",
           "website": "https://www.postman.com/",
           "support_url": "https://www.postman.com/support/",
-          "github_link": null,
+          "github_link": "https://www.postman.com/downloads/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12660,7 +12660,7 @@
           "logo": "/app_logos/Python.Python.3.14.png",
           "website": "https://www.python.org/",
           "support_url": "https://www.python.org/about/help/",
-          "github_link": null,
+          "github_link": "https://github.com/python/cpython",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12765,7 +12765,7 @@
           "logo": "/app_logos/SublimeHQ.SublimeMerge.png",
           "website": "https://www.sublimehq.com/",
           "support_url": "https://www.sublimetext.com/support",
-          "github_link": null,
+          "github_link": "https://www.sublimemerge.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12800,7 +12800,7 @@
           "logo": "/app_logos/SublimeHQ.SublimeText.4.png",
           "website": "https://www.sublimetext.com/",
           "support_url": "https://www.sublimetext.com/support",
-          "github_link": null,
+          "github_link": "https://www.sublimetext.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -12940,7 +12940,7 @@
           "logo": "/app_logos/Unity.UnityHub.png",
           "website": "https://unity.com/",
           "support_url": "https://support.unity.com/",
-          "github_link": null,
+          "github_link": "https://unity.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13010,7 +13010,7 @@
           "logo": "/app_logos/Microsoft.VisualStudio.2022.Community.png",
           "website": "https://microsoft.com",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://visualstudio.microsoft.com/downloads/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13045,7 +13045,7 @@
           "logo": "/app_logos/Microsoft.VisualStudioCode.png",
           "website": "https://www.microsoft.com/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://github.com/microsoft/vscode",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13185,7 +13185,7 @@
           "logo": "/app_logos/Anaconda.Miniconda3.png",
           "website": "https://www.anaconda.com/",
           "support_url": "https://anaconda.cloud/support-center",
-          "github_link": null,
+          "github_link": "https://docs.anaconda.com/miniconda/",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13290,7 +13290,7 @@
           "logo": "/app_logos/na.png",
           "website": "https://www.trankynam.com/atext/",
           "support_url": "mailto:atext@trankynam.com",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9n68hc1srr0k",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13430,7 +13430,7 @@
           "logo": "/app_logos/Fork.Fork.png",
           "website": "https://fork.dev/",
           "support_url": "Unknown",
-          "github_link": null,
+          "github_link": "https://git-fork.com/download",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13605,7 +13605,7 @@
           "logo": "/app_logos/Termius.Termius.png",
           "website": "https://termius.com/",
           "support_url": "https://support.termius.com/",
-          "github_link": null,
+          "github_link": "https://apps.microsoft.com/detail/9nk1in7k09m8",
           "reviews": [
             {
               "author": "TechReviewer99",
@@ -13640,7 +13640,7 @@
           "logo": "/app_logos/PuTTY.PuTTY.png",
           "website": "https://www.chiark.greenend.org.uk/",
           "support_url": "https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html",
-          "github_link": null,
+          "github_link": "https://www.chiark.greenend.org.uk/~sgtatham/putty/download.html",
           "reviews": [
             {
               "author": "TechReviewer99",
