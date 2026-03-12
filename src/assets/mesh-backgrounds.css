@@ -21,6 +21,11 @@
     pointer-events: none;
 }
 
+.dark .nano-mesh-bg::before,
+.dark .nano-mesh-bg::after {
+    opacity: 0.6; /* Lower overall opacity for dark mode meshes */
+}
+
 /* Light Mode Mesh (Teal/Purple soft abstract) */
 .light .nano-mesh-bg::before {
     background-image:
@@ -33,16 +38,16 @@
 /* Dark Mode Mesh (Deep Space / Neon Teal / Velvet Purple) */
 .dark .nano-mesh-bg::before {
     background-image:
-        radial-gradient(ellipse at 15% 35%, rgba(52, 211, 153, 0.15) 0%, transparent 60%),
-        radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% -10%, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+        radial-gradient(ellipse at 15% 35%, rgba(52, 211, 153, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% -10%, rgba(56, 189, 248, 0.03) 0%, transparent 70%);
     animation: nano-drift 40s ease-in-out infinite alternate-reverse;
 }
 
 .dark .nano-mesh-bg::after {
     background-image:
-        radial-gradient(ellipse at 70% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
-        radial-gradient(ellipse at 30% 80%, rgba(52, 211, 153, 0.08) 0%, transparent 60%);
+        radial-gradient(ellipse at 70% 30%, rgba(139, 92, 246, 0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 80%, rgba(52, 211, 153, 0.02) 0%, transparent 60%);
     animation: nano-drift-slow 60s ease-in-out infinite alternate;
 }
 

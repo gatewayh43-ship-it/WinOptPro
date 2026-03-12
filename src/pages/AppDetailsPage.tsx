@@ -104,7 +104,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
         return (
             <div className="flex flex-col items-center justify-center p-20">
                 <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4" />
-                <p className="text-slate-500 font-medium">Fetching deep metadata from winget...</p>
+                <p className="text-slate-500 dark:text-slate-300 font-medium">Fetching deep metadata from winget...</p>
             </div>
         );
     }
@@ -117,7 +117,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
             <div className="flex items-center gap-4">
                 <button
                     onClick={onBack}
-                    className="p-2 bg-surface border border-border rounded-xl hover:border-primary/50 hover:bg-primary/10 text-slate-400 hover:text-primary transition-all group"
+                    className="p-2 bg-surface border border-border rounded-xl hover:border-primary/50 hover:bg-primary/10 text-slate-400 dark:text-slate-200 hover:text-primary transition-all group"
                 >
                     <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </button>
@@ -131,7 +131,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                         )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
-                        <span className="text-sm font-medium text-slate-500 dark:text-slate-400">by {displayInfo.author || displayInfo.publisher || "Unknown"}</span>
+                        <span className="text-sm font-medium text-slate-500 dark:text-slate-200">by {displayInfo.author || displayInfo.publisher || "Unknown"}</span>
                         <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
                         <span className="text-sm font-mono text-primary/80 bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">v{displayInfo.version}</span>
                         {displayInfo.rating > 0 && (
@@ -181,7 +181,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                         {displayInfo.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-6">
                                 {displayInfo.tags.map(tag => (
-                                    <span key={tag} className="px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 bg-black/5 dark:bg-black/20 border border-border dark:border-white/5 rounded-lg">
+                                    <span key={tag} className="px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-200 bg-black/5 dark:bg-black/20 border border-border dark:border-white/5 rounded-lg">
                                         #{tag}
                                     </span>
                                 ))}
@@ -199,18 +199,18 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                             </h2>
 
                             {isGeneratingAi ? (
-                                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-200">
                                     <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                                     Analyzing package data and fetching community sentiment...
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-black/5 dark:bg-black/20 p-4 rounded-xl border border-border dark:border-white/5">
-                                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Usage & Capabilities</h3>
+                                        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-2">Usage & Capabilities</h3>
                                         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{aiInsights.usage}</p>
                                     </div>
                                     <div className="bg-black/5 dark:bg-black/20 p-4 rounded-xl border border-border dark:border-white/5">
-                                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">General Reception</h3>
+                                        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-2">General Reception</h3>
                                         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{aiInsights.reviews}</p>
                                     </div>
                                 </div>
@@ -242,7 +242,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
 
                     {/* Rich Links Library */}
                     <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
-                        <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Official Links</h2>
+                        <h2 className="text-sm font-bold text-slate-500 dark:text-slate-200 uppercase tracking-widest mb-4">Official Links</h2>
                         <div className="flex flex-col gap-3">
                             {displayInfo.homepage && (
                                 <a
@@ -256,7 +256,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-foreground dark:text-slate-200">Official Website</span>
-                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.homepage}</span>
+                                        <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate max-w-full">{displayInfo.homepage}</span>
                                     </div>
                                 </a>
                             )}
@@ -273,7 +273,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-foreground dark:text-slate-200">Source Code</span>
-                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.githubLink}</span>
+                                        <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate max-w-full">{displayInfo.githubLink}</span>
                                     </div>
                                 </a>
                             )}
@@ -290,14 +290,14 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-foreground dark:text-slate-200">Support / Manual</span>
-                                        <span className="text-[10px] text-slate-500 truncate max-w-full">{displayInfo.supportUrl}</span>
+                                        <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate max-w-full">{displayInfo.supportUrl}</span>
                                     </div>
                                 </a>
                             )}
 
                             {(!displayInfo.homepage && !displayInfo.githubLink && !displayInfo.supportUrl) && (
                                 <div className="p-4 text-center rounded-xl border border-border dark:border-white/5 border-dashed">
-                                    <p className="text-xs text-slate-500">No external links discovered.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-300">No external links discovered.</p>
                                 </div>
                             )}
                         </div>

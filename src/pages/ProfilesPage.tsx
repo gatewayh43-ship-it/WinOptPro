@@ -125,7 +125,7 @@ export function ProfilesPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground">
                         Optimization <span className="text-gradient">Profiles</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Pre-configured bundles of tweaks for common use cases. Apply an entire set with one click.
                     </p>
                 </motion.div>
@@ -170,7 +170,7 @@ export function ProfilesPage() {
                                         </div>
                                         <div>
                                             <h3 className="text-[15px] font-bold text-foreground">{profile.name}</h3>
-                                            <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                                            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-mono mt-0.5">
                                                 {profile.tweakIds.length} tweaks · {appliedCount} active
                                             </p>
                                         </div>
@@ -187,7 +187,7 @@ export function ProfilesPage() {
                                     ) : null}
                                 </div>
 
-                                <p className="text-[13px] text-slate-400 leading-relaxed mb-4">{profile.description}</p>
+                                <p className="text-[13px] text-slate-400 dark:text-slate-200 leading-relaxed mb-4">{profile.description}</p>
 
                                 {/* Expanded detail */}
                                 <AnimatePresence>
@@ -200,7 +200,7 @@ export function ProfilesPage() {
                                             className="overflow-hidden"
                                         >
                                             <div className="border-t border-border/50 pt-4 space-y-2 mb-4">
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Included Tweaks</p>
+                                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-2">Included Tweaks</p>
                                                 {matchingTweaks.map(tweak => (
                                                     <div
                                                         key={tweak.id}

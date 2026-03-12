@@ -12,7 +12,7 @@ function BoolBadge({ value, trueLabel = "Yes", falseLabel = "No" }: { value: boo
       <CheckCircle className="w-3 h-3" /> {trueLabel}
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-slate-500/10 text-slate-500 border border-slate-600/30">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-slate-500/10 text-slate-500 dark:text-slate-300 border border-slate-600/30">
       <XCircle className="w-3 h-3" /> {falseLabel}
     </span>
   );
@@ -33,7 +33,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
             </div>
             Latency Optimizer
           </h1>
-          <p className="text-[13px] text-slate-500 mt-1">
+          <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-1">
             Timer resolution, standby memory, and boot-time latency settings
           </p>
         </div>
@@ -45,7 +45,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
         )}
 
         {isLoading ? (
-          <div className="glass-panel rounded-2xl p-8 flex items-center justify-center gap-3 text-slate-500">
+          <div className="glass-panel rounded-2xl p-8 flex items-center justify-center gap-3 text-slate-500 dark:text-slate-300">
             <RefreshCw className="w-4 h-4 animate-spin" />
             <span className="text-[13px]">Reading system latency state…</span>
           </div>
@@ -61,23 +61,23 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
               <div className="flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-primary" strokeWidth={1.8} />
                 <h3 className="text-[14px] font-bold text-foreground">Timer Resolution</h3>
-                <button onClick={refresh} title="Refresh" className="ml-auto text-slate-600 hover:text-slate-400 transition-colors">
+                <button onClick={refresh} title="Refresh" className="ml-auto text-slate-600 hover:text-slate-400 dark:text-slate-200 transition-colors">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-slate-500">Current</span>
+                  <span className="text-[12px] text-slate-500 dark:text-slate-300">Current</span>
                   <span className="text-[15px] font-bold text-primary font-mono">{to_ms(status.timerResolution100ns)} ms</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-slate-500">Best (min)</span>
+                  <span className="text-[12px] text-slate-500 dark:text-slate-300">Best (min)</span>
                   <span className="text-[13px] font-semibold text-emerald-400 font-mono">{to_ms(status.maxResolution100ns)} ms</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-slate-500">Lowest (max)</span>
-                  <span className="text-[13px] font-semibold text-slate-500 font-mono">{to_ms(status.minResolution100ns)} ms</span>
+                  <span className="text-[12px] text-slate-500 dark:text-slate-300">Lowest (max)</span>
+                  <span className="text-[13px] font-semibold text-slate-500 dark:text-slate-300 font-mono">{to_ms(status.minResolution100ns)} ms</span>
                 </div>
               </div>
 
@@ -100,7 +100,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-primary/5 border border-primary/10 text-[11px] text-slate-500">
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-primary/5 border border-primary/10 text-[11px] text-slate-500 dark:text-slate-300">
                 <Info className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
                 Lower ms = more precise timer = better frame pacing. Windows 11 24H2+ auto-adjusts to 0.5ms when a game is active. This shows the current active resolution.
               </div>
@@ -120,7 +120,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-slate-500">Standby RAM</span>
+                  <span className="text-[12px] text-slate-500 dark:text-slate-300">Standby RAM</span>
                   <span className="text-[15px] font-bold text-amber-400 font-mono">
                     {(status.standbyRamMb / 1024).toFixed(1)} GB
                   </span>
@@ -130,7 +130,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-slate-500">
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-slate-500 dark:text-slate-300">
                 <Info className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
                 Standby RAM is memory marked as free but still holding cached data. Flushing forces Windows to release it immediately, which can reduce game load time stutters.
               </div>
@@ -166,12 +166,12 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 rounded-xl border border-border bg-white/[0.02] space-y-1.5">
-                  <p className="text-[11px] text-slate-500 font-mono">disabledynamictick</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-300 font-mono">disabledynamictick</p>
                   <BoolBadge value={status.dynamicTickDisabled} trueLabel="Off (optimized)" falseLabel="On (default)" />
                   <p className="text-[10px] text-slate-600 leading-relaxed">Disable for smoother frame pacing</p>
                 </div>
                 <div className="p-3 rounded-xl border border-border bg-white/[0.02] space-y-1.5">
-                  <p className="text-[11px] text-slate-500 font-mono">useplatformclock</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-300 font-mono">useplatformclock</p>
                   <BoolBadge value={status.platformClockForced} trueLabel="Forced" falseLabel="Auto (default)" />
                   <p className="text-[10px] text-slate-600 leading-relaxed">Forces HPET as the platform clock</p>
                 </div>
@@ -180,7 +180,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
               {setView && (
                 <button
                   onClick={() => setView("gaming")}
-                  className="inline-flex items-center gap-1.5 text-[12px] text-slate-400 hover:text-primary transition-colors font-medium"
+                  className="inline-flex items-center gap-1.5 text-[12px] text-slate-400 dark:text-slate-200 hover:text-primary transition-colors font-medium"
                 >
                   <span>→</span> Manage these settings in Gaming Tweaks
                 </button>

@@ -81,15 +81,15 @@ export function AppsPage() {
                     App Store
                 </h1>
 
-                <p className="text-slate-500 dark:text-slate-400 max-w-lg mb-4 text-sm md:text-base relative z-10">
+                <p className="text-slate-500 dark:text-slate-200 max-w-lg mb-4 text-sm md:text-base relative z-10">
                     Search millions of packages via winget. Explore standard apps or enable SMART Search to find apps using natural language.
                 </p>
 
                 <div className="w-full max-w-2xl relative z-10 group">
                     <div className={`absolute -inset-1 bg-gradient-to-r ${smartSearchEnabled ? "from-primary/50 to-purple-500/50" : "from-slate-500/20 to-slate-400/20"} rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500`} />
-                    <div className="relative flex items-center bg-surface border border-white/10 p-2 rounded-2xl shadow-xl">
+                    <div className="relative flex items-center bg-card border border-white/10 p-2 rounded-2xl shadow-xl">
                         <div className="pl-4 flex-1 flex items-center gap-3">
-                            <Search className="w-5 h-5 text-slate-500" />
+                            <Search className="w-5 h-5 text-slate-500 dark:text-slate-300" />
                             <input
                                 type="text"
                                 placeholder={smartSearchEnabled ? "E.g., An app that plays MKV videos..." : "Search packages by name or ID (e.g., VLC)"}
@@ -102,7 +102,7 @@ export function AppsPage() {
 
                         <div className="flex items-center gap-3 pr-2 border-l border-white/10 pl-4 ml-2">
                             <div className="hidden sm:flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-slate-500 tracking-wider">SMART SEARCH</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300 tracking-wider">SMART SEARCH</span>
                                 <button
                                     onClick={() => setSmartSearchEnabled(!smartSearchEnabled)}
                                     className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus:outline-none ${smartSearchEnabled ? "bg-primary" : "bg-slate-700"}`}
@@ -129,14 +129,14 @@ export function AppsPage() {
                     <div className="flex items-center bg-black/5 dark:bg-white/5 border border-border p-1 rounded-xl">
                         <button
                             onClick={() => setViewMode("carousel")}
-                            className={`p-2 rounded-lg transition-all flex items-center gap-2 ${viewMode === "carousel" ? "bg-surface shadow-sm border border-border/50 text-foreground" : "text-slate-500 hover:text-slate-400"}`}
+                            className={`p-2 rounded-lg transition-all flex items-center gap-2 ${viewMode === "carousel" ? "bg-card shadow-sm border border-border/50 text-foreground" : "text-slate-500 dark:text-slate-300 hover:text-slate-400"}`}
                         >
                             <LayoutGrid className="w-4 h-4" />
                             <span className="text-xs font-bold">Carousel</span>
                         </button>
                         <button
                             onClick={() => setViewMode("list")}
-                            className={`p-2 rounded-lg transition-all flex items-center gap-2 ${viewMode === "list" ? "bg-surface shadow-sm border border-border/50 text-foreground" : "text-slate-500 hover:text-slate-400"}`}
+                            className={`p-2 rounded-lg transition-all flex items-center gap-2 ${viewMode === "list" ? "bg-card shadow-sm border border-border/50 text-foreground" : "text-slate-500 dark:text-slate-300 hover:text-slate-400"}`}
                         >
                             <List className="w-4 h-4" />
                             <span className="text-xs font-bold">List</span>
@@ -148,7 +148,7 @@ export function AppsPage() {
             {/* Results or Curated Categories Grid */}
             <div className="flex-1 w-full max-w-[1300px] mx-auto pb-20">
                 {isSearching ? (
-                    <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-200">
                         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
                         <p className="font-medium text-[15px]">Scanning package repositories...</p>
                     </div>
@@ -174,7 +174,7 @@ export function AppsPage() {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.15, ease: "easeOut" }}
                                         key={`${app.id}-${idx}`}
-                                        className="group relative bg-surface border border-border rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all flex flex-col gap-4 cursor-pointer"
+                                        className="group relative bg-card border border-border rounded-2xl p-5 hover:border-primary/50 dark:hover:border-primary/40 hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(59,130,246,0.15)] transition-all flex flex-col gap-4 cursor-pointer"
                                         onClick={(e) => {
                                             if ((e.target as HTMLElement).closest("button")) return;
                                             setSelectedAppId({ id: app.id, name: app.name });
@@ -186,9 +186,9 @@ export function AppsPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-[15px] text-foreground truncate group-hover:text-primary transition-colors">{app.name}</h3>
-                                                <p className="text-xs text-slate-500 truncate mt-0.5">{app.id}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-300 truncate mt-0.5">{app.id}</p>
                                                 <div className="flex items-center gap-2 mt-2">
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 border border-border text-slate-500 dark:text-slate-400">v{app.version}</span>
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/5 border border-border text-slate-500 dark:text-slate-200">v{app.version}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -207,7 +207,7 @@ export function AppsPage() {
                                                 onClick={(e) => handleInstall(app.id, e)}
                                                 disabled={isInstalling || isInstalledLocally}
                                                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${isInstalledLocally || isInstalling
-                                                    ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
+                                                    ? "bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-300 cursor-not-allowed border border-border/50"
                                                     : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                     }`}
                                             >
@@ -228,19 +228,19 @@ export function AppsPage() {
                                         <h2 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
                                             {category.name}
                                         </h2>
-                                        <p className="text-[14px] text-slate-500 mt-1">{category.description}</p>
+                                        <p className="text-[14px] text-slate-500 dark:text-slate-300 mt-1">{category.description}</p>
                                     </div>
                                     {viewMode === "carousel" && (
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => scrollCarousel(category.id, "left")}
-                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                                className="p-1.5 rounded-full bg-card border border-border text-slate-500 dark:text-slate-200 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                             >
                                                 <ChevronLeft className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => scrollCarousel(category.id, "right")}
-                                                className="p-1.5 rounded-full bg-surface border border-border text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                                className="p-1.5 rounded-full bg-card border border-border text-slate-500 dark:text-slate-200 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                             >
                                                 <ChevronRight className="w-5 h-5" />
                                             </button>
@@ -282,11 +282,11 @@ export function AppsPage() {
                                                                 {app.name}
                                                                 {app.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
                                                             </h3>
-                                                            <p className="text-[11px] text-slate-500 truncate mt-0.5">{app.publisher}</p>
+                                                            <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5">{app.publisher}</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="text-[12px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mt-1 flex-1">
+                                                    <div className="text-[12px] text-slate-500 dark:text-slate-200 line-clamp-3 leading-relaxed mt-1 flex-1">
                                                         {app.description}
                                                     </div>
 
@@ -304,7 +304,7 @@ export function AppsPage() {
                                                             onClick={(e) => handleInstall(app.id, e)}
                                                             disabled={isInstalling || isInstalledLocally}
                                                             className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-all flex items-center gap-2 ${isInstalledLocally || isInstalling
-                                                                ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
+                                                                ? "bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-300 cursor-not-allowed border border-border/50"
                                                                 : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                                 }`}
                                                         >
@@ -341,7 +341,7 @@ export function AppsPage() {
                                                                 <h3 className="font-bold text-[13px] text-foreground truncate group-hover:text-primary transition-colors">{app.name}</h3>
                                                                 {app.is_verified && <BadgeCheck className="w-3 h-3 text-blue-500 shrink-0" />}
                                                             </div>
-                                                            <div className="text-[11px] text-slate-500 truncate mt-0.5 max-w-[200px] hidden sm:block">
+                                                            <div className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 max-w-[200px] hidden sm:block">
                                                                 by {app.publisher}
                                                             </div>
                                                         </div>
@@ -364,7 +364,7 @@ export function AppsPage() {
                                                             onClick={(e) => handleInstall(app.id, e)}
                                                             disabled={isInstalling || isInstalledLocally}
                                                             className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 min-w-[70px] ${isInstalledLocally || isInstalling
-                                                                ? "bg-black/5 dark:bg-white/5 text-slate-500 cursor-not-allowed border border-border/50"
+                                                                ? "bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-300 cursor-not-allowed border border-border/50"
                                                                 : "bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 shadow-primary/20"
                                                                 }`}
                                                         >

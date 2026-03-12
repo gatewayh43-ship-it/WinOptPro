@@ -42,7 +42,7 @@ export function ExpertModeGate({ children, message, hideCompletely = false }: Ex
                     <Lock className="w-6 h-6 text-amber-400" />
                 </div>
                 <h4 className="text-[15px] font-bold text-foreground mb-1.5">Expert Mode Required</h4>
-                <p className="text-[13px] text-slate-400 max-w-xs leading-relaxed mb-4">
+                <p className="text-[13px] text-slate-400 dark:text-slate-200 max-w-xs leading-relaxed mb-4">
                     {message || "This content is hidden because it requires advanced knowledge. Enable Expert Mode to view."}
                 </p>
                 <button
@@ -76,7 +76,7 @@ export function ExpertModeGate({ children, message, hideCompletely = false }: Ex
                                     </div>
                                     <h2 className="text-lg font-bold text-white">Expert Mode Warning</h2>
                                 </div>
-                                <button onClick={() => setShowConfirm(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors">
+                                <button onClick={() => setShowConfirm(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 dark:text-slate-300 hover:text-white transition-colors">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -86,12 +86,12 @@ export function ExpertModeGate({ children, message, hideCompletely = false }: Ex
                                     These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
                                     carry a higher risk of causing system issues or requiring a restore point.
                                 </p>
-                                <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
+                                <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-3 leading-relaxed">
                                     Only enable this if you understand the risks and have a system restore point ready.
                                 </p>
                             </div>
                             <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
-                                <button onClick={() => setShowConfirm(false)} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                                <button onClick={() => setShowConfirm(false)} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 dark:text-slate-200 hover:text-white hover:bg-white/5 transition-colors">
                                     Cancel
                                 </button>
                                 <button

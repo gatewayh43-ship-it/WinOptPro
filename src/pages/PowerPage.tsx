@@ -11,9 +11,9 @@ function BatterySection({ batteryHealth }: { batteryHealth: import("../hooks/use
     if (!batteryHealth.has_battery) {
         return (
             <div className="bento-card p-5 flex items-center gap-4 opacity-60">
-                <BatteryMedium className="w-6 h-6 text-slate-500" />
+                <BatteryMedium className="w-6 h-6 text-slate-500 dark:text-slate-300" />
                 <div>
-                    <p className="text-sm font-bold text-slate-400">Battery</p>
+                    <p className="text-sm font-bold text-slate-400 dark:text-slate-200">Battery</p>
                     <p className="text-[12px] text-slate-600">No battery detected — desktop system</p>
                 </div>
             </div>
@@ -32,7 +32,7 @@ function BatterySection({ batteryHealth }: { batteryHealth: import("../hooks/use
             <div className="flex-1 w-full">
                 <div className="flex items-center justify-between mb-2">
                     <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Battery Health</p>
+                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">Battery Health</p>
                         <p className="text-sm font-semibold text-foreground mt-0.5">{batteryHealth.status}</p>
                     </div>
                     <span className="text-2xl font-black text-foreground">{pct}%</span>
@@ -67,7 +67,7 @@ function SliderRow({ label, value, min, max, unit, onChange }: {
     return (
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-                <span className="text-[12px] font-semibold text-slate-400">{label}</span>
+                <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-200">{label}</span>
                 <span className="text-[12px] font-bold text-foreground tabular-nums">{displayValue}</span>
             </div>
             <input
@@ -97,7 +97,7 @@ function PowerSettingsPanel({
     if (isLoading) return (
         <div className="bento-card p-6 flex items-center justify-center gap-3">
             <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <span className="text-sm text-slate-400">Loading settings...</span>
+            <span className="text-sm text-slate-400 dark:text-slate-200">Loading settings...</span>
         </div>
     );
 
@@ -108,14 +108,14 @@ function PowerSettingsPanel({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Settings2 className="w-4 h-4 text-primary" />
-                    <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Power Settings</span>
+                    <span className="text-[12px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest">Power Settings</span>
                 </div>
                 <div className="flex gap-1.5">
                     {(["ac", "dc"] as const).map(t => (
                         <button
                             key={t}
                             onClick={() => setTab(t)}
-                            className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-colors border ${tab === t ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500 hover:text-foreground"}`}
+                            className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-colors border ${tab === t ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500 dark:text-slate-300 hover:text-foreground"}`}
                         >
                             {t === "ac" ? "Plugged In" : "Battery"}
                         </button>
@@ -188,7 +188,7 @@ export function PowerPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center">
                         Power <span className="text-gradient ml-2">Manager</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Configure Windows energy profiles to prioritize either raw performance or thermal efficiency.
                     </p>
                 </div>
@@ -220,7 +220,7 @@ export function PowerPage() {
 
             {/* Available Plans Grid */}
             <div className="flex flex-col min-h-0">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center px-1">
+                <h3 className="text-sm font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-4 flex items-center px-1">
                     <Info className="w-4 h-4 mr-2" />
                     Available Profiles
                     <span className="ml-2 text-[10px] text-slate-600">(click to select + edit settings)</span>

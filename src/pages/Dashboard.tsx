@@ -55,7 +55,7 @@ const SystemScore = ({ score }: { score: number }) => {
             </svg>
             <div className={`absolute flex flex-col items-center justify-center ${dropShadowClass}`}>
                 <span className="text-3xl md:text-4xl font-black font-heading tracking-tighter text-foreground">{score}</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Vitals</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-0.5">Vitals</span>
             </div>
         </div>
     );
@@ -99,7 +99,7 @@ function computeHealthScore(vitals: ReturnType<typeof useSystemVitals>["vitals"]
 
 /** Get a status badge for CPU temperature. */
 function tempBadge(tempC: number | null) {
-    if (tempC === null) return { label: "N/A", bg: "bg-slate-400/10", text: "text-slate-400", border: "border-slate-400/20" };
+    if (tempC === null) return { label: "N/A", bg: "bg-slate-400/10", text: "text-slate-400 dark:text-slate-200", border: "border-slate-400/20" };
     if (tempC > 80) return { label: "High Temp", bg: "bg-red-400/10", text: "text-red-400", border: "border-red-400/20" };
     if (tempC > 65) return { label: "Warm", bg: "bg-amber-400/10", text: "text-amber-400", border: "border-amber-400/20" };
     return { label: "Cool", bg: "bg-emerald-400/10", text: "text-emerald-400", border: "border-emerald-400/20" };
@@ -186,7 +186,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-3 font-heading">
                             System <span className="text-gradient">Engine</span>
                         </h2>
-                        <p className="text-sm sm:text-[15px] text-slate-400/90 max-w-lg leading-relaxed font-medium">
+                        <p className="text-sm sm:text-[15px] text-slate-400 dark:text-slate-200/90 max-w-lg leading-relaxed font-medium">
                             {vitals?.system.osVersion ?? 'Loading system information…'}
                             {vitals?.system.isAdmin === false && (
                                 <span className="ml-2 text-amber-400 text-xs">(non-admin)</span>
@@ -227,7 +227,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                     {/* Background Ambient Glow Based on Score */}
                     <div className="absolute inset-0 bg-emerald-500/5 blur-3xl opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none"></div>
 
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 relative z-10">System Health Score</h3>
+                    <h3 className="text-sm font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest mb-6 relative z-10">System Health Score</h3>
                     <SystemScore score={healthScore} />
 
                     <div className="mt-8 flex items-center bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border relative z-10">
@@ -246,14 +246,14 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                                 <Activity className="w-3 h-3 mr-1" /> {cpuBadge.label}
                             </span>
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Processor</p>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1">Processor</p>
                         <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">
                             {vitals?.cpu.model ?? "Loading…"}
                         </h3>
                         <div className="flex items-baseline justify-between mt-auto">
                             <p className="text-3xl font-black text-foreground tracking-tighter">
                                 {vitals?.cpu.tempC != null ? Math.round(vitals.cpu.tempC) : "—"}
-                                <span className="text-lg text-slate-400 font-medium">°C</span>
+                                <span className="text-lg text-slate-400 dark:text-slate-200 font-medium">°C</span>
                             </p>
                             <p className="text-sm font-semibold text-blue-500 dark:text-blue-400">
                                 {vitals ? `${vitals.cpu.freqGhz} GHz` : "—"}
@@ -269,14 +269,14 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                                 {ramBdg.label}
                             </span>
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">System Memory</p>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1">System Memory</p>
                         <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">
                             {vitals ? `${Math.round(vitals.ram.totalMb / 1024)} GB RAM` : "Loading…"}
                         </h3>
                         <div className="flex items-baseline justify-between mt-auto">
                             <p className="text-3xl font-black text-foreground tracking-tighter">
                                 {vitals ? Math.round(vitals.ram.usagePct) : "—"}
-                                <span className="text-lg text-slate-400 font-medium">%</span>
+                                <span className="text-lg text-slate-400 dark:text-slate-200 font-medium">%</span>
                             </p>
                             <p className="text-sm font-semibold text-emerald-500 dark:text-emerald-400">
                                 {vitals ? `${(vitals.ram.usedMb / 1024).toFixed(1)} GB Used` : "—"}
@@ -290,14 +290,14 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                         <div className="flex justify-between items-start mb-6 relative z-10">
                             <BlinkistIcon icon={HardDrive} colorClass="bg-purple-500/10 text-purple-400 border border-purple-500/20" />
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1 relative z-10">Primary Drive</p>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1 relative z-10">Primary Drive</p>
                         <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate relative z-10">
                             {primaryDriveName || "Loading…"}
                         </h3>
                         <div className="flex items-baseline justify-between mt-auto relative z-10">
                             <p className="text-3xl font-black text-foreground tracking-tighter">
                                 {primaryDrive ? Math.round(primaryDrive.totalGb - primaryDrive.freeGb) : "—"}
-                                <span className="text-lg text-slate-400 font-medium"> GB</span>
+                                <span className="text-lg text-slate-400 dark:text-slate-200 font-medium"> GB</span>
                             </p>
                             <p className="text-sm font-semibold text-purple-500 dark:text-purple-400">{primaryDriveFree}</p>
                         </div>
@@ -308,14 +308,14 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                         <div className="flex justify-between items-start mb-6">
                             <BlinkistIcon icon={Wifi} colorClass="bg-orange-500/10 text-orange-400 border border-orange-500/20" />
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Network Adapter</p>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1">Network Adapter</p>
                         <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">
                             {primaryNet?.name ?? "Loading…"}
                         </h3>
                         <div className="flex items-baseline justify-between mt-auto">
                             <p className="text-2xl font-black text-foreground tracking-tighter">
                                 {primaryNet ? `${(primaryNet.data.receivedBytes / (1024 * 1024 * 1024)).toFixed(1)}` : "—"}
-                                <span className="text-sm text-slate-400 font-medium ml-1">GB recv</span>
+                                <span className="text-sm text-slate-400 dark:text-slate-200 font-medium ml-1">GB recv</span>
                             </p>
                             <p className="text-sm font-semibold text-orange-500 dark:text-orange-400">
                                 {primaryNet ? `${(primaryNet.data.transmittedBytes / (1024 * 1024 * 1024)).toFixed(1)} GB sent` : "—"}
@@ -328,7 +328,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                         <div className="flex justify-between items-start mb-6">
                             <BlinkistIcon icon={Clock} colorClass="bg-sky-500/10 text-sky-400 border border-sky-500/20" />
                         </div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Uptime</p>
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1">Uptime</p>
                         <h3 className="text-[15px] font-bold text-card-foreground mb-3 truncate">
                             System Session
                         </h3>
@@ -361,12 +361,12 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                     <BlinkistIcon icon={ShieldAlert} colorClass="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.2)]" />
                     <div className="flex-1">
                         <h3 className="text-base font-bold text-foreground mb-0.5">Privacy Intervention Recommended</h3>
-                        <p className="text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                        <p className="text-[14px] text-slate-500 dark:text-slate-200 leading-relaxed font-medium">
                             Diagnostic tracking is active. Deploy countermeasures to secure OS telemetry output.
                         </p>
                     </div>
                     <div className="hidden md:flex bg-white/5 group-hover:bg-white/10 p-2 rounded-full border border-white/10 transition-all group-hover:translate-x-0.5">
-                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-foreground transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-200 group-hover:text-foreground transition-colors" />
                     </div>
                 </div>
             </motion.div>

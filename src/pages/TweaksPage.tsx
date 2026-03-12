@@ -118,10 +118,10 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     };
 
     const riskFilterStyles: Record<string, { active: string; inactive: string }> = {
-        All: { active: "bg-primary text-white border-transparent", inactive: "bg-transparent text-slate-500 border-border hover:border-slate-500 hover:text-slate-600 dark:hover:text-slate-300" },
-        Green: { active: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-emerald-500/40 hover:text-emerald-700 dark:hover:text-emerald-400" },
-        Yellow: { active: "bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-amber-500/40 hover:text-amber-700 dark:hover:text-amber-400" },
-        Red: { active: "bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/40", inactive: "bg-transparent text-slate-500 border-border hover:border-red-500/40 hover:text-red-700 dark:hover:text-red-400" },
+        All: { active: "bg-primary text-white border-transparent", inactive: "bg-transparent text-slate-600 dark:text-slate-200 border-border hover:border-slate-400 hover:text-slate-700 dark:hover:text-slate-200" },
+        Green: { active: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40", inactive: "bg-transparent text-slate-600 dark:text-slate-200 border-border hover:border-emerald-500/40 hover:text-emerald-700 dark:hover:text-emerald-300" },
+        Yellow: { active: "bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40", inactive: "bg-transparent text-slate-600 dark:text-slate-200 border-border hover:border-amber-500/40 hover:text-amber-700 dark:hover:text-amber-300" },
+        Red: { active: "bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/40", inactive: "bg-transparent text-slate-600 dark:text-slate-200 border-border hover:border-red-500/40 hover:text-red-700 dark:hover:text-red-300" },
     };
 
     // Shared inspector content — reused in sidebar and mobile drawer
@@ -135,7 +135,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
             className="space-y-6"
         >
             <div>
-                <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 flex items-center">
+                <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-200 uppercase tracking-widest mb-2 flex items-center">
                     <Cpu className="w-3.5 h-3.5 mr-1.5" /> Mechanical Summary
                 </h4>
                 <p className="text-slate-700 dark:text-slate-200 leading-relaxed text-[13px] font-medium bg-black/5 dark:bg-[#121215] p-4 rounded-2xl border border-border/50">
@@ -148,14 +148,14 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     <h4 className="text-[11px] font-bold text-emerald-500 uppercase tracking-widest mb-1.5 flex items-center">
                         <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Performance Gain
                     </h4>
-                    <p className="text-[13px] text-emerald-100/90 font-medium leading-relaxed">{tweak.educationalContext.pros}</p>
+                    <p className="text-[13px] text-emerald-800 dark:text-emerald-100/90 font-medium leading-relaxed">{tweak.educationalContext.pros}</p>
                 </div>
 
                 <div className="p-4 bg-red-500/[0.04] border border-red-500/10 rounded-2xl">
                     <h4 className="text-[11px] font-bold text-red-500 uppercase tracking-widest mb-1.5 flex items-center">
                         <AlertTriangle className="w-3.5 h-3.5 mr-1.5" /> System Trade-offs
                     </h4>
-                    <p className="text-[13px] text-red-100/90 font-medium leading-relaxed">{tweak.educationalContext.cons}</p>
+                    <p className="text-[13px] text-red-800 dark:text-red-100/90 font-medium leading-relaxed">{tweak.educationalContext.cons}</p>
                 </div>
             </div>
 
@@ -182,11 +182,11 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
             )}
 
             <div className="pt-2">
-                <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center">
+                <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-2 flex items-center">
                     <Code2 className="w-3.5 h-3.5 mr-1.5" /> Payload Injection
                 </h4>
                 <div className="bg-slate-900 dark:bg-[#050505] rounded-xl p-4 border border-border shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
-                    <code className="text-[11px] text-slate-400 font-mono break-all leading-loose">
+                    <code className="text-[11px] text-slate-400 dark:text-slate-200 font-mono break-all leading-loose">
                         <span className="text-blue-500 select-none mr-2">PS&gt;</span>
                         <span className="text-emerald-400 dark:text-emerald-300/80">{tweak.execution.code}</span>
                     </code>
@@ -196,7 +196,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                         <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex items-center">
                             <RotateCcw className="w-3 h-3 mr-1" /> Revert Code
                         </p>
-                        <code className="text-[11px] text-slate-500 font-mono break-all leading-loose">
+                        <code className="text-[11px] text-slate-500 dark:text-slate-300 font-mono break-all leading-loose">
                             <span className="text-blue-500 select-none mr-2">PS&gt;</span>
                             {tweak.execution.revertCode}
                         </code>
@@ -233,14 +233,14 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                             <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center">
                                 {categoryTitle} <span className="text-gradient ml-2">Tuning</span>
                             </h2>
-                            <p className="text-slate-600 dark:text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                            <p className="text-slate-600 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                                 Select granular registry optimizations to dynamically inject into the operating system.
                             </p>
                         </div>
 
                         {selectedTweaks.length === 0 && (
                             <button
-                                className="btn-tactile relative group overflow-hidden px-6 py-2.5 rounded-full font-bold shadow-xl text-sm border mt-2 md:mt-0 shrink-0 bg-black/5 dark:bg-white/5 text-slate-400 cursor-not-allowed border-border"
+                                className="btn-tactile relative group overflow-hidden px-6 py-2.5 rounded-full font-bold shadow-xl text-sm border mt-2 md:mt-0 shrink-0 bg-black/5 dark:bg-white/5 text-slate-400 dark:text-slate-200 cursor-not-allowed border-border"
                                 disabled
                             >
                                 <span className="relative z-10 flex items-center justify-center min-w-[120px]">
@@ -253,7 +253,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     {/* Risk Level Filter Chips */}
                     {tweaks.length > 0 && (
                         <div className="flex items-center gap-2 mb-4 flex-wrap">
-                            <span className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1 shrink-0">
+                            <span className="flex items-center text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mr-1 shrink-0">
                                 <Filter className="w-3 h-3 mr-1" />Filter
                             </span>
                             {(["All", "Green", "Yellow", "Red"] as const).map(risk => {
@@ -386,7 +386,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-700/80 dark:text-emerald-100/50" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-600 dark:text-slate-500"}`}>
+                                                <p className={`text-[13px] leading-relaxed font-medium transition-colors ${isApplied ? "text-emerald-700/80 dark:text-emerald-100/70" : isSelected ? "text-slate-600 dark:text-slate-300" : "text-slate-600 dark:text-slate-200"}`}>
                                                     {tweak.description}
                                                 </p>
                                             </div>
@@ -401,12 +401,12 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                     <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                                         <Zap className="w-5 h-5 text-primary opacity-50" />
                                     </div>
-                                    <p className="text-[14px] font-bold text-slate-500 dark:text-slate-400">No optimizations yet</p>
+                                    <p className="text-[14px] font-bold text-slate-500 dark:text-slate-200">No optimizations yet</p>
                                     <p className="text-[12px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Configurations for this module are being developed.</p>
                                 </div>
                             ) : visibleTweaks.length === 0 ? (
                                 <div className="h-48 flex flex-col items-center justify-center text-center bento-card border-dashed bg-transparent">
-                                    <p className="text-[14px] font-bold text-slate-400">No {filterRisk.toLowerCase()} tweaks</p>
+                                    <p className="text-[14px] font-bold text-slate-400 dark:text-slate-200">No {filterRisk.toLowerCase()} tweaks</p>
                                     <button onClick={() => setFilterRisk("All")} className="text-[12px] text-primary mt-2 hover:underline">Clear filter</button>
                                 </div>
                             ) : null}
@@ -426,7 +426,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 {activeTweak && (
                                     <div className="flex items-center gap-3">
                                         <span className={`w-2 h-2 rounded-full ${riskStyles[activeTweak.riskLevel].dot}`}></span>
-                                        <button onClick={() => setActiveTweak(null)} className="text-slate-500 hover:text-foreground transition-colors">
+                                        <button onClick={() => setActiveTweak(null)} className="text-slate-500 dark:text-slate-300 hover:text-foreground transition-colors">
                                             <X className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
@@ -443,8 +443,8 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                             animate={{ opacity: 1 }}
                                             className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50"
                                         >
-                                            <Info className="w-10 h-10 text-slate-500 dark:text-slate-600 stroke-1" />
-                                            <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 max-w-[200px] leading-relaxed">
+                                            <Info className="w-10 h-10 text-slate-400 dark:text-slate-300 stroke-1" />
+                                            <p className="text-[13px] font-medium text-slate-600 dark:text-slate-200 max-w-[200px] leading-relaxed">
                                                 Select a configuration module to intercept its behavioral profile.
                                             </p>
                                         </motion.div>
@@ -487,11 +487,11 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                         <Info className="w-4 h-4 mr-2 text-primary" />
                                         Inspector
                                     </h3>
-                                    <p className="text-[12px] text-slate-500 mt-0.5 font-medium truncate max-w-[220px]">{activeTweak.name}</p>
+                                    <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5 font-medium truncate max-w-[220px]">{activeTweak.name}</p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className={`w-2 h-2 rounded-full ${riskStyles[activeTweak.riskLevel].dot}`}></span>
-                                    <button onClick={() => setActiveTweak(null)} className="text-slate-400 hover:text-foreground transition-colors p-1">
+                                    <button onClick={() => setActiveTweak(null)} className="text-slate-400 dark:text-slate-200 hover:text-foreground transition-colors p-1">
                                         <X className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -539,7 +539,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
 
                         <button
                             onClick={() => setSelectedTweaks([])}
-                            className="text-[12px] font-medium text-slate-400 hover:text-foreground transition-colors whitespace-nowrap"
+                            className="text-[12px] font-medium text-slate-400 dark:text-slate-200 hover:text-foreground transition-colors whitespace-nowrap"
                         >
                             Clear
                         </button>
@@ -656,14 +656,14 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="text-[15px] font-bold text-foreground">Revert Tweak?</h3>
-                                    <p className="text-[13px] text-slate-400 mt-1">
+                                    <p className="text-[13px] text-slate-400 dark:text-slate-200 mt-1">
                                         <span className="font-bold text-foreground">{revertTarget.name}</span> will be reversed and the system restored to its previous state.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="mb-5">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Revert Command</p>
+                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1.5">Revert Command</p>
                                 <div className="bg-slate-900 dark:bg-[#050505] rounded-xl p-3 border border-border">
                                     <code className="text-[11px] text-blue-400/80 font-mono break-all leading-loose">
                                         <span className="text-blue-500 select-none mr-2">PS&gt;</span>
@@ -676,7 +676,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                 <button
                                     onClick={() => setRevertTarget(null)}
                                     disabled={isReverting}
-                                    className="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-400 hover:text-foreground hover:bg-white/5 transition-colors disabled:opacity-50"
+                                    className="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-400 dark:text-slate-200 hover:text-foreground hover:bg-white/5 transition-colors disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
@@ -718,7 +718,7 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                         </div>
                                         <h2 className="text-lg font-bold text-white">Expert Mode Warning</h2>
                                     </div>
-                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors">
+                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-500 dark:text-slate-300 hover:text-white transition-colors">
                                         <X className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -728,12 +728,12 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                         These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
                                         carry a higher risk of causing system issues or requiring a restore point.
                                     </p>
-                                    <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
+                                    <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-3 leading-relaxed">
                                         Only enable this if you understand the risks and have a system restore point ready.
                                     </p>
                                 </div>
                                 <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
-                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                                    <button onClick={() => setShowBannerExpertConfirm(false)} className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 dark:text-slate-200 hover:text-white hover:bg-white/5 transition-colors">
                                         Cancel
                                     </button>
                                     <button

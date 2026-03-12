@@ -55,7 +55,7 @@ export function HistoryPage() {
             case "APPLIED": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
             case "REVERTED": return <RotateCcw className="w-4 h-4 text-blue-400" />;
             case "FAILED": return <XCircle className="w-4 h-4 text-red-400" />;
-            default: return <Clock className="w-4 h-4 text-slate-400" />;
+            default: return <Clock className="w-4 h-4 text-slate-400 dark:text-slate-200" />;
         }
     };
 
@@ -92,7 +92,7 @@ export function HistoryPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground">
                         Tweak <span className="text-gradient">History</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Full log of every optimization deployed, reverted, or failed — with timestamps and output.
                     </p>
                 </div>
@@ -104,7 +104,7 @@ export function HistoryPage() {
                                 onClick={() => setFilterAction(f.value)}
                                 className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${filterAction === f.value
                                     ? "bg-primary/15 text-primary border border-primary/20"
-                                    : "text-slate-500 hover:text-foreground"
+                                    : "text-slate-500 dark:text-slate-300 hover:text-foreground"
                                     }`}
                             >
                                 {f.label}
@@ -134,7 +134,7 @@ export function HistoryPage() {
             ) : filtered.length === 0 ? (
                 <div className="bento-card border-dashed flex flex-col items-center justify-center py-20 text-center">
                     <Clock className="w-10 h-10 text-slate-600 mb-4" />
-                    <p className="text-[14px] font-bold text-slate-400">No history entries yet</p>
+                    <p className="text-[14px] font-bold text-slate-400 dark:text-slate-200">No history entries yet</p>
                     <p className="text-[12px] text-slate-600 mt-1 max-w-[220px] leading-relaxed">
                         Deploy your first tweak to start recording history.
                     </p>
@@ -144,8 +144,8 @@ export function HistoryPage() {
                     {Object.entries(grouped).map(([date, items]) => (
                         <div key={date}>
                             <div className="flex items-center gap-3 mb-4">
-                                <Calendar className="w-4 h-4 text-slate-500" />
-                                <h3 className="text-[13px] font-bold text-slate-400 uppercase tracking-widest">{date}</h3>
+                                <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-300" />
+                                <h3 className="text-[13px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest">{date}</h3>
                                 <div className="flex-1 h-px bg-border" />
                                 <span className="text-[11px] text-slate-600 font-mono">{items.length} entries</span>
                             </div>
@@ -182,12 +182,12 @@ export function HistoryPage() {
                                                             {actionIcon(entry.action)}
                                                             <div className="min-w-0">
                                                                 <h4 className="text-[14px] font-bold text-foreground truncate">{entry.tweakName}</h4>
-                                                                <p className="text-[11px] text-slate-500 font-mono mt-0.5">{time} · {entry.durationMs}ms</p>
+                                                                <p className="text-[11px] text-slate-500 dark:text-slate-300 font-mono mt-0.5">{time} · {entry.durationMs}ms</p>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-2 shrink-0">
                                                             {actionBadge(entry.action, entry.status)}
-                                                            <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                                                            <ChevronDown className={`w-4 h-4 text-slate-500 dark:text-slate-300 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                                                         </div>
                                                     </div>
 
@@ -202,7 +202,7 @@ export function HistoryPage() {
                                                             >
                                                                 <div className="mt-4 space-y-3 border-t border-border/50 pt-4">
                                                                     <div>
-                                                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Command</p>
+                                                                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1.5">Command</p>
                                                                         <div className="bg-slate-900 dark:bg-[#050505] rounded-lg p-3 border border-border">
                                                                             <code className="text-[11px] text-emerald-400/80 font-mono break-all leading-loose">
                                                                                 {entry.commandExecuted}
@@ -212,7 +212,7 @@ export function HistoryPage() {
                                                                     {entry.stdout && (
                                                                         <div>
                                                                             <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1.5">stdout</p>
-                                                                            <pre className="text-[11px] text-slate-400 font-mono bg-white/[0.02] rounded-lg p-3 border border-border overflow-x-auto">
+                                                                            <pre className="text-[11px] text-slate-400 dark:text-slate-200 font-mono bg-white/[0.02] rounded-lg p-3 border border-border overflow-x-auto">
                                                                                 {entry.stdout}
                                                                             </pre>
                                                                         </div>
@@ -225,7 +225,7 @@ export function HistoryPage() {
                                                                             </pre>
                                                                         </div>
                                                                     )}
-                                                                    <div className="flex items-center gap-4 text-[11px] text-slate-500 font-mono">
+                                                                    <div className="flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-300 font-mono">
                                                                         <span>exit: {entry.exitCode}</span>
                                                                         <span>id: {entry.tweakId}</span>
                                                                     </div>

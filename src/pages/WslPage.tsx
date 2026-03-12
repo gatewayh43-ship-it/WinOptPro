@@ -8,7 +8,7 @@ type Tab = "overview" | "distros" | "settings";
 
 const STATE_COLORS: Record<string, string> = {
     Running: "bg-green-500/20 text-green-400 border-green-500/30",
-    Stopped: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+    Stopped: "bg-slate-500/20 text-slate-400 dark:text-slate-200 border-slate-500/30",
     Installing: "bg-blue-500/20 text-blue-400 border-blue-500/30",
 };
 
@@ -73,7 +73,7 @@ export function WslPage() {
                 </div>
                 <div>
                     <h1 className="text-xl font-bold text-foreground">WSL Manager</h1>
-                    <p className="text-[13px] text-slate-400">Windows Subsystem for Linux — full lifecycle management</p>
+                    <p className="text-[13px] text-slate-400 dark:text-slate-200">Windows Subsystem for Linux — full lifecycle management</p>
                 </div>
             </div>
 
@@ -85,7 +85,7 @@ export function WslPage() {
                         onClick={() => setActiveTab(t.id)}
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${activeTab === t.id
                             ? "bg-primary text-white"
-                            : "text-slate-400 hover:text-foreground hover:bg-white/5"
+                            : "text-slate-400 dark:text-slate-200 hover:text-foreground hover:bg-white/5"
                             }`}
                     >
                         <t.icon className="w-3.5 h-3.5" />
@@ -101,7 +101,7 @@ export function WslPage() {
                     <div className="glass-panel rounded-2xl border border-border p-5 flex flex-wrap items-center gap-3">
                         <span className={`text-[12px] font-semibold px-3 py-1 rounded-full border ${status?.isEnabled
                             ? "bg-green-500/20 text-green-400 border-green-500/30"
-                            : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                            : "bg-slate-500/20 text-slate-400 dark:text-slate-200 border-slate-500/30"
                             }`}>
                             WSL {status?.isEnabled ? "Enabled" : "Disabled"}
                         </span>
@@ -122,7 +122,7 @@ export function WslPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-[14px] font-semibold text-foreground">WSL Feature</p>
-                                <p className="text-[12px] text-slate-400 mt-0.5">
+                                <p className="text-[12px] text-slate-400 dark:text-slate-200 mt-0.5">
                                     {status?.isEnabled ? "WSL is currently enabled" : "WSL is currently disabled"}
                                 </p>
                             </div>
@@ -149,7 +149,7 @@ export function WslPage() {
                                     onClick={() => setDefaultVersion(v)}
                                     className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-colors ${status?.defaultVersion === v
                                         ? "bg-primary text-white"
-                                        : "bg-white/5 text-slate-400 hover:text-foreground hover:bg-white/10 border border-border"
+                                        : "bg-white/5 text-slate-400 dark:text-slate-200 hover:text-foreground hover:bg-white/10 border border-border"
                                         }`}
                                 >
                                     WSL {v}
@@ -167,10 +167,10 @@ export function WslPage() {
                                     <div className="flex items-center gap-2">
                                         <p className="text-[14px] font-semibold text-foreground">Linux Mode</p>
                                         <div title="Launch your Linux desktop via WSLg (Windows 11 only)">
-                                            <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                                            <HelpCircle className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                                         </div>
                                     </div>
-                                    <p className="text-[12px] text-slate-400 mt-0.5">Open your Linux desktop via WSLg</p>
+                                    <p className="text-[12px] text-slate-400 dark:text-slate-200 mt-0.5">Open your Linux desktop via WSLg</p>
                                     {!setupState?.wslgSupported && (
                                         <p className="text-[11px] text-amber-400 mt-1 flex items-center gap-1">
                                             <AlertTriangle className="w-3 h-3" />
@@ -249,7 +249,7 @@ export function WslPage() {
                         </div>
                         <div className="p-4 flex flex-col gap-3">
                             {!status || status.distros.length === 0 ? (
-                                <p className="text-[13px] text-slate-400 py-4">No distros installed.</p>
+                                <p className="text-[13px] text-slate-400 dark:text-slate-200 py-4">No distros installed.</p>
                             ) : (
                                 status.distros.map(distro => (
                                     <div
@@ -263,7 +263,7 @@ export function WslPage() {
                                                 {distro.isDefault && (
                                                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                                                 )}
-                                                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                                                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/10 text-slate-600 border-black/10 dark:bg-white/10 dark:text-slate-300 dark:border-white/10">
                                                     WSL{distro.version}
                                                 </span>
                                                 <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${STATE_COLORS[distro.state] ?? STATE_COLORS.Stopped}`}>
@@ -313,7 +313,7 @@ export function WslPage() {
                                         <span className="text-xl">{distro.emoji}</span>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[12px] font-semibold text-foreground truncate">{distro.name}</p>
-                                            <p className="text-[11px] text-slate-500 font-mono">{distro.id}</p>
+                                            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-mono">{distro.id}</p>
                                         </div>
                                         {installed ? (
                                             <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
@@ -349,7 +349,7 @@ export function WslPage() {
                         <div className="glass-panel rounded-2xl border border-border overflow-hidden">
                             <div className="px-5 py-4 border-b border-border">
                                 <h2 className="text-[14px] font-semibold text-foreground">Global WSL Configuration</h2>
-                                <p className="text-[11px] text-slate-400 mt-0.5">Writes to <code className="font-mono">~/.wslconfig</code></p>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-200 mt-0.5">Writes to <code className="font-mono">~/.wslconfig</code></p>
                             </div>
                             <div className="p-5 flex flex-col gap-4">
                                 {/* Memory */}
@@ -364,7 +364,7 @@ export function WslPage() {
                                             className="w-20 px-2 py-1.5 rounded-lg bg-white/5 border border-border text-[13px] text-foreground text-right focus:outline-none focus:border-primary"
                                             placeholder="8"
                                         />
-                                        <span className="text-[12px] text-slate-400">GB</span>
+                                        <span className="text-[12px] text-slate-400 dark:text-slate-200">GB</span>
                                     </div>
                                 </SettingRow>
 
@@ -393,7 +393,7 @@ export function WslPage() {
                                             className="w-20 px-2 py-1.5 rounded-lg bg-white/5 border border-border text-[13px] text-foreground text-right focus:outline-none focus:border-primary"
                                             placeholder="2"
                                         />
-                                        <span className="text-[12px] text-slate-400">GB</span>
+                                        <span className="text-[12px] text-slate-400 dark:text-slate-200">GB</span>
                                     </div>
                                 </SettingRow>
 
@@ -449,7 +449,7 @@ export function WslPage() {
                                     </button>
                                 </div>
 
-                                <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                                <p className="text-[11px] text-slate-500 dark:text-slate-300 flex items-center gap-1">
                                     <AlertTriangle className="w-3 h-3 text-amber-400" />
                                     Run <code className="font-mono mx-1 text-slate-300">wsl --shutdown</code> after saving to apply changes
                                 </p>
@@ -480,7 +480,7 @@ function SettingRow({ label, description, children }: {
         <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-medium text-foreground">{label}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{description}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-200 mt-0.5">{description}</p>
             </div>
             {children}
         </div>
@@ -497,7 +497,7 @@ function ToggleRow({ label, description, value, onChange }: {
         <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-medium text-foreground">{label}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{description}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-200 mt-0.5">{description}</p>
             </div>
             <button
                 onClick={() => onChange(!value)}

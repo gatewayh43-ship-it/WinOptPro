@@ -35,12 +35,12 @@ function StatCard({
 }) {
   return (
     <div className="glass-panel rounded-2xl p-4 flex flex-col gap-2">
-      <div className="flex items-center gap-2 text-slate-400">
+      <div className="flex items-center gap-2 text-slate-400 dark:text-slate-200">
         <Icon className={`w-4 h-4 ${color}`} strokeWidth={1.8} />
         <span className="text-[11px] font-semibold uppercase tracking-wider">{label}</span>
       </div>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+      {sub && <p className="text-[11px] text-slate-500 dark:text-slate-300">{sub}</p>}
     </div>
   );
 }
@@ -62,7 +62,7 @@ function BarMeter({
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-[12px]">
-        <span className="text-slate-400 font-medium">{label}</span>
+        <span className="text-slate-400 dark:text-slate-200 font-medium">{label}</span>
         <span className="text-foreground font-semibold">
           {unit === "GB"
             ? `${(value / 1024).toFixed(1)} / ${(max / 1024).toFixed(0)} GB`
@@ -87,7 +87,7 @@ function GpuPanel({ gpu }: { gpu: GpuMetrics }) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[14px] font-bold text-foreground">GPU Metrics</h3>
-          <p className="text-[12px] text-slate-500 mt-0.5">{gpu.name}</p>
+          <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">{gpu.name}</p>
         </div>
         {!gpu.isNvidia && (
           <div className="flex items-center gap-1.5 text-amber-400 text-[11px] font-medium bg-amber-400/10 px-3 py-1.5 rounded-lg border border-amber-400/20">
@@ -155,7 +155,7 @@ function GpuPanel({ gpu }: { gpu: GpuMetrics }) {
           </div>
         </>
       ) : (
-        <p className="text-[13px] text-slate-500 leading-relaxed">
+        <p className="text-[13px] text-slate-500 dark:text-slate-300 leading-relaxed">
           GPU metrics require an NVIDIA GPU with nvidia-smi available in PATH.
           AMD/Intel metrics are not yet supported.
         </p>
@@ -186,14 +186,14 @@ function PowerLimitPanel({
     <div className="glass-panel rounded-2xl p-5 space-y-4">
       <div>
         <h3 className="text-[14px] font-bold text-foreground">GPU Power Limit</h3>
-        <p className="text-[12px] text-slate-500 mt-0.5">
+        <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">
           Reduce to save power/heat · Increase for maximum performance (requires admin)
         </p>
       </div>
 
       <div className="space-y-2">
         <div className="flex justify-between text-[13px]">
-          <span className="text-slate-400">Limit</span>
+          <span className="text-slate-400 dark:text-slate-200">Limit</span>
           <span className="font-bold text-amber-400">{pending.toFixed(0)} W</span>
         </div>
         <input
@@ -256,7 +256,7 @@ function AutoOptimizePanel({
           <TrendingUp className="w-5 h-5 text-emerald-400" strokeWidth={1.8} />
           <div>
             <p className="text-[14px] font-bold text-foreground">Auto-Optimize on Launch</p>
-            <p className="text-[12px] text-slate-500 mt-0.5">
+            <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">
               Automatically apply gaming tweaks when a game is detected
             </p>
           </div>
@@ -266,7 +266,7 @@ function AutoOptimizePanel({
           className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-[13px] transition-all ${
             autoOptimize
               ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-              : "bg-white/5 border border-border text-slate-400 hover:text-foreground"
+              : "bg-white/5 border border-border text-slate-400 dark:text-slate-200 hover:text-foreground"
           }`}
         >
           {autoOptimize ? (
@@ -278,7 +278,7 @@ function AutoOptimizePanel({
       </div>
       <button
         onClick={() => setExpanded(v => !v)}
-        className="flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-400 transition-colors"
+        className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-300 hover:text-slate-400 transition-colors"
       >
         {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         {expanded ? "Hide" : "Show"} tweaks that will be applied
@@ -286,7 +286,7 @@ function AutoOptimizePanel({
       {expanded && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {AUTO_OPTIMIZE_TWEAKS.map(id => (
-            <span key={id} className="px-2 py-0.5 rounded-md bg-white/5 border border-border text-[11px] font-mono text-slate-400">
+            <span key={id} className="px-2 py-0.5 rounded-md bg-white/5 border border-border text-[11px] font-mono text-slate-400 dark:text-slate-200">
               {id}
             </span>
           ))}
@@ -344,7 +344,7 @@ function BeforeAfterPanel({
           <Camera className="w-5 h-5 text-violet-400" strokeWidth={1.8} />
           <div>
             <p className="text-[14px] font-bold text-foreground">Before / After</p>
-            <p className="text-[12px] text-slate-500 mt-0.5">
+            <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">
               {baseline
                 ? `Baseline: ${new Date(baseline.timestamp).toLocaleTimeString()}`
                 : "Capture a baseline before applying tweaks"}
@@ -366,21 +366,21 @@ function BeforeAfterPanel({
           <table className="w-full text-[12px]">
             <thead>
               <tr className="bg-white/[0.03] border-b border-border">
-                <th className="text-left px-3 py-2 text-slate-500 font-semibold">Metric</th>
-                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Before</th>
-                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Now</th>
-                <th className="text-right px-3 py-2 text-slate-500 font-semibold">Δ</th>
+                <th className="text-left px-3 py-2 text-slate-500 dark:text-slate-300 font-semibold">Metric</th>
+                <th className="text-right px-3 py-2 text-slate-500 dark:text-slate-300 font-semibold">Before</th>
+                <th className="text-right px-3 py-2 text-slate-500 dark:text-slate-300 font-semibold">Now</th>
+                <th className="text-right px-3 py-2 text-slate-500 dark:text-slate-300 font-semibold">Δ</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.label} className="border-b border-border/50 last:border-0">
-                  <td className="px-3 py-2 text-slate-400 font-medium">{row.label}</td>
-                  <td className="px-3 py-2 text-right text-slate-500">{row.before}</td>
+                  <td className="px-3 py-2 text-slate-400 dark:text-slate-200 font-medium">{row.label}</td>
+                  <td className="px-3 py-2 text-right text-slate-500 dark:text-slate-300">{row.before}</td>
                   <td className="px-3 py-2 text-right text-foreground font-semibold">{row.now}</td>
                   <td className={`px-3 py-2 text-right font-bold ${
                     row.delta === null ? "text-slate-600" :
-                    row.delta < 0 ? "text-emerald-400" : row.delta > 0 ? "text-red-400" : "text-slate-500"
+                    row.delta < 0 ? "text-emerald-400" : row.delta > 0 ? "text-red-400" : "text-slate-500 dark:text-slate-300"
                   }`}>
                     {row.delta === null ? "—" : `${row.delta > 0 ? "+" : ""}${row.delta.toFixed(0)}`}
                   </td>
@@ -424,7 +424,7 @@ export function GamingPage() {
             </div>
             Gaming Optimizer
           </h1>
-          <p className="text-[13px] text-slate-500 mt-1">
+          <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-1">
             Real-time game detection, GPU metrics, and performance overlay
           </p>
         </div>
@@ -440,7 +440,7 @@ export function GamingPage() {
               }`}
             />
             <div>
-              <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-300 font-semibold uppercase tracking-wider mb-0.5">
                 Active Game
               </p>
               <p className="text-[15px] font-bold text-foreground">
@@ -455,7 +455,7 @@ export function GamingPage() {
 
         {/* GPU panel */}
         {isLoadingGpu ? (
-          <div className="glass-panel rounded-2xl p-8 flex items-center justify-center gap-3 text-slate-500">
+          <div className="glass-panel rounded-2xl p-8 flex items-center justify-center gap-3 text-slate-500 dark:text-slate-300">
             <RefreshCw className="w-4 h-4 animate-spin" />
             <span className="text-[13px]">Querying GPU metrics…</span>
           </div>
@@ -478,7 +478,7 @@ export function GamingPage() {
             <Monitor className="w-5 h-5 text-primary" strokeWidth={1.8} />
             <div>
               <p className="text-[14px] font-bold text-foreground">Gaming Overlay</p>
-              <p className="text-[12px] text-slate-500 mt-0.5">
+              <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">
                 Transparent always-on-top window showing live GPU stats
               </p>
             </div>
@@ -488,7 +488,7 @@ export function GamingPage() {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-[13px] transition-all ${
               isOverlayVisible
                 ? "bg-primary/10 border border-primary/30 text-primary"
-                : "bg-white/5 border border-border text-slate-400 hover:text-foreground"
+                : "bg-white/5 border border-border text-slate-400 dark:text-slate-200 hover:text-foreground"
             }`}
           >
             {isOverlayVisible ? (
@@ -517,7 +517,7 @@ export function GamingPage() {
         />
 
         {/* Note about game tweaks */}
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15 text-[12px] text-slate-400">
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15 text-[12px] text-slate-400 dark:text-slate-200">
           <Gamepad2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
           <span>
             For registry-level gaming tweaks (GPU scheduling, game mode, timer resolution),

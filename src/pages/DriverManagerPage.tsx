@@ -38,7 +38,7 @@ export function DriverManagerPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
                         Driver <span className="text-gradient">Manager</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         View installed device drivers, identify unsigned drivers, and export the full driver inventory.
                     </p>
                 </div>
@@ -46,7 +46,7 @@ export function DriverManagerPage() {
                     <button
                         onClick={() => exportList(savePath)}
                         disabled={isLoading || allDrivers.length === 0}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:bg-white/5 font-bold text-sm transition-colors disabled:opacity-50"
                         title={`Export to: ${savePath}`}
                     >
                         <Download className="w-4 h-4" />
@@ -55,7 +55,7 @@ export function DriverManagerPage() {
                     <button
                         onClick={() => fetchDrivers(true)}
                         disabled={isLoading}
-                        className="p-2 bg-surface border border-border/50 text-slate-400 rounded-xl hover:text-white hover:border-white/20 transition-all disabled:opacity-50"
+                        className="p-2 bg-card border border-border/50 text-slate-400 dark:text-slate-200 rounded-xl hover:text-white hover:border-white/20 transition-all disabled:opacity-50"
                     >
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                         Refresh
@@ -67,15 +67,15 @@ export function DriverManagerPage() {
             <div className="grid grid-cols-3 gap-4">
                 <div className="bento-card p-4 text-center">
                     <p className="text-2xl font-black text-foreground">{allDrivers.length}</p>
-                    <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Total Drivers</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Total Drivers</p>
                 </div>
                 <div className="bento-card p-4 text-center">
                     <p className="text-2xl font-black text-emerald-400">{allDrivers.length - unsignedCount}</p>
-                    <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Signed</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Signed</p>
                 </div>
                 <div className="bento-card p-4 text-center">
-                    <p className={`text-2xl font-black ${unsignedCount > 0 ? "text-amber-400" : "text-slate-400"}`}>{unsignedCount}</p>
-                    <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Unsigned</p>
+                    <p className={`text-2xl font-black ${unsignedCount > 0 ? "text-amber-400" : "text-slate-400 dark:text-slate-200"}`}>{unsignedCount}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Unsigned</p>
                 </div>
             </div>
 
@@ -88,7 +88,7 @@ export function DriverManagerPage() {
                             onClick={() => setFilter(f)}
                             className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors border ${filter === f
                                 ? "bg-primary/10 border-primary/30 text-primary"
-                                : "border-border text-slate-500 hover:text-foreground hover:border-white/20"
+                                : "border-border text-slate-500 dark:text-slate-300 hover:text-foreground hover:border-white/20"
                                 }`}
                         >
                             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -96,12 +96,12 @@ export function DriverManagerPage() {
                     ))}
                 </div>
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-300" />
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search drivers, providers, classes..."
-                        className="w-full pl-9 pr-4 py-2 bg-surface border border-border rounded-xl text-sm text-foreground placeholder:text-slate-500 focus:outline-none focus:border-primary/50"
+                        className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm text-foreground placeholder:text-slate-500 dark:text-slate-300 focus:outline-none focus:border-primary/50"
                     />
                 </div>
             </div>
@@ -111,16 +111,16 @@ export function DriverManagerPage() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
                         <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                        <p className="text-slate-400 font-medium">Loading drivers (this may take a moment)...</p>
+                        <p className="text-slate-400 dark:text-slate-200 font-medium">Loading drivers (this may take a moment)...</p>
                     </div>
                 ) : error ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
+                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500 dark:text-slate-300">
                         <AlertTriangle className="w-10 h-10 opacity-40" />
                         <p className="font-semibold">Failed to load drivers</p>
                         <p className="text-[12px] text-slate-600 max-w-xs text-center">{error}</p>
                     </div>
                 ) : displayed.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
+                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500 dark:text-slate-300">
                         <Cpu className="w-10 h-10 opacity-30" />
                         <p className="font-semibold">{search ? "No drivers match your search" : "No drivers found"}</p>
                     </div>
@@ -128,12 +128,12 @@ export function DriverManagerPage() {
                     <table className="w-full text-[12px]">
                         <thead className="sticky top-0 bg-card border-b border-border z-10">
                             <tr>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px]">Device</th>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px] hidden md:table-cell">Class</th>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Provider</th>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Version</th>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px] hidden xl:table-cell">Date</th>
-                                <th className="text-left px-4 py-3 text-slate-500 font-bold uppercase tracking-widest text-[10px]">Signed</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px]">Device</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden md:table-cell">Class</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Provider</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Version</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden xl:table-cell">Date</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px]">Signed</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,11 +150,11 @@ export function DriverManagerPage() {
                                         <p className="text-slate-600 font-mono text-[10px] mt-0.5">{d.inf_name}</p>
                                     </td>
                                     <td className="px-4 py-3 hidden md:table-cell">
-                                        <span className="px-2 py-0.5 rounded-md bg-white/5 border border-border text-[10px] font-bold text-slate-400">{d.device_class || "—"}</span>
+                                        <span className="px-2 py-0.5 rounded-md bg-white/5 border border-border text-[10px] font-bold text-slate-400 dark:text-slate-200">{d.device_class || "—"}</span>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-400 hidden lg:table-cell">{d.provider || "—"}</td>
-                                    <td className="px-4 py-3 text-slate-400 font-mono hidden lg:table-cell">{d.version || "—"}</td>
-                                    <td className="px-4 py-3 text-slate-500 hidden xl:table-cell">{d.date || "—"}</td>
+                                    <td className="px-4 py-3 text-slate-400 dark:text-slate-200 hidden lg:table-cell">{d.provider || "—"}</td>
+                                    <td className="px-4 py-3 text-slate-400 dark:text-slate-200 font-mono hidden lg:table-cell">{d.version || "—"}</td>
+                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-300 hidden xl:table-cell">{d.date || "—"}</td>
                                     <td className="px-4 py-3">
                                         {d.is_signed ? (
                                             <span className="flex items-center gap-1 text-emerald-400 text-[11px] font-bold">

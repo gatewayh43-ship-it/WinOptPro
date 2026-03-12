@@ -27,7 +27,7 @@ function SettingSection({ icon: Icon, title, description, children }: {
                 </div>
                 <div>
                     <h3 className="text-[15px] font-bold text-foreground">{title}</h3>
-                    <p className="text-[13px] text-slate-600 dark:text-slate-500 mt-0.5 leading-relaxed">{description}</p>
+                    <p className="text-[13px] text-slate-600 dark:text-slate-200 mt-0.5 leading-relaxed">{description}</p>
                 </div>
             </div>
             <div className="space-y-4 pl-14">{children}</div>
@@ -82,7 +82,7 @@ function BackupSection() {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-[13px] font-semibold text-slate-300">Export Backup</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                             {lastBackupTime ? `Last backup: ${lastBackupTime}` : "No backup taken yet"}
                         </p>
                     </div>
@@ -101,7 +101,7 @@ function BackupSection() {
                         <p className="text-[13px] font-semibold text-slate-300">Import Backup</p>
                         <button
                             onClick={() => setShowImport(v => !v)}
-                            className="text-[11px] text-slate-500 hover:text-foreground transition-colors font-medium"
+                            className="text-[11px] text-slate-500 dark:text-slate-300 hover:text-foreground transition-colors font-medium"
                         >
                             {showImport ? "Hide" : "Show"}
                         </button>
@@ -193,13 +193,13 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             </div>
                             Settings
                         </h2>
-                        <p className="text-[13px] text-slate-600 dark:text-slate-500 mt-1">
+                        <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-1">
                             Customize your WinOpt Pro experience
                         </p>
                     </div>
                     <button
                         onClick={handleResetDefaults}
-                        className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-slate-500 dark:text-slate-300 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
                     >
                         <RotateCcw className="w-3.5 h-3.5" /> Reset Defaults
                     </button>
@@ -213,14 +213,14 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             <div className="flex gap-2 bg-black/5 dark:bg-white/[0.02] border border-border rounded-xl p-1">
                                 <button
                                     onClick={() => setTheme("dark")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-300 hover:text-foreground"
                                         }`}
                                 >
                                     <Moon className="w-3.5 h-3.5" /> Dark
                                 </button>
                                 <button
                                     onClick={() => setTheme("light")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 hover:text-foreground"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-300 hover:text-foreground"
                                         }`}
                                 >
                                     <Sun className="w-3.5 h-3.5" /> Light
@@ -310,15 +310,15 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Version</span>
-                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-white/5 border border-border px-2 py-1 rounded-lg">1.0.0</span>
+                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-200 bg-black/5 dark:bg-white/5 border border-border px-2 py-1 rounded-lg">1.0.0</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Built with</span>
-                                <span className="text-[12px] text-slate-600 dark:text-slate-500">Tauri 2 · React 19 · Rust</span>
+                                <span className="text-[12px] text-slate-600 dark:text-slate-300">Tauri 2 · React 19 · Rust</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Total tweaks</span>
-                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-400">162 registry &amp; system tweaks</span>
+                                <span className="text-[12px] font-mono text-slate-500 dark:text-slate-200">162 registry &amp; system tweaks</span>
                             </div>
                             <div className="pt-1 border-t border-border/50">
                                 <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -328,7 +328,7 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             <div className="pt-2 border-t border-border/50 flex items-center justify-between">
                                 <div>
                                     <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Setup Guide</p>
-                                    <p className="text-[11px] text-slate-500 mt-0.5">Restarts the first-run setup guide</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">Restarts the first-run setup guide</p>
                                 </div>
                                 <button
                                     onClick={() => {
@@ -372,7 +372,7 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                                     </div>
                                     <button
                                         onClick={() => setShowExpertConfirm(false)}
-                                        className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                                        className="p-2 rounded-lg hover:bg-white/5 text-slate-500 dark:text-slate-300 hover:text-white transition-colors"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -383,14 +383,14 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                                         These tweaks are labeled <span className="text-red-400 font-semibold">Red</span> and
                                         carry a higher risk of causing system issues or requiring a restore point.
                                     </p>
-                                    <p className="text-[13px] text-slate-500 mt-3 leading-relaxed">
+                                    <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-3 leading-relaxed">
                                         Only enable this if you understand the risks and have a system restore point ready.
                                     </p>
                                 </div>
                                 <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
                                     <button
                                         onClick={() => setShowExpertConfirm(false)}
-                                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 dark:text-slate-200 hover:text-white hover:bg-white/5 transition-colors"
                                     >
                                         Cancel
                                     </button>
