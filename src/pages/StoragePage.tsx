@@ -65,7 +65,7 @@ function DriveHealthSection() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Database className="w-4 h-4 text-primary" />
-                    <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Drive Health</span>
+                    <span className="text-[12px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest">Drive Health</span>
                 </div>
                 {hasSSD && (
                     <button
@@ -81,7 +81,7 @@ function DriveHealthSection() {
             </div>
 
             {isLoading ? (
-                <div className="flex items-center gap-2 text-slate-500 text-[12px] py-2">
+                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300 text-[12px] py-2">
                     <Loader2 className="w-4 h-4 animate-spin" /> Reading drive health...
                 </div>
             ) : disks.length === 0 ? (
@@ -93,11 +93,11 @@ function DriveHealthSection() {
                             <div className="flex items-center justify-between gap-3">
                                 <div className="min-w-0">
                                     <p className="text-[13px] font-semibold text-foreground truncate">{disk.friendlyName}</p>
-                                    <p className="text-[11px] text-slate-500">{mediaLabel(disk.mediaType)} · {disk.sizeGb} GB</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-300">{mediaLabel(disk.mediaType)} · {disk.sizeGb} GB</p>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
                                     {disk.temperatureC != null && (
-                                        <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                                        <span className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-200">
                                             <Thermometer className="w-3 h-3" /> {disk.temperatureC}°C
                                         </span>
                                     )}
@@ -110,8 +110,8 @@ function DriveHealthSection() {
                             {(disk.mediaType === "SSD" || disk.mediaType === "SCM") && (
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-[11px]">
-                                        <span className="text-slate-500">Wear</span>
-                                        <span className="text-slate-400 font-medium">
+                                        <span className="text-slate-500 dark:text-slate-300">Wear</span>
+                                        <span className="text-slate-400 dark:text-slate-200 font-medium">
                                             {disk.wearPct != null ? `${disk.wearPct}%` : "N/A"}
                                         </span>
                                     </div>
@@ -152,7 +152,7 @@ function ScheduledMaintenanceSection() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Scheduled Maintenance</span>
+                    <span className="text-[12px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest">Scheduled Maintenance</span>
                 </div>
                 <button
                     onClick={() => setShowAdd(v => !v)}
@@ -164,12 +164,12 @@ function ScheduledMaintenanceSection() {
 
             {showAdd && (
                 <div className="space-y-2 p-3 rounded-xl border border-border bg-white/[0.02]">
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Predefined Tasks</p>
+                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-3">Predefined Tasks</p>
                     {PREDEFINED_TASKS.map(task => (
                         <div key={task.name} className="flex items-center justify-between gap-3 py-2">
                             <div>
                                 <p className="text-[13px] font-semibold text-foreground">{task.label}</p>
-                                <p className="text-[11px] text-slate-500">{task.description}</p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-300">{task.description}</p>
                             </div>
                             <button
                                 onClick={() => createTask(task.name, task.schedule, task.action_cmd)}
@@ -185,7 +185,7 @@ function ScheduledMaintenanceSection() {
             )}
 
             {isLoading ? (
-                <div className="flex items-center gap-2 text-slate-500 text-[12px] py-2">
+                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300 text-[12px] py-2">
                     <Loader2 className="w-4 h-4 animate-spin" /> Loading tasks...
                 </div>
             ) : tasks.length === 0 ? (
@@ -196,7 +196,7 @@ function ScheduledMaintenanceSection() {
                         <div key={task.id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border bg-white/[0.02]">
                             <div className="min-w-0">
                                 <p className="text-[13px] font-semibold text-foreground truncate">{task.name}</p>
-                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
                                     {task.schedule} · Last: {task.last_run} · Next: {task.next_run}
                                 </p>
                             </div>
@@ -204,14 +204,14 @@ function ScheduledMaintenanceSection() {
                                 <button
                                     onClick={() => runNow(task.name)}
                                     title="Run Now"
-                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-500 hover:text-emerald-400 transition-colors"
+                                    className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-slate-500 dark:text-slate-300 hover:text-emerald-400 transition-colors"
                                 >
                                     <PlayCircle className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => deleteTask(task.name)}
                                     title="Delete Task"
-                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-colors"
+                                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-500 dark:text-slate-300 hover:text-red-400 transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -271,7 +271,7 @@ export function StoragePage() {
                         <HardDrive className="w-8 h-8 text-primary" />
                         Storage <span className="text-gradient">Optimizer</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Reclaim disk space by safely removing temporary files, system caches, and application junk.
                     </p>
                 </div>
@@ -292,17 +292,17 @@ export function StoragePage() {
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
                     <div>
-                        <p className="text-[13px] font-bold text-slate-400 uppercase tracking-widest mb-1">Potential Savings</p>
+                        <p className="text-[13px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest mb-1">Potential Savings</p>
                         <div className="flex items-baseline gap-2 text-foreground">
                             <span className="text-5xl font-black tabular-nums tracking-tight">
                                 {isScanning ? "..." : formatSize(totalCalculatedBytes).split(" ")[0]}
                             </span>
-                            <span className="text-xl font-bold text-slate-500">
+                            <span className="text-xl font-bold text-slate-500 dark:text-slate-300">
                                 {isScanning ? "" : formatSize(totalCalculatedBytes).split(" ")[1]}
                             </span>
                         </div>
                         {!isScanning && totalCalculatedBytes > 0 && (
-                            <p className="text-[13px] text-slate-500 font-medium mt-2">
+                            <p className="text-[13px] text-slate-500 dark:text-slate-300 font-medium mt-2">
                                 <span className="text-primary font-bold">{formatSize(totalSelectedBytes)}</span> selected for cleanup
                             </p>
                         )}
@@ -310,13 +310,13 @@ export function StoragePage() {
 
                     {diskHealth.length > 0 && (
                         <div className="flex flex-col gap-2 relative z-10 w-full md:w-auto md:min-w-[280px]">
-                            <p className="text-[13px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-left md:text-right">Disk Health Info</p>
+                            <p className="text-[13px] font-bold text-slate-400 dark:text-slate-200 uppercase tracking-widest mb-1 text-left md:text-right">Disk Health Info</p>
                             <div className="flex flex-col gap-2">
                                 {diskHealth.map((disk, idx) => (
                                     <div key={idx} className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-xl bg-black/20 border border-white/[0.05]">
                                         <div className="flex flex-col text-left mr-auto">
                                             <span className="text-sm font-bold text-foreground truncate max-w-[200px]" title={disk.name}>{disk.name}</span>
-                                            <span className="text-xs text-slate-500 font-mono">{disk.media_type === "3" ? "HDD" : disk.media_type === "4" ? "SSD" : disk.media_type === "5" ? "SCM" : disk.media_type === "Unknown" ? "Unknown" : disk.media_type}</span>
+                                            <span className="text-xs text-slate-500 dark:text-slate-300 font-mono">{disk.media_type === "3" ? "HDD" : disk.media_type === "4" ? "SSD" : disk.media_type === "5" ? "SCM" : disk.media_type === "Unknown" ? "Unknown" : disk.media_type}</span>
                                         </div>
                                         <div className={`px-2.5 py-1 rounded text-xs font-bold tracking-widest uppercase ${disk.health_status === 'Healthy' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
                                             {disk.health_status}
@@ -360,7 +360,7 @@ export function StoragePage() {
                 </div>
 
                 {isScanning && items.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-500">
+                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-300">
                         <RefreshCcw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
                         <p className="font-medium">Deep scanning temp directories...</p>
                         <p className="text-xs mt-2 opacity-60">This may take a few moments depending on drive speed.</p>
@@ -371,7 +371,7 @@ export function StoragePage() {
                         <p className="text-red-400 font-medium bg-red-500/10 px-4 py-2 rounded-xl inline-block border border-red-500/20">{error}</p>
                     </div>
                 ) : items.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-500">
+                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-300">
                         <HardDrive className="w-12 h-12 mx-auto mb-4 opacity-20" />
                         <p className="font-medium text-[15px]">Your system is clean.</p>
                         <p className="text-xs mt-1 opacity-60">No temporary files or junk data found.</p>
@@ -401,15 +401,15 @@ export function StoragePage() {
                                                 <h4 className={`text-[15px] font-bold truncate ${isSelected ? 'text-foreground' : 'text-slate-300'}`}>
                                                     {item.category}
                                                 </h4>
-                                                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-black/30 text-slate-400 border border-white/[0.05] truncate max-w-[150px] sm:max-w-[300px]">
+                                                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-black/30 text-slate-400 dark:text-slate-200 border border-white/[0.05] truncate max-w-[150px] sm:max-w-[300px]">
                                                     {item.path}
                                                 </span>
                                             </div>
-                                            <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${isSelected ? 'text-primary' : 'text-slate-500'}`}>
+                                            <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${isSelected ? 'text-primary' : 'text-slate-500 dark:text-slate-300'}`}>
                                                 {formatSize(item.size_bytes)}
                                             </span>
                                         </div>
-                                        <p className="text-[12px] text-slate-500 leading-relaxed max-w-3xl">
+                                        <p className="text-[12px] text-slate-500 dark:text-slate-300 leading-relaxed max-w-3xl">
                                             {item.description}
                                         </p>
                                     </div>

@@ -23,7 +23,7 @@ interface ProgressModalProps {
 const statusIcon = (status: ItemStatus) => {
     switch (status) {
         case "pending":
-            return <Clock className="w-4 h-4 text-slate-500" />;
+            return <Clock className="w-4 h-4 text-slate-500 dark:text-slate-300" />;
         case "running":
             return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
         case "success":
@@ -74,7 +74,7 @@ export function ProgressModal({
                                                 : "Deployment Complete"
                                             : "Deploying…"}
                                     </h2>
-                                    <p className="text-sm text-slate-400 mt-0.5">
+                                    <p className="text-sm text-slate-400 dark:text-slate-200 mt-0.5">
                                         {completed} of {total} completed
                                         {failed > 0 ? ` · ${failed} failed` : ""}
                                     </p>
@@ -82,7 +82,7 @@ export function ProgressModal({
                                 {allDone && (
                                     <button
                                         onClick={onClose}
-                                        className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                                        className="p-2 rounded-lg hover:bg-white/5 text-slate-500 dark:text-slate-300 hover:text-white transition-colors"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -122,7 +122,7 @@ export function ProgressModal({
                                                 {item.name}
                                             </span>
                                             {item.status === "success" && item.result && (
-                                                <span className="text-xs text-slate-500">
+                                                <span className="text-xs text-slate-500 dark:text-slate-300">
                                                     {item.result.durationMs}ms
                                                 </span>
                                             )}

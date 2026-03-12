@@ -57,7 +57,7 @@ export function MainLayout({
                     <div className="flex-1 max-w-2xl mx-auto flex items-center gap-3">
                         <button
                             onClick={onOpenSearch}
-                            className="flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06] hover:border-primary/20 text-slate-500 hover:text-slate-400 transition-all duration-200 group shadow-sm"
+                            className="flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06] hover:border-primary/20 text-slate-500 dark:text-slate-300 hover:text-slate-400 transition-all duration-200 group shadow-sm"
                         >
                             <Search className="w-4 h-4 shrink-0 group-hover:text-primary transition-colors duration-200" />
                             <span className="flex-1 text-left text-[13px] font-medium select-none">
@@ -74,14 +74,14 @@ export function MainLayout({
                             className={`p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.1] hover:text-primary transition-all shadow-sm ${isRefreshing ? 'opacity-50 pointer-events-none' : ''}`}
                             title="Refresh Page Data"
                         >
-                            <RefreshCw className={`w-5 h-5 text-slate-400 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
+                            <RefreshCw className={`w-5 h-5 text-slate-400 dark:text-slate-200 ${isRefreshing ? 'animate-spin text-primary' : ''}`} />
                         </button>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-10 pt-5 pb-4 sm:pb-6 lg:pb-10 relative z-10 w-full">
                     <div className="max-w-6xl mx-auto h-full">
-                        <AnimatePresence>
+                        <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={`${currentView}-${refreshKey}`}
                                 initial={{ opacity: 0, y: 5 }}

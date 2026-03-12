@@ -6,7 +6,7 @@ import { useSystemVitals } from "../hooks/useSystemVitals";
 
 // Reusing badge functions from Dashboard (you could move these to a utility file later, but we keep them here for now)
 function tempBadge(tempC: number | null) {
-    if (tempC === null) return { label: "N/A", bg: "bg-slate-400/10", text: "text-slate-400", border: "border-slate-400/20" };
+    if (tempC === null) return { label: "N/A", bg: "bg-slate-400/10", text: "text-slate-400 dark:text-slate-200", border: "border-slate-400/20" };
     if (tempC > 80) return { label: "High Temp", bg: "bg-red-400/10", text: "text-red-400", border: "border-red-400/20" };
     if (tempC > 65) return { label: "Warm", bg: "bg-amber-400/10", text: "text-amber-400", border: "border-amber-400/20" };
     return { label: "Cool", bg: "bg-emerald-400/10", text: "text-emerald-400", border: "border-emerald-400/20" };
@@ -76,11 +76,10 @@ const BentoBox = ({
             onClick={onClick}
             className={`
                 relative overflow-hidden rounded-[24px] 
-                bg-white/40 dark:bg-black/40 
+                bg-white/40 dark:bg-black/80 
                 backdrop-blur-xl border border-white/20 dark:border-white/10
-                shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]
-                hover:bg-white/60 dark:hover:bg-black/60 hover:border-primary/30
-                transition-all duration-300 group
+                shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+                hover:bg-white/60 dark:hover:bg-black transition-all duration-300 group
                 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10' : ''}
                 ${className}
             `}
@@ -105,7 +104,7 @@ const FeatureModuleCard = ({
         </div>
         <div>
             <h3 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{description}</p>
+            <p className="text-sm text-slate-600 dark:text-white font-medium leading-relaxed">{description}</p>
         </div>
     </BentoBox>
 );
@@ -151,32 +150,32 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
                     className="flex flex-col items-center justify-center text-center py-10"
                 >
-                    <div className="inline-flex items-center space-x-2 bg-white/40 dark:bg-black/40 border border-white/20 dark:border-white/10 px-4 py-1.5 rounded-full mb-6 backdrop-blur-xl shadow-sm">
+                    <div className="inline-flex items-center space-x-2 bg-white/40 dark:bg-black/80 border border-white/20 dark:border-white/10 px-4 py-1.5 rounded-full mb-6 backdrop-blur-xl shadow-sm">
                         <span className={`w-2 h-2 rounded-full ${vitals ? 'bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 'bg-amber-400'}`}></span>
-                        <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-widest leading-none mt-0.5">
+                        <span className="text-[12px] font-semibold text-slate-600 dark:text-white uppercase tracking-widest leading-none mt-0.5">
                             {vitals ? 'System Optimal' : 'Analyzing…'}
                         </span>
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-4 font-heading">
+                    <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-800 dark:text-white mb-4 font-heading">
                         {greeting}, <span className="text-gradient">Commander</span>
                     </h1>
-                    <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl font-medium mb-10">
+                    <p className="text-lg text-slate-500 dark:text-slate-100 max-w-2xl font-medium mb-10">
                         What would you like to optimize today? Use natural language to search across all modules and tweaks.
                     </p>
 
                     {/* Massive Semantic Search Bar */}
                     <div className="w-full max-w-3xl relative group cursor-text" onClick={handleSearchClick}>
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-blue-500/50 rounded-[28px] blur opacity-30 group-hover:opacity-60 transition duration-500" />
-                        <div className="relative flex items-center bg-white/60 dark:bg-black/60 backdrop-blur-2xl border border-white/40 dark:border-white/10 p-4 rounded-[24px] shadow-2xl">
-                            <Search className="w-6 h-6 text-slate-500 ml-4 hidden sm:block" />
+                        <div className="relative flex items-center bg-white/60 dark:bg-black/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 p-4 rounded-[24px] shadow-2xl">
+                            <Search className="w-6 h-6 text-slate-500 dark:text-white ml-4 hidden sm:block" />
                             <Sparkles className="w-6 h-6 text-primary ml-4 sm:hidden animate-pulse" />
                             <div className="flex-1 px-4 text-left">
-                                <span className="text-lg text-slate-400 font-medium select-none">Search "Optimize gaming performance"...</span>
+                                <span className="text-lg text-slate-400 dark:text-white font-medium select-none">Search "Optimize gaming performance"...</span>
                             </div>
                             <div className="flex items-center gap-2 pr-2 bg-black/5 dark:bg-white/10 px-3 py-1.5 rounded-xl">
-                                <Command className="w-4 h-4 text-slate-500" />
-                                <span className="text-sm font-bold text-slate-500">K</span>
+                                <Command className="w-4 h-4 text-slate-500 dark:text-white" />
+                                <span className="text-sm font-bold text-slate-500 dark:text-white">K</span>
                             </div>
                         </div>
                     </div>
@@ -187,7 +186,7 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                     {/* Score */}
                     <BentoBox delay={0.1} className="flex flex-col items-center justify-center text-center">
                         <SystemScore score={healthScore} />
-                        <h3 className="mt-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest relative z-10 text-center">Health Index</h3>
+                        <h3 className="mt-4 text-[11px] font-bold text-slate-500 dark:text-white uppercase tracking-widest relative z-10 text-center">Health Index</h3>
                     </BentoBox>
 
                     {/* CPU */}
@@ -197,10 +196,10 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <span className={`text-[10px] font-bold ${cpuBadge.text} ${cpuBadge.bg} px-2 py-0.5 rounded-full border ${cpuBadge.border}`}>{cpuBadge.label}</span>
                         </div>
                         <div>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1">Processor</p>
+                            <p className="text-[11px] text-slate-500 dark:text-white font-bold uppercase tracking-wider mb-1">Processor</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-foreground">{vitals?.cpu.tempC != null ? Math.round(vitals.cpu.tempC) : "—"}</span>
-                                <span className="text-sm text-slate-500 font-medium">°C ({vitals ? vitals.cpu.usagePct.toFixed(0) : "—"}%)</span>
+                                <span className="text-sm text-slate-500 dark:text-white font-medium">°C ({vitals ? vitals.cpu.usagePct.toFixed(0) : "—"}%)</span>
                             </div>
                         </div>
                     </BentoBox>
@@ -212,10 +211,10 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <span className={`text-[10px] font-bold ${ramBdg.text} ${ramBdg.bg} px-2 py-0.5 rounded-full border ${ramBdg.border}`}>{ramBdg.label}</span>
                         </div>
                         <div>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1">Memory</p>
+                            <p className="text-[11px] text-slate-500 dark:text-white font-bold uppercase tracking-wider mb-1">Memory</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-foreground">{vitals ? Math.round(vitals.ram.usagePct) : "—"}</span>
-                                <span className="text-sm text-slate-500 font-medium">% Used</span>
+                                <span className="text-sm text-slate-500 dark:text-white font-medium">% Used</span>
                             </div>
                         </div>
                     </BentoBox>
@@ -226,10 +225,10 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20"><HardDrive className="w-5 h-5" /></div>
                         </div>
                         <div>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1">C: Drive Free</p>
+                            <p className="text-[11px] text-slate-500 dark:text-white font-bold uppercase tracking-wider mb-1">C: Drive Free</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-foreground">{primaryDrive ? Math.round(primaryDrive.freeGb) : "—"}</span>
-                                <span className="text-sm text-slate-500 font-medium">GB</span>
+                                <span className="text-sm text-slate-500 dark:text-white font-medium">GB</span>
                             </div>
                         </div>
                     </BentoBox>
@@ -277,7 +276,7 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <div className="p-3 bg-primary/20 rounded-2xl"><Activity className="w-6 h-6 text-primary" /></div>
                             <div>
                                 <h3 className="text-xl font-bold text-foreground">Detailed Dashboard</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">View full system telemetry and quick-scan optimizations.</p>
+                                <p className="text-sm text-slate-500 dark:text-white font-medium">View full system telemetry and quick-scan optimizations.</p>
                             </div>
                         </div>
                         <button onClick={() => setView("dashboard")} className="mt-4 w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-colors shadow-lg shadow-primary/20">
@@ -291,7 +290,7 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <div className="p-3 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-2xl"><Network className="w-6 h-6" /></div>
                             <div>
                                 <h3 className="text-xl font-bold text-foreground">Network Analyzer</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Test ping, latency, and monitor adapter speeds.</p>
+                                <p className="text-sm text-slate-500 dark:text-white font-medium">Test ping, latency, and monitor adapter speeds.</p>
                             </div>
                         </div>
                         <button onClick={() => setView("network")} className="mt-4 w-full py-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-bold transition-colors border border-border">

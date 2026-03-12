@@ -55,7 +55,7 @@ const SECTIONS = [
     { id: "tweaks", icon: Gauge, label: "Tweaks Browser", color: "text-cyan-400" },
     { id: "faq", icon: HelpCircle, label: "FAQ", color: "text-pink-400" },
     { id: "troubleshoot", icon: Wrench, label: "Troubleshooting", color: "text-orange-400" },
-    { id: "shortcuts", icon: Keyboard, label: "Shortcuts", color: "text-slate-500 dark:text-slate-400" },
+    { id: "shortcuts", icon: Keyboard, label: "Shortcuts", color: "text-slate-500 dark:text-slate-200" },
 ];
 
 // ─── Shared animation variants ────────────────────────────────────────────────
@@ -91,10 +91,10 @@ function AccordionItem({ q, a, defaultOpen = false }: { q: string; a: string | R
         <div className={`rounded-xl border transition-colors overflow-hidden ${open ? "border-primary/25 bg-primary/5" : "border-border bg-black/5 dark:bg-white/[0.02]"}`}>
             <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left outline-none">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <HelpCircle className={`w-4 h-4 shrink-0 ${open ? "text-primary" : "text-slate-500"}`} />
+                    <HelpCircle className={`w-4 h-4 shrink-0 ${open ? "text-primary" : "text-slate-500 dark:text-slate-300"}`} />
                     <span className={`text-[13px] font-semibold leading-snug ${open ? "text-primary" : "text-foreground"}`}>{q}</span>
                 </div>
-                {open ? <ChevronDown className="w-4 h-4 text-primary shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />}
+                {open ? <ChevronDown className="w-4 h-4 text-primary shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0" />}
             </button>
             <AnimatePresence initial={false}>
                 {open && (
@@ -144,7 +144,7 @@ function FeatureCard({ icon: Icon, title, color, badge, onClick, children }: {
                 {badge && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">{badge}</span>}
             </div>
             <p className="font-bold text-[14px] text-foreground">{title}</p>
-            <p className="text-[12px] text-slate-500 dark:text-slate-500 dark:text-slate-400 leading-relaxed">{children}</p>
+            <p className="text-[12px] text-slate-500 dark:text-slate-300 dark:text-slate-200 leading-relaxed">{children}</p>
         </motion.button>
     );
 }
@@ -157,10 +157,10 @@ function TroubleCard({ title, symptoms, solutions }: { title: string; symptoms: 
         <div className={`rounded-xl border transition-colors ${open ? "border-orange-500/25 bg-orange-500/5" : "border-border bg-black/5 dark:bg-white/[0.02]"}`}>
             <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left outline-none">
                 <div className="flex items-center gap-2.5">
-                    <TriangleAlert className={`w-4 h-4 shrink-0 ${open ? "text-orange-400" : "text-slate-500"}`} />
+                    <TriangleAlert className={`w-4 h-4 shrink-0 ${open ? "text-orange-400" : "text-slate-500 dark:text-slate-300"}`} />
                     <span className={`text-[13px] font-semibold ${open ? "text-orange-400" : "text-foreground"}`}>{title}</span>
                 </div>
-                {open ? <ChevronDown className="w-4 h-4 text-orange-400 shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />}
+                {open ? <ChevronDown className="w-4 h-4 text-orange-400 shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0" />}
             </button>
             <AnimatePresence initial={false}>
                 {open && (
@@ -168,14 +168,14 @@ function TroubleCard({ title, symptoms, solutions }: { title: string; symptoms: 
                         <div className="px-4 pb-4 space-y-3 text-[13px]">
                             <div>
                                 <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">Symptoms</p>
-                                <ul className="list-disc list-inside text-slate-500 dark:text-slate-400 space-y-0.5">
+                                <ul className="list-disc list-inside text-slate-500 dark:text-slate-200 space-y-0.5">
                                     {symptoms.map((s, i) => <li key={i}>{s}</li>)}
                                 </ul>
                             </div>
                             {solutions.map((sol, i) => (
                                 <div key={i} className="bg-black/20 rounded-lg p-3 border border-white/5">
                                     <p className="font-semibold text-slate-200 mb-1.5">{sol.cause}</p>
-                                    <ol className="list-decimal list-inside text-slate-500 dark:text-slate-400 space-y-1">
+                                    <ol className="list-decimal list-inside text-slate-500 dark:text-slate-200 space-y-1">
                                         {sol.steps.map((s, j) => <li key={j}>{s}</li>)}
                                     </ol>
                                 </div>
@@ -208,9 +208,9 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                         <RiskBadge level={tweak.riskLevel} />
-                        <span className="text-[11px] text-slate-500">{tweak.category}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-300">{tweak.category}</span>
                     </div>
-                    {!open && <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-1">{tweak.description}</p>}
+                    {!open && <p className="text-[12px] text-slate-500 dark:text-slate-200 mt-1.5 line-clamp-1">{tweak.description}</p>}
                 </button>
                 <div className="flex items-center gap-2 shrink-0 mt-0.5">
                     <button
@@ -224,7 +224,7 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
                         {isExecutingThis ? "…" : isApplied ? "Disable" : "Enable"}
                     </button>
                     <button onClick={() => setOpen(v => !v)} className="outline-none">
-                        {open ? <ChevronDown className="w-4 h-4 text-cyan-400" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                        {open ? <ChevronDown className="w-4 h-4 text-cyan-400" /> : <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-300" />}
                     </button>
                 </div>
             </div>
@@ -236,31 +236,31 @@ function TweakCard({ tweak, isApplied, isExecutingThis, onToggle }: {
                             {tweak.educationalContext?.howItWorks && (
                                 <div className="bg-black/20 rounded-lg p-3 border border-white/5">
                                     <p className="font-semibold text-slate-200 mb-1">How it works</p>
-                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.howItWorks}</p>
+                                    <p className="text-slate-500 dark:text-slate-200 leading-relaxed">{tweak.educationalContext.howItWorks}</p>
                                 </div>
                             )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 {tweak.educationalContext?.pros && (
                                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-emerald-400 mb-1">Benefits</p>
-                                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.pros}</p>
+                                        <p className="text-slate-500 dark:text-slate-200 leading-relaxed">{tweak.educationalContext.pros}</p>
                                     </div>
                                 )}
                                 {tweak.educationalContext?.cons && (
                                     <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-red-400 mb-1">Risks / Cons</p>
-                                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.cons}</p>
+                                        <p className="text-slate-500 dark:text-slate-200 leading-relaxed">{tweak.educationalContext.cons}</p>
                                     </div>
                                 )}
                             </div>
                             {tweak.educationalContext?.expertDetails && (
                                 <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
                                     <p className="font-semibold text-violet-400 mb-1">Expert Details</p>
-                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{tweak.educationalContext.expertDetails}</p>
+                                    <p className="text-slate-500 dark:text-slate-200 leading-relaxed">{tweak.educationalContext.expertDetails}</p>
                                 </div>
                             )}
                             {tweak.educationalContext?.interactions && (
-                                <p className="text-slate-500 italic text-[11px]">Interactions: {tweak.educationalContext.interactions}</p>
+                                <p className="text-slate-500 dark:text-slate-300 italic text-[11px]">Interactions: {tweak.educationalContext.interactions}</p>
                             )}
                         </div>
                     </motion.div>
@@ -286,7 +286,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                         </div>
                         <div>
                             <h1 className="text-2xl font-black text-foreground">WinOpt Pro Help</h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Complete documentation for every feature</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-200">Complete documentation for every feature</p>
                         </div>
                     </div>
                     <p className="text-[14px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
@@ -307,7 +307,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
 
             {/* Quick-access cards */}
             <div>
-                <motion.p variants={fadeUp} custom={1} initial="hidden" animate="visible" className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Quick Access</motion.p>
+                <motion.p variants={fadeUp} custom={1} initial="hidden" animate="visible" className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-3">Quick Access</motion.p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
                         { icon: Zap, label: "New User?", sub: "Setup guide", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20", target: "setup", tab: undefined },
@@ -319,7 +319,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                             className={`rounded-2xl border p-4 flex flex-col items-start gap-2 text-left outline-none hover:brightness-110 active:scale-[0.98] transition-all ${c.bg}`}>
                             <c.icon className={`w-5 h-5 ${c.color}`} />
                             <p className="font-bold text-[13px] text-foreground">{c.label}</p>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{c.sub}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-200">{c.sub}</p>
                         </motion.button>
                     ))}
                 </div>
@@ -327,7 +327,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
 
             {/* Risk level guide */}
             <motion.div variants={fadeUp} custom={6} initial="hidden" animate="visible">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Risk Level System</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-3">Risk Level System</p>
                 <div className="flex flex-col gap-2">
                     {[
                         { emoji: "🟢", label: "Green — Safe", desc: "Recommended for all users. No meaningful side effects. Fully reversible instantly.", examples: "Disable Telemetry, Disable Mouse Acceleration, Disable Advertising ID", color: "border-emerald-500/20 bg-emerald-500/5" },
@@ -340,7 +340,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-[13px] text-foreground">{r.label}</p>
                                     <p className="text-[12px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">{r.desc}</p>
-                                    <p className="text-[11px] text-slate-500 mt-1"><span className="font-medium">Examples: </span>{r.examples}</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1"><span className="font-medium">Examples: </span>{r.examples}</p>
                                 </div>
                             </div>
                         </div>
@@ -350,7 +350,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
 
             {/* Key principles */}
             <motion.div variants={fadeUp} custom={9} initial="hidden" animate="visible">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Key Principles</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-3">Key Principles</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {[
                         { icon: RefreshCcw, color: "text-blue-400", title: "Every tweak is reversible", desc: "Every change stores the original value. Revert any tweak individually or restore from a backup." },
@@ -360,7 +360,7 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                         <div key={p.title} className="rounded-xl border border-border bg-black/5 dark:bg-white/[0.02] p-4 flex flex-col gap-2">
                             <p.icon className={`w-5 h-5 ${p.color}`} />
                             <p className="font-bold text-[13px] text-foreground">{p.title}</p>
-                            <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed">{p.desc}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-200 leading-relaxed">{p.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -385,7 +385,7 @@ function SetupSection() {
         <div className="flex flex-col gap-6">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Zap className="w-5 h-5 text-blue-400" /> Setup Guide</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Everything you need to install, configure, and safely start using WinOpt Pro.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-200">Everything you need to install, configure, and safely start using WinOpt Pro.</p>
             </motion.div>
 
             {/* Requirements */}
@@ -396,7 +396,7 @@ function SetupSection() {
                 </div>
                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Minimum</p>
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-2">Minimum</p>
                         <div className="space-y-2 text-[13px]">
                             {[
                                 ["OS", "Windows 10 2004+ (Build 19041)"],
@@ -410,7 +410,7 @@ function SetupSection() {
                         </div>
                     </div>
                     <div>
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Recommended</p>
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-2">Recommended</p>
                         <div className="space-y-2 text-[13px]">
                             {[
                                 ["OS", "Windows 11 22H2 or later"],
@@ -425,7 +425,7 @@ function SetupSection() {
                     </div>
                 </div>
                 <div className="px-5 pb-5">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">Feature-Specific</p>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-2">Feature-Specific</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[12px]">
                         {[
                             { f: "AI Assistant", r: "Ollama installed locally, at least one model pulled (ollama pull llama3)" },
@@ -435,7 +435,7 @@ function SetupSection() {
                         ].map(({ f, r }) => (
                             <div key={f} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                 <p className="font-semibold text-slate-200">{f}</p>
-                                <p className="text-slate-500 dark:text-slate-400 mt-0.5">{r}</p>
+                                <p className="text-slate-500 dark:text-slate-200 mt-0.5">{r}</p>
                             </div>
                         ))}
                     </div>
@@ -454,7 +454,7 @@ function SetupSection() {
 
             {/* Steps */}
             <motion.div variants={fadeUp} custom={3} initial="hidden" animate="visible" className="flex flex-col">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-5">Getting Started — Step by Step</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-5">Getting Started — Step by Step</p>
                 <Step n={1} title="Download the installer">
                     <p>Go to the <a href="https://github.com" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">GitHub Releases page</a> and download the latest <code className="text-emerald-400 bg-black/30 px-1 rounded">.msi</code> file.</p>
                 </Step>
@@ -518,7 +518,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                 <div key={c.title} className="rounded-xl border border-border bg-black/5 p-3 flex flex-col gap-2">
                                     <c.icon className="w-4 h-4 text-primary" />
                                     <p className="font-bold text-foreground">{c.title}</p>
-                                    <p className="text-slate-500 dark:text-slate-400">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-200">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -536,7 +536,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                 <div key={cat} className="rounded-xl border border-border bg-black/5 p-3">
                                     <p className="font-bold text-[12px] text-slate-600 dark:text-slate-300 mb-2">{cat}</p>
                                     <ul className="space-y-1">
-                                        {tweaks.map(t => <li key={t} className="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><span className="text-emerald-400">✓</span>{t}</li>)}
+                                        {tweaks.map(t => <li key={t} className="text-[12px] text-slate-500 dark:text-slate-200 flex items-center gap-1.5"><span className="text-emerald-400">✓</span>{t}</li>)}
                                     </ul>
                                 </div>
                             ))}
@@ -574,7 +574,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                             ].map(([t, d]) => (
                                 <div key={t as string} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                     <p className="font-semibold text-slate-200">{t}</p>
-                                    <p className="text-slate-500 dark:text-slate-400 mt-0.5">{d}</p>
+                                    <p className="text-slate-500 dark:text-slate-200 mt-0.5">{d}</p>
                                 </div>
                             ))}
                         </div>
@@ -605,7 +605,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                 <div key={risk} className="rounded-xl border border-border bg-black/5 p-3">
                                     <div className="flex items-center gap-2 mb-2"><RiskBadge level={risk} /></div>
                                     <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                        {tweaks.map(t => <span key={t} className="text-[12px] text-slate-500 dark:text-slate-400 flex items-center gap-1"><span className={risk === "Green" ? "text-emerald-400" : risk === "Yellow" ? "text-amber-400" : "text-red-400"}>•</span>{t}</span>)}
+                                        {tweaks.map(t => <span key={t} className="text-[12px] text-slate-500 dark:text-slate-200 flex items-center gap-1"><span className={risk === "Green" ? "text-emerald-400" : risk === "Yellow" ? "text-amber-400" : "text-red-400"}>•</span>{t}</span>)}
                                     </div>
                                 </div>
                             ))}
@@ -623,7 +623,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                             ].map(c => (
                                 <div key={c.title} className="rounded-xl border border-border bg-black/5 p-3">
                                     <p className="font-bold text-slate-200 mb-1">{c.title}</p>
-                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-200 leading-relaxed">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -657,7 +657,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                             ].map(c => (
                                 <div key={c.title} className="rounded-lg bg-black/20 border border-white/5 p-3">
                                     <p className="font-semibold text-slate-200">{c.title}</p>
-                                    <p className="text-slate-500 dark:text-slate-400 mt-0.5">{c.desc}</p>
+                                    <p className="text-slate-500 dark:text-slate-200 mt-0.5">{c.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -711,7 +711,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                             <p className="font-semibold text-red-400 mb-1">When to disable</p>
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-400 text-[12px]">
+                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-200 text-[12px]">
                                                 <li>Dedicated gaming machine, isolated network</li>
                                                 <li>GPU bottlenecked and want every % back</li>
                                                 <li>Software incompatible with HVCI (some hypervisors)</li>
@@ -719,14 +719,14 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                         </div>
                                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
                                             <p className="font-semibold text-emerald-400 mb-1">Keep enabled if</p>
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-400 text-[12px]">
+                                            <ul className="list-disc list-inside space-y-0.5 text-slate-500 dark:text-slate-200 text-[12px]">
                                                 <li>Corporate/work machine</li>
                                                 <li>Playing Valorant (Vanguard requires HVCI)</li>
                                                 <li>You download software from varied sources</li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <p className="text-slate-500 text-[12px]">Registry: HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity Enabled=0. Requires reboot.</p>
+                                    <p className="text-slate-500 dark:text-slate-300 text-[12px]">Registry: HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity Enabled=0. Requires reboot.</p>
                                 </div>
                             )
                         },
@@ -748,7 +748,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                                     <p>CVE-2017-5753 (Spectre v1), CVE-2017-5715 (Spectre v2), and CVE-2017-5754 (Meltdown) are CPU microarchitecture vulnerabilities. Windows applies software mitigations that incur a performance cost — worst on older CPUs (Haswell/Broadwell: 10–30% reduction on I/O-heavy workloads).</p>
                                     <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                                         <p className="font-semibold text-red-400 mb-1">⚠️ Only disable on isolated machines</p>
-                                        <p className="text-slate-500 dark:text-slate-400 text-[12px]">Disabling mitigations allows a malicious program or browser JS to read kernel memory. Only consider this on a gaming-only machine that runs no untrusted code and has no sensitive data.</p>
+                                        <p className="text-slate-500 dark:text-slate-200 text-[12px]">Disabling mitigations allows a malicious program or browser JS to read kernel memory. Only consider this on a gaming-only machine that runs no untrusted code and has no sensitive data.</p>
                                     </div>
                                     <p>Performance gain on modern CPUs (Zen 4, 12th/13th gen Intel): ~1–3%. On 4th-7th gen Intel: potentially 10–25% on I/O-heavy workloads.</p>
                                 </div>
@@ -793,7 +793,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Star className="w-5 h-5 text-amber-400" /> User Guides</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Tailored guidance based on your experience level and goals.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-200">Tailored guidance based on your experience level and goals.</p>
             </motion.div>
 
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex gap-2">
@@ -801,7 +801,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                     const G = guides[i];
                     return (
                         <button key={t} onClick={() => setTab(i)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border transition-colors outline-none ${tab === i ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400 hover:text-foreground"}`}>
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold border transition-colors outline-none ${tab === i ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-200 hover:text-foreground"}`}>
                             <G.icon className={`w-4 h-4 ${tab === i ? "text-primary" : G.color}`} />
                             {t}
                         </button>
@@ -816,7 +816,7 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                             <guide.icon className={`w-5 h-5 ${guide.color}`} />
                             <p className="font-bold text-[16px] text-foreground">{guide.title}</p>
                         </div>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">{guide.intro}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-200">{guide.intro}</p>
                     </div>
                     {guide.content}
                 </motion.div>
@@ -844,7 +844,7 @@ function FeaturesSection() {
         { icon: BatteryMedium, color: "text-emerald-400", title: "Power Manager", badge: null, desc: "Switch power plans. Battery health status. Per-plan CPU min/max, display timeout, sleep timeout (separate AC/DC settings)." },
         { icon: Power, color: "text-indigo-400", title: "Startup Apps", badge: null, desc: "View and manage all startup entries (registry + startup folder). Enable or disable with a toggle. Instant effect." },
         { icon: Package, color: "text-pink-400", title: "App Store", badge: "391 apps", desc: "Curated catalog of 391 popular Windows apps across 7 categories, with logos, descriptions, and source links. Install via winget or Chocolatey. Tracks installation status." },
-        { icon: FileText, color: "text-slate-500 dark:text-slate-400", title: "System Report", badge: "HTML", desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
+        { icon: FileText, color: "text-slate-500 dark:text-slate-200", title: "System Report", badge: "HTML", desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
         { icon: Layers, color: "text-blue-400", title: "Profiles & Backup", badge: null, desc: "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine." },
         { icon: Clock, color: "text-zinc-400", title: "History / Audit Log", badge: "Encrypted", desc: "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history." },
         { icon: Shield, color: "text-red-300", title: "Windows Defender", badge: null, desc: "View and toggle Defender components, quarantine, real-time protection, and exclusions." },
@@ -860,7 +860,7 @@ function FeaturesSection() {
     };
 
     const getColorForTitle = (title: string) => {
-        return features.find(f => f.title === title)?.color || "text-slate-500 dark:text-slate-400";
+        return features.find(f => f.title === title)?.color || "text-slate-500 dark:text-slate-200";
     };
 
     if (selectedFeature) {
@@ -869,7 +869,7 @@ function FeaturesSection() {
 
         return (
             <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
-                <button onClick={() => setSelectedFeature(null)} className="flex items-center gap-2 text-[13px] font-medium text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-primary transition-colors hover:-translate-x-1 outline-none self-start">
+                <button onClick={() => setSelectedFeature(null)} className="flex items-center gap-2 text-[13px] font-medium text-slate-500 dark:text-slate-300 dark:text-slate-200 hover:text-primary transition-colors hover:-translate-x-1 outline-none self-start">
                     <ChevronRight className="w-4 h-4 rotate-180" /> Back to Features
                 </button>
 
@@ -881,7 +881,7 @@ function FeaturesSection() {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold text-foreground mb-2">{selectedFeature.title}</h2>
-                            <p className="text-[15px] text-slate-600 dark:text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">{selectedFeature.description}</p>
+                            <p className="text-[15px] text-slate-600 dark:text-slate-400 dark:text-slate-300 leading-relaxed max-w-3xl">{selectedFeature.description}</p>
                         </div>
                     </div>
                 </div>
@@ -892,7 +892,7 @@ function FeaturesSection() {
                             <h3 className="text-[15px] font-bold text-foreground mb-3 flex items-center gap-2">
                                 <CircuitBoard className="w-4 h-4 text-cyan-600 dark:text-cyan-400" /> Technical Deep Dive
                             </h3>
-                            <p className="text-[13px] text-slate-600 dark:text-slate-600 dark:text-slate-300 leading-relaxed max-w-none">
+                            <p className="text-[13px] text-slate-600 dark:text-slate-400 dark:text-slate-300 leading-relaxed max-w-none">
                                 {selectedFeature.technicalDeepDive}
                             </p>
                         </div>
@@ -907,7 +907,7 @@ function FeaturesSection() {
                                         <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
                                             <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                         </div>
-                                        <p className="text-[13px] text-slate-600 dark:text-slate-600 dark:text-slate-300">{cap}</p>
+                                        <p className="text-[13px] text-slate-600 dark:text-slate-400 dark:text-slate-300">{cap}</p>
                                     </div>
                                 ))}
                             </div>
@@ -920,7 +920,7 @@ function FeaturesSection() {
                             <h3 className="text-[14px] font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
                                 <AlertTriangle className="w-4 h-4" /> Expert Note
                             </h3>
-                            <p className="text-[12px] text-slate-700 dark:text-slate-600 dark:text-slate-300 leading-relaxed relative z-10">
+                            <p className="text-[12px] text-slate-700 dark:text-slate-400 dark:text-slate-300 leading-relaxed relative z-10">
                                 {selectedFeature.expertNote}
                             </p>
                         </div>
@@ -934,7 +934,7 @@ function FeaturesSection() {
         <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><LayoutGrid className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> All Features</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">Every module in WinOpt Pro, documented. Click a card for an engineering deep-dive.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-300 dark:text-slate-200">Every module in WinOpt Pro, documented. Click a card for an engineering deep-dive.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {features.map((f) => {
@@ -1004,13 +1004,13 @@ function TweaksBrowserSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Gauge className="w-5 h-5 text-cyan-400" /> Tweaks Browser</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Browse, search, and read documentation for all {ALL_TWEAKS.length} tweaks.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-200">Browse, search, and read documentation for all {ALL_TWEAKS.length} tweaks.</p>
             </motion.div>
 
             {/* Stats pills */}
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex flex-wrap gap-2">
                 {[
-                    { label: `${ALL_TWEAKS.length} total`, color: "bg-white/5 border-border text-slate-500 dark:text-slate-400" },
+                    { label: `${ALL_TWEAKS.length} total`, color: "bg-white/5 border-border text-slate-500 dark:text-slate-200" },
                     { label: `${counts.g} 🟢 Safe`, color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" },
                     { label: `${counts.y} 🟡 Caution`, color: "bg-amber-500/10 border-amber-500/20 text-amber-400" },
                     { label: `${counts.r} 🔴 Expert`, color: "bg-red-500/10 border-red-500/20 text-red-400" },
@@ -1020,7 +1020,7 @@ function TweaksBrowserSection() {
             {/* Filters */}
             <motion.div variants={fadeUp} custom={2} initial="hidden" animate="visible" className="flex flex-col gap-2">
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-200 pointer-events-none" />
                     <input type="text" placeholder="Search tweaks by name, description, or ID..."
                         value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full bg-black/5 dark:bg-white/5 border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder-slate-500 outline-none focus:border-primary/40 transition-colors" />
@@ -1032,20 +1032,20 @@ function TweaksBrowserSection() {
                     </select>
                     {["All", "Green", "Yellow", "Red"].map(r => (
                         <button key={r} onClick={() => setRisk(r)}
-                            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors ${risk === r ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400 hover:text-foreground"}`}>
+                            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors ${risk === r ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-200 hover:text-foreground"}`}>
                             {r === "All" ? "All Risks" : <><RiskBadge level={r} /></>}
                         </button>
                     ))}
-                    <label className="flex items-center gap-1.5 cursor-pointer text-[12px] text-slate-500 dark:text-slate-400 select-none">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[12px] text-slate-500 dark:text-slate-200 select-none">
                         <input type="checkbox" checked={expertOnly} onChange={e => setExpertOnly(e.target.checked)} className="rounded" />
                         Expert only
                     </label>
                     <div className="ml-auto flex gap-1">
-                        <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-lg border ${viewMode === "list" ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500"}`}><List className="w-4 h-4" /></button>
-                        <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg border ${viewMode === "grid" ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500"}`}><LayoutGrid className="w-4 h-4" /></button>
+                        <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-lg border ${viewMode === "list" ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500 dark:text-slate-300"}`}><List className="w-4 h-4" /></button>
+                        <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg border ${viewMode === "grid" ? "bg-primary/10 border-primary/30 text-primary" : "border-border text-slate-500 dark:text-slate-300"}`}><LayoutGrid className="w-4 h-4" /></button>
                     </div>
                 </div>
-                <p className="text-[11px] text-slate-500">Showing {filtered.length} of {ALL_TWEAKS.length} tweaks</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-300">Showing {filtered.length} of {ALL_TWEAKS.length} tweaks</p>
             </motion.div>
 
             {/* Results */}
@@ -1060,7 +1060,7 @@ function TweaksBrowserSection() {
                     />
                 ))}
                 {filtered.length === 0 && (
-                    <div className="flex flex-col items-center py-16 text-slate-500">
+                    <div className="flex flex-col items-center py-16 text-slate-500 dark:text-slate-300">
                         <Search className="w-10 h-10 opacity-20 mb-3" />
                         <p className="font-medium">No tweaks match your filters</p>
                     </div>
@@ -1110,16 +1110,16 @@ function FAQSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><HelpCircle className="w-5 h-5 text-pink-400" /> Frequently Asked Questions</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{allFAQ.length} questions answered. Search to find anything quickly.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-200">{allFAQ.length} questions answered. Search to find anything quickly.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-200 pointer-events-none" />
                 <input type="text" placeholder="Search questions..." value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full bg-black/5 dark:bg-white/5 border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder-slate-500 outline-none focus:border-primary/40 transition-colors" />
             </motion.div>
             <motion.div variants={fadeUp} custom={2} initial="hidden" animate="visible" className="flex flex-col gap-2">
                 {filtered.length === 0 ? (
-                    <div className="flex flex-col items-center py-16 text-slate-500">
+                    <div className="flex flex-col items-center py-16 text-slate-500 dark:text-slate-300">
                         <HelpCircle className="w-10 h-10 opacity-20 mb-3" />
                         <p className="font-medium">No results for "{search}"</p>
                     </div>
@@ -1208,7 +1208,7 @@ function TroubleshootingSection() {
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Wrench className="w-5 h-5 text-orange-400" /> Troubleshooting</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Common issues and step-by-step solutions. Click any issue to expand it.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-200">Common issues and step-by-step solutions. Click any issue to expand it.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible"
                 className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300">
@@ -1236,8 +1236,8 @@ function ShortcutsSection() {
     return (
         <div className="flex flex-col gap-5">
             <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Keyboard className="w-5 h-5 text-slate-500 dark:text-slate-400" /> Keyboard Shortcuts</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Speed up your workflow with these keyboard shortcuts.</p>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1"><Keyboard className="w-5 h-5 text-slate-500 dark:text-slate-200" /> Keyboard Shortcuts</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-200">Speed up your workflow with these keyboard shortcuts.</p>
             </motion.div>
             <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible" className="flex flex-col gap-2">
                 {shortcuts.map(({ keys, desc, note }) => (
@@ -1246,20 +1246,20 @@ function ShortcutsSection() {
                             {keys.map((k, i) => (
                                 <span key={k} className="flex items-center gap-1">
                                     <kbd className="px-2.5 py-1.5 rounded-lg bg-black/30 border border-white/15 text-[12px] font-mono text-slate-200 shadow-sm">{k}</kbd>
-                                    {i < keys.length - 1 && <span className="text-slate-500 text-[11px] font-medium mx-0.5">+</span>}
+                                    {i < keys.length - 1 && <span className="text-slate-500 dark:text-slate-300 text-[11px] font-medium mx-0.5">+</span>}
                                 </span>
                             ))}
                         </div>
                         <div className="flex-1">
                             <p className="font-semibold text-[13px] text-foreground">{desc}</p>
-                            <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{note}</p>
+                            <p className="text-[12px] text-slate-500 dark:text-slate-200 mt-0.5">{note}</p>
                         </div>
                     </div>
                 ))}
             </motion.div>
 
             <motion.div variants={fadeUp} custom={2} initial="hidden" animate="visible">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3 mt-2">Tips & Tricks</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 mb-3 mt-2">Tips & Tricks</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
                         { icon: Search, title: "Use the Command Palette", desc: "The fastest way to navigate. Press Ctrl+K and type the name of any tweak, feature, or page." },
@@ -1271,7 +1271,7 @@ function ShortcutsSection() {
                             <Icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-semibold text-[13px] text-foreground">{title}</p>
-                                <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{desc}</p>
+                                <p className="text-[12px] text-slate-500 dark:text-slate-200 mt-0.5">{desc}</p>
                             </div>
                         </div>
                     ))}
@@ -1308,13 +1308,13 @@ export function HelpPage() {
         <div className="flex h-full min-h-0">
             {/* Left nav */}
             <div className="w-[200px] shrink-0 border-r border-border overflow-y-auto hidden md:flex flex-col gap-1 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2 pt-1 pb-2">Documentation</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 px-2 pt-1 pb-2">Documentation</p>
                 {SECTIONS.map(s => {
                     const Icon = s.icon;
                     const active = section === s.id;
                     return (
                         <button key={s.id} onClick={() => setSection(s.id)}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors text-left outline-none ${active ? "bg-primary/10 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-white/5"}`}>
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-colors text-left outline-none ${active ? "bg-primary/10 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-200 hover:text-foreground hover:bg-white/5"}`}>
                             <Icon className={`w-4 h-4 shrink-0 ${active ? "text-primary" : s.color}`} />
                             {s.label}
                         </button>
@@ -1323,7 +1323,7 @@ export function HelpPage() {
 
                 {/* Footer */}
                 <div className="mt-auto pt-4 border-t border-border/50 px-2">
-                    <div className="flex flex-col gap-1.5 text-[11px] text-slate-500">
+                    <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-300">
                         <span className="flex items-center gap-1.5"><Gauge className="w-3 h-3 text-cyan-400" /> 162+ tweaks</span>
                         <span className="flex items-center gap-1.5"><Package className="w-3 h-3 text-pink-400" /> 391 curated apps</span>
                         <span className="flex items-center gap-1.5"><RefreshCcw className="w-3 h-3 text-blue-400" /> All reversible</span>
@@ -1340,7 +1340,7 @@ export function HelpPage() {
                             const Icon = s.icon;
                             return (
                                 <button key={s.id} onClick={() => setSection(s.id)}
-                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${section === s.id ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-400"}`}>
+                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${section === s.id ? "bg-primary/10 border-primary/30 text-primary" : "bg-black/5 dark:bg-white/5 border-border text-slate-500 dark:text-slate-200"}`}>
                                     <Icon className="w-3 h-3" />{s.label}
                                 </button>
                             );

@@ -20,7 +20,7 @@ export function StartupPage() {
                         <Power className="w-8 h-8 text-primary" />
                         Startup <span className="text-gradient">Manager</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Control which applications launch automatically when Windows starts. Maximize your boot speed.
                     </p>
                 </div>
@@ -28,7 +28,7 @@ export function StartupPage() {
                 <button
                     onClick={() => refresh()}
                     disabled={isLoading}
-                    className="p-2 rounded-xl bg-white/[0.02] border border-border/50 text-slate-400 hover:text-primary hover:border-primary/50 transition-colors disabled:opacity-50"
+                    className="p-2 rounded-xl bg-white/[0.02] border border-border/50 text-slate-400 dark:text-slate-200 hover:text-primary hover:border-primary/50 transition-colors disabled:opacity-50"
                     title="Refresh List"
                 >
                     <RefreshCcw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
@@ -38,7 +38,7 @@ export function StartupPage() {
             {/* Search */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }}>
                 <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300" />
                     <input
                         type="text"
                         placeholder="Search startup items by name or path..."
@@ -59,7 +59,7 @@ export function StartupPage() {
                 </div>
 
                 {isLoading && items.length === 0 ? (
-                    <div className="p-12 text-center text-slate-500">
+                    <div className="p-12 text-center text-slate-500 dark:text-slate-300">
                         <RefreshCcw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
                         <p>Scanning registry run keys...</p>
                     </div>
@@ -68,7 +68,7 @@ export function StartupPage() {
                         <p className="text-red-400 font-medium bg-red-500/10 px-4 py-2 rounded-lg inline-block border border-red-500/20">{error}</p>
                     </div>
                 ) : filteredItems.length === 0 ? (
-                    <div className="p-12 text-center text-slate-500">
+                    <div className="p-12 text-center text-slate-500 dark:text-slate-300">
                         <Trash2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
                         <p>No startup items found.</p>
                     </div>
@@ -78,20 +78,20 @@ export function StartupPage() {
                             <div key={item.id} className="p-4 hover:bg-white/[0.02] transition-colors flex items-center justify-between group">
                                 <div className="flex items-start gap-4 flex-1 min-w-0 pr-4">
                                     <div className="mt-1">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${item.enabled ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-slate-800/50 border-slate-700/50 text-slate-500'}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${item.enabled ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-slate-800/50 border-slate-700/50 text-slate-500 dark:text-slate-300'}`}>
                                             <Power className="w-5 h-5" />
                                         </div>
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h4 className={`text-[15px] font-bold truncate ${item.enabled ? 'text-foreground' : 'text-slate-400'}`}>
+                                            <h4 className={`text-[15px] font-bold truncate ${item.enabled ? 'text-foreground' : 'text-slate-400 dark:text-slate-200'}`}>
                                                 {item.name}
                                             </h4>
-                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.05] text-slate-400 border border-white/[0.05]">
+                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.05] text-slate-400 dark:text-slate-200 border border-white/[0.05]">
                                                 {item.location.split('\\')[0]}
                                             </span>
                                         </div>
-                                        <p className="text-[12px] text-slate-500 font-mono truncate bg-black/20 px-2 py-1 rounded inline-block max-w-full">
+                                        <p className="text-[12px] text-slate-500 dark:text-slate-300 font-mono truncate bg-black/20 px-2 py-1 rounded inline-block max-w-full">
                                             {item.command}
                                         </p>
                                     </div>

@@ -29,7 +29,7 @@ const steps = [
                                     <div className={`w-1.5 h-1.5 rounded-full ${m.color}`}></div>
                                     <div className={`h-1.5 ${m.w} bg-slate-600 rounded-full`}></div>
                                 </div>
-                                <span className="text-[9px] font-bold text-slate-400">{m.value}</span>
+                                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-200">{m.value}</span>
                             </div>
                         ))}
                     </div>
@@ -125,13 +125,13 @@ const steps = [
                 {/* Inspector header */}
                 <div className="flex items-center gap-2 relative z-10">
                     <div className="w-3 h-3 rounded-sm bg-blue-500/30 border border-blue-500/40"></div>
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inspector</div>
+                    <div className="text-[9px] font-black text-slate-400 dark:text-slate-200 uppercase tracking-widest">Inspector</div>
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-auto shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
                 </div>
 
                 {/* Mechanical summary */}
                 <div className="bg-white/5 border border-white/6 rounded-xl p-3 relative z-10">
-                    <div className="text-[8px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mechanical Summary</div>
+                    <div className="text-[8px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-1.5">Mechanical Summary</div>
                     <div className="space-y-1">
                         {[12, 16, 10].map((w, i) => (
                             <div key={i} className={`h-1 w-${w} bg-slate-600 rounded-full`} style={{ width: `${[75, 90, 60][i]}%` }}></div>
@@ -233,7 +233,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean, onClose:
                         <div>
                             <div className="flex items-center space-x-2 mb-6">
                                 <PlayCircle className="w-5 h-5 text-blue-500" />
-                                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Interactive Guide</span>
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">Interactive Guide</span>
                             </div>
 
                             <AnimatePresence mode="wait">
@@ -250,7 +250,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean, onClose:
                                     <h2 className="text-2xl font-black text-foreground mb-3 tracking-tight">
                                         {steps[currentStep].title}
                                     </h2>
-                                    <p className="text-[15px] leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
+                                    <p className="text-[15px] leading-relaxed text-slate-500 dark:text-slate-200 font-medium">
                                         {steps[currentStep].description}
                                     </p>
                                 </motion.div>
@@ -269,7 +269,7 @@ export function OnboardingModal({ isOpen, onClose }: { isOpen: boolean, onClose:
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-[11px] text-slate-500 font-medium">{currentStep + 1} / {steps.length}</span>
+                                    <span className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">{currentStep + 1} / {steps.length}</span>
                                 </div>
                                 <button
                                     onClick={handleNext}

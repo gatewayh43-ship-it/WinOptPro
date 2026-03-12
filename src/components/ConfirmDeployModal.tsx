@@ -79,14 +79,14 @@ export function ConfirmDeployModal({
                                         <h2 className="text-lg font-bold text-white">
                                             Confirm Deploy
                                         </h2>
-                                        <p className="text-sm text-slate-400">
+                                        <p className="text-sm text-slate-400 dark:text-slate-200">
                                             {tweaks.length} tweak{tweaks.length !== 1 ? "s" : ""} ready
                                         </p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={onCancel}
-                                    className="p-2 rounded-lg hover:bg-white/5 text-slate-500 hover:text-white transition-colors"
+                                    className="p-2 rounded-lg hover:bg-white/5 text-slate-500 dark:text-slate-300 hover:text-white transition-colors"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
@@ -121,7 +121,7 @@ export function ConfirmDeployModal({
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <Code2 className="w-4 h-4 text-slate-500 shrink-0" />
+                                                <Code2 className="w-4 h-4 text-slate-500 dark:text-slate-300 shrink-0" />
                                                 <span className="text-sm font-medium text-white truncate">
                                                     {tweak.name}
                                                 </span>
@@ -141,7 +141,7 @@ export function ConfirmDeployModal({
 
                             {/* Risk summary + actions */}
                             <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-300">
                                     {riskCounts["Green"] && (
                                         <span className="text-emerald-400">
                                             {riskCounts["Green"]} Safe
@@ -162,7 +162,7 @@ export function ConfirmDeployModal({
                                     <button
                                         onClick={onCancel}
                                         disabled={isExecuting}
-                                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 dark:text-slate-200 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>

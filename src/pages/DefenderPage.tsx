@@ -23,7 +23,7 @@ export function DefenderPage() {
                         <Shield className="w-6 h-6 text-primary" />
                         Windows Defender
                     </h1>
-                    <p className="text-[14px] text-slate-500 mt-1 font-medium">
+                    <p className="text-[14px] text-slate-500 dark:text-slate-300 mt-1 font-medium">
                         Manage your antivirus protection, scans, and system security directly from here.
                     </p>
                 </div>
@@ -40,7 +40,7 @@ export function DefenderPage() {
 
                     {/* Status Section */}
                     <section>
-                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Protection Status</h2>
+                        <h2 className="text-sm font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-4">Protection Status</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                             {/* Real-time Protection */}
@@ -62,7 +62,7 @@ export function DefenderPage() {
                                             <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary opacity-80 peer-disabled:opacity-50"></div>
                                         </label>
                                     </div>
-                                    <p className="text-sm text-slate-500 mt-1">Locates and stops malware from installing or running on your device.</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-300 mt-1">Locates and stops malware from installing or running on your device.</p>
                                 </div>
                             </div>
 
@@ -74,7 +74,7 @@ export function DefenderPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-foreground">Security Intelligence</h3>
-                                        <p className="text-sm text-slate-500 mt-1">Signature Age: {status?.antivirusSignatureAge} days</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-300 mt-1">Signature Age: {status?.antivirusSignatureAge} days</p>
                                         {status?.signatureOutOfDate && <p className="text-xs text-amber-500 font-semibold mt-1">Updates are out of date!</p>}
                                     </div>
                                 </div>
@@ -92,7 +92,7 @@ export function DefenderPage() {
 
                     {/* Scanner Section */}
                     <section className="mt-8">
-                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Virus & Threat Scans</h2>
+                        <h2 className="text-sm font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider mb-4">Virus & Threat Scans</h2>
                         <div className="bg-card border border-border rounded-2xl overflow-hidden">
 
                             <div className="p-6 border-b border-border flex items-center justify-between">
@@ -102,8 +102,8 @@ export function DefenderPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-foreground">Quick Scan</h3>
-                                        <p className="text-sm text-slate-500">Checks folders in your system where threats are commonly found.</p>
-                                        <p className="text-xs text-slate-400 mt-1">Last run: {status?.quickScanAge === 4294967295 ? 'Never' : `${status?.quickScanAge} days ago`}</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-300">Checks folders in your system where threats are commonly found.</p>
+                                        <p className="text-xs text-slate-400 dark:text-slate-200 mt-1">Last run: {status?.quickScanAge === 4294967295 ? 'Never' : `${status?.quickScanAge} days ago`}</p>
                                     </div>
                                 </div>
                                 <button
@@ -122,8 +122,8 @@ export function DefenderPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-foreground">Full Scan</h3>
-                                        <p className="text-sm text-slate-500">Checks all files and running programs on your hard disk. This could take longer.</p>
-                                        <p className="text-xs text-slate-400 mt-1">Last run: {status?.fullScanAge === 4294967295 ? 'Never' : `${status?.fullScanAge} days ago`}</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-300">Checks all files and running programs on your hard disk. This could take longer.</p>
+                                        <p className="text-xs text-slate-400 dark:text-slate-200 mt-1">Last run: {status?.fullScanAge === 4294967295 ? 'Never' : `${status?.fullScanAge} days ago`}</p>
                                     </div>
                                 </div>
                                 <button

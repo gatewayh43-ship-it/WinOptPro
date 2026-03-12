@@ -70,13 +70,13 @@ export function GlobalLoadingScreen() {
                         />
                     </div>
                     <div className="flex justify-between items-center mt-3 text-sm">
-                        <span className="text-slate-400 font-medium font-mono">{loadingMessage}</span>
+                        <span className="text-slate-400 dark:text-slate-200 font-medium font-mono">{loadingMessage}</span>
                         <span className="text-primary font-bold">{Math.round(loadingProgress)}%</span>
                     </div>
                 </div>
 
                 {/* Funny Quotes Rotation */}
-                <div className="h-8 mt-2 overflow-hidden flex items-center justify-center text-slate-500 text-sm italic w-full">
+                <div className="h-8 mt-2 overflow-hidden flex items-center justify-center text-slate-500 dark:text-slate-300 text-sm italic w-full">
                     <AnimatePresence mode="wait">
                         <motion.span
                             key={quote}

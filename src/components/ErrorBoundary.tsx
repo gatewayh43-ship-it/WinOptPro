@@ -48,7 +48,7 @@ export class ErrorBoundary extends React.Component<
                     <h3 className="text-lg font-bold text-white mb-2">
                         Something went wrong
                     </h3>
-                    <p className="text-sm text-slate-400 max-w-md mb-2">
+                    <p className="text-sm text-slate-400 dark:text-slate-200 max-w-md mb-2">
                         An unexpected error occurred in this module.
                     </p>
                     {this.state.error && (

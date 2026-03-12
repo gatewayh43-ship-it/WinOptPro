@@ -197,7 +197,7 @@ function App() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-2">Module Under Development</h3>
-                  <p className="text-[14px] text-slate-500 max-w-xs leading-relaxed font-medium">
+                  <p className="text-[14px] text-slate-500 dark:text-slate-300 max-w-xs leading-relaxed font-medium">
                     This module is being engineered. Check back in the next release.
                   </p>
                   <div className="mt-6 flex items-center gap-2 text-[11px] text-slate-600 font-mono bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border">

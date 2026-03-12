@@ -10,7 +10,7 @@ const getCategoryIcon = (category: string) => {
         case 'Network': return <Wifi className="w-4 h-4 text-orange-400" />;
         case 'Power': return <Activity className="w-4 h-4 text-emerald-400" />;
         case 'Gaming': return <Sparkles className="w-4 h-4 text-purple-400" />;
-        default: return <SettingsIcon className="w-4 h-4 text-slate-400" />;
+        default: return <SettingsIcon className="w-4 h-4 text-slate-400 dark:text-slate-200" />;
     }
 };
 
@@ -142,7 +142,7 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                         >
                             {/* Input */}
                             <div className="flex items-center px-4 py-4 border-b border-white/5 relative">
-                                <Search className="w-5 h-5 text-slate-400 mr-3" />
+                                <Search className="w-5 h-5 text-slate-400 dark:text-slate-200 mr-3" />
                                 <input
                                     ref={inputRef}
                                     type="text"
@@ -152,7 +152,7 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                                 <div className="flex items-center space-x-1.5 hidden sm:flex">
-                                    <span className="text-[10px] font-bold text-slate-400 bg-white/5 border border-white/10 px-2 py-1 rounded">ESC</span>
+                                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-200 bg-white/5 border border-white/10 px-2 py-1 rounded">ESC</span>
                                 </div>
                             </div>
 
@@ -172,10 +172,10 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                             {simpleOnly && (
                                 <div className="px-4 py-1.5 bg-white/5 border-b border-white/10 flex items-center justify-between">
                                     <div className="flex items-center">
-                                        <Search className="w-3.5 h-3.5 text-slate-400 mr-2" />
-                                        <span className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">Quick Search Mode</span>
+                                        <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-200 mr-2" />
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-200 font-medium tracking-wide uppercase">Quick Search Mode</span>
                                     </div>
-                                    <span className="text-[10px] text-slate-500 bg-white/5 px-2 py-0.5 rounded cursor-help" title="To use Semantic AI Search, use the search bar located at the top of the individual module pages.">AI Search Disabled</span>
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-300 bg-white/5 px-2 py-0.5 rounded cursor-help" title="To use Semantic AI Search, use the search bar located at the top of the individual module pages.">AI Search Disabled</span>
                                 </div>
                             )}
 
@@ -191,7 +191,7 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                                             }, {} as Record<string, typeof filteredTweaks>)
                                         ).map(([category, tweaks]) => (
                                             <div key={category}>
-                                                <p className="px-3 pt-3 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                <p className="px-3 pt-3 pb-1 text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
                                                     {getCategoryIcon(category)}
                                                     {category}
                                                 </p>
@@ -211,7 +211,7 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                                                                 <h4 className={`text-sm font-bold truncate ${i === selectedIndex ? 'text-primary' : 'text-foreground'}`}>
                                                                     {tweak.name}
                                                                 </h4>
-                                                                <p className="text-[11px] text-slate-500 truncate font-medium mt-0.5">
+                                                                <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate font-medium mt-0.5">
                                                                     {tweak.description}
                                                                 </p>
                                                             </div>
@@ -230,8 +230,8 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                                 ) : (
                                     <div className="px-4 py-8 text-center sm:py-12">
                                         <Search className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-                                        <h3 className="text-sm font-bold text-slate-400">No optimizations found</h3>
-                                        <p className="text-[11px] text-slate-500 mt-1">Try searching for "telemetry", "speed", or "gaming"</p>
+                                        <h3 className="text-sm font-bold text-slate-400 dark:text-slate-200">No optimizations found</h3>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1">Try searching for "telemetry", "speed", or "gaming"</p>
                                     </div>
                                 )}
                             </div>
@@ -239,14 +239,14 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
                             {/* Footer */}
                             <div className="px-4 py-2 border-t border-white/5 bg-black/20 flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
-                                    <div className="flex items-center text-[10px] text-slate-500 font-medium font-mono">
+                                    <div className="flex items-center text-[10px] text-slate-500 dark:text-slate-300 font-medium font-mono">
                                         <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded mr-1.5 flex items-center">↑↓</span> Navigate
                                     </div>
-                                    <div className="flex items-center text-[10px] text-slate-500 font-medium font-mono">
+                                    <div className="flex items-center text-[10px] text-slate-500 dark:text-slate-300 font-medium font-mono">
                                         <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded mr-1.5 flex items-center"><CornerDownLeft className="w-3 h-3" /></span> Execute
                                     </div>
                                 </div>
-                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest hidden sm:block">
+                                <div className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest hidden sm:block">
                                     WinOpt Pro Command Interface
                                 </div>
                             </div>

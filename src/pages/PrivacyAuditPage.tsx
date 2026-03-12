@@ -32,7 +32,7 @@ function ScoreGauge({ score }: { score: number }) {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-3xl font-black" style={{ color }}>{score}</span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Score</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-0.5">Score</span>
             </div>
         </div>
     );
@@ -56,10 +56,10 @@ function IssueCard({ issue, onFix, isFixing }: { issue: PrivacyIssue; onFix: (id
                         {sev.label}
                     </div>
                     <div className="min-w-0">
-                        <p className={`text-[13px] font-semibold leading-tight ${issue.is_fixed ? "line-through text-slate-500" : "text-foreground"}`}>
+                        <p className={`text-[13px] font-semibold leading-tight ${issue.is_fixed ? "line-through text-slate-500 dark:text-slate-300" : "text-foreground"}`}>
                             {issue.title}
                         </p>
-                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">{issue.description}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1 leading-relaxed">{issue.description}</p>
                     </div>
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
@@ -80,7 +80,7 @@ function IssueCard({ issue, onFix, isFixing }: { issue: PrivacyIssue; onFix: (id
             </div>
             <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Category:</span>
-                <span className="text-[10px] font-semibold text-slate-400">{issue.category}</span>
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-200">{issue.category}</span>
             </div>
         </motion.div>
     );
@@ -109,7 +109,7 @@ export function PrivacyAuditPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
                         Privacy <span className="text-gradient">Audit</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Scans telemetry services, registry entries, and tracking settings to calculate your privacy exposure score.
                     </p>
                 </div>
@@ -142,7 +142,7 @@ export function PrivacyAuditPage() {
             {isScanning && !auditResult ? (
                 <div className="bento-card p-8 flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                    <p className="text-slate-400 font-medium">Scanning privacy settings...</p>
+                    <p className="text-slate-400 dark:text-slate-200 font-medium">Scanning privacy settings...</p>
                 </div>
             ) : auditResult ? (
                 <motion.div
@@ -152,22 +152,22 @@ export function PrivacyAuditPage() {
                 >
                     <div className="shrink-0">
                         <ScoreGauge score={auditResult.score} />
-                        <p className="text-center mt-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        <p className="text-center mt-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300">
                             {auditResult.score >= 70 ? "Good" : auditResult.score >= 40 ? "Fair" : "At Risk"}
                         </p>
                     </div>
                     <div className="grid grid-cols-3 gap-4 flex-1 w-full">
                         <div className="bento-card p-4 text-center">
                             <p className="text-2xl font-black text-foreground">{auditResult.issues.length}</p>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Total Issues</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Total Issues</p>
                         </div>
                         <div className="bento-card p-4 text-center">
                             <p className="text-2xl font-black text-red-400">{unfixedCount}</p>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Unfixed</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Unfixed</p>
                         </div>
                         <div className="bento-card p-4 text-center">
                             <p className="text-2xl font-black text-emerald-400">{auditResult.issues.filter(i => i.is_fixed).length}</p>
-                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">Fixed</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Fixed</p>
                         </div>
                     </div>
                 </motion.div>
@@ -184,7 +184,7 @@ export function PrivacyAuditPage() {
                                 className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors border ${
                                     category === cat
                                         ? "bg-primary/10 border-primary/30 text-primary"
-                                        : "border-border text-slate-500 hover:text-foreground hover:border-white/20"
+                                        : "border-border text-slate-500 dark:text-slate-300 hover:text-foreground hover:border-white/20"
                                 }`}
                             >
                                 {cat}
@@ -207,7 +207,7 @@ export function PrivacyAuditPage() {
                             ))}
                         </AnimatePresence>
                         {filtered.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+                            <div className="flex flex-col items-center justify-center py-16 text-slate-500 dark:text-slate-300">
                                 <ShieldCheck className="w-12 h-12 mb-3 opacity-30" />
                                 <p className="font-semibold">No issues in this category</p>
                             </div>

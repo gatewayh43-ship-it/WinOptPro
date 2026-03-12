@@ -135,7 +135,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={() => setIsOpen(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                            <button onClick={() => setIsOpen(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 dark:text-slate-200 hover:text-white">
                                 <ChevronDown className="w-5 h-5" />
                             </button>
                         </div>
@@ -151,7 +151,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                                     {/* Suggested Tweaks UI */}
                                     {msg.suggestedTweaks && msg.suggestedTweaks.length > 0 && (
                                         <div className="mt-2 w-[85%] space-y-1.5">
-                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Suggested Actions</p>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1">Suggested Actions</p>
                                             {msg.suggestedTweaks.map(id => {
                                                 const tweak = tweaksData.find((t: any) => t.id === id);
                                                 if (!tweak) return null;
@@ -159,7 +159,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                                                     <div key={id} className="flex items-center justify-between bg-white/[0.03] border border-white/10 p-2.5 rounded-xl">
                                                         <div className="min-w-0 pr-2">
                                                             <p className="text-[12px] font-bold text-white truncate">{tweak.name}</p>
-                                                            <p className="text-[10px] text-slate-400 truncate mt-0.5">{tweak.category}</p>
+                                                            <p className="text-[10px] text-slate-400 dark:text-slate-200 truncate mt-0.5">{tweak.category}</p>
                                                         </div>
                                                         <button
                                                             onClick={() => toggleSelectedTweak(tweak.id)}
@@ -175,7 +175,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                                 </div>
                             ))}
                             {isTyping && (
-                                <div className="flex items-center gap-2 text-slate-500 text-[12px] font-medium px-2">
+                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300 text-[12px] font-medium px-2">
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" /> AI is thinking...
                                 </div>
                             )}

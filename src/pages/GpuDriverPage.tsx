@@ -10,7 +10,7 @@ const VENDOR_COLORS: Record<string, string> = {
     NVIDIA: "bg-green-500/20 text-green-400 border-green-500/30",
     AMD: "bg-red-500/20 text-red-400 border-red-500/30",
     Intel: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    Unknown: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+    Unknown: "bg-slate-500/20 text-slate-400 dark:text-slate-200 border-slate-500/30",
 };
 
 function DriverCard({ driver }: { driver: GpuDriverInfo }) {
@@ -28,10 +28,10 @@ function DriverCard({ driver }: { driver: GpuDriverInfo }) {
                     <span className="text-[13px] font-semibold text-foreground truncate">{driver.name}</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-[11px] text-slate-400 font-mono">v{driver.version}</span>
-                    <span className="text-[11px] text-slate-500">{driver.date}</span>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-200 font-mono">v{driver.version}</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-300">{driver.date}</span>
                     {driver.infName && (
-                        <span className="text-[11px] text-slate-500 font-mono bg-black/20 px-2 py-0.5 rounded">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-300 font-mono bg-black/20 px-2 py-0.5 rounded">
                             {driver.infName}
                         </span>
                     )}
@@ -93,7 +93,7 @@ export function GpuDriverPage() {
                 </div>
                 <div>
                     <h1 className="text-xl font-bold text-foreground">GPU Driver Cleaner</h1>
-                    <p className="text-[13px] text-slate-400">DDU-style clean uninstall for display drivers</p>
+                    <p className="text-[13px] text-slate-400 dark:text-slate-200">DDU-style clean uninstall for display drivers</p>
                 </div>
             </div>
 
@@ -116,7 +116,7 @@ export function GpuDriverPage() {
                     <button
                         onClick={fetchDrivers}
                         disabled={isLoading}
-                        className="flex items-center gap-1.5 text-[12px] text-slate-400 hover:text-foreground transition-colors"
+                        className="flex items-center gap-1.5 text-[12px] text-slate-400 dark:text-slate-200 hover:text-foreground transition-colors"
                     >
                         <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
                         Refresh
@@ -124,14 +124,14 @@ export function GpuDriverPage() {
                 </div>
                 <div className="p-4 flex flex-col gap-3">
                     {isLoading ? (
-                        <div className="flex items-center gap-2 py-4 text-slate-400 text-[13px]">
+                        <div className="flex items-center gap-2 py-4 text-slate-400 dark:text-slate-200 text-[13px]">
                             <div className="w-4 h-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin" />
                             Scanning installed drivers...
                         </div>
                     ) : error ? (
                         <p className="text-[13px] text-red-400 py-4">{error}</p>
                     ) : drivers.length === 0 ? (
-                        <p className="text-[13px] text-slate-400 py-4">No display drivers found.</p>
+                        <p className="text-[13px] text-slate-400 dark:text-slate-200 py-4">No display drivers found.</p>
                     ) : (
                         drivers.map(d => <DriverCard key={d.pnpId || d.name} driver={d} />)
                     )}
@@ -152,7 +152,7 @@ export function GpuDriverPage() {
                                 onClick={() => setVendorFilter(v)}
                                 className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${vendorFilter === v
                                     ? "bg-primary text-white"
-                                    : "bg-white/5 text-slate-400 hover:text-foreground hover:bg-white/10"
+                                    : "bg-white/5 text-slate-400 dark:text-slate-200 hover:text-foreground hover:bg-white/10"
                                     }`}
                             >
                                 {v}
@@ -173,7 +173,7 @@ export function GpuDriverPage() {
                         </div>
                         <div>
                             <p className="text-[13px] font-medium text-foreground">Delete from Driver Store</p>
-                            <p className="text-[11px] text-slate-400 mt-0.5">
+                            <p className="text-[11px] text-slate-400 dark:text-slate-200 mt-0.5">
                                 Prevents Windows Update from automatically reinstalling this driver version
                             </p>
                         </div>
@@ -226,7 +226,7 @@ export function GpuDriverPage() {
                     >
                         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                             <div className="flex items-center gap-2">
-                                <Terminal className="w-4 h-4 text-slate-400" />
+                                <Terminal className="w-4 h-4 text-slate-400 dark:text-slate-200" />
                                 <h2 className="text-[14px] font-semibold text-foreground">Removal Log</h2>
                             </div>
                             {removalResult.success ? (

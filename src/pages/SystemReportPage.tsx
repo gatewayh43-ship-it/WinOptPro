@@ -22,7 +22,7 @@ export function SystemReportPage() {
                     <h2 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
                         System <span className="text-gradient">Report</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Generate a comprehensive HTML report of your hardware, storage, network, startup items, and running processes.
                     </p>
                 </div>
@@ -50,7 +50,7 @@ export function SystemReportPage() {
                                 </button>
                                 {pdfNote && (
                                     <div className="absolute right-0 top-full mt-2 z-10 w-56 bg-card border border-border rounded-xl px-3 py-2 shadow-lg">
-                                        <p className="text-[11px] text-slate-400 leading-relaxed">
+                                        <p className="text-[11px] text-slate-400 dark:text-slate-200 leading-relaxed">
                                             Use your browser's <span className="font-semibold text-foreground">Print &rarr; Save as PDF</span> option in the dialog.
                                         </p>
                                     </div>
@@ -75,7 +75,7 @@ export function SystemReportPage() {
             {/* Save path input */}
             {reportHtml && (
                 <div className="flex items-center gap-3 bento-card p-3">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest shrink-0">Save Path</span>
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest shrink-0">Save Path</span>
                     <input
                         value={savePath}
                         onChange={e => setSavePath(e.target.value)}
@@ -95,7 +95,7 @@ export function SystemReportPage() {
             {isGenerating && !reportHtml && (
                 <div className="bento-card flex-1 flex flex-col items-center justify-center gap-4 min-h-[300px]">
                     <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                    <p className="text-slate-400 font-medium">Gathering system information...</p>
+                    <p className="text-slate-400 dark:text-slate-200 font-medium">Gathering system information...</p>
                     <p className="text-[12px] text-slate-600">This may take 10–20 seconds</p>
                 </div>
             )}
@@ -107,7 +107,7 @@ export function SystemReportPage() {
                     </div>
                     <div className="text-center">
                         <p className="font-bold text-foreground">No report generated yet</p>
-                        <p className="text-[13px] text-slate-500 mt-1">Click "Generate Report" to collect and display your system information.</p>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-300 mt-1">Click "Generate Report" to collect and display your system information.</p>
                     </div>
                 </div>
             )}

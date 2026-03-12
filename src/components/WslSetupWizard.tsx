@@ -153,7 +153,7 @@ export function WslSetupWizard({ onClose }: Props) {
                 {/* Close */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-10 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-foreground transition-colors"
+                    className="absolute top-4 right-4 z-10 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 dark:text-slate-200 hover:text-foreground transition-colors"
                 >
                     <X className="w-4 h-4" />
                 </button>
@@ -167,7 +167,7 @@ export function WslSetupWizard({ onClose }: Props) {
                 </div>
 
                 {/* Step indicator */}
-                <div className="px-8 pt-5 pb-2 text-[11px] text-slate-500 font-mono">
+                <div className="px-8 pt-5 pb-2 text-[11px] text-slate-500 dark:text-slate-300 font-mono">
                     Step {step + 1} of {TOTAL_STEPS}
                 </div>
 
@@ -181,7 +181,7 @@ export function WslSetupWizard({ onClose }: Props) {
                                 <strong>Linux Mode</strong> uses <em>WSL2</em> + <em>WSLg</em> (Windows Subsystem for Linux GUI)
                                 to launch a real Linux desktop environment directly on Windows — no VM, no dual boot.
                             </p>
-                            <ul className="text-[12px] text-slate-400 mt-3 space-y-1.5 list-none">
+                            <ul className="text-[12px] text-slate-400 dark:text-slate-200 mt-3 space-y-1.5 list-none">
                                 <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" /> Full Linux desktop (XFCE4, KDE, or GNOME)</li>
                                 <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" /> Shared clipboard and file access</li>
                                 <li className="flex items-center gap-2"><CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" /> Hardware-accelerated graphics via WSLg</li>
@@ -263,7 +263,7 @@ export function WslSetupWizard({ onClose }: Props) {
                                                         <Loader2 className="w-2.5 h-2.5 animate-spin" /> Installing...
                                                     </p>
                                                 ) : (
-                                                    <p className="text-[10px] text-slate-500">Click to install</p>
+                                                    <p className="text-[10px] text-slate-500 dark:text-slate-300">Click to install</p>
                                                 )}
                                             </div>
                                         </button>
@@ -342,14 +342,14 @@ export function WslSetupWizard({ onClose }: Props) {
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
                                                 <p className="text-[13px] font-semibold text-foreground">{de.name}</p>
-                                                <span className="text-[10px] text-slate-400">{de.tagline}</span>
+                                                <span className="text-[10px] text-slate-400 dark:text-slate-200">{de.tagline}</span>
                                                 {de.badge && (
                                                     <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${de.badgeClass}`}>
                                                         {de.badge}
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-[11px] text-slate-400 mt-0.5">{de.description}</p>
+                                            <p className="text-[11px] text-slate-400 dark:text-slate-200 mt-0.5">{de.description}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -412,7 +412,7 @@ export function WslSetupWizard({ onClose }: Props) {
                                     <p className="text-[15px] font-semibold text-foreground">
                                         {selectedDistro} with {DESKTOP_ENVS.find(d => d.id === selectedDe)?.name ?? selectedDe}
                                     </p>
-                                    <p className="text-[12px] text-slate-400 mt-1">
+                                    <p className="text-[12px] text-slate-400 dark:text-slate-200 mt-1">
                                         WSL2 + WSLg ready. Click below to open your Linux desktop.
                                     </p>
                                 </div>
@@ -464,7 +464,7 @@ function StepShell({ title, subtitle, children }: {
         <div className="flex flex-col gap-4">
             <div>
                 <h2 className="text-[18px] font-bold text-foreground">{title}</h2>
-                <p className="text-[12px] text-slate-400 mt-0.5">{subtitle}</p>
+                <p className="text-[12px] text-slate-400 dark:text-slate-200 mt-0.5">{subtitle}</p>
             </div>
             {children}
         </div>
@@ -479,7 +479,7 @@ function ChecklistItem({ done, text }: { done: boolean; text: string }) {
             ) : (
                 <div className="w-4 h-4 rounded-full border border-slate-600 shrink-0" />
             )}
-            <span className={done ? "text-foreground" : "text-slate-400"}>{text}</span>
+            <span className={done ? "text-foreground" : "text-slate-400 dark:text-slate-200"}>{text}</span>
         </div>
     );
 }

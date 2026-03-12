@@ -99,7 +99,7 @@ export function ProcessPage() {
                         <Activity className="w-8 h-8 text-primary" />
                         Process <span className="text-gradient">Manager</span>
                     </h2>
-                    <p className="text-slate-500 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
+                    <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
                         Monitor system resource usage in real-time and terminate unresponsive applications.
                     </p>
                 </div>
@@ -112,7 +112,7 @@ export function ProcessPage() {
                         <Activity className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider">Total Processes</p>
+                        <p className="text-[12px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Total Processes</p>
                         <p className="text-2xl font-black text-foreground">{processes.length}</p>
                     </div>
                 </motion.div>
@@ -122,7 +122,7 @@ export function ProcessPage() {
                         <MemoryStick className="w-6 h-6" />
                     </div>
                     <div>
-                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider">Used by Processes</p>
+                        <p className="text-[12px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Used by Processes</p>
                         <p className="text-2xl font-black text-foreground">{formatMemory(totalMemory)}</p>
                     </div>
                 </motion.div>
@@ -133,7 +133,7 @@ export function ProcessPage() {
                         <Cpu className="w-6 h-6" />
                     </div>
                     <div className="relative z-10">
-                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider">Total User CPU</p>
+                        <p className="text-[12px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Total User CPU</p>
                         <p className="text-2xl font-black text-foreground">{formatCpu(totalCpu)}</p>
                     </div>
                 </motion.div>
@@ -145,7 +145,7 @@ export function ProcessPage() {
                         </div>
                         <div>
                             <p className="text-[12px] font-bold text-orange-400 uppercase tracking-wider">Limited Privileges</p>
-                            <p className="text-[13px] text-slate-400 font-medium">Restart as Admin to kill any system process.</p>
+                            <p className="text-[13px] text-slate-400 dark:text-slate-200 font-medium">Restart as Admin to kill any system process.</p>
                         </div>
                     </motion.div>
                 )}
@@ -156,7 +156,7 @@ export function ProcessPage() {
                 {/* Header Controls */}
                 <div className="p-4 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/[0.01]">
                     <div className="relative max-w-md w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-300" />
                         <input
                             type="text"
                             placeholder="Filter by name or PID..."
@@ -168,7 +168,7 @@ export function ProcessPage() {
                 </div>
 
                 {/* Table Header */}
-                <div className="grid grid-cols-[3fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-3 border-b border-border/30 text-[12px] font-bold text-slate-500 uppercase tracking-wider bg-black/20 select-none">
+                <div className="grid grid-cols-[3fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-3 border-b border-border/30 text-[12px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider bg-black/20 select-none">
                     <div className="cursor-pointer hover:text-slate-300" onClick={() => handleSort('name')}>
                         Name <SortIcon field="name" />
                     </div>
@@ -187,12 +187,12 @@ export function ProcessPage() {
                 {/* Table Body */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {isLoading && processes.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 h-full">
+                        <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-300 h-full">
                             <Activity className="w-8 h-8 animate-pulse mx-auto mb-4 text-primary" />
                             <p className="font-medium">Loading active processes...</p>
                         </div>
                     ) : filteredAndSorted.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 h-full">
+                        <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500 dark:text-slate-300 h-full">
                             <Search className="w-8 h-8 mx-auto mb-4 opacity-20" />
                             <p className="font-medium">No associated processes found.</p>
                         </div>
@@ -217,7 +217,7 @@ export function ProcessPage() {
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="text-[13px] text-slate-400 font-mono">{process.pid}</div>
+                                        <div className="text-[13px] text-slate-400 dark:text-slate-200 font-mono">{process.pid}</div>
                                         <div className={`text-[13px] font-mono text-right ${highCpu ? 'text-amber-400 font-bold' : 'text-slate-300'}`}>
                                             {formatCpu(process.cpu_usage)}
                                         </div>
@@ -230,7 +230,7 @@ export function ProcessPage() {
                                             <div className="relative">
                                                 <button
                                                     onClick={() => setContextMenuPid(contextMenuPid === process.pid ? null : process.pid)}
-                                                    className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+                                                    className="p-1.5 rounded-lg text-slate-500 dark:text-slate-300 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
                                                     title={`More options for ${process.name}`}
                                                 >
                                                     <MoreVertical className="w-4 h-4" />
@@ -256,7 +256,7 @@ export function ProcessPage() {
                                                             </div>
                                                             <div className="border-t border-border/50 my-1" />
                                                             <div className="p-1">
-                                                                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest flex items-center gap-2">
                                                                     Set Priority
                                                                 </div>
                                                                 <button onClick={() => handlePriorityChange(process.pid, 'Realtime')} className="w-full text-left px-3 py-1.5 text-[13px] text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex justify-between items-center group">
@@ -265,8 +265,8 @@ export function ProcessPage() {
                                                                 <button onClick={() => handlePriorityChange(process.pid, 'High')} className="w-full text-left px-3 py-1.5 text-[13px] text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors">High</button>
                                                                 <button onClick={() => handlePriorityChange(process.pid, 'AboveNormal')} className="w-full text-left px-3 py-1.5 text-[13px] text-amber-400 hover:bg-amber-500/10 rounded-lg transition-colors">Above Normal</button>
                                                                 <button onClick={() => handlePriorityChange(process.pid, 'Normal')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-300 hover:bg-white/5 rounded-lg transition-colors">Normal</button>
-                                                                <button onClick={() => handlePriorityChange(process.pid, 'BelowNormal')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-400 hover:bg-white/5 rounded-lg transition-colors">Below Normal</button>
-                                                                <button onClick={() => handlePriorityChange(process.pid, 'Idle')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-500 hover:bg-white/5 rounded-lg transition-colors">Idle</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'BelowNormal')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-400 dark:text-slate-200 hover:bg-white/5 rounded-lg transition-colors">Below Normal</button>
+                                                                <button onClick={() => handlePriorityChange(process.pid, 'Idle')} className="w-full text-left px-3 py-1.5 text-[13px] text-slate-500 dark:text-slate-300 hover:bg-white/5 rounded-lg transition-colors">Idle</button>
                                                             </div>
                                                         </motion.div>
                                                     )}
@@ -275,7 +275,7 @@ export function ProcessPage() {
 
                                             <button
                                                 onClick={() => setProcessToKill(process)}
-                                                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+                                                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-300 hover:text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
                                                 title={`End Task: ${process.name}`}
                                             >
                                                 <X className="w-4 h-4" />
@@ -310,7 +310,7 @@ export function ProcessPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-foreground">End Process?</h3>
-                                    <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+                                    <p className="text-sm text-slate-400 dark:text-slate-200 mt-1 leading-relaxed">
                                         Are you sure you want to forcibly terminate <span className="text-foreground font-mono bg-white/5 px-1 rounded">{processToKill.name}</span> (PID: {processToKill.pid})?
                                     </p>
 
@@ -326,7 +326,7 @@ export function ProcessPage() {
                             <div className="flex items-center justify-end gap-3">
                                 <button
                                     onClick={() => setProcessToKill(null)}
-                                    className="px-4 py-2 rounded-xl text-sm font-bold text-slate-400 hover:text-foreground hover:bg-white/5 transition-colors"
+                                    className="px-4 py-2 rounded-xl text-sm font-bold text-slate-400 dark:text-slate-200 hover:text-foreground hover:bg-white/5 transition-colors"
                                 >
                                     Cancel
                                 </button>
