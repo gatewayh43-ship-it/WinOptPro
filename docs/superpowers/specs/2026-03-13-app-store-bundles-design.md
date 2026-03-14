@@ -175,7 +175,7 @@ const { categories: _ignored, ...appLookup } = rawMeta as any;
 
 ### 7.1 Hero Card on App Store (`AppsPage.tsx`)
 
-A full-width gradient card inserted in `AppsPage.tsx` **between the view-toggle controls (line ~146) and the main content wrapper div (`<div className="flex-1 w-full max-w-[1300px]...">`, line ~149)**. It renders unconditionally outside the `isSearching / isErrorOrEmpty / isShowingSearch` ternary chain — always visible regardless of search state. Clicking anywhere on the card calls `setView?.("bundles")` (the new optional prop added to `AppsPage`). `setView` is optional with a default no-op so existing `render(<AppsPage />)` calls in tests pass without changes. Contains:
+A full-width gradient card inserted in `AppsPage.tsx` **after the closing `}` of the view-toggle conditional block (line ~146) and before the opening `<div className="flex-1 w-full max-w-[1300px]...">` (line ~149)**. The hero card is placed at the same JSX nesting level as the view-toggle block and the main content `<div>` — it must NOT be placed inside the categories ternary. It renders unconditionally regardless of search state. Clicking anywhere on the card calls `setView?.("bundles")` (the new optional prop added to `AppsPage`). `setView` is optional with a default no-op so existing `render(<AppsPage />)` calls in tests pass without changes. Contains:
 - `Boxes` icon (matches the Bundles sidebar icon)
 - Title: "App Bundles"
 - Subtitle: "Install curated app collections in one click."
@@ -216,18 +216,7 @@ Opens as a modal overlay. Contains:
 - Footer: selected count summary + "Cancel" + "Install N apps →" button
 - Install button label updates live as user ticks/unticks
 
-**Component props:** `BundleInstallModal` receives `installApp` and `installedApps` as props from `BundlesPage`, which owns the `useApps()` instance. `BundlesPage` calls `checkInstalled` for all bundle app IDs before opening the modal so `installedApps` is populated. Installed check: `installedApps[app.appId] === true`.
-
-```typescript
-// AppInstallResult imported from "@/hooks/useApps"
-interface BundleInstallModalProps {
-  bundle: ResolvedBundle;
-  isOpen: boolean;
-  onClose: () => void;
-  installApp: (wingetId: string, chocoId: string, appId: string) => Promise<AppInstallResult>;
-  installedApps: Record<string, boolean>;  // from useApps; keyed by app ID
-}
-```
+**Component props:** See `BundleInstallModalProps` definition in Section 5. `BundleInstallModal` receives `installApp` and `installedApps` as props from `BundlesPage`, which owns the `useApps()` instance. Before opening the modal, `BundlesPage` prefetches installed status by calling `checkInstalled(app.appId, app.appId)` for each resolved app — the hook signature is `(wingetId: string, appId: string)`, so both arguments are the same app ID. Installed check: `installedApps[app.appId] === true`.
 
 **Install call convention:** Each selected, non-installed app calls `installApp(app.appId, "", app.appId)` matching the existing `useApps` hook signature `(wingetId, chocoId, appId)`. Installs are executed **sequentially** (await each call in a for-loop) because `useApps.installingId` is a single `string | null` slot — parallel calls would race. `installApp` returns `Promise<AppInstallResult>` — use `result.success` and `result.error` to show per-app green/red status and retry buttons. The function handles the Tauri environment guard internally; the modal does not need its own isTauri check.
 
@@ -250,6 +239,7 @@ New nav item under **Apps & Packages**:
 - Icon: `Boxes` (`Layers` is already used by the Profiles nav item)
 - ID: `bundles`
 - Position: second item, after "App Store"
+- **Import note:** Add `Boxes` to the Lucide import statement in `Sidebar.tsx` (it is not currently imported)
 
 ---
 
@@ -319,7 +309,12 @@ Mocking patterns follow existing conventions:
 
 ## 11. Implementation Sequence
 
-1. **Audit & extend `src/data/app_metadata.json`** — the following apps are confirmed present in the **flat dictionary** (O(1) lookup by key): `Mozilla.Firefox`, `Brave.Brave`, `7zip.7zip`, `CPUID.CPU-Z`, `TechPowerUp.GPU-Z`, `REALiX.HWiNFO` (HWiNFO64), `Guru3D.Afterburner` (MSI Afterburner), `Playnite.Playnite`, `Obsidian.Obsidian`, `DigitalScholar.Zotero`, `Postman.Postman`, `Insecure.Nmap`, `Famatech.AdvancedIPScanner`, `HandBrake.HandBrake`, `Inkscape.Inkscape`, `Maxon.CinebenchR23` (CineBench R23), `voidtools.Everything`, `Microsoft.PowerToys`, `Unity.UnityHub`, `PeterPawlowski.foobar2000` (**note**: use this exact ID — not `PeterPavlishak.foobar2000` which exists only in `categories[]` but not in the flat dict).
+1. **Audit & extend `src/data/app_metadata.json`** — the following apps are confirmed present in the **flat dictionary** (O(1) lookup by key): `Mozilla.Firefox`, `Brave.Brave`, `7zip.7zip`, `CPUID.CPU-Z`, `TechPowerUp.GPU-Z`, `REALiX.HWiNFO` (HWiNFO64), `Guru3D.Afterburner` (MSI Afterburner), `Playnite.Playnite`, `Obsidian.Obsidian`, `DigitalScholar.Zotero`, `Postman.Postman`, `Insecure.Nmap`, `Famatech.AdvancedIPScanner`, `HandBrake.HandBrake`, `Inkscape.Inkscape`, `Maxon.CinebenchR23` (CineBench R23), `voidtools.Everything`, `Microsoft.PowerToys`, `Unity.UnityHub`, `GOG.Galaxy`.
+
+   **ID pitfalls** — these apps have categories-array IDs that differ from flat-dict keys; use exact flat-dict key or `resolveBundle` returns `null`:
+   - `PeterPawlowski.foobar2000` ← flat dict; `PeterPavlishak.foobar2000` is categories-only
+   - `GIMP.GIMP.3` ← flat dict; `GIMP.GIMP` is categories-only
+   - `Python.Python.3.14` ← flat dict; no version-agnostic key exists
 
    The following apps are **confirmed absent** and must be added to `app_metadata.json` (with logo, description, license, winget ID) before `bundles.json` is finalized:
 
