@@ -216,9 +216,13 @@ Opens as a modal overlay. Contains:
 - Footer: selected count summary + "Cancel" + "Install N apps →" button
 - Install button label updates live as user ticks/unticks
 
-**Component props:** See `BundleInstallModalProps` definition in Section 5. `BundleInstallModal` receives `installApp` and `installedApps` as props from `BundlesPage`, which owns the `useApps()` instance. Before opening the modal, `BundlesPage` prefetches installed status by calling `checkInstalled(app.appId, app.appId)` for each resolved app — the hook signature is `(wingetId: string, appId: string)`, so both arguments are the same app ID. Installed check: `installedApps[app.appId] === true`.
+**Component props:** See `BundleInstallModalProps` definition in Section 5. `BundleInstallModal` receives `installApp` and `installedApps` as props from `BundlesPage`, which owns the `useApps()` instance.
 
-**Install call convention:** Each selected, non-installed app calls `installApp(app.appId, "", app.appId)` matching the existing `useApps` hook signature `(wingetId, chocoId, appId)`. Installs are executed **sequentially** (await each call in a for-loop) because `useApps.installingId` is a single `string | null` slot — parallel calls would race. `installApp` returns `Promise<AppInstallResult>` — use `result.success` and `result.error` to show per-app green/red status and retry buttons. The function handles the Tauri environment guard internally; the modal does not need its own isTauri check.
+**Installed-state prefetch timing:** Triggered on "Install Bundle" card click, before the modal renders. `BundlesPage` calls `checkInstalled(app.appId, app.appId)` for each resolved app (hook signature: `(wingetId: string, appId: string)` — pass app ID as both args). While checks are in-flight, modal renders with skeleton shimmer on installed-badge slots and the "Install N apps →" footer button is disabled. Installed check in modal: `installedApps[app.appId] === true`.
+
+**Per-app result tracking:** `BundleInstallModal` maintains its own local `installResultsMap: Record<string, AppInstallResult>` state. After each `await installApp(...)` call, store the result in `installResultsMap[app.appId]` to drive per-app green/red/retry display. This state is not passed as a prop — the modal owns it.
+
+**Install call convention:** Each selected, non-installed app calls `installApp(app.appId, "", app.appId)`. Installs are executed **sequentially** (for-loop with await) because `useApps.installingId` is a single slot. `installApp` handles the Tauri environment guard internally; the modal does not need its own isTauri check.
 
 ### 7.5 Create Bundle Panel
 
@@ -311,10 +315,10 @@ Mocking patterns follow existing conventions:
 
 1. **Audit & extend `src/data/app_metadata.json`** — the following apps are confirmed present in the **flat dictionary** (O(1) lookup by key): `Mozilla.Firefox`, `Brave.Brave`, `7zip.7zip`, `CPUID.CPU-Z`, `TechPowerUp.GPU-Z`, `REALiX.HWiNFO` (HWiNFO64), `Guru3D.Afterburner` (MSI Afterburner), `Playnite.Playnite`, `Obsidian.Obsidian`, `DigitalScholar.Zotero`, `Postman.Postman`, `Insecure.Nmap`, `Famatech.AdvancedIPScanner`, `HandBrake.HandBrake`, `Inkscape.Inkscape`, `Maxon.CinebenchR23` (CineBench R23), `voidtools.Everything`, `Microsoft.PowerToys`, `Unity.UnityHub`, `GOG.Galaxy`.
 
-   **ID pitfalls** — these apps have categories-array IDs that differ from flat-dict keys; use exact flat-dict key or `resolveBundle` returns `null`:
-   - `PeterPawlowski.foobar2000` ← flat dict; `PeterPavlishak.foobar2000` is categories-only
-   - `GIMP.GIMP.3` ← flat dict; `GIMP.GIMP` is categories-only
-   - `Python.Python.3.14` ← flat dict; no version-agnostic key exists
+   **ID pitfalls** — multiple IDs exist for some apps; use the exact flat-dict key:
+   - `PeterPawlowski.foobar2000` ← use this (both `PeterPawlowski.foobar2000` and `PeterPavlishak.foobar2000` exist in the file but point to different entries; the former is the correct one)
+   - `GIMP.GIMP.3` ← use this; `GIMP.GIMP` exists in categories only, not flat dict
+   - `Python.Python.3.14` ← use this; no version-agnostic key exists
 
    The following apps are **confirmed absent** and must be added to `app_metadata.json` (with logo, description, license, winget ID) before `bundles.json` is finalized:
 
@@ -329,7 +333,7 @@ Mocking patterns follow existing conventions:
    | CrystalDiskMark | `CrystalDewWorld.CrystalDiskMark` | pc-diagnostics, benchmark-suite |
    | REAPER | `Cockos.REAPER` | music-producer |
    | ProtonVPN | `ProtonTechnologies.ProtonVPN` | privacy-first |
-   | Signal | `OpenWhisperSystems.Signal` | privacy-first |
+   | ~~Signal~~ | `OpenWhisperSystems.Signal` already present in flat dict — no action needed | privacy-first |
    | KeePassXC | `KeePassXCTeam.KeePassXC` | privacy-first |
    | ~~Prime95~~ | No standard winget ID — already replaced with `CrystalDewWorld.CrystalDiskMark` in Section 6 overclocker-suite | — |
    | ~~Sysinternals Suite~~ | No single-package winget ID — already replaced with `Microsoft.Sysinternals.ProcessExplorer` (`Microsoft.Sysinternals.ProcessExplorer`) in Section 6 windows-power-user and windows-internals | — |
