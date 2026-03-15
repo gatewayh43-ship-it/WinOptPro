@@ -3,7 +3,7 @@ import {
     Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium,
     MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
     Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
-    ChevronDown, HelpCircle
+    ChevronDown, HelpCircle, Boxes
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
@@ -47,6 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
     {
         id: "apps", label: "Apps & Packages", items: [
             { id: "apps", label: "App Store", lucideIcon: Package },
+            { id: "bundles", label: "Bundles", lucideIcon: Boxes },
             { id: "wsl_manager", label: "WSL Manager", lucideIcon: Terminal },
             { id: "drivers", label: "Driver Manager", lucideIcon: Cpu },
             { id: "gpu_driver", label: "GPU Driver Cleaner", lucideIcon: CircuitBoard },

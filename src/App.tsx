@@ -13,6 +13,7 @@ import { StoragePage } from "./pages/StoragePage";
 import { ProcessPage } from "./pages/ProcessPage";
 import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
 import { AppsPage } from "./pages/AppsPage";
+import { BundlesPage } from "./pages/BundlesPage";
 import { PowerPage } from "./pages/PowerPage";
 import { DefenderPage } from "./pages/DefenderPage";
 import { PrivacyAuditPage } from "./pages/PrivacyAuditPage";
@@ -154,7 +155,8 @@ function App() {
     network: <NetworkAnalyzerPage />,
     settings: <SettingsPage onTriggerGuide={() => setShowOnboarding(true)} />,
     profiles: <ProfilesPage />,
-    apps: <AppsPage />,
+    apps: <AppsPage setView={setCurrentView} />,
+    bundles: <BundlesPage setView={setCurrentView} />,
     power_manager: <PowerPage />,
     defender: <DefenderPage />,
     privacy_audit: <PrivacyAuditPage />,
