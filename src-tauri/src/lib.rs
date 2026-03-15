@@ -16,6 +16,7 @@ mod startup;
 mod storage;
 mod system;
 mod tweaks;
+mod update;
 mod wsl;
 mod ai;
 
@@ -34,6 +35,9 @@ pub fn run() {
                 db::init_db(&app.handle()).expect("Failed to initialize database");
             app.manage(DbState(Mutex::new(conn)));
             app.manage(OllamaState { process: Mutex::new(None) });
+            // Initialize updater plugin (desktop only)
+            #[cfg(desktop)]
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -143,6 +147,9 @@ pub fn run() {
             ai::stop_ollama,
             ai::download_ollama,
             ai::pull_model,
+            // Updater
+            update::check_for_update,
+            update::download_and_install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
