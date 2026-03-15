@@ -1,0 +1,222 @@
+[
+  {
+    "id": "beginner-essentials",
+    "type": "curated",
+    "group": "Starters",
+    "name": "Beginner Essentials",
+    "description": "Everything you need on a fresh Windows install. Safe, free, and trusted by millions.",
+    "icon": "Star",
+    "color": "blue",
+    "apps": ["Mozilla.Firefox", "7zip.7zip", "VideoLAN.VLC", "Notepad.Notepad-plus-plus", "voidtools.Everything", "Microsoft.PowerToys", "Bitwarden.Bitwarden"]
+  },
+  {
+    "id": "office-wfh",
+    "type": "curated",
+    "group": "Starters",
+    "name": "Office & WFH",
+    "description": "A complete remote-work stack: office suite, communication apps, and productivity utilities.",
+    "icon": "Briefcase",
+    "color": "emerald",
+    "apps": ["TheDocumentFoundation.LibreOffice", "Zoom.Zoom", "SlackTechnologies.Slack", "Microsoft.Teams", "7zip.7zip", "VideoLAN.VLC", "Microsoft.PowerToys", "Bitwarden.Bitwarden"]
+  },
+  {
+    "id": "student-setup",
+    "type": "curated",
+    "group": "Starters",
+    "name": "Student Setup",
+    "description": "Research tools, note-taking, communication, and multimedia — everything a student needs.",
+    "icon": "GraduationCap",
+    "color": "violet",
+    "apps": ["TheDocumentFoundation.LibreOffice", "Mozilla.Firefox", "Bitwarden.Bitwarden", "DigitalScholar.Zotero", "Discord.Discord", "7zip.7zip", "VideoLAN.VLC", "Obsidian.Obsidian"]
+  },
+  {
+    "id": "gamers-setup",
+    "type": "curated",
+    "group": "Gaming",
+    "name": "The Gamer's Setup",
+    "description": "All your game launchers, comms, and performance monitoring in one click.",
+    "icon": "Gamepad2",
+    "color": "green",
+    "apps": ["Valve.Steam", "EpicGames.EpicGamesLauncher", "GOG.Galaxy", "Discord.Discord", "Playnite.Playnite", "Guru3D.Afterburner", "OBSProject.OBSStudio"]
+  },
+  {
+    "id": "competitive-edge",
+    "type": "curated",
+    "group": "Gaming",
+    "name": "Competitive Edge",
+    "description": "System monitoring, hardware info, and process optimization for competitive gaming.",
+    "icon": "Crosshair",
+    "color": "red",
+    "apps": ["Valve.Steam", "Discord.Discord", "REALiX.HWiNFO", "Guru3D.Afterburner", "CPUID.CPU-Z", "TechPowerUp.GPU-Z", "BitSum.ProcessLasso"]
+  },
+  {
+    "id": "game-dev-starter",
+    "type": "curated",
+    "group": "Gaming",
+    "name": "Game Dev Starter",
+    "description": "Everything you need to start making games: engine, editor, version control, and 3D art.",
+    "icon": "Wrench",
+    "color": "orange",
+    "apps": ["Unity.UnityHub", "Microsoft.VisualStudioCode", "Git.Git", "BlenderFoundation.Blender", "7zip.7zip", "Discord.Discord"]
+  },
+  {
+    "id": "developer-workstation",
+    "type": "curated",
+    "group": "Power Users",
+    "name": "Developer Workstation",
+    "description": "A full dev environment: editor, terminal, version control, runtimes, containers, and API tools.",
+    "icon": "Code2",
+    "color": "cyan",
+    "apps": ["Microsoft.VisualStudioCode", "Git.Git", "Microsoft.WindowsTerminal", "OpenJS.NodeJS", "Python.Python.3.14", "Docker.DockerDesktop", "Postman.Postman", "WinSCP.WinSCP"]
+  },
+  {
+    "id": "overclocker-suite",
+    "type": "curated",
+    "group": "Power Users",
+    "name": "Overclocker & Stress Tester",
+    "description": "Every tool you need to push your hardware and verify it's stable under load.",
+    "icon": "Thermometer",
+    "color": "amber",
+    "apps": ["CPUID.CPU-Z", "TechPowerUp.GPU-Z", "REALiX.HWiNFO", "OCBase.OCCT", "Geeks3D.FurMark", "CrystalDewWorld.CrystalDiskMark", "Maxon.CinebenchR23", "Guru3D.Afterburner"]
+  },
+  {
+    "id": "windows-power-user",
+    "type": "curated",
+    "group": "Power Users",
+    "name": "Windows Power User",
+    "description": "Deep Windows inspection and remote management tools for advanced users.",
+    "icon": "Monitor",
+    "color": "blue",
+    "apps": ["Microsoft.Sysinternals.ProcessExplorer", "Microsoft.WindowsTerminal", "Microsoft.VisualStudioCode", "WinSCP.WinSCP", "PuTTY.PuTTY", "7zip.7zip"]
+  },
+  {
+    "id": "sysadmin-toolkit",
+    "type": "curated",
+    "group": "Power Users",
+    "name": "Sysadmin Toolkit",
+    "description": "Network analysis, remote access, and infrastructure monitoring for IT professionals.",
+    "icon": "Network",
+    "color": "slate",
+    "apps": ["WiresharkFoundation.Wireshark", "PuTTY.PuTTY", "WinSCP.WinSCP", "Famatech.AdvancedIPScanner", "Insecure.Nmap", "Microsoft.WindowsTerminal"]
+  },
+  {
+    "id": "content-creator",
+    "type": "curated",
+    "group": "Creative",
+    "name": "Content Creator",
+    "description": "Stream, record, edit video, make thumbnails, and communicate with your audience.",
+    "icon": "Video",
+    "color": "rose",
+    "apps": ["OBSProject.OBSStudio", "BlackmagicDesign.DaVinciResolve", "Audacity.Audacity", "GIMP.GIMP.3", "Discord.Discord", "HandBrake.HandBrake"]
+  },
+  {
+    "id": "video-editor",
+    "type": "curated",
+    "group": "Creative",
+    "name": "Video Editor",
+    "description": "A complete free video production suite from capture to export.",
+    "icon": "Film",
+    "color": "fuchsia",
+    "apps": ["BlackmagicDesign.DaVinciResolve", "HandBrake.HandBrake", "VideoLAN.VLC", "Audacity.Audacity", "GIMP.GIMP.3", "Inkscape.Inkscape"]
+  },
+  {
+    "id": "music-producer",
+    "type": "curated",
+    "group": "Creative",
+    "name": "Music Producer",
+    "description": "Record, edit, mix, and listen. A focused music production and playback setup.",
+    "icon": "Music",
+    "color": "pink",
+    "apps": ["Audacity.Audacity", "Cockos.REAPER", "PeterPawlowski.foobar2000", "VideoLAN.VLC"]
+  },
+  {
+    "id": "pc-diagnostics",
+    "type": "curated",
+    "group": "Community Picks",
+    "name": "PC Diagnostics Toolkit",
+    "description": "Trusted by r/techsupport and r/pcmasterrace — the essential diagnostic set for any PC issue.",
+    "icon": "Stethoscope",
+    "color": "teal",
+    "apps": ["REALiX.HWiNFO", "CPUID.CPU-Z", "TechPowerUp.GPU-Z", "Guru3D.Afterburner", "CrystalDewWorld.CrystalDiskInfo", "CrystalDewWorld.CrystalDiskMark"]
+  },
+  {
+    "id": "forum-all-stars",
+    "type": "curated",
+    "group": "Community Picks",
+    "name": "Forum All-Stars",
+    "description": "The apps that appear on every 'essential software' list across PC forums and subreddits.",
+    "icon": "Trophy",
+    "color": "yellow",
+    "apps": ["7zip.7zip", "VideoLAN.VLC", "Mozilla.Firefox", "Guru3D.Afterburner", "REALiX.HWiNFO", "TheDocumentFoundation.LibreOffice", "voidtools.Everything", "Notepad.Notepad-plus-plus", "Discord.Discord"]
+  },
+  {
+    "id": "privacy-first",
+    "type": "curated",
+    "group": "Community Picks",
+    "name": "Privacy First",
+    "description": "A privacy-focused stack: open source browser, offline password manager, VPN, and encrypted messaging.",
+    "icon": "ShieldCheck",
+    "color": "emerald",
+    "apps": ["Mozilla.Firefox", "Brave.Brave", "Bitwarden.Bitwarden", "ProtonTechnologies.ProtonVPN", "OpenWhisperSystems.Signal", "KeePassXCTeam.KeePassXC"]
+  },
+  {
+    "id": "the-minimalist",
+    "type": "curated",
+    "group": "Community Picks",
+    "name": "The Minimalist",
+    "description": "Just the essentials. Five apps that solve 90% of everyday computing needs.",
+    "icon": "Minus",
+    "color": "gray",
+    "apps": ["Mozilla.Firefox", "7zip.7zip", "VideoLAN.VLC", "Notepad.Notepad-plus-plus", "voidtools.Everything"]
+  },
+  {
+    "id": "pc-builders-kit",
+    "type": "curated",
+    "group": "Curated Collections",
+    "name": "PC Builder's Kit",
+    "description": "Validate your new build: check GPU/CPU specs, monitor sensors, and capture the first boot.",
+    "icon": "Cpu",
+    "color": "indigo",
+    "apps": ["TechPowerUp.GPU-Z", "CPUID.CPU-Z", "REALiX.HWiNFO", "Guru3D.Afterburner", "OBSProject.OBSStudio"]
+  },
+  {
+    "id": "benchmark-suite",
+    "type": "curated",
+    "group": "Curated Collections",
+    "name": "Benchmark & Stress Test Suite",
+    "description": "A comprehensive set of tools to benchmark performance and verify system stability.",
+    "icon": "BarChart2",
+    "color": "orange",
+    "apps": ["REALiX.HWiNFO", "CPUID.CPU-Z", "TechPowerUp.GPU-Z", "Guru3D.Afterburner", "OCBase.OCCT", "Geeks3D.FurMark", "CrystalDewWorld.CrystalDiskMark", "Maxon.CinebenchR23"]
+  },
+  {
+    "id": "fresh-start-pack",
+    "type": "curated",
+    "group": "Curated Collections",
+    "name": "Fresh Start Pack",
+    "description": "The perfect post-format install list. Browsing, compression, media, productivity, and gaming.",
+    "icon": "RefreshCcw",
+    "color": "sky",
+    "apps": ["Mozilla.Firefox", "Brave.Brave", "VideoLAN.VLC", "7zip.7zip", "Microsoft.PowerToys", "voidtools.Everything", "Notepad.Notepad-plus-plus", "Microsoft.VisualStudioCode", "Valve.Steam"]
+  },
+  {
+    "id": "the-all-rounder",
+    "type": "curated",
+    "group": "Curated Collections",
+    "name": "The All-Rounder",
+    "description": "A comprehensive setup for general use: productivity, media, comms, and performance monitoring.",
+    "icon": "Layers",
+    "color": "purple",
+    "apps": ["7zip.7zip", "VideoLAN.VLC", "Mozilla.Firefox", "Guru3D.Afterburner", "REALiX.HWiNFO", "TheDocumentFoundation.LibreOffice", "voidtools.Everything", "Notepad.Notepad-plus-plus", "Discord.Discord"]
+  },
+  {
+    "id": "windows-internals",
+    "type": "curated",
+    "group": "Curated Collections",
+    "name": "Windows Internals Kit",
+    "description": "Deep Windows inspection tools: process management, SSH, SFTP, network analysis.",
+    "icon": "Terminal",
+    "color": "zinc",
+    "apps": ["Microsoft.Sysinternals.ProcessExplorer", "Microsoft.WindowsTerminal", "Microsoft.VisualStudioCode", "WinSCP.WinSCP", "PuTTY.PuTTY", "WiresharkFoundation.Wireshark"]
+  }
+]
