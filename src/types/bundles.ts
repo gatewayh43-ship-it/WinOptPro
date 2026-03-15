@@ -1,3 +1,6 @@
+import type { AppInstallResult } from "@/hooks/useApps";
+export type { AppInstallResult };
+
 export interface Bundle {
   id: string;
   type: "persona" | "curated" | "custom";
@@ -43,6 +46,3 @@ export interface BundleInstallModalProps {
   installApp: (wingetId: string, chocoId: string, appId: string) => Promise<AppInstallResult>;
   installedApps: Record<string, boolean>;
 }
-
-// Re-export from useApps — single source of truth
-export type { AppInstallResult } from "@/hooks/useApps";

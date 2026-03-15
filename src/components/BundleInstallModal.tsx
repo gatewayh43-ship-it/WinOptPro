@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { X, ChevronDown, ChevronRight, AlertTriangle, CheckCircle, XCircle, ExternalLink } from "lucide-react";
-import type { ResolvedBundle, AppInstallResult, BundleInstallModalProps } from "@/types/bundles";
+import type { AppInstallResult, BundleInstallModalProps } from "@/types/bundles";
 
 export function BundleInstallModal({
   bundle,

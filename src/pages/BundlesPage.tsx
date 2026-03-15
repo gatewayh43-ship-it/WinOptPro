@@ -30,7 +30,7 @@ const COLOR_OPTIONS = [
 ];
 
 function BundleIcon({ name, className }: { name: string; className?: string }) {
-  const Icon = (LucideIcons as Record<string, React.ComponentType<{ size?: number; className?: string }>>)[name];
+  const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; className?: string }>>)[name];
   return Icon ? <Icon size={20} className={className} /> : <Package size={20} className={className} />;
 }
 
@@ -289,7 +289,7 @@ function CreateBundlePanel({ onSave, onCancel }: CreatePanelProps) {
   );
 }
 
-export function BundlesPage({ setView }: { setView?: (view: string) => void }) {
+export function BundlesPage({ setView: _setView }: { setView?: (view: string) => void }) {
   const {
     curatedBundles,
     customBundles,
