@@ -77,7 +77,7 @@
     "description": "Every tool you need to push your hardware and verify it's stable under load.",
     "icon": "Thermometer",
     "color": "amber",
-    "apps": ["CPUID.CPU-Z", "TechPowerUp.GPU-Z", "REALiX.HWiNFO", "OCBase.OCCT", "Geeks3D.FurMark", "CrystalDewWorld.CrystalDiskMark", "Maxon.CinebenchR23", "Guru3D.Afterburner"]
+    "apps": ["CPUID.CPU-Z", "TechPowerUp.GPU-Z", "REALiX.HWiNFO", "OCBase.OCCT", "Geeks3D.FurMark", "Guru3D.Afterburner", "BitSum.ProcessLasso", "CrystalDewWorld.CrystalDiskInfo"]
   },
   {
     "id": "windows-power-user",
@@ -185,7 +185,7 @@
     "group": "Curated Collections",
     "name": "Benchmark & Stress Test Suite",
     "description": "A comprehensive set of tools to benchmark performance and verify system stability.",
-    "icon": "BarChart2",
+    "icon": "ChartNoAxesColumn",
     "color": "orange",
     "apps": ["REALiX.HWiNFO", "CPUID.CPU-Z", "TechPowerUp.GPU-Z", "Guru3D.Afterburner", "OCBase.OCCT", "Geeks3D.FurMark", "CrystalDewWorld.CrystalDiskMark", "Maxon.CinebenchR23"]
   },
@@ -207,7 +207,7 @@
     "description": "A comprehensive setup for general use: productivity, media, comms, and performance monitoring.",
     "icon": "Layers",
     "color": "purple",
-    "apps": ["7zip.7zip", "VideoLAN.VLC", "Mozilla.Firefox", "Guru3D.Afterburner", "REALiX.HWiNFO", "TheDocumentFoundation.LibreOffice", "voidtools.Everything", "Notepad.Notepad-plus-plus", "Discord.Discord"]
+    "apps": ["7zip.7zip", "VideoLAN.VLC", "Mozilla.Firefox", "Brave.Brave", "TheDocumentFoundation.LibreOffice", "voidtools.Everything", "Notepad.Notepad-plus-plus", "Discord.Discord", "Obsidian.Obsidian"]
   },
   {
     "id": "windows-internals",
