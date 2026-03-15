@@ -25848,5 +25848,354 @@
       "trust_score": 98,
       "rating": 4.7
     }
+  },
+  "Notepad.Notepad-plus-plus": {
+    "id": "Notepad.Notepad-plus-plus",
+    "name": "Notepad++",
+    "publisher": "Don HO",
+    "author": "Don HO",
+    "description": "Notepad++ is a free source code editor and Notepad replacement that supports several languages. Running in the MS Windows environment, its use is governed by GNU General Public License.",
+    "version": "8.7.1",
+    "license": "GPL-2.0",
+    "logo": "https://ui-avatars.com/api/?name=Notepad%2B%2B&background=2ecc71&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://notepad-plus-plus.org/",
+    "support_url": "https://notepad-plus-plus.org/community/",
+    "github_link": "https://github.com/notepad-plus-plus/notepad-plus-plus",
+    "is_verified": true,
+    "trust_score": 97,
+    "rating": 4.8,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.8,
+        "text": "Essential application. I install Notepad++ on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Free and open source",
+        "Lightweight",
+        "Syntax highlighting for 80+ languages"
+      ],
+      "cons": [
+        "Windows only",
+        "Plugin ecosystem can be inconsistent"
+      ]
+    }
+  },
+  "BlackmagicDesign.DaVinciResolve": {
+    "id": "BlackmagicDesign.DaVinciResolve",
+    "name": "DaVinci Resolve",
+    "publisher": "Blackmagic Design",
+    "author": "Blackmagic Design Pty. Ltd.",
+    "description": "DaVinci Resolve is the world's only solution that combines professional 8K editing, color correction, visual effects and audio post production all in one software tool.",
+    "version": "19.1",
+    "license": "Freeware",
+    "logo": "https://ui-avatars.com/api/?name=DaVinci+Resolve&background=222222&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://www.blackmagicdesign.com/products/davinciresolve",
+    "support_url": "https://forum.blackmagicdesign.com/",
+    "github_link": "https://www.blackmagicdesign.com/products/davinciresolve",
+    "is_verified": true,
+    "trust_score": 96,
+    "rating": 4.7,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.7,
+        "text": "Essential application. I install DaVinci Resolve on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Professional-grade color grading",
+        "Free version is extremely capable",
+        "All-in-one editing suite"
+      ],
+      "cons": [
+        "High system requirements",
+        "Steep learning curve for beginners"
+      ]
+    }
+  },
+  "BitSum.ProcessLasso": {
+    "id": "BitSum.ProcessLasso",
+    "name": "Process Lasso",
+    "publisher": "Bitsum",
+    "author": "Bitsum LLC",
+    "description": "Process Lasso is a unique new technology that will, among other things, improve your PC's responsiveness during high CPU loads. It does this by temporarily adjusting the priorities of running processes.",
+    "version": "12.5.0",
+    "license": "Freemium",
+    "logo": "https://ui-avatars.com/api/?name=Process+Lasso&background=0070c0&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://bitsum.com/",
+    "support_url": "https://bitsum.com/support/",
+    "github_link": "https://bitsum.com/",
+    "is_verified": true,
+    "trust_score": 88,
+    "rating": 4.4,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.4,
+        "text": "Essential application. I install Process Lasso on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Improves PC responsiveness",
+        "Detailed process management",
+        "Gaming mode available"
+      ],
+      "cons": [
+        "Free version limited",
+        "Can feel complex"
+      ]
+    }
+  },
+  "OCBase.OCCT": {
+    "id": "OCBase.OCCT",
+    "name": "OCCT",
+    "publisher": "OCBase",
+    "author": "OCBase",
+    "description": "OCCT is the most popular all-in-one stability check & stress test tool for PC. It generates heavy loads on your components and checks for errors, helping ensure system stability.",
+    "version": "13.1.3",
+    "license": "Freemium",
+    "logo": "https://ui-avatars.com/api/?name=OCCT&background=e74c3c&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://www.ocbase.com/",
+    "support_url": "https://www.ocbase.com/support",
+    "github_link": "https://www.ocbase.com/",
+    "is_verified": true,
+    "trust_score": 90,
+    "rating": 4.5,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.5,
+        "text": "Essential application. I install OCCT on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Comprehensive stress testing",
+        "Error detection",
+        "GPU, CPU, PSU tests"
+      ],
+      "cons": [
+        "Free version limited to 1 hour tests"
+      ]
+    }
+  },
+  "Geeks3D.FurMark": {
+    "id": "Geeks3D.FurMark",
+    "name": "FurMark",
+    "publisher": "Geeks3D",
+    "author": "Geeks3D",
+    "description": "FurMark is a very intensive OpenGL benchmark that uses fur rendering algorithms to measure the performance of the graphics card. Fur rendering is especially stressful for GPU.",
+    "version": "2.3.0",
+    "license": "Freeware",
+    "logo": "https://ui-avatars.com/api/?name=FurMark&background=8e44ad&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://geeks3d.com/furmark/",
+    "support_url": "https://geeks3d.com/furmark/",
+    "github_link": "https://geeks3d.com/furmark/",
+    "is_verified": true,
+    "trust_score": 87,
+    "rating": 4.3,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.3,
+        "text": "Essential application. I install FurMark on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Free GPU stress test",
+        "Widely used benchmark",
+        "Simple interface"
+      ],
+      "cons": [
+        "Very aggressive on GPU — use short runs",
+        "No longer updated frequently"
+      ]
+    }
+  },
+  "CrystalDewWorld.CrystalDiskInfo": {
+    "id": "CrystalDewWorld.CrystalDiskInfo",
+    "name": "CrystalDiskInfo",
+    "publisher": "Crystal Dew World",
+    "author": "Noriyuki Miyazaki",
+    "description": "CrystalDiskInfo is a HDD/SSD utility software which supports a part of USB, Intel RAID and NVMe. In the main window, you can see the SMART information, disk temperature and drive status.",
+    "version": "9.4.1",
+    "license": "Freeware",
+    "logo": "https://ui-avatars.com/api/?name=CrystalDiskInfo&background=3498db&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://crystalmark.info/en/software/crystaldiskinfo/",
+    "support_url": "https://crystalmark.info/en/software/crystaldiskinfo/",
+    "github_link": "https://github.com/hiyohiyo/CrystalDiskInfo",
+    "is_verified": true,
+    "trust_score": 95,
+    "rating": 4.7,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.7,
+        "text": "Essential application. I install CrystalDiskInfo on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Free SMART monitoring",
+        "Supports HDD/SSD/NVMe",
+        "Lightweight"
+      ],
+      "cons": [
+        "Interface looks dated",
+        "Limited to SMART data only"
+      ]
+    }
+  },
+  "CrystalDewWorld.CrystalDiskMark": {
+    "id": "CrystalDewWorld.CrystalDiskMark",
+    "name": "CrystalDiskMark",
+    "publisher": "Crystal Dew World",
+    "author": "Noriyuki Miyazaki",
+    "description": "CrystalDiskMark is a disk benchmark software that measures sequential and random read/write speeds. It is widely used as a reference for disk performance testing.",
+    "version": "8.0.5",
+    "license": "Freeware",
+    "logo": "https://ui-avatars.com/api/?name=CrystalDiskMark&background=2980b9&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://crystalmark.info/en/software/crystaldiskmark/",
+    "support_url": "https://crystalmark.info/en/software/crystaldiskmark/",
+    "github_link": "https://github.com/hiyohiyo/CrystalDiskMark",
+    "is_verified": true,
+    "trust_score": 95,
+    "rating": 4.7,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.7,
+        "text": "Essential application. I install CrystalDiskMark on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Industry-standard benchmark",
+        "Free",
+        "Simple to use"
+      ],
+      "cons": [
+        "Results vary by test parameters",
+        "No hardware info beyond speed"
+      ]
+    }
+  },
+  "Cockos.REAPER": {
+    "id": "Cockos.REAPER",
+    "name": "REAPER",
+    "publisher": "Cockos Incorporated",
+    "author": "Cockos Incorporated",
+    "description": "REAPER is a complete digital audio production application for Windows, offering a full multitrack audio and MIDI recording, editing, processing, mixing and mastering toolset.",
+    "version": "7.24",
+    "license": "Paid (discounted license available)",
+    "logo": "https://ui-avatars.com/api/?name=REAPER&background=e67e22&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://www.reaper.fm/",
+    "support_url": "https://forum.cockos.com/forumdisplay.php?f=20",
+    "github_link": "https://www.reaper.fm/",
+    "is_verified": true,
+    "trust_score": 94,
+    "rating": 4.8,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.8,
+        "text": "Essential application. I install REAPER on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Professional DAW at low price",
+        "Highly customizable",
+        "Very stable and fast"
+      ],
+      "cons": [
+        "Paid (though freely evaluable)",
+        "UI less polished than competitors"
+      ]
+    }
+  },
+  "ProtonTechnologies.ProtonVPN": {
+    "id": "ProtonTechnologies.ProtonVPN",
+    "name": "Proton VPN",
+    "publisher": "Proton AG",
+    "author": "Proton AG",
+    "description": "Proton VPN is a security-focused VPN service with a strict no-logs policy. It is the only free VPN service with no data limits, ads, or logs, and is developed by the team behind ProtonMail.",
+    "version": "3.5.0",
+    "license": "Freemium",
+    "logo": "https://ui-avatars.com/api/?name=Proton+VPN&background=6d4aff&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://protonvpn.com/",
+    "support_url": "https://protonvpn.com/support/",
+    "github_link": "https://github.com/ProtonVPN",
+    "is_verified": true,
+    "trust_score": 95,
+    "rating": 4.6,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.6,
+        "text": "Essential application. I install Proton VPN on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Free tier with no data limits",
+        "Strong privacy policy",
+        "Open source"
+      ],
+      "cons": [
+        "Free tier limited to 3 countries",
+        "Paid plan needed for speed"
+      ]
+    }
+  },
+  "KeePassXCTeam.KeePassXC": {
+    "id": "KeePassXCTeam.KeePassXC",
+    "name": "KeePassXC",
+    "publisher": "KeePassXC Team",
+    "author": "KeePassXC Contributors",
+    "description": "KeePassXC is a cross-platform community-driven port of the Windows application KeePass. It allows users to store passwords in an encrypted database with a master password or keyfile.",
+    "version": "2.7.9",
+    "license": "GPL-3.0",
+    "logo": "https://ui-avatars.com/api/?name=KeePassXC&background=27ae60&color=fff&rounded=true&bold=true&size=128",
+    "website": "https://keepassxc.org/",
+    "support_url": "https://keepassxc.org/docs/",
+    "github_link": "https://github.com/keepassxreboot/keepassxc",
+    "is_verified": true,
+    "trust_score": 96,
+    "rating": 4.8,
+    "reviews": [
+      {
+        "author": "TechReviewer99",
+        "rating": 4.8,
+        "text": "Essential application. I install KeePassXC on every new machine.",
+        "date": "2024-01-15"
+      }
+    ],
+    "insights": {
+      "pros": [
+        "Free and open source",
+        "Offline password manager",
+        "Cross-platform"
+      ],
+      "cons": [
+        "No cloud sync out of the box",
+        "Less polished UI than cloud alternatives"
+      ]
+    }
   }
 }
