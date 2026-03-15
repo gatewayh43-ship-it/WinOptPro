@@ -1,14 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { X, ChevronDown, ChevronRight, AlertTriangle, CheckCircle, XCircle, ExternalLink } from "lucide-react";
-import type { ResolvedBundle, AppInstallResult } from "@/types/bundles";
-
-interface BundleInstallModalProps {
-  bundle: ResolvedBundle;
-  isOpen: boolean;
-  onClose: () => void;
-  installApp: (wingetId: string, chocoId: string, appId: string) => Promise<AppInstallResult>;
-  installedApps: Record<string, boolean>;
-}
+import type { ResolvedBundle, AppInstallResult, BundleInstallModalProps } from "@/types/bundles";
 
 export function BundleInstallModal({
   bundle,
@@ -30,6 +22,19 @@ export function BundleInstallModal({
   const [installing, setInstalling] = useState(false);
   const [results, setResults] = useState<Record<string, AppInstallResult>>({});
 
+  // Reset selected state when the bundle changes (modal reused for different bundle)
+  useEffect(() => {
+    const init: Record<string, boolean> = {};
+    bundle.resolvedApps.forEach(({ appId, metadata }) => {
+      if (metadata && !installedApps[appId]) {
+        init[appId] = true;
+      }
+    });
+    setSelected(init);
+    setExpanded(new Set());
+    setResults({});
+  }, [bundle.id]);
+
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const toggleSelect = useCallback((appId: string) => {
@@ -45,6 +50,7 @@ export function BundleInstallModal({
   }, []);
 
   const handleInstall = useCallback(async () => {
+    if (installing) return;
     const toInstall = bundle.resolvedApps.filter(
       ({ appId, metadata }) => metadata && selected[appId] && !installedApps[appId]
     );
