@@ -65,7 +65,7 @@ export function useBundles() {
   );
 
   const updateCustomBundle = useCallback(
-    (id: string, updates: Partial<Bundle>) => {
+    (id: string, updates: Partial<Omit<Bundle, "id" | "type" | "createdAt">>) => {
       setCustomBundles((prev) => {
         const updated = prev.map((b) => (b.id === id ? { ...b, ...updates } : b));
         persist(updated);
