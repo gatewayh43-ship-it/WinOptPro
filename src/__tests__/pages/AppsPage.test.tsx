@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, setupUser, waitFor, fireEvent } from "@/test/utils";
 import { AppsPage } from "@/pages/AppsPage";
 import * as tauriCore from "@tauri-apps/api/core";
 import AppMetadata from "@/data/app_metadata.json";
@@ -181,5 +181,44 @@ describe("AppsPage", () => {
         render(<AppsPage />);
         // No crash — component handles search results state
         expect(screen.getByText("App Store")).toBeInTheDocument();
+    });
+});
+
+describe("Bundles hero card", () => {
+    beforeEach(() => {
+        vi.mocked(tauriCore.invoke).mockReset();
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "check_choco_available") return false;
+            if (cmd === "check_app_installed") return { installed: false, method: "" };
+            if (cmd === "install_app") return { success: true, method: "winget", output: "OK", error: "" };
+            return null;
+        });
+        vi.mocked(useSmartStore).mockReturnValue({
+            isSearching: false,
+            searchResults: [],
+            searchError: null,
+            searchApps: vi.fn(),
+            getAppDetails: vi.fn(),
+            isLoadingInfo: false,
+            appInfo: null,
+            scrapeMeta: null,
+        });
+    });
+
+    it("renders the App Bundles hero card", () => {
+        render(<AppsPage />);
+        expect(screen.getByText("App Bundles")).toBeInTheDocument();
+        expect(screen.getByText(/curated app collections/i)).toBeInTheDocument();
+    });
+
+    it("hero card calls setView('bundles') when clicked", () => {
+        const mockSetView = vi.fn();
+        render(<AppsPage setView={mockSetView} />);
+        fireEvent.click(screen.getByText("App Bundles").closest("[data-testid='bundles-hero-card']")!);
+        expect(mockSetView).toHaveBeenCalledWith("bundles");
+    });
+
+    it("hero card renders without crashing when setView not provided", () => {
+        expect(() => render(<AppsPage />)).not.toThrow();
     });
 });
