@@ -1,0 +1,128 @@
+WinOpt Pro — Third Party Open Source Notices
+=============================================
+
+WinOpt Pro includes components from the following open source projects.
+Their licenses are reproduced below as required by their terms.
+
+---
+
+## Tauri
+License: MIT OR Apache-2.0
+Copyright (c) 2019-2024 Tauri Programme within The Commons Conservancy
+https://tauri.app
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction... [standard MIT text]
+
+---
+
+## React
+License: MIT
+Copyright (c) Meta Platforms, Inc. and affiliates.
+https://react.dev
+
+---
+
+## Vite
+License: MIT
+Copyright (c) 2019-present, Yuxi (Evan) You and Vite contributors
+
+---
+
+## Rust Standard Library
+License: MIT OR Apache-2.0
+Copyright (c) The Rust Project Developers
+
+---
+
+## serde / serde_json
+License: MIT OR Apache-2.0
+Copyright (c) 2014 The Rust Project Developers
+
+---
+
+## tokio
+License: MIT
+Copyright (c) 2019 Tokio Contributors
+
+---
+
+## rusqlite
+License: MIT
+Copyright (c) 2014-2022 The rusqlite developers
+
+---
+
+## SQLite (bundled via rusqlite)
+License: Public Domain
+https://sqlite.org — SQLite is in the public domain
+
+---
+
+## sysinfo
+License: MIT
+Copyright (c) 2015 Guillaume Gomez
+
+---
+
+## Tailwind CSS
+License: MIT
+Copyright (c) Tailwind Labs, Inc.
+
+---
+
+## shadcn/ui
+License: MIT
+Copyright (c) 2023 shadcn
+
+---
+
+## Radix UI
+License: MIT
+Copyright (c) 2022 WorkOS
+
+---
+
+## Zustand
+License: MIT
+Copyright (c) 2019 Paul Henschel
+
+---
+
+## Framer Motion
+License: MIT
+Copyright (c) 2018 Framer B.V.
+
+---
+
+## Lucide React
+License: ISC
+Copyright (c) 2022 Lucide Contributors
+
+---
+
+## aes-gcm
+License: MIT OR Apache-2.0
+Copyright (c) 2019-2023 RustCrypto Developers
+
+---
+
+## winreg
+License: MIT
+Copyright (c) 2015 Igor Shaula
+
+---
+
+## NSIS (Nullsoft Scriptable Install System)
+License: zlib/libpng license
+Copyright (c) 1999-2023 Contributors
+https://nsis.sourceforge.io
+
+---
+
+For the full text of the MIT License:
+https://opensource.org/licenses/MIT
+
+For the full text of the Apache License 2.0:
+https://www.apache.org/licenses/LICENSE-2.0

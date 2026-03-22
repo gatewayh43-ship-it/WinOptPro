@@ -2,6 +2,7 @@
 name = "winoptimizerrevamp"
 version = "0.1.0"
 description = "A Tauri App"
+license = "LicenseRef-Proprietary"
 authors = ["you"]
 edition = "2021"
 
