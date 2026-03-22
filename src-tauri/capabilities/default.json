@@ -7,7 +7,7 @@
     "core:default",
     "opener:default",
     "updater:default",
-    "process:exit",
-    "process:restart"
+    "process:allow-exit",
+    "process:allow-restart"
   ]
 }
