@@ -444,7 +444,23 @@ pub async fn uninstall_app(winget_id: String) -> Result<AppInstallResult, String
 
     // ── Attempt 2: PowerShell Remove-AppxPackage ──────────────────────────────
     log::info!("winget failed or app is not a winget package. Trying Remove-AppxPackage for {}", winget_id);
-    let ps_cmd = format!("Get-AppxPackage *{}* | Remove-AppxPackage -AllUsers", winget_id);
+
+    // Validate winget_id — allowlist: alphanumeric, dot, dash, underscore only
+    let id_re = regex::Regex::new(r"^[a-zA-Z0-9.\-_]+$").expect("static regex");
+    if !id_re.is_match(&winget_id) {
+        log::warn!("Skipping Remove-AppxPackage: invalid characters in ID: {}", winget_id);
+        return Ok(AppInstallResult {
+            success: false,
+            method: "none".to_string(),
+            output: String::new(),
+            error: "App ID contains invalid characters".into(),
+        });
+    }
+
+    let ps_cmd = format!(
+        "Get-AppxPackage -Name '{}' | Remove-AppxPackage -AllUsers",
+        winget_id  // already validated above
+    );
     match run_cmd(
         "powershell",
         &["-NoProfile", "-NonInteractive", "-Command", &ps_cmd],
