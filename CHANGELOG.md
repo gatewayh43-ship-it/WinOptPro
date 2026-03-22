@@ -6,9 +6,10 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
-## [Unreleased]
+## [1.0.0] - 2026-03-20
 
-_Changes staged for the next release will appear here._
+### Summary
+Initial public release. Full-featured Windows optimizer with 162+ tweaks across Performance, Gaming, Privacy, Security, Network, Power, Debloat, and more. Includes Gaming Optimizer, Privacy Audit, AI Assistant (local Ollama), WSL Manager, GPU Driver Cleaner, Latency Optimizer, App Store with 391 apps and bundle collections, NSIS wizard installer, and Microsoft Store distribution.
 
 ---
 

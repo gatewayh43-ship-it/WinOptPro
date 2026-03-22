@@ -1,9 +1,9 @@
 [package]
 name = "winoptimizerrevamp"
-version = "0.1.0"
-description = "A Tauri App"
+version = "1.0.0"
+description = "Windows system optimizer with performance, gaming, privacy, and security tweaks"
 license = "LicenseRef-Proprietary"
-authors = ["you"]
+authors = ["[AUTHOR_NAME] <[EMAIL]>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
