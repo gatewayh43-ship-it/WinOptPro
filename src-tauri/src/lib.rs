@@ -30,6 +30,12 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::Destroyed = event {
+                let state = window.state::<OllamaState>();
+                ai::stop_ollama_sync(&state);
+            }
+        })
         .setup(|app| {
             // Initialize SQLite database
             let conn = db::init_db(&app.handle()).map_err(|e| {
@@ -118,6 +124,8 @@ pub fn run() {
             backup::export_backup,
             backup::import_backup,
             backup::get_backup_info,
+            backup::export_user_data,
+            backup::read_installer_config,
             // Report
             report::generate_system_report,
             report::save_system_report,
@@ -134,6 +142,10 @@ pub fn run() {
             gaming::list_known_games,
             gaming::show_gaming_overlay,
             gaming::hide_gaming_overlay,
+            gaming::check_presentmon,
+            gaming::download_presentmon,
+            gaming::start_fps_counter,
+            gaming::stop_fps_counter,
             // Latency
             latency::get_latency_status,
             latency::flush_standby_list,

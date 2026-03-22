@@ -206,6 +206,17 @@ pub fn decrypt_any_log_field(text: &str) -> String {
     }
 }
 
+/// Decrypt a log field that may have "dpapi:", "enc:", or plaintext prefix.
+/// For "dpapi:" rows, returns the ciphertext as-is (full decryption requires connection context).
+/// For "enc:" rows, decrypts using the legacy MachineGuid key.
+pub fn decrypt_log_field_all(text: &str) -> String {
+    if text.starts_with("dpapi:") {
+        // dpapi: rows require the DPAPI key — return as-is for export (v1.0 limitation)
+        return text.to_string();
+    }
+    decrypt_log_field(text)
+}
+
 // ── Database init ──────────────────────────────────────────────────────────
 
 /// Initialize the database: create tables if they don't exist.

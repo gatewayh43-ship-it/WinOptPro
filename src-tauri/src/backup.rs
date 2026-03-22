@@ -8,6 +8,32 @@ pub struct BackupData {
     pub user_settings: serde_json::Value,
 }
 
+#[derive(Debug, serde::Serialize)]
+pub struct ConsentLogEntry {
+    pub agreed_at: String,
+    pub eula_version: String,
+    pub app_version: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct TweakHistoryExportEntry {
+    pub id: String,
+    pub command_executed: String,
+    pub stdout: String,
+    pub stderr: String,
+    pub exit_code: i32,
+    pub timestamp: i64,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct ExportUserData {
+    pub exported_at: String,
+    pub app_version: String,
+    pub tweak_history: Vec<TweakHistoryExportEntry>,
+    pub consent_log: Vec<ConsentLogEntry>,
+    pub settings: serde_json::Value,
+}
+
 #[tauri::command]
 pub fn export_backup(path: String, data: BackupData) -> Result<bool, String> {
     let json = serde_json::to_string_pretty(&data)
@@ -34,4 +60,137 @@ pub fn get_backup_info(path: String) -> Result<serde_json::Value, String> {
         "created_at": data.created_at,
         "tweak_count": data.applied_tweaks.len(),
     }))
+}
+
+/// Tauri command: export all user data to a JSON file at the given path.
+/// Implements GDPR data portability requirement.
+#[tauri::command]
+pub fn export_user_data(
+    db: tauri::State<'_, crate::db::DbState>,
+    path: String,
+    settings_json: String,
+) -> Result<(), String> {
+    let conn = db.0.lock().map_err(|e| e.to_string())?;
+
+    let tweak_history = {
+        let mut stmt = conn
+            .prepare(
+                "SELECT id, command_executed, stdout, stderr, exit_code, timestamp
+                 FROM tweak_history ORDER BY timestamp DESC",
+            )
+            .map_err(|e| e.to_string())?;
+
+        let raw: Vec<TweakHistoryExportEntry> = stmt
+            .query_map([], |row| {
+                Ok(TweakHistoryExportEntry {
+                    id: row.get(0)?,
+                    command_executed: row.get(1)?,
+                    stdout: row.get(2)?,
+                    stderr: row.get(3)?,
+                    exit_code: row.get(4)?,
+                    timestamp: row.get(5)?,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .filter_map(|r| r.ok())
+            .collect();
+        raw.into_iter()
+            .map(|mut entry| {
+                entry.command_executed = crate::db::decrypt_log_field_all(&entry.command_executed);
+                entry.stdout = crate::db::decrypt_log_field_all(&entry.stdout);
+                entry.stderr = crate::db::decrypt_log_field_all(&entry.stderr);
+                entry
+            })
+            .collect::<Vec<_>>()
+    };
+
+    let consent_log = {
+        let mut stmt = conn
+            .prepare("SELECT agreed_at, eula_version, app_version FROM consent_log")
+            .map_err(|e| e.to_string())?;
+
+        let rows: Vec<ConsentLogEntry> = stmt
+            .query_map([], |row| {
+                Ok(ConsentLogEntry {
+                    agreed_at: row.get(0)?,
+                    eula_version: row.get(1)?,
+                    app_version: row.get(2)?,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .filter_map(|r| r.ok())
+            .collect();
+        rows
+    };
+
+    let settings = serde_json::from_str::<serde_json::Value>(&settings_json)
+        .unwrap_or(serde_json::json!({}));
+
+    let data = ExportUserData {
+        exported_at: chrono::Utc::now().to_rfc3339(),
+        app_version: env!("CARGO_PKG_VERSION").to_string(),
+        tweak_history,
+        consent_log,
+        settings,
+    };
+
+    let json = serde_json::to_string_pretty(&data)
+        .map_err(|e| format!("Serialization error: {}", e))?;
+    std::fs::write(&path, json)
+        .map_err(|e| format!("Failed to write export file: {}", e))?;
+
+    Ok(())
+}
+
+/// Tauri command: read the AI model selected during NSIS installer setup from the registry.
+/// The installer writes: HKCU\Software\WinOpt Pro\SelectedAIModel = "qwen2.5:1.5b"
+/// Returns Ok(Some("model-name")) if found, Ok(None) if key doesn't exist.
+#[tauri::command]
+pub fn read_installer_config() -> Result<Option<String>, String> {
+    #[cfg(windows)]
+    {
+        use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+        let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+        match hkcu.open_subkey("Software\\WinOpt Pro") {
+            Ok(key) => match key.get_value::<String, _>("SelectedAIModel") {
+                Ok(model) => Ok(Some(model)),
+                Err(_) => Ok(None),
+            },
+            Err(_) => Ok(None),
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        Ok(None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_export_user_data_struct_serializes() {
+        let data = ExportUserData {
+            exported_at: "2026-03-20T10:00:00Z".to_string(),
+            app_version: "1.0.0".to_string(),
+            tweak_history: vec![],
+            consent_log: vec![ConsentLogEntry {
+                agreed_at: "2026-03-20T09:00:00Z".to_string(),
+                eula_version: "1.0".to_string(),
+                app_version: "1.0.0".to_string(),
+            }],
+            settings: serde_json::json!({ "theme": "dark" }),
+        };
+        let json = serde_json::to_string_pretty(&data).unwrap();
+        assert!(json.contains("exported_at"));
+        assert!(json.contains("consent_log"));
+        assert!(json.contains("1.0.0"));
+    }
+
+    #[test]
+    fn test_read_installer_config_returns_ok() {
+        let result: Result<Option<String>, String> = read_installer_config();
+        assert!(result.is_ok(), "read_installer_config must return Ok: {:?}", result);
+    }
 }
