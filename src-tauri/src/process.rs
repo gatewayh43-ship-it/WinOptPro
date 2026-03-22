@@ -81,11 +81,32 @@ pub async fn kill_process(pid: u32) -> Result<bool, String> {
     Err("Process not found.".to_string())
 }
 
+const PROTECTED_PROCESSES: &[&str] = &[
+    "System", "Registry", "smss.exe", "csrss.exe", "wininit.exe",
+    "winlogon.exe", "services.exe", "lsass.exe",
+];
+
+fn get_process_name_by_pid(pid: u32) -> Option<String> {
+    use sysinfo::{ProcessesToUpdate, System};
+    let mut sys = System::new();
+    sys.refresh_processes(ProcessesToUpdate::Some(&[sysinfo::Pid::from_u32(pid)]), false);
+    sys.process(sysinfo::Pid::from_u32(pid))
+        .map(|p| p.name().to_string_lossy().to_string())
+}
+
 #[command]
 pub async fn set_process_priority(pid: u32, priority: String) -> Result<bool, String> {
     // Windows priority class mapping for PowerShell
     // RealTime, High, AboveNormal, Normal, BelowNormal, Idle
-    
+
+    // Check if target is a protected system process
+    if let Some(proc_name) = get_process_name_by_pid(pid) {
+        let name_lower = proc_name.to_lowercase();
+        if PROTECTED_PROCESSES.iter().any(|p| p.to_lowercase() == name_lower) {
+            return Err(format!("Cannot modify priority of protected system process: {}", proc_name));
+        }
+    }
+
     // Validate input to prevent injection
     let valid_priorities = ["RealTime", "High", "AboveNormal", "Normal", "BelowNormal", "Idle"];
     if !valid_priorities.contains(&priority.as_str()) {

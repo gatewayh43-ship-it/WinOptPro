@@ -80,9 +80,19 @@ pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
 
 #[command]
 pub async fn ping_host(host: String) -> Result<PingResult, String> {
-    // Sanitize input vaguely to prevent obvious command injection
-    if host.contains('&') || host.contains('|') || host.contains('>') || host.contains('<') || host.contains(';') {
-        return Err("Invalid characters in hostname.".to_string());
+    // Allowlist: RFC-1123 hostname OR dotted-decimal IPv4
+    use regex::Regex;
+
+    let hostname_re = Regex::new(
+        r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?$"
+    ).expect("static regex");
+    let ipv4_re = Regex::new(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$").expect("static regex");
+
+    let is_valid_hostname = hostname_re.is_match(&host);
+    let is_valid_ipv4 = ipv4_re.is_match(&host) && host.split('.').all(|o| o.parse::<u8>().is_ok());
+
+    if !is_valid_hostname && !is_valid_ipv4 {
+        return Err("Invalid hostname format. Use a valid hostname or IPv4 address.".to_string());
     }
 
     #[cfg(target_os = "windows")]
