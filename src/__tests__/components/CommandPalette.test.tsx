@@ -91,4 +91,16 @@ describe("CommandPalette", () => {
             expect(categories.length).toBeGreaterThan(0);
         });
     });
+
+    it("terminates the semantic worker on unmount", () => {
+        const terminateSpy = vi.fn();
+        vi.stubGlobal("Worker", class MockWorker {
+            onmessage: ((e: MessageEvent) => void) | null = null;
+            postMessage() {}
+            terminate = terminateSpy;
+        });
+        const { unmount } = render(<CommandPalette isOpen={true} onClose={vi.fn()} />);
+        unmount();
+        expect(terminateSpy).toHaveBeenCalledTimes(1);
+    });
 });

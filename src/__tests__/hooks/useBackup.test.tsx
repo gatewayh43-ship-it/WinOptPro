@@ -49,6 +49,7 @@ function resetStore() {
 
 describe("useBackup", () => {
     beforeEach(() => {
+        vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         vi.mocked(tauriCore.invoke).mockReset();
         resetStore();
     });
@@ -132,6 +133,7 @@ describe("useBackup", () => {
 
     describe("isTauri=true (dynamic import with window stub)", () => {
         beforeEach(() => {
+            vi.mocked(tauriCore.isTauri).mockReturnValue(true);
             // Set the window property BEFORE the module is (re)imported
             (window as any).__TAURI_INTERNALS__ = {};
             vi.resetModules();

@@ -112,4 +112,13 @@ describe("useGpuDriver", () => {
         expect(result.current.error).toBe("Access denied");
         expect(result.current.drivers).toHaveLength(0);
     });
+
+    it("clears mock timeout on unmount", () => {
+        // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
+        const clearSpy = vi.spyOn(global, "clearTimeout");
+        const { unmount } = renderHook(() => useGpuDriver());
+        unmount();
+        expect(clearSpy).toHaveBeenCalled();
+        clearSpy.mockRestore();
+    });
 });

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "@/components/ToastSystem";
 
@@ -45,13 +45,14 @@ export function useGpuDriver() {
     const [removalResult, setRemovalResult] = useState<DriverRemovalResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
+    const mockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchDrivers = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         if (!isTauri()) {
             // Use mock data in browser/dev
-            setTimeout(() => {
+            mockTimeoutRef.current = setTimeout(() => {
                 setDrivers(MOCK_DRIVERS);
                 setIsLoading(false);
             }, 600);
@@ -73,7 +74,7 @@ export function useGpuDriver() {
         setIsRemoving(true);
         setRemovalResult(null);
         if (!isTauri()) {
-            setTimeout(() => {
+            mockTimeoutRef.current = setTimeout(() => {
                 const mockResult: DriverRemovalResult = {
                     success: true,
                     vendor,
@@ -145,6 +146,12 @@ export function useGpuDriver() {
     useEffect(() => {
         fetchDrivers();
     }, [fetchDrivers]);
+
+    useEffect(() => {
+        return () => {
+            if (mockTimeoutRef.current !== null) clearTimeout(mockTimeoutRef.current);
+        };
+    }, []);
 
     return {
         drivers,

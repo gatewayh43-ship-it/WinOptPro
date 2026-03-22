@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 
 export interface MaintenanceTask {
@@ -28,8 +28,6 @@ export const PREDEFINED_TASKS = [
     },
 ] as const;
 
-const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-
 export function useScheduler() {
     const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +37,7 @@ export function useScheduler() {
     const fetchTasks = useCallback(async () => {
         setIsLoading(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 setTasks([]);
                 return;
             }
@@ -55,7 +53,7 @@ export function useScheduler() {
     const createTask = useCallback(async (name: string, schedule: string, actionCmd: string) => {
         setIsWorking(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 addToast({ type: "info", title: "Preview Mode", message: "Task scheduling requires the desktop app." });
                 return false;
             }
@@ -74,7 +72,7 @@ export function useScheduler() {
     const deleteTask = useCallback(async (name: string) => {
         setIsWorking(true);
         try {
-            if (!isTauri) return false;
+            if (!isTauri()) return false;
             await invoke("delete_maintenance_task", { name });
             setTasks(prev => prev.filter(t => t.name !== name));
             addToast({ type: "success", title: "Task Removed", message: `"${name}" has been deleted.` });
@@ -89,7 +87,7 @@ export function useScheduler() {
 
     const runNow = useCallback(async (name: string) => {
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 addToast({ type: "info", title: "Preview Mode", message: "Running tasks requires the desktop app." });
                 return false;
             }

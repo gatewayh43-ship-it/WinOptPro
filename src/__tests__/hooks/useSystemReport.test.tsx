@@ -16,6 +16,7 @@ const MOCK_HTML = `<!DOCTYPE html><html><head><title>System Report</title></head
 
 describe("useSystemReport", () => {
     beforeEach(() => {
+        vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         vi.mocked(tauriCore.invoke).mockReset();
     });
 
@@ -119,6 +120,7 @@ describe("useSystemReport", () => {
 
     describe("isTauri=true (dynamic import with window stub)", () => {
         beforeEach(() => {
+            vi.mocked(tauriCore.isTauri).mockReturnValue(true);
             (window as any).__TAURI_INTERNALS__ = {};
             vi.resetModules();
             vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {

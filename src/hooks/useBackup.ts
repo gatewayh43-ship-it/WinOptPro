@@ -1,9 +1,7 @@
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 import { useAppStore } from "../store/appStore";
-
-const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 const LAST_BACKUP_KEY = "winopt_last_backup";
 
 export function useBackup() {
@@ -32,7 +30,7 @@ export function useBackup() {
                 user_settings: store.userSettings,
             };
 
-            if (!isTauri) {
+            if (!isTauri()) {
                 // Browser fallback: download as file
                 const json = JSON.stringify(data, null, 2);
                 const blob = new Blob([json], { type: "application/json" });
@@ -71,7 +69,7 @@ export function useBackup() {
         }
         setIsImporting(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 addToast({ type: "info", title: "Import (Preview Mode)", message: "Backup import is only available in the desktop app." });
                 return false;
             }

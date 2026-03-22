@@ -50,6 +50,11 @@ export function CommandPalette({ isOpen, onClose, onSelectTweak, simpleOnly = fa
 
             workerRef.current.postMessage({ type: 'INIT', payload: { tweaksData } });
         }
+
+        return () => {
+            workerRef.current?.terminate();
+            workerRef.current = null;
+        };
     }, [isOpen]);
 
     // Handle Search Queries

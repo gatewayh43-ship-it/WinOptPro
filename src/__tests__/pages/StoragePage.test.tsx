@@ -37,6 +37,7 @@ describe("StoragePage", () => {
             if (cmd === "get_disk_health") return mockDiskHealth;
             if (cmd === "get_disk_smart_status") return [];
             if (cmd === "execute_cleanup") return mockCleanupResult;
+            if (cmd === "list_maintenance_tasks") return [];
             return null;
         });
     });
@@ -90,6 +91,7 @@ describe("StoragePage", () => {
             if (cmd === "scan_junk_files") return [];
             if (cmd === "get_disk_health") return [];
             if (cmd === "get_disk_smart_status") return [];
+            if (cmd === "list_maintenance_tasks") return [];
             return null;
         });
         render(<StoragePage />);
@@ -101,6 +103,7 @@ describe("StoragePage", () => {
             if (cmd === "scan_junk_files") throw new Error("Permission denied");
             if (cmd === "get_disk_health") return [];
             if (cmd === "get_disk_smart_status") return [];
+            if (cmd === "list_maintenance_tasks") return [];
             return null;
         });
         render(<StoragePage />);

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 import { useGlobalCache } from "./useGlobalCache";
 
@@ -46,8 +46,6 @@ export const POWER_SETTING_KEYS = {
     sleep_timeout_dc: { sub: SLEEP_SUB, setting: SLEEP_TO, is_dc: true },
 } as const;
 
-const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
-
 export function usePower() {
     const cachedPlans = useGlobalCache.getState().getCacheObject("power_plans");
     const cachedBattery = useGlobalCache.getState().getCacheObject("battery_health");
@@ -71,7 +69,7 @@ export function usePower() {
         }
         setIsLoading(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 const mockObj = [
                     { guid: "381b4222-f694-41f0-9685-ff5bb260df2e", name: "Balanced", is_active: false },
                     { guid: "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", name: "High performance", is_active: true },
@@ -102,7 +100,7 @@ export function usePower() {
             }
         }
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 const mockBat = {
                     has_battery: false,
                     charge_percent: 0,
@@ -124,7 +122,7 @@ export function usePower() {
     const fetchPowerSettings = useCallback(async (guid: string) => {
         setIsLoadingSettings(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 setPowerSettings({
                     cpu_min_ac: 5, cpu_max_ac: 100,
                     display_timeout_ac: 600, sleep_timeout_ac: 1800,
@@ -149,7 +147,7 @@ export function usePower() {
     ) => {
         const { sub, setting, is_dc } = POWER_SETTING_KEYS[key];
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 setPowerSettings(prev => prev ? { ...prev, [key]: value } : prev);
                 return true;
             }
@@ -176,7 +174,7 @@ export function usePower() {
     const setActivePlan = async (guid: string) => {
         setIsChanging(true);
         try {
-            if (!isTauri) {
+            if (!isTauri()) {
                 await new Promise(r => setTimeout(r, 600));
                 setPlans(prev => prev.map(p => ({ ...p, is_active: p.guid === guid })));
                 addToast({ type: "success", title: "Power Profile Applied", message: "Your system's active power plan has been updated." });

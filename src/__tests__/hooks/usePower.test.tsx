@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@/test/utils";
 import { usePower } from "@/hooks/usePower";
+import * as tauriCore from "@tauri-apps/api/core";
 
 // Stable useToast mock — addToast is in useCallback deps and must not change reference
 vi.mock("@/components/ToastSystem", () => {
@@ -10,6 +11,7 @@ vi.mock("@/components/ToastSystem", () => {
 
 describe("usePower", () => {
     beforeEach(() => {
+        vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         vi.useFakeTimers();
     });
 

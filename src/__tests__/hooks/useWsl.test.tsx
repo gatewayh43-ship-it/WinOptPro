@@ -149,4 +149,13 @@ describe("useWsl", () => {
         const debian = result.current.status?.distros.find(d => d.name === "Debian");
         expect(debian?.isDefault).toBe(true);
     });
+
+    it("clears all mock timeouts on unmount", () => {
+        // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
+        const clearSpy = vi.spyOn(global, "clearTimeout");
+        const { unmount } = renderHook(() => useWsl());
+        unmount();
+        expect(clearSpy).toHaveBeenCalled();
+        clearSpy.mockRestore();
+    });
 });

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "@/components/ToastSystem";
 import { useGlobalCache } from "./useGlobalCache";
@@ -107,6 +107,14 @@ export function useWsl() {
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
 
+    const mockTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+    const safeTimeout = useCallback((fn: () => void, ms: number) => {
+        const id = setTimeout(fn, ms);
+        mockTimeoutsRef.current.push(id);
+        return id;
+    }, []);
+
     const fetchStatus = useCallback(async (force = false) => {
         if (!force) {
             const cached = useGlobalCache.getState().getCacheObject("wsl_status");
@@ -119,7 +127,7 @@ export function useWsl() {
         setIsLoading(true);
         setError(null);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 setStatus(MOCK_STATUS);
                 useGlobalCache.getState().setCacheObject("wsl_status", MOCK_STATUS);
                 setIsLoading(false);
@@ -136,7 +144,7 @@ export function useWsl() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [safeTimeout]);
 
     const fetchConfig = useCallback(async (force = false) => {
         if (!force) {
@@ -187,7 +195,7 @@ export function useWsl() {
     const enableWsl = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 setStatus(s => s ? { ...s, isEnabled: true } : MOCK_STATUS);
                 setIsActionLoading(false);
                 addToast({ type: "success", title: "WSL Enabled", message: "WSL enabled. Reboot may be required." });
@@ -204,12 +212,12 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, safeTimeout]);
 
     const disableWsl = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 setStatus(s => s ? { ...s, isEnabled: false, distros: [] } : null);
                 setIsActionLoading(false);
                 addToast({ type: "success", title: "WSL Disabled", message: "WSL disabled." });
@@ -226,12 +234,12 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, safeTimeout]);
 
     const installDistro = useCallback(async (distroId: string) => {
         setInstallingDistro(distroId);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 const distroInfo = AVAILABLE_DISTROS.find(d => d.id === distroId);
                 const name = distroInfo?.name.split(" ")[0] ?? distroId;
                 setStatus(s => s ? {
@@ -253,12 +261,12 @@ export function useWsl() {
         } finally {
             setInstallingDistro(null);
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, safeTimeout]);
 
     const uninstallDistro = useCallback(async (name: string) => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 setStatus(s => s ? { ...s, distros: s.distros.filter(d => d.name !== name) } : null);
                 setIsActionLoading(false);
                 addToast({ type: "success", title: "Remove Success", message: `${name} removed.` });
@@ -275,7 +283,7 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, safeTimeout]);
 
     const setDefaultDistro = useCallback(async (name: string) => {
         if (!isTauri()) {
@@ -315,7 +323,7 @@ export function useWsl() {
     const cleanUninstall = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            setTimeout(() => {
+            safeTimeout(() => {
                 setStatus(null);
                 setIsActionLoading(false);
                 addToast({ type: "success", title: "Uninstall Success", message: "WSL completely removed. Reboot required." });
@@ -332,7 +340,7 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast]);
+    }, [addToast, safeTimeout]);
 
     const saveConfig = useCallback(async (cfg: WslConfig) => {
         if (!isTauri()) {
@@ -405,6 +413,13 @@ export function useWsl() {
         fetchConfig();
         fetchSetupState();
     }, [fetchStatus, fetchConfig, fetchSetupState]);
+
+    useEffect(() => {
+        return () => {
+            mockTimeoutsRef.current.forEach(clearTimeout);
+            mockTimeoutsRef.current = [];
+        };
+    }, []);
 
     return {
         status,
