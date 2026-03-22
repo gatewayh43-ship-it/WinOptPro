@@ -104,11 +104,24 @@ describe("DefenderPage", () => {
         });
     });
 
-    it("calls defender_update_signatures when Check for Updates clicked", async () => {
+    it("shows confirmation before updating signatures", async () => {
+        const user = setupUser();
+        render(<DefenderPage />);
+        await screen.findByText("System Protected");
+        const updateBtn = screen.queryByRole("button", { name: /check for updates/i });
+        if (!updateBtn) return;
+        await user.click(updateBtn);
+        // Modal should open — look for the confirm button
+        expect(await screen.findByRole("button", { name: /confirm & deploy/i })).toBeInTheDocument();
+    });
+
+    it("calls defender_update_signatures after confirming modal", async () => {
         const user = setupUser();
         render(<DefenderPage />);
         await screen.findByText("System Protected");
         await user.click(screen.getByRole("button", { name: /check for updates/i }));
+        const confirmBtn = await screen.findByRole("button", { name: /confirm & deploy/i });
+        await user.click(confirmBtn);
         await waitFor(() => {
             expect(tauriCore.invoke).toHaveBeenCalledWith("defender_update_signatures");
         });

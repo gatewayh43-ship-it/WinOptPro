@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Search, ShieldAlert, Cpu, MemoryStick, X, MoreVertical, FolderOpen, AlertTriangle, Gamepad2 } from "lucide-react";
 import { useProcesses, ProcessItem } from "../hooks/useProcesses";
 import { useElevation } from "../hooks/useElevation";
+import { ConfirmDeployModal } from "@/components/ConfirmDeployModal";
 
 type SortField = 'name' | 'cpu_usage' | 'memory_bytes' | 'pid';
 type SortOrder = 'asc' | 'desc';
@@ -18,6 +19,11 @@ export function ProcessPage() {
 
     const [processToKill, setProcessToKill] = useState<ProcessItem | null>(null);
     const [contextMenuPid, setContextMenuPid] = useState<number | null>(null);
+    const [priorityConfirm, setPriorityConfirm] = useState<{
+        pid: number;
+        name: string;
+        priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle';
+    } | null>(null);
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -86,8 +92,9 @@ export function ProcessPage() {
         setProcessToKill(null);
     };
 
-    const handlePriorityChange = async (pid: number, priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle') => {
-        await setProcessPriority(pid, priority);
+    const handlePriorityChange = (pid: number, priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle') => {
+        const process = processes.find(p => p.pid === pid);
+        setPriorityConfirm({ pid, name: process?.name ?? `PID ${pid}`, priority });
         setContextMenuPid(null);
     };
 
@@ -288,6 +295,27 @@ export function ProcessPage() {
                     )}
                 </div>
             </motion.div>
+
+            {/* Priority Confirmation Modal */}
+            <ConfirmDeployModal
+                isOpen={!!priorityConfirm}
+                tweaks={priorityConfirm ? [{
+                    id: `set-priority-${priorityConfirm.pid}`,
+                    name: `Set "${priorityConfirm.name}" priority to ${priorityConfirm.priority}`,
+                    riskLevel: priorityConfirm.priority === "Realtime" ? "Red" : priorityConfirm.priority === "High" ? "Yellow" : "Green",
+                    execution: {
+                        code: `Get-Process -Id ${priorityConfirm.pid} | Set-ProcessPriority -Priority ${priorityConfirm.priority}`,
+                        revertCode: "",
+                    },
+                }] : []}
+                onConfirm={async () => {
+                    if (priorityConfirm) {
+                        await setProcessPriority(priorityConfirm.pid, priorityConfirm.priority);
+                    }
+                    setPriorityConfirm(null);
+                }}
+                onCancel={() => setPriorityConfirm(null)}
+            />
 
             {/* Kill Confirmation Modal */}
             <AnimatePresence>

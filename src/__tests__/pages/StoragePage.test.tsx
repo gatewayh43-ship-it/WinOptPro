@@ -136,4 +136,22 @@ describe("StoragePage", () => {
             expect(tauriCore.invoke).toHaveBeenCalledWith("scan_junk_files");
         });
     });
+
+    it("shows TRIM confirmation modal before running trim", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "scan_junk_files") return mockItems;
+            if (cmd === "get_disk_health") return mockDiskHealth;
+            if (cmd === "get_disk_smart_status") return [
+                { friendlyName: "Samsung SSD 980 PRO 1TB", mediaType: "SSD", healthStatus: "Healthy", wearPct: 12, temperatureC: 38, readErrors: 0, writeErrors: 0, sizeGb: 931 },
+            ];
+            if (cmd === "list_maintenance_tasks") return [];
+            return null;
+        });
+        const user = setupUser();
+        render(<StoragePage />);
+        const trimBtn = await screen.findByRole("button", { name: /run trim/i });
+        await user.click(trimBtn);
+        // Modal should open — look for the confirm button
+        expect(await screen.findByRole("button", { name: /confirm & deploy/i })).toBeInTheDocument();
+    });
 });

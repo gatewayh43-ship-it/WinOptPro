@@ -6,6 +6,7 @@ import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
 import { useBackup } from "../hooks/useBackup";
+import { ConfirmDeployModal } from "@/components/ConfirmDeployModal";
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -75,6 +76,8 @@ function SelectOption({ value, options, onChange, label }: {
 function BackupSection() {
     const { isExporting, isImporting, lastBackupTime, importPath, setImportPath, exportBackup, importBackup } = useBackup();
     const [showImport, setShowImport] = useState(false);
+    const [showImportConfirm, setShowImportConfirm] = useState(false);
+    const [pendingImportPath, setPendingImportPath] = useState<string>("");
 
     return (
         <SettingSection icon={Archive} title="Backup & Restore" description="Export your applied tweaks and settings to a .winopt file, or restore from a previous backup.">
@@ -115,7 +118,10 @@ function BackupSection() {
                                 className="flex-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-[12px] font-mono text-foreground placeholder:text-slate-600 focus:outline-none focus:border-primary/50"
                             />
                             <button
-                                onClick={() => importBackup()}
+                                onClick={() => {
+                                    setPendingImportPath(importPath);
+                                    setShowImportConfirm(true);
+                                }}
                                 disabled={isImporting || !importPath.trim()}
                                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[12px] font-bold transition-colors disabled:opacity-50"
                             >
@@ -126,6 +132,20 @@ function BackupSection() {
                     )}
                 </div>
             </div>
+            <ConfirmDeployModal
+                isOpen={showImportConfirm}
+                tweaks={[{
+                    id: "import-backup",
+                    name: "Import Backup — Overwrites Current Settings",
+                    riskLevel: "Yellow",
+                    execution: { code: `Import-WinOptBackup -Path "${pendingImportPath}"`, revertCode: "" },
+                }]}
+                onConfirm={() => {
+                    setShowImportConfirm(false);
+                    importBackup();
+                }}
+                onCancel={() => setShowImportConfirm(false)}
+            />
         </SettingSection>
     );
 }

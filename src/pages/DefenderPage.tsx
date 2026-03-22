@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Shield, ShieldAlert, ShieldCheck, Activity, RefreshCw, ScanSearch } from "lucide-react";
 import { useDefender } from "../hooks/useDefender";
+import { ConfirmDeployModal } from "@/components/ConfirmDeployModal";
 
 export function DefenderPage() {
     const { status, loading, actionLoading, runScan, updateSignatures, setRealtime } = useDefender();
+    const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
 
     if (loading && !status) {
         return (
@@ -79,7 +82,7 @@ export function DefenderPage() {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={updateSignatures}
+                                    onClick={() => setShowUpdateConfirm(true)}
                                     disabled={actionLoading}
                                     className="mt-4 w-full py-2.5 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-border rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
                                 >
@@ -140,6 +143,17 @@ export function DefenderPage() {
 
                 </div>
             </div>
+            <ConfirmDeployModal
+                isOpen={showUpdateConfirm}
+                tweaks={[{
+                    id: "update-defender-signatures",
+                    name: "Update Defender Signatures",
+                    riskLevel: "Green",
+                    execution: { code: "Update-MpSignature", revertCode: "" },
+                }]}
+                onConfirm={() => { setShowUpdateConfirm(false); updateSignatures(); }}
+                onCancel={() => setShowUpdateConfirm(false)}
+            />
         </div>
     );
 }

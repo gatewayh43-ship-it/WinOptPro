@@ -5,6 +5,7 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useStorage } from "../hooks/useStorage";
 import { useScheduler, PREDEFINED_TASKS } from "../hooks/useScheduler";
 import { useToast } from "@/components/ToastSystem";
+import { ConfirmDeployModal } from "@/components/ConfirmDeployModal";
 
 interface DiskSmartInfo {
     friendlyName: string;
@@ -21,6 +22,7 @@ function DriveHealthSection() {
     const [disks, setDisks] = useState<DiskSmartInfo[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isTrimming, setIsTrimming] = useState(false);
+    const [showTrimConfirm, setShowTrimConfirm] = useState(false);
     const { addToast } = useToast();
 
     useEffect(() => {
@@ -69,7 +71,7 @@ function DriveHealthSection() {
                 </div>
                 {hasSSD && (
                     <button
-                        onClick={runTrim}
+                        onClick={() => setShowTrimConfirm(true)}
                         disabled={isTrimming}
                         title="Run TRIM on C: (requires admin)"
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white hover:opacity-90 shadow-sm border border-black/10 text-[11px] font-bold transition-colors disabled:opacity-50"
@@ -137,6 +139,17 @@ function DriveHealthSection() {
                     ))}
                 </div>
             )}
+            <ConfirmDeployModal
+                isOpen={showTrimConfirm}
+                tweaks={[{
+                    id: "run-trim",
+                    name: "Run Drive Optimization (TRIM)",
+                    riskLevel: "Green",
+                    execution: { code: "Optimize-Volume -DriveLetter C -ReTrim -Verbose", revertCode: "" },
+                }]}
+                onConfirm={() => { setShowTrimConfirm(false); runTrim(); }}
+                onCancel={() => setShowTrimConfirm(false)}
+            />
         </div>
     );
 }

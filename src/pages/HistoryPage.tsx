@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Trash2, CheckCircle2, XCircle, RotateCcw, Calendar, ChevronDown } from "lucide-react";
 import { useToast } from "../components/ToastSystem";
 import type { TweakHistoryEntry } from "../store/appStore";
+import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
 
 type FilterAction = "ALL" | "APPLIED" | "REVERTED" | "FAILED";
 
@@ -12,6 +13,7 @@ export function HistoryPage() {
     const [loading, setLoading] = useState(true);
     const [filterAction, setFilterAction] = useState<FilterAction>("ALL");
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
     const { addToast } = useToast();
 
     const fetchHistory = async () => {
@@ -29,7 +31,6 @@ export function HistoryPage() {
     useEffect(() => { fetchHistory(); }, []);
 
     const handleClear = async () => {
-        if (!confirm("Clear all tweak history? This cannot be undone.")) return;
         try {
             await invoke("clear_tweak_history");
             setEntries([]);
@@ -112,7 +113,7 @@ export function HistoryPage() {
                         ))}
                     </div>
                     <button
-                        onClick={handleClear}
+                        onClick={() => setShowClearConfirm(true)}
                         disabled={entries.length === 0}
                         className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-30"
                     >
@@ -243,6 +244,17 @@ export function HistoryPage() {
                     ))}
                 </div>
             )}
+            <ConfirmDeployModal
+                isOpen={showClearConfirm}
+                tweaks={[{
+                    id: "clear-tweak-history",
+                    name: "Clear All Tweak History — Cannot Be Undone",
+                    riskLevel: "Yellow",
+                    execution: { code: "Clear-WinOptHistory", revertCode: "" },
+                }]}
+                onConfirm={() => { setShowClearConfirm(false); handleClear(); }}
+                onCancel={() => setShowClearConfirm(false)}
+            />
         </div>
     );
 }

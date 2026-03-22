@@ -123,26 +123,39 @@ describe("HistoryPage", () => {
         expect(clearBtn).not.toBeDisabled();
     });
 
-    it("Clear button triggers confirmation and calls clear_tweak_history", async () => {
-        vi.stubGlobal("confirm", vi.fn(() => true));
+    it("Clear button triggers confirmation modal and calls clear_tweak_history on confirm", async () => {
         const user = setupUser();
         render(<HistoryPage />);
         await screen.findByText("Disable SysMain");
         await user.click(screen.getByRole("button", { name: /clear/i }));
+        // Modal should be open — click the "Confirm & Deploy" button
+        const confirmBtn = await screen.findByRole("button", { name: /confirm & deploy/i });
+        await user.click(confirmBtn);
         await waitFor(() => {
             expect(tauriCore.invoke).toHaveBeenCalledWith("clear_tweak_history");
         });
-        vi.unstubAllGlobals();
     });
 
-    it("Clear button does nothing when confirm is cancelled", async () => {
-        vi.stubGlobal("confirm", vi.fn(() => false));
+    it("Clear button does nothing when confirm modal is cancelled", async () => {
         const user = setupUser();
         render(<HistoryPage />);
         await screen.findByText("Disable SysMain");
         await user.click(screen.getByRole("button", { name: /clear/i }));
+        // Modal should be open — click Cancel
+        const cancelBtn = await screen.findByRole("button", { name: /^cancel$/i });
+        await user.click(cancelBtn);
         expect(tauriCore.invoke).not.toHaveBeenCalledWith("clear_tweak_history");
-        vi.unstubAllGlobals();
+    });
+
+    it("does not clear history without confirmation", async () => {
+        const user = setupUser();
+        render(<HistoryPage />);
+        const clearBtn = screen.queryByRole("button", { name: /clear/i });
+        if (!clearBtn) return;
+        await user.click(clearBtn);
+        expect(screen.queryByText(/cannot be undone/i)).toBeTruthy();
+        // invoke should NOT have been called yet
+        expect(vi.mocked(tauriCore.invoke)).not.toHaveBeenCalledWith("clear_tweak_history");
     });
 
     it("clicking an entry expands command details", async () => {
