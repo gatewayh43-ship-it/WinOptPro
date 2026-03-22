@@ -100,7 +100,7 @@ export function useScheduler() {
         }
     }, [addToast]);
 
-    useEffect(() => { fetchTasks(); }, []);
+    useEffect(() => { fetchTasks(); }, [fetchTasks]);
 
     return { tasks, isLoading, isWorking, fetchTasks, createTask, deleteTask, runNow };
 }

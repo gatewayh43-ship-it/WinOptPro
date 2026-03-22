@@ -18,7 +18,7 @@ npx shadcn add <c>       # add shadcn component → src/components/ui/
 
 - **Tailwind 4** — config is in CSS (`src/index.css`), no `tailwind.config.js`. Uses `@tailwindcss/vite` plugin.
 - **No react-router** — views switch via `currentView` state in `App.tsx`. Register new views in the `views` object and add a nav item in `Sidebar.tsx`.
-- **isTauri guard** — hooks use `const isTauri = '__TAURI_INTERNALS__' in window` at module level (not function level). When `false`, hooks return mock data so `npm run dev` works without Tauri.
+- **isTauri guard** — hooks import `isTauri` as a function from `@tauri-apps/api/core` and call `isTauri()` at runtime. When it returns `false`, hooks return mock data so `npm run dev` works without Tauri.
 - **shadcn** — uses `@radix-ui/react-*` individual packages (NOT the old `radix-ui` monorepo).
 - **Zustand cache** — `useGlobalCache` persists between tests. `src/test/setup.ts` calls `clearCache()` in `beforeEach`.
 
@@ -87,6 +87,6 @@ src/
 - Mock Tauri: `vi.mocked(tauriCore.invoke).mockImplementation(...)`
 - framer-motion: mock `motion.div`, `AnimatePresence`, `useReducedMotion` per file
 - Web Workers: `vi.stubGlobal("Worker", class MockWorker { ... })`
-- Hooks with module-level `isTauri`: use `vi.resetModules()` + dynamic `import()` after setting `window.__TAURI_INTERNALS__`
+- Hooks using `isTauri()` function: mock via `vi.mocked(tauriCore.isTauri).mockReturnValue(false/true)` in test beforeEach — no module reset needed
 - `scrollIntoView`: `Element.prototype.scrollIntoView = vi.fn()`
 - Fake timers + `waitFor` hang — use `act(() => vi.advanceTimersByTime(n))` instead
