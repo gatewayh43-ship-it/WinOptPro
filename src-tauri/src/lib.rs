@@ -1,5 +1,6 @@
 mod apps;
 mod backup;
+mod benchmark;
 mod db;
 mod drivers;
 mod gaming;
@@ -37,6 +38,19 @@ pub fn run() {
             })?;
             app.manage(DbState(Mutex::new(conn)));
             app.manage(OllamaState { process: Mutex::new(None) });
+            // Run DPAPI migration (idempotent — skips if already done)
+            {
+                let db_state = app.state::<DbState>();
+                let conn = db_state.0.lock().map_err(|e| {
+                    tauri::Error::from(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        e.to_string(),
+                    ))
+                })?;
+                if let Err(e) = db::migrate_to_dpapi(&conn) {
+                    log::error!("DPAPI migration failed (non-fatal): {}", e);
+                }
+            }
             // Initialize updater plugin (desktop only)
             #[cfg(desktop)]
             app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
@@ -60,6 +74,8 @@ pub fn run() {
             // History
             db::get_tweak_history,
             db::clear_tweak_history,
+            db::record_consent,
+            db::check_consent_exists,
             // Startup
             startup::get_startup_items,
             startup::set_startup_item_state,
@@ -152,6 +168,14 @@ pub fn run() {
             // Updater
             update::check_for_update,
             update::download_and_install_update,
+            // Benchmark
+            benchmark::get_pc_score,
+            benchmark::run_winsat_formal,
+            benchmark::run_speed_test,
+            benchmark::run_cpu_benchmark,
+            benchmark::run_disk_benchmark,
+            benchmark::check_blender_installed,
+            benchmark::run_blender_benchmark,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
