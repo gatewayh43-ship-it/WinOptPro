@@ -31,8 +31,10 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             // Initialize SQLite database
-            let conn =
-                db::init_db(&app.handle()).expect("Failed to initialize database");
+            let conn = db::init_db(&app.handle()).map_err(|e| {
+                eprintln!("FATAL: Database init failed: {}", e);
+                Box::<dyn std::error::Error>::from(e)
+            })?;
             app.manage(DbState(Mutex::new(conn)));
             app.manage(OllamaState { process: Mutex::new(None) });
             // Initialize updater plugin (desktop only)

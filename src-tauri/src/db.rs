@@ -93,15 +93,16 @@ pub fn decrypt_log_field(text: &str) -> String {
 // ── Database init ──────────────────────────────────────────────────────────
 
 /// Initialize the database: create tables if they don't exist.
-pub fn init_db(app: &AppHandle) -> SqlResult<Connection> {
+pub fn init_db(app: &AppHandle) -> Result<Connection, String> {
     let app_dir = app
         .path()
         .app_data_dir()
-        .expect("Failed to get app data dir");
-    std::fs::create_dir_all(&app_dir).expect("Failed to create app data dir");
+        .map_err(|e| format!("Failed to get app data dir: {}", e))?;
+    std::fs::create_dir_all(&app_dir)
+        .map_err(|e| format!("Failed to create app data dir: {}", e))?;
 
     let db_path = app_dir.join("winopt.db");
-    let conn = Connection::open(db_path)?;
+    let conn = Connection::open(db_path).map_err(|e| e.to_string())?;
 
     conn.execute_batch(
         "
@@ -122,7 +123,8 @@ pub fn init_db(app: &AppHandle) -> SqlResult<Connection> {
         CREATE INDEX IF NOT EXISTS idx_history_timestamp ON tweak_history(timestamp DESC);
         CREATE INDEX IF NOT EXISTS idx_history_tweak_id ON tweak_history(tweak_id);
         ",
-    )?;
+    )
+    .map_err(|e| e.to_string())?;
 
     Ok(conn)
 }
