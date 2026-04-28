@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.secrets/
+.tauri-signing-key*
 
 # Editor directories and files
 .vscode/*
@@ -25,7 +27,19 @@ dist-ssr
 
 # WinOpt Specific
 chromium-out*.txt
+dev-error.txt
+errors.txt
+tsc-errors.txt
+tsc_errors.txt
+test-output.txt
+test-results.json
+patch*.js
+steam_appid.txt
+tweak_list.json
 test-results/
+coverage/
+playwright-report/
+ci-test-results/
 src-tauri/target/
 node_modules/
 dist/
