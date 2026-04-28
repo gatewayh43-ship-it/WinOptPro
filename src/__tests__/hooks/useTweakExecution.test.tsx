@@ -125,7 +125,9 @@ describe("useTweakExecution", () => {
 
             const error = useAppStore.getState().error;
             expect(error?.code).toBe("EXECUTION_FAILED");
-            expect(error?.message).toBe(failResult.stderr);
+            // Error messages are translated via translateError() — "Access is denied"
+            // becomes a user-friendly suggestion to run as Administrator.
+            expect(error?.message).toMatch(/Administrator/i);
         });
 
         it("returns null and sets INVOKE_FAILED when invoke throws", async () => {

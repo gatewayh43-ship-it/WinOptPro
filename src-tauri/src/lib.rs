@@ -37,7 +37,7 @@ fn get_is_admin(state: tauri::State<'_, AdminState>) -> bool {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let run_result = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
@@ -193,6 +193,11 @@ pub fn run() {
             benchmark::check_blender_installed,
             benchmark::run_blender_benchmark,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .run(tauri::generate_context!());
+
+    if let Err(e) = run_result {
+        log::error!("FATAL: tauri application exited with error: {}", e);
+        eprintln!("FATAL: tauri application exited with error: {}", e);
+        std::process::exit(1);
+    }
 }

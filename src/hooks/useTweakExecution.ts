@@ -5,12 +5,34 @@ import {
     type TweakResult,
     type TweakValidationResult,
 } from "../store/appStore";
+import { translateError } from "../lib/errorMessages";
 
 interface TweakData {
     id: string;
     name: string;
     execution: { code: string; revertCode: string };
     validationCmd: string;
+}
+
+// Exponential backoff for transient IPC failures (e.g. Tauri bridge glitch).
+// Only retries on the invoke() throwing — does NOT retry tweaks that ran but
+// failed (those are real script failures and re-running may corrupt state).
+const RETRY_DELAYS_MS = [200, 600, 1500];
+
+async function invokeWithRetry<T>(cmd: string, args: Record<string, unknown>): Promise<T> {
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+        try {
+            return await invoke<T>(cmd, args);
+        } catch (err) {
+            lastErr = err;
+            const delay = RETRY_DELAYS_MS[attempt];
+            if (delay === undefined) break;
+            console.warn(`[ipc] ${cmd} attempt ${attempt + 1} failed, retrying in ${delay}ms:`, err);
+            await new Promise((r) => setTimeout(r, delay));
+        }
+    }
+    throw lastErr;
 }
 
 /**
@@ -34,7 +56,7 @@ export function useTweakExecution() {
             setExecuting(true, tweak.id);
             setError(null);
             try {
-                const result = await invoke<TweakResult>("execute_tweak", {
+                const result = await invokeWithRetry<TweakResult>("execute_tweak", {
                     tweakId: tweak.id,
                     tweakName: tweak.name,
                     code: tweak.execution.code,
@@ -45,14 +67,14 @@ export function useTweakExecution() {
                 } else {
                     setError({
                         code: "EXECUTION_FAILED",
-                        message: result.stderr || `Exit code: ${result.exitCode}`,
+                        message: translateError(result.stderr || `Exit code: ${result.exitCode}`),
                     });
                 }
                 return result;
             } catch (err) {
                 setError({
                     code: "INVOKE_FAILED",
-                    message: String(err),
+                    message: translateError(String(err)),
                 });
                 return null;
             } finally {
@@ -69,7 +91,7 @@ export function useTweakExecution() {
             setExecuting(true, tweak.id);
             setError(null);
             try {
-                const result = await invoke<TweakResult>("revert_tweak", {
+                const result = await invokeWithRetry<TweakResult>("revert_tweak", {
                     tweakId: tweak.id,
                     tweakName: tweak.name,
                     revertCode: tweak.execution.revertCode,
@@ -80,14 +102,14 @@ export function useTweakExecution() {
                 } else {
                     setError({
                         code: "REVERT_FAILED",
-                        message: result.stderr || `Exit code: ${result.exitCode}`,
+                        message: translateError(result.stderr || `Exit code: ${result.exitCode}`),
                     });
                 }
                 return result;
             } catch (err) {
                 setError({
                     code: "INVOKE_FAILED",
-                    message: String(err),
+                    message: translateError(String(err)),
                 });
                 return null;
             } finally {

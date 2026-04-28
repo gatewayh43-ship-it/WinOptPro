@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { Tweak } from "./store/appStore";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
@@ -36,6 +36,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider, useToast } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AIAssistantChat } from "./components/AI/AIAssistantChat";
+import { STORAGE_KEYS, hasItem, setItem, getString } from "./lib/storage";
 
 // Detect if this webview is the gaming overlay window (hash set by Rust at window creation)
 const IS_GAMING_OVERLAY = window.location.hash === "#gaming-overlay";
@@ -65,22 +66,58 @@ function AdminChecker() {
             });
           }
         })
-        .catch(() => {});
+        .catch((err) => {
+          console.warn("[admin-check] failed:", err);
+        });
     }
   }, [addToast]);
   return null;
 }
 
+// Surfaces accumulated bootErrors via toast, once, after the app has mounted.
+// Boot-time IPC failures are non-fatal (we render with stale/empty caches),
+// but the user should know which subsystems are degraded.
+function BootErrorReporter() {
+  const { addToast } = useToast();
+  const bootErrors = useGlobalCache((s) => s.bootErrors);
+  const clearBootErrors = useGlobalCache((s) => s.clearBootErrors);
+  const reported = useRef(false);
+
+  useEffect(() => {
+    if (reported.current || bootErrors.length === 0) return;
+    reported.current = true;
+    addToast({
+      type: "warning",
+      title: "Some system data unavailable",
+      message: `Failed to load: ${bootErrors.join(", ")}. Affected pages may show empty or stale data.`,
+    });
+    clearBootErrors();
+  }, [bootErrors, addToast, clearBootErrors]);
+  return null;
+}
+
 function App() {
   const [currentView, setCurrentView] = useState("home");
-  const [showConsent, setShowConsent] = useState(() => !localStorage.getItem('consent-accepted'));
+  const [showConsent, setShowConsent] = useState(() => !hasItem(STORAGE_KEYS.CONSENT));
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { isAppReady, setAppReady, setCacheObject, updateLoadingProgress } = useGlobalCache();
+  const addBootError = useGlobalCache((s) => s.addBootError);
 
   // App-wide Boot Sequence
   useEffect(() => {
     if (isAppReady) return;
+
+    // Helper: invoke, log + record on failure, return fallback so boot continues.
+    async function safeInvoke<T>(cmd: string, label: string, fallback: T): Promise<T> {
+      try {
+        return await invoke<T>(cmd);
+      } catch (err) {
+        console.warn(`[boot] ${cmd} failed:`, err);
+        addBootError(label);
+        return fallback;
+      }
+    }
 
     async function bootSequence() {
       try {
@@ -90,75 +127,69 @@ function App() {
         }
 
         updateLoadingProgress(10, "Fetching System Drivers...");
-        const drivers = await invoke("list_drivers").catch(() => []);
-        setCacheObject("drivers", drivers);
+        setCacheObject("drivers", await safeInvoke("list_drivers", "drivers", [] as unknown[]));
 
         updateLoadingProgress(25, "Inspecting Network Interfaces...");
-        const network = await invoke("get_network_interfaces").catch(() => []);
-        setCacheObject("network", network);
+        setCacheObject("network", await safeInvoke("get_network_interfaces", "network", [] as unknown[]));
 
         updateLoadingProgress(40, "Checking disk health...");
-        const storageItems = await invoke("scan_junk_files").catch(() => []);
-        const storageHealth = await invoke("get_disk_health").catch(() => []);
-        setCacheObject("storage_items", storageItems);
-        setCacheObject("storage_health", storageHealth);
+        setCacheObject("storage_items", await safeInvoke("scan_junk_files", "storage scan", [] as unknown[]));
+        setCacheObject("storage_health", await safeInvoke("get_disk_health", "disk health", [] as unknown[]));
 
         updateLoadingProgress(60, "Reticulating splines...");
-        const wslStatus = await invoke("get_wsl_status").catch(() => null);
-        const wslConfig = await invoke("get_wsl_config").catch(() => null);
-        const wslSetup = await invoke("get_wsl_setup_state").catch(() => null);
-        setCacheObject("wsl_status", wslStatus);
-        setCacheObject("wsl_config", wslConfig);
-        setCacheObject("wsl_setup", wslSetup);
+        setCacheObject("wsl_status", await safeInvoke<unknown>("get_wsl_status", "WSL status", null));
+        setCacheObject("wsl_config", await safeInvoke<unknown>("get_wsl_config", "WSL config", null));
+        setCacheObject("wsl_setup", await safeInvoke<unknown>("get_wsl_setup_state", "WSL setup", null));
 
         updateLoadingProgress(75, "Overclocking progress bar...");
-        const powerPlans = await invoke("get_power_plans").catch(() => []);
-        const batteryHealth = await invoke("get_battery_health").catch(() => null);
-        setCacheObject("power_plans", powerPlans);
-        setCacheObject("battery_health", batteryHealth);
+        setCacheObject("power_plans", await safeInvoke("get_power_plans", "power plans", [] as unknown[]));
+        setCacheObject("battery_health", await safeInvoke<unknown>("get_battery_health", "battery health", null));
 
         updateLoadingProgress(85, "Analyzing processes...");
-        const processes = await invoke("get_processes").catch(() => []);
-        setCacheObject("processes", processes);
+        setCacheObject("processes", await safeInvoke("get_processes", "processes", [] as unknown[]));
 
         updateLoadingProgress(95, "Syncing RGB lighting...");
-        const startupItems = await invoke("get_startup_items").catch(() => []);
-        setCacheObject("startup_items", startupItems);
+        setCacheObject("startup_items", await safeInvoke("get_startup_items", "startup items", [] as unknown[]));
 
         updateLoadingProgress(100, "Optimization Complete.");
         setTimeout(() => setAppReady(true), 400);
 
       } catch (e) {
         console.error("Boot error:", e);
+        addBootError("boot sequence");
         setAppReady(true);
       }
     }
     bootSequence();
-  }, [isAppReady, setAppReady, setCacheObject, updateLoadingProgress]);
+  }, [isAppReady, setAppReady, setCacheObject, updateLoadingProgress, addBootError]);
 
   // Show onboarding only on first visit
   useEffect(() => {
-    setShowOnboarding(!localStorage.getItem("onboardingComplete"));
+    setShowOnboarding(!hasItem(STORAGE_KEYS.ONBOARDING));
   }, []);
 
   // Wire installer model selection on first launch
   useEffect(() => {
-    const stored = localStorage.getItem('ai-model');
+    const stored = getString(STORAGE_KEYS.AI_MODEL);
     if (!stored && isTauri()) {
       invoke<string | null>('read_installer_config')
         .then(model => {
           if (model) {
             // Write to localStorage before invoking to prevent race on multi-window launch
-            localStorage.setItem('ai-model', model);
-            invoke('pull_model', { model }).catch(() => {});
+            setItem(STORAGE_KEYS.AI_MODEL, model);
+            invoke('pull_model', { model }).catch((err) => {
+              console.warn("[boot] pull_model failed:", err);
+            });
           }
         })
-        .catch(() => {});
+        .catch((err) => {
+          console.warn("[boot] read_installer_config failed:", err);
+        });
     }
   }, []);
 
   const handleOnboardingClose = () => {
-    localStorage.setItem("onboardingComplete", "true");
+    setItem(STORAGE_KEYS.ONBOARDING, "true");
     setShowOnboarding(false);
   };
 
@@ -221,16 +252,20 @@ function App() {
   };
 
   const handleConsentAccept = () => {
-    localStorage.setItem('consent-accepted', 'true');
+    setItem(STORAGE_KEYS.CONSENT, "true");
     if (isTauri()) {
-      invoke('record_consent', { accepted: true }).catch(() => {});
+      invoke('record_consent', { accepted: true }).catch((err) => {
+        console.warn("[consent] record_consent failed:", err);
+      });
     }
     setShowConsent(false);
   };
 
   const handleConsentDecline = () => {
     if (isTauri()) {
-      invoke('exit_app').catch(() => {});
+      invoke('exit_app').catch((err) => {
+        console.warn("[consent] exit_app failed:", err);
+      });
     } else {
       // In dev/browser mode just proceed without consent
       setShowConsent(false);
@@ -253,6 +288,7 @@ function App() {
     <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
       <ToastProvider>
         <AdminChecker />
+        <BootErrorReporter />
         <ErrorBoundary>
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
           <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} simpleOnly={true} />
