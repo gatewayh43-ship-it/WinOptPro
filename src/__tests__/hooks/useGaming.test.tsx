@@ -25,6 +25,8 @@ const MOCK_GPU: GpuMetrics = {
     powerLimitW: 250,
     powerMaxLimitW: 320,
     isNvidia: true,
+    vendor: "NVIDIA",
+    isSupported: true,
 };
 
 describe("useGaming", () => {
@@ -198,6 +200,7 @@ describe("useGaming", () => {
                 if (cmd === "get_cpu_quick") return 55;
                 if (cmd === "detect_active_game") return "Cyberpunk 2077";
                 if (cmd === "set_gpu_power_limit") return true;
+                if (cmd === "check_presentmon") return { installed: false, path: null };
                 return null;
             });
         });
@@ -253,6 +256,7 @@ describe("useGaming", () => {
                 if (cmd === "get_cpu_quick") return 55;
                 if (cmd === "detect_active_game") return null;
                 if (cmd === "show_gaming_overlay") return undefined;
+                if (cmd === "check_presentmon") return { installed: false, path: null };
                 return null;
             });
             const { result } = renderHook(() => useGaming());

@@ -269,14 +269,15 @@ describe("HomePage", () => {
             const dispatchSpy = vi.spyOn(window, "dispatchEvent");
             render(<HomePage setView={setView} />);
             const searchBar = screen.getByText(/search.*optimize gaming/i).closest("[class]");
-            if (searchBar) {
-                await user.click(searchBar);
-                expect(dispatchSpy).toHaveBeenCalled();
-                const event = dispatchSpy.mock.calls.find(
-                    ([e]) => e instanceof KeyboardEvent && (e as KeyboardEvent).key === "k"
-                );
-                expect(event).toBeTruthy();
-            }
+            expect(searchBar).not.toBeNull();
+            await user.click(searchBar!);
+            expect(dispatchSpy).toHaveBeenCalled();
+            const event = dispatchSpy.mock.calls.find(
+                ([e]) => e instanceof KeyboardEvent && (e as KeyboardEvent).key === "k"
+            );
+            expect(event).toBeTruthy();
+            const [kbEvent] = event!;
+            expect((kbEvent as KeyboardEvent).ctrlKey).toBe(true);
             dispatchSpy.mockRestore();
         });
     });

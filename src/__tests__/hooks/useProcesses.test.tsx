@@ -3,6 +3,11 @@ import { renderHook, waitFor, act } from "@/test/utils";
 import { useProcesses } from "@/hooks/useProcesses";
 import * as tauriCore from "@tauri-apps/api/core";
 
+vi.mock("@/components/ToastSystem", () => {
+    const addToast = vi.fn();
+    return { useToast: () => ({ addToast }) };
+});
+
 const mockProcesses = [
     { pid: 1234, name: "chrome.exe", cpu_usage: 5.2, memory_bytes: 104857600, disk_read_bytes: 0, disk_written_bytes: 0, user: "S-1-5-21-xxx" },
     { pid: 5678, name: "node.exe", cpu_usage: 1.0, memory_bytes: 52428800, disk_read_bytes: 1024, disk_written_bytes: 512, user: "S-1-5-21-yyy" },
@@ -112,5 +117,36 @@ describe("useProcesses", () => {
         const callsAfter = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "get_processes").length;
 
         expect(callsAfter).toBeGreaterThan(callsBefore);
+    });
+
+    it("killProcess failure shows error toast", async () => {
+        const { useToast } = await import("@/components/ToastSystem");
+        const { addToast } = useToast();
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_processes") return mockProcesses;
+            if (cmd === "kill_process") throw new Error("Access denied");
+            return null;
+        });
+        const { result } = renderHook(() => useProcesses());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        await act(async () => {
+            await result.current.killProcess(1234, "chrome.exe");
+        });
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    });
+
+    it("setProcessPriority success shows success toast", async () => {
+        const { useToast } = await import("@/components/ToastSystem");
+        const { addToast } = useToast();
+        const { result } = renderHook(() => useProcesses());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        await act(async () => {
+            await result.current.setProcessPriority(1234, "High");
+        });
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
     });
 });

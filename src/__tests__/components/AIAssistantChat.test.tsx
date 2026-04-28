@@ -192,12 +192,13 @@ describe("AIAssistantChat", () => {
         expect(disabledBtns.length).toBeGreaterThan(0);
     });
 
-    it("Qwen model label is shown in chat header", async () => {
+    it("model label is shown in chat header (defaults to qwen2.5:1.5b)", async () => {
         const user = setupUser();
         render(<AIAssistantChat />);
 
         await user.click(screen.getAllByRole("button")[0]);
 
-        expect(screen.getByText(/Qwen 2\.5/i)).toBeInTheDocument();
+        // Label uses localStorage value; in tests localStorage is empty so fallback applies
+        expect(screen.getByText(/qwen2\.5:1\.5b/i)).toBeInTheDocument();
     });
 });

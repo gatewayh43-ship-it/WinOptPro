@@ -59,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
             { id: "gaming_optimizer", label: "Gaming Optimizer", lucideIcon: Gamepad2 },
             { id: "latency", label: "Latency Optimizer", lucideIcon: Timer },
             { id: "power_manager", label: "Power Manager", lucideIcon: BatteryMedium },
+            { id: "benchmark", label: "Benchmark", lucideIcon: Gauge },
             { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
             { id: "defender", label: "Defender Support", lucideIcon: Shield },
             { id: "processes", label: "Process Manager", lucideIcon: Activity },
@@ -232,6 +233,7 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                     className="flex items-center justify-center p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5"
                     title="Toggle Theme"
+                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                 >
                     {theme === "dark" ? <Sun className="w-4 h-4 text-slate-400" /> : <Moon className="w-4 h-4 text-slate-500 dark:text-slate-300" />}
                 </button>
@@ -244,6 +246,7 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                                     <button
                                         key={scheme.id}
                                         title={scheme.label}
+                                        aria-label={`Set color scheme to ${scheme.label}`}
                                         onClick={() => { setColorScheme(scheme.id as any); setShowColorPicker(false); }}
                                         className={`w-5 h-5 rounded-full transition-all hover:scale-110 active:scale-95 ${colorScheme === scheme.id ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110" : ""}`}
                                         style={{ backgroundColor: scheme.color }}
@@ -256,6 +259,8 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
                         onClick={() => setShowColorPicker(!showColorPicker)}
                         className="flex items-center justify-center p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5"
                         title="Change Color Theme"
+                        aria-label="Change color theme"
+                        aria-expanded={showColorPicker}
                     >
                         <div className="w-4 h-4 rounded-full border-2 border-current opacity-60" style={{ backgroundColor: COLOR_SCHEMES.find(s => s.id === colorScheme)?.color ?? "#4318FF" }} />
                     </button>

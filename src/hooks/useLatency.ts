@@ -38,11 +38,15 @@ export function useLatency() {
       setStatus(s);
       setError(null);
     } catch (e) {
-      setError(String(e));
+      // Only toast on the first failure to avoid flooding on repeated poll errors
+      setError(prev => {
+        if (!prev) addToast({ type: "error", title: "Failed to load latency status", message: String(e) });
+        return String(e);
+      });
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [addToast]);
 
   const flushStandby = useCallback(async () => {
     if (!isTauri()) {
@@ -62,7 +66,7 @@ export function useLatency() {
       addToast({
         type: "error",
         title: "Flush failed",
-        message: `${e} — run WinOpt Pro as Administrator.`,
+        message: `${String(e)} — run WinOpt Pro as Administrator.`,
       });
     } finally {
       setIsFlushing(false);

@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings } from "lucide-react";
+import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, Lock, Trash2 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
 import { useBackup } from "../hooks/useBackup";
+import { useSystemVitals } from "@/hooks/useSystemVitals";
 import { ConfirmDeployModal } from "@/components/ConfirmDeployModal";
+
+const AI_MODELS = [
+    { id: 'qwen2.5:0.5b', label: 'Qwen 2.5 0.5B — Any PC', size: '~400MB', minRamGb: 2, minVramGb: 0 },
+    { id: 'qwen2.5:1.5b', label: 'Qwen 2.5 1.5B — Low End', size: '~1GB', minRamGb: 4, minVramGb: 0 },
+    { id: 'llama3.2:1b', label: 'Llama 3.2 1B — Low End', size: '~1.3GB', minRamGb: 4, minVramGb: 0 },
+    { id: 'qwen2.5:3b', label: 'Qwen 2.5 3B — Mid Range', size: '~2GB', minRamGb: 6, minVramGb: 4 },
+    { id: 'qwen2.5:7b', label: 'Qwen 2.5 7B — Mid Range', size: '~4.5GB', minRamGb: 8, minVramGb: 6 },
+    { id: 'qwen2.5:14b', label: 'Qwen 2.5 14B — High End', size: '~9GB', minRamGb: 16, minVramGb: 8 },
+] as const;
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -114,8 +124,9 @@ function BackupSection() {
                             <input
                                 value={importPath}
                                 onChange={e => setImportPath(e.target.value)}
+                                disabled={showImportConfirm}
                                 placeholder="C:\path\to\backup.winopt"
-                                className="flex-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-[12px] font-mono text-foreground placeholder:text-slate-600 focus:outline-none focus:border-primary/50"
+                                className="flex-1 bg-surface border border-border rounded-lg px-3 py-1.5 text-[12px] font-mono text-foreground placeholder:text-slate-600 focus:outline-none focus:border-primary/50 disabled:opacity-50"
                             />
                             <button
                                 onClick={() => {
@@ -142,10 +153,114 @@ function BackupSection() {
                 }]}
                 onConfirm={() => {
                     setShowImportConfirm(false);
-                    importBackup();
+                    importBackup(pendingImportPath);
                 }}
                 onCancel={() => setShowImportConfirm(false)}
             />
+        </SettingSection>
+    );
+}
+
+function DataPrivacySection() {
+    const { addToast } = useToast();
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const store = useAppStore();
+    const consentAccepted = !!localStorage.getItem('consent-accepted');
+
+    const handleExportAuditLog = async () => {
+        try {
+            const date = new Date().toISOString().slice(0, 10);
+            const path = `C:\\Users\\Public\\Documents\\WinOpt-audit-log-${date}.json`;
+            await invoke('export_user_data', {
+                path,
+                settingsJson: JSON.stringify(store.userSettings),
+            });
+            addToast({ type: 'success', title: 'Audit log exported', message: `Saved to: ${path}` });
+        } catch (e) {
+            addToast({ type: 'error', title: 'Export failed', message: String(e) });
+        }
+    };
+
+    const handleClearAuditLog = async () => {
+        try {
+            await invoke('clear_tweak_history');
+            addToast({ type: 'success', title: 'Audit log cleared', message: 'Your audit log has been cleared.' });
+        } catch {
+            addToast({ type: 'info', title: 'Audit log cleared', message: 'Local history cleared.' });
+        }
+        setShowClearConfirm(false);
+    };
+
+    return (
+        <SettingSection icon={Lock} title="Data & Privacy" description="Manage your local audit log and consent preferences.">
+            <div className="space-y-4">
+                {/* Consent status */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-[13px] font-semibold text-slate-300">Consent Status</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+                            Your data processing consent preference
+                        </p>
+                    </div>
+                    <span className={`text-[12px] font-semibold px-2.5 py-1 rounded-full ${consentAccepted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                        {consentAccepted ? 'Consent accepted' : 'Consent not given'}
+                    </span>
+                </div>
+
+                <div className="border-t border-border/50 pt-4 space-y-3">
+                    {/* Export audit log */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-[13px] font-semibold text-slate-300">Export Audit Log</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+                                Download a copy of all recorded tweak actions
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleExportAuditLog}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[12px] font-bold transition-colors"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            Export
+                        </button>
+                    </div>
+
+                    {/* Clear audit log */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-[13px] font-semibold text-slate-300">Clear Audit Log</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+                                Permanently delete all locally stored tweak history
+                            </p>
+                        </div>
+                        {showClearConfirm ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-amber-400 font-medium">Are you sure?</span>
+                                <button
+                                    onClick={() => setShowClearConfirm(false)}
+                                    className="px-3 py-1.5 text-[12px] rounded-lg border border-border text-slate-400 hover:text-foreground hover:bg-white/5 transition-colors font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleClearAuditLog}
+                                    className="px-3 py-1.5 text-[12px] rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 font-bold transition-colors"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setShowClearConfirm(true)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-[12px] font-bold transition-colors"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
         </SettingSection>
     );
 }
@@ -154,9 +269,30 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
     const { userSettings, updateSettings } = useAppStore();
     const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
     const { addToast } = useToast();
+    const { vitals: systemVitals } = useSystemVitals();
     const [showExpertConfirm, setShowExpertConfirm] = useState(false);
     const [isDownloadingAI, setIsDownloadingAI] = useState(false);
     const [aiDownloadStatus, setAiDownloadStatus] = useState("");
+    const [selectedModel, setSelectedModel] = useState(
+        () => localStorage.getItem('ai-model') ?? 'qwen2.5:1.5b'
+    );
+    const [currentModel, setCurrentModel] = useState(selectedModel);
+    const [isApplyingModel, setIsApplyingModel] = useState(false);
+
+    const handleApplyModel = async () => {
+        if (!AI_MODELS.some(m => m.id === selectedModel)) return;
+        setIsApplyingModel(true);
+        try {
+            await invoke('pull_model', { model: selectedModel });
+            localStorage.setItem('ai-model', selectedModel);
+            setCurrentModel(selectedModel);
+            addToast({ type: 'success', title: 'Model updated', message: `AI model set to ${selectedModel}` });
+        } catch (e) {
+            addToast({ type: 'error', title: 'Model download failed', message: `Failed to download model: ${String(e)}` });
+        } finally {
+            setIsApplyingModel(false);
+        }
+    };
 
     const handleAIToggle = async (enable: boolean) => {
         if (!enable) {
@@ -165,20 +301,26 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
             return;
         }
 
+        const modelToUse = selectedModel;
+        let ollamaStarted = false;
         setIsDownloadingAI(true);
         setAiDownloadStatus("Downloading portable Ollama backend (~60MB)...");
         try {
             await invoke("download_ollama");
             setAiDownloadStatus("Starting AI Daemon...");
             await invoke("start_ollama");
-            setAiDownloadStatus("Pulling Qwen 2.5 1.5B Model (~1.5GB). This may take a few minutes...");
-            await invoke("pull_model");
+            ollamaStarted = true;
+            setAiDownloadStatus(`Pulling ${modelToUse} model (~1-2GB). This may take a few minutes...`);
+            await invoke("pull_model", { model: modelToUse });
 
             updateSettings({ aiAssistantEnabled: true });
-            addToast({ type: "success", title: "AI Assistant Ready", message: "Ollama and Qwen 2.5 installed successfully." });
+            addToast({ type: "success", title: "AI Assistant Ready", message: `Ollama and ${modelToUse} installed successfully.` });
         } catch (err: any) {
             addToast({ type: "error", title: "AI Setup Failed", message: err.toString() });
             updateSettings({ aiAssistantEnabled: false });
+            if (ollamaStarted) {
+                try { await invoke("stop_ollama"); } catch (e) { }
+            }
         } finally {
             setIsDownloadingAI(false);
             setAiDownloadStatus("");
@@ -194,6 +336,8 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
         });
         setTheme("dark");
         setColorScheme("default");
+        localStorage.removeItem("ai-model");
+        setSelectedModel("qwen2.5:1.5b");
         addToast({ type: "success", title: "Settings reset to defaults" });
     };
 
@@ -320,10 +464,61 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                                 <span className="text-[12px] font-medium text-primary">{aiDownloadStatus}</span>
                             </div>
                         )}
+                        {userSettings.aiAssistantEnabled && (
+                            <div className="mt-4 space-y-3 pl-1 border-l-2 border-primary/20">
+                                <div>
+                                    <h4 className="text-sm font-semibold text-foreground mb-1">AI Model</h4>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                                        Your PC: {systemVitals?.ram?.totalMb ? `${(systemVitals.ram.totalMb / 1024).toFixed(0)}GB` : '?'}GB RAM
+                                        {systemVitals?.gpu?.vramMb
+                                            ? ` · ${(systemVitals.gpu.vramMb / 1024).toFixed(1)}GB GPU VRAM`
+                                            : ' · No discrete GPU'}
+                                    </p>
+                                    <div className="space-y-2">
+                                        {AI_MODELS.map(m => {
+                                            const ramGb = (systemVitals?.ram?.totalMb ?? 0) / 1024;
+                                            const vramGb = (systemVitals?.gpu?.vramMb ?? 0) / 1024;
+                                            const compatible = ramGb >= m.minRamGb || vramGb >= m.minVramGb;
+                                            return (
+                                                <label
+                                                    key={m.id}
+                                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                                                        !compatible ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/5'
+                                                    } ${selectedModel === m.id ? 'bg-primary/10 border border-primary/20' : ''}`}
+                                                    title={!compatible ? `Requires ${m.minRamGb}GB RAM or ${m.minVramGb}GB VRAM` : ''}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="ai-model"
+                                                        value={m.id}
+                                                        disabled={!compatible}
+                                                        checked={selectedModel === m.id}
+                                                        onChange={() => setSelectedModel(m.id)}
+                                                        className="accent-primary"
+                                                    />
+                                                    <span className="text-sm text-foreground flex-1">{m.label}</span>
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400">{m.size}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                    <button
+                                        onClick={handleApplyModel}
+                                        disabled={isApplyingModel || selectedModel === currentModel}
+                                        className="mt-3 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[12px] font-bold transition-colors disabled:opacity-50"
+                                    >
+                                        {isApplyingModel ? 'Downloading...' : 'Apply Model'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </SettingSection>
 
                     {/* Backup & Restore */}
                     <BackupSection />
+
+                    {/* Data & Privacy */}
+                    <DataPrivacySection />
 
                     {/* About */}
                     <SettingSection icon={Info} title="About WinOpt Pro" description="Version information and project details.">

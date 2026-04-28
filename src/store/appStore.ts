@@ -60,6 +60,11 @@ export interface SystemVitals {
     osVersion: string;
     isAdmin: boolean;
   };
+  gpu: {
+    name: string;
+    driverVersion: string;
+    vramMb: number;
+  } | null;
 }
 
 export interface TweakResult {

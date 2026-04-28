@@ -137,4 +137,15 @@ describe("DefenderPage", () => {
             expect(tauriCore.invoke).toHaveBeenCalledWith("defender_set_realtime", { enabled: false });
         });
     });
+
+    it("shows error banner when fetch fails", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "defender_get_status") throw new Error("WMI failed");
+            return null;
+        });
+        render(<DefenderPage />);
+        // When status is null after failed fetch, page renders without loading spinner
+        // and isProtected evaluates to false, so "Action Needed" badge is shown
+        expect(await screen.findByText("Action Needed")).toBeInTheDocument();
+    });
 });

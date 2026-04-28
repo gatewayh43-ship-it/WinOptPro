@@ -41,9 +41,12 @@ vi.mock("@/hooks/useGaming", () => ({
             isNvidia: true,
         },
         cpuLoad: 34,
+        fps: null,
+        presentMonStatus: { installed: false, path: null },
         isOverlayVisible: false,
         isLoadingGpu: false,
         isSettingLimit: false,
+        isDownloadingPm: false,
         autoOptimize: false,
         baseline: null,
         setAutoOptimize: mockSetAutoOptimize,
@@ -51,6 +54,8 @@ vi.mock("@/hooks/useGaming", () => ({
         setGpuPowerLimit: mockSetGpuPowerLimit,
         showOverlay: mockShowOverlay,
         hideOverlay: mockHideOverlay,
+        toggleFpsCounter: vi.fn(),
+        downloadPresentMon: vi.fn(),
     })),
 }));
 
@@ -117,9 +122,12 @@ describe("GamingPage", () => {
             activeGame: null,
             gpuMetrics: null,
             cpuLoad: null,
+            fps: null,
+            presentMonStatus: { installed: false, path: null },
             isOverlayVisible: false,
             isLoadingGpu: true,
             isSettingLimit: false,
+            isDownloadingPm: false,
             autoOptimize: false,
             baseline: null,
             setAutoOptimize: mockSetAutoOptimize,
@@ -127,6 +135,8 @@ describe("GamingPage", () => {
             setGpuPowerLimit: mockSetGpuPowerLimit,
             showOverlay: mockShowOverlay,
             hideOverlay: mockHideOverlay,
+            toggleFpsCounter: vi.fn(),
+            downloadPresentMon: vi.fn(),
         });
         render(<GamingPage />);
         expect(screen.getByText(/Querying GPU metrics/i)).toBeInTheDocument();

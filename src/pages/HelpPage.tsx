@@ -765,12 +765,11 @@ function GuidesSection({ defaultTab = 0 }: { defaultTab?: number }) {
                             )
                         },
                         {
-                            title: "Audit Log Encryption Details",
+                            title: "Audit Log Storage Details",
                             content: (
                                 <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-3">
-                                    <p>The History page reads from <code className="text-emerald-400 bg-black/30 px-1 rounded">history.db</code> (SQLite). Sensitive fields (<code className="text-emerald-400 bg-black/30 px-1 rounded">command_executed</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stdout</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stderr</code>) are encrypted with <strong className="text-white">AES-256-GCM</strong>.</p>
-                                    <p>Key derivation: <code className="text-emerald-400 bg-black/30 px-1 rounded">key = SHA-256(MachineGuid)</code> where MachineGuid is read from <code className="text-emerald-400 bg-black/30 px-1 rounded">HKLM\SOFTWARE\Microsoft\Cryptography</code>. This key is unique per Windows installation and never leaves your machine.</p>
-                                    <p>Encrypted entries are stored as <code className="text-emerald-400 bg-black/30 px-1 rounded">enc:&lt;base64(nonce + ciphertext + tag)&gt;</code>. Legacy unencrypted entries (before v0.7) are readable as plaintext.</p>
+                                    <p>The History page reads from <code className="text-emerald-400 bg-black/30 px-1 rounded">winopt.db</code> (SQLite). Command details (<code className="text-emerald-400 bg-black/30 px-1 rounded">command_executed</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stdout</code>, <code className="text-emerald-400 bg-black/30 px-1 rounded">stderr</code>) are stored locally.</p>
+                                    <p>History is stored locally with the rest of the app data.</p>
                                 </div>
                             )
                         },
@@ -846,7 +845,7 @@ function FeaturesSection() {
         { icon: Package, color: "text-pink-400", title: "App Store", badge: "391 apps", desc: "Curated catalog of 391 popular Windows apps across 7 categories, with logos, descriptions, and source links. Install via winget or Chocolatey. Tracks installation status." },
         { icon: FileText, color: "text-slate-500 dark:text-slate-200", title: "System Report", badge: "HTML", desc: "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk." },
         { icon: Layers, color: "text-blue-400", title: "Profiles & Backup", badge: null, desc: "Save named configuration profiles. Export settings as .winopt JSON files. Restore on any machine." },
-        { icon: Clock, color: "text-zinc-400", title: "History / Audit Log", badge: "Encrypted", desc: "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history." },
+        { icon: Clock, color: "text-zinc-400", title: "History / Audit Log", badge: "Local", desc: "Every tweak operation is logged locally with timestamp, command, and output. Revert from history." },
         { icon: Shield, color: "text-red-300", title: "Windows Defender", badge: null, desc: "View and toggle Defender components, quarantine, real-time protection, and exclusions." },
         { icon: Star, color: "text-yellow-300", title: "AI Assistant", badge: "Offline", desc: "Chat with a local Ollama LLM for optimization advice. Fully offline — your data never leaves your machine. Configurable endpoint." },
         { icon: Search, color: "text-violet-300", title: "Command Palette", badge: "Ctrl+K", desc: "Instantly search and navigate to any feature or tweak using fuzzy text search. Semantic Web Worker for fast matching." },
@@ -1089,7 +1088,7 @@ function FAQSection() {
         { q: "What does the Gaming Optimizer actually do?", a: "Three things: (1) Detects active games by polling processes every 5s against 190+ known game executables. (2) Auto-optimize: batch-applies gaming tweaks the moment a game is detected, reverts when you exit. (3) Overlay: transparent always-on-top widget showing CPU%, GPU%, VRAM, temp, and power draw." },
         { q: "My game is not detected. What can I do?", a: "The detection list covers 190+ common game processes. If your game uses an unusual executable name, submit a GitHub Issue with the process name (find it in Task Manager). You can also manually trigger auto-optimize from the Gaming page without game detection." },
         { q: "Is the AI Assistant sending data to the cloud?", a: "No. The AI Assistant uses Ollama which runs entirely on your local machine. Your prompts never leave your computer. No account required. The Ollama endpoint is configurable in Settings — default is http://localhost:11434." },
-        { q: "What is the audit log and how is it encrypted?", a: "The History page reads from history.db (SQLite). Sensitive fields (command_executed, stdout, stderr) are encrypted with AES-256-GCM. The key is derived from SHA-256(MachineGuid), unique to your Windows installation. The database cannot be read on another machine." },
+        { q: "What is the audit log?", a: "The History page reads from winopt.db (SQLite). Command details (command_executed, stdout, stderr) are stored locally with the rest of the app data." },
         { q: "How often should I run the Privacy Audit?", a: "After a fresh Windows install, after each major feature update (annual releases reset some settings), and monthly as a routine check. The audit is read-only and non-destructive — running it frequently has no downside." },
         { q: "What is VBS / HVCI and should I disable it?", a: "VBS (Virtualization-Based Security) isolates secure memory using the CPU hypervisor. HVCI (Memory Integrity) uses VBS to verify kernel code. Disabling VBS/HVCI recovers 5–15% GPU/CPU on some systems. Keep it enabled on corporate machines, if you play Valorant (Vanguard requires HVCI), or if security matters more than max FPS." },
         { q: "Will these tweaks affect Windows Defender?", a: "Tweaks in the Security category can affect Defender-related settings. The dedicated Windows Defender page has explicit toggles for Defender components. Privacy tweaks (like disabling Defender auto sample submission) are Yellow-risk — read the descriptions." },

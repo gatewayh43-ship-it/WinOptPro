@@ -238,6 +238,7 @@ export function useWsl() {
 
     const installDistro = useCallback(async (distroId: string) => {
         setInstallingDistro(distroId);
+        setIsActionLoading(true);
         if (!isTauri()) {
             safeTimeout(() => {
                 const distroInfo = AVAILABLE_DISTROS.find(d => d.id === distroId);
@@ -247,6 +248,7 @@ export function useWsl() {
                     distros: [...s.distros, { name, state: "Stopped", version: 2, isDefault: s.distros.length === 0 }],
                 } : MOCK_STATUS);
                 setInstallingDistro(null);
+                setIsActionLoading(false);
                 addToast({ type: "success", title: "Install Success", message: `${distroId} installed successfully.` });
             }, 2000);
             return;
@@ -260,6 +262,7 @@ export function useWsl() {
             addToast({ type: "error", title: "Install Failed", message: `Install failed: ${msg}` });
         } finally {
             setInstallingDistro(null);
+            setIsActionLoading(false);
         }
     }, [addToast, fetchStatus, safeTimeout]);
 

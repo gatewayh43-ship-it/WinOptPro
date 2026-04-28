@@ -36,29 +36,29 @@ describe("GamingOverlayPage", () => {
         expect(screen.getByText("34%")).toBeInTheDocument();
     });
 
-    it("shows GPU metric pill for NVIDIA GPU", async () => {
+    it("shows GPU metric pill for AMD GPU", async () => {
         render(<GamingOverlayPage />);
         expect(await screen.findByText("GPU")).toBeInTheDocument();
-        // GPU utilization is 78%
-        expect(screen.getByText("78%")).toBeInTheDocument();
+        // GPU utilization is 94% in the mock
+        expect(screen.getByText("94%")).toBeInTheDocument();
     });
 
     it("shows TEMP metric pill", async () => {
         render(<GamingOverlayPage />);
         expect(await screen.findByText("TEMP")).toBeInTheDocument();
-        expect(screen.getByText("65°C")).toBeInTheDocument();
+        expect(screen.getByText("72°C")).toBeInTheDocument();
     });
 
-    it("shows POWER metric pill", async () => {
+    it("does not show POWER metric pill for non-NVIDIA GPU", async () => {
         render(<GamingOverlayPage />);
-        expect(await screen.findByText("POWER")).toBeInTheDocument();
-        expect(screen.getByText("145W")).toBeInTheDocument();
+        await screen.findByText(/WinOpt Gaming/i);
+        expect(screen.queryByText("POWER")).not.toBeInTheDocument();
     });
 
     it("shows VRAM metric pill", async () => {
         render(<GamingOverlayPage />);
         expect(await screen.findByText("VRAM")).toBeInTheDocument();
-        // 4506 MB / 1024 = ~4.4G
-        expect(screen.getByText(/4\.4G/)).toBeInTheDocument();
+        // 15360 MB / 1024 = 15.0 GB
+        expect(screen.getByText(/15\.0/)).toBeInTheDocument();
     });
 });

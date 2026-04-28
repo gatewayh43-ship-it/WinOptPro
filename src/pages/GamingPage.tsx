@@ -14,6 +14,8 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
+  Target,
+  Download,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGaming, GpuMetrics, GpuSnapshot } from "@/hooks/useGaming";
@@ -406,11 +408,16 @@ export function GamingPage() {
     isSettingLimit,
     autoOptimize,
     baseline,
+    presentMonStatus,
+    isDownloadingPm,
+    fps,
     setAutoOptimize,
     captureBaseline,
     setGpuPowerLimit,
     showOverlay,
     hideOverlay,
+    downloadPresentMon,
+    toggleFpsCounter,
   } = useGaming();
 
   return (
@@ -471,6 +478,81 @@ export function GamingPage() {
             )}
           </>
         ) : null}
+
+        {/* FPS Counter Toggle */}
+        <div className="glass-panel rounded-2xl p-5 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Target className="w-5 h-5 text-fuchsia-400" strokeWidth={1.8} />
+              <div>
+                <p className="text-[14px] font-bold text-foreground flex items-center gap-2">
+                  FPS Counter
+                  {fps !== null && (
+                    <span className="bg-fuchsia-500/20 text-fuchsia-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
+                      {fps.toFixed(1)} FPS
+                    </span>
+                  )}
+                </p>
+                <p className="text-[12px] text-slate-500 dark:text-slate-300 mt-0.5">
+                  Track ultra-accurate frame times using Intel PresentMon
+                </p>
+              </div>
+            </div>
+
+            {!presentMonStatus.installed ? (
+              <button
+                onClick={downloadPresentMon}
+                disabled={isDownloadingPm}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-[13px] bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+              >
+                {isDownloadingPm ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Downloading (2MB)…
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    Install PresentMon
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => toggleFpsCounter(fps === null)}
+                disabled={!activeGame}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-[13px] transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  fps !== null
+                    ? "bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400"
+                    : "bg-white/5 border border-border text-slate-400 dark:text-slate-200 hover:text-foreground"
+                }`}
+              >
+                {fps !== null ? (
+                  <>
+                    <ToggleRight className="w-4 h-4" />
+                    Tracking {activeGame}
+                  </>
+                ) : (
+                  <>
+                    <ToggleLeft className="w-4 h-4" />
+                    Start Tracking
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {!presentMonStatus.installed && (
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed bg-black/10 dark:bg-white/5 p-3 rounded-xl border border-border">
+              By clicking "Install PresentMon", WinOpt will download the open-source Intel PresentMon v1.10.0 (MIT License) to capture FPS telemetry. It requires no injection and is completely safe for anti-cheat.
+            </div>
+          )}
+          {presentMonStatus.installed && !activeGame && (
+             <div className="text-[11px] text-amber-500/80 leading-relaxed bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+               Launch a game to start tracking FPS. The counter hooks into the active game automatically.
+             </div>
+          )}
+        </div>
 
         {/* Overlay toggle */}
         <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">

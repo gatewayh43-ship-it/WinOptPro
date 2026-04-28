@@ -121,7 +121,7 @@ describe("BundlesPage", () => {
 
   it("opens install modal when Install Bundle is clicked", () => {
     render(<BundlesPage />);
-    const installBtns = screen.getAllByText("Install Bundle");
+    const installBtns = screen.getAllByText(/View & Install Bundle/i);
     fireEvent.click(installBtns[0]);
     expect(screen.getByTestId("install-modal")).toBeInTheDocument();
   });

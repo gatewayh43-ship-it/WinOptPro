@@ -4,6 +4,16 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { useAppStore } from "@/store/appStore";
 import type { ReactNode } from "react";
 
+vi.mock("@/hooks/useSystemVitals", () => ({
+    useSystemVitals: vi.fn(() => ({
+        vitals: {
+            ram: { totalMb: 16384, usedMb: 8192, usagePct: 50 },
+            gpu: { name: "NVIDIA RTX 3080", driverVersion: "531.00", vramMb: 10240 },
+        },
+        refresh: vi.fn(),
+    })),
+}));
+
 vi.mock("framer-motion", async () => {
     const actual = await vi.importActual<typeof import("framer-motion")>("framer-motion");
     return {

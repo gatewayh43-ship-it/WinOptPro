@@ -43,8 +43,15 @@ export function WslPage() {
         ? localStorage.getItem("wslSetupComplete")
         : null;
 
-    const handleSaveConfig = () => {
-        if (cfg) saveConfig(cfg);
+    const [isSavingConfig, setIsSavingConfig] = useState(false);
+    const handleSaveConfig = async () => {
+        if (!cfg || isSavingConfig) return;
+        setIsSavingConfig(true);
+        try {
+            await saveConfig(cfg);
+        } finally {
+            setIsSavingConfig(false);
+        }
     };
 
     const updateCfg = (patch: Partial<WslConfig>) => {
@@ -435,7 +442,8 @@ export function WslPage() {
                                 <div className="pt-2 border-t border-border flex items-center gap-3 flex-wrap">
                                     <button
                                         onClick={handleSaveConfig}
-                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary text-[13px] font-semibold transition-colors"
+                                        disabled={isSavingConfig}
+                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary text-[13px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <Save className="w-4 h-4" />
                                         Save Configuration

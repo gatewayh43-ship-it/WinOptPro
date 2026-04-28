@@ -152,10 +152,42 @@ describe("useWsl", () => {
 
     it("clears all mock timeouts on unmount", () => {
         // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
-        const clearSpy = vi.spyOn(global, "clearTimeout");
+        const clearSpy = vi.spyOn(globalThis, "clearTimeout");
         const { unmount } = renderHook(() => useWsl());
         unmount();
         expect(clearSpy).toHaveBeenCalled();
         clearSpy.mockRestore();
+    });
+
+    it("installDistro sets isActionLoading=true during install (Tauri mode)", async () => {
+        vi.mocked(tauriCore.isTauri).mockReturnValue(true);
+
+        let resolveInstall!: (v: boolean) => void;
+        const pendingInstall = new Promise<boolean>(res => { resolveInstall = res; });
+
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_wsl_status") return null;
+            if (cmd === "get_wsl_config") return null;
+            if (cmd === "get_wsl_setup_state") return null;
+            if (cmd === "install_wsl_distro") return pendingInstall;
+            return null;
+        });
+
+        const { result } = renderHook(() => useWsl());
+
+        // Settle mount effects under fake timers
+        await act(async () => { vi.advanceTimersByTime(100); });
+
+        // Start the install — setIsActionLoading(true) fires synchronously before the first await
+        act(() => { result.current.installDistro("Debian"); });
+
+        // isActionLoading should be true now (synchronous state update flushed by act)
+        expect(result.current.isActionLoading).toBe(true);
+
+        // Resolve and confirm flag resets
+        resolveInstall(true);
+        await act(async () => { vi.advanceTimersByTime(100); });
+
+        expect(result.current.isActionLoading).toBe(false);
     });
 });

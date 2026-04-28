@@ -3,6 +3,11 @@ import { renderHook, waitFor, act } from "@/test/utils";
 import { useDefender } from "@/hooks/useDefender";
 import * as tauriCore from "@tauri-apps/api/core";
 
+vi.mock("@/components/ToastSystem", () => {
+    const addToast = vi.fn();
+    return { useToast: () => ({ addToast }) };
+});
+
 const mockStatus = {
     realtimeProtectionEnabled: true,
     signatureOutOfDate: false,
@@ -98,5 +103,34 @@ describe("useDefender", () => {
 
         const getCalls = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "defender_get_status");
         expect(getCalls.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("toggle action failure shows error toast", async () => {
+        const { useToast } = await import("@/components/ToastSystem");
+        const { addToast } = useToast();
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "defender_get_status") return mockStatus;
+            if (cmd === "defender_set_realtime") throw new Error("Access denied");
+            return "OK";
+        });
+        const { result } = renderHook(() => useDefender());
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        await act(async () => {
+            await result.current.setRealtime(false);
+        });
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    });
+
+    it("multiple rapid toggles do not stack actionLoading — it resets to false after each", async () => {
+        const { result } = renderHook(() => useDefender());
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        await act(async () => { await result.current.setRealtime(false); });
+        expect(result.current.actionLoading).toBe(false);
+
+        await act(async () => { await result.current.setRealtime(true); });
+        expect(result.current.actionLoading).toBe(false);
     });
 });

@@ -327,6 +327,12 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                                             exit={{ opacity: 0, scale: 0.98 }}
                                             transition={{ duration: 0.15, ease: "easeOut" }}
                                             key={tweak.id}
+                                            data-tweak-id={tweak.id}
+                                            data-tweak-risk={tweak.riskLevel}
+                                            data-tweak-applied={isApplied}
+                                            data-tweak-selected={isSelected}
+                                            data-tweak-category={tweak.category}
+                                            data-testid={`tweak-card-${tweak.id}`}
                                             className={`bento-card relative overflow-hidden p-5 cursor-pointer flex items-start gap-4 ${isActive ? "" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
                                             onClick={() => setActiveTweak(isActive ? null : tweak)}
                                         >

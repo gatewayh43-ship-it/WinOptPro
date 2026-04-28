@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { useToast } from "@/components/ToastSystem";
 
 export interface GpuMetrics {
@@ -13,6 +14,8 @@ export interface GpuMetrics {
   powerLimitW: number;
   powerMaxLimitW: number;
   isNvidia: boolean;
+  vendor: string;       // "NVIDIA", "AMD", "Intel", "Unknown"
+  isSupported: boolean; // true when real metrics are available
 }
 
 export interface KnownGame {
@@ -46,15 +49,22 @@ const MOCK_GPU: GpuMetrics = {
   powerLimitW: 250,
   powerMaxLimitW: 320,
   isNvidia: true,
+  vendor: "NVIDIA",
+  isSupported: true,
 };
 
 export function useGaming() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [gpuMetrics, setGpuMetrics] = useState<GpuMetrics | null>(null);
   const [cpuLoad, setCpuLoad] = useState<number | null>(null);
+  const [fps, setFps] = useState<number | null>(null);
+  const [presentMonStatus, setPresentMonStatus] = useState<{installed: boolean; path: string | null}>({ installed: false, path: null });
+  
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isLoadingGpu, setIsLoadingGpu] = useState(true);
   const [isSettingLimit, setIsSettingLimit] = useState(false);
+  const [isDownloadingPm, setIsDownloadingPm] = useState(false);
+
   const [autoOptimize, setAutoOptimizeState] = useState<boolean>(
     () => localStorage.getItem("gaming-auto-optimize") === "true"
   );
@@ -114,7 +124,79 @@ export function useGaming() {
     addToast({ type: "success", title: "Baseline captured", message: "Current GPU/CPU snapshot saved." });
   }, [gpuMetrics, cpuLoad, addToast]);
 
+  const checkPresentMon = useCallback(async () => {
+    if (!isTauri()) return;
+    try {
+      const status = await invoke<{installed: boolean; path: string | null}>("check_presentmon");
+      setPresentMonStatus(status);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const downloadPresentMon = useCallback(async () => {
+    if (!isTauri()) {
+      addToast({ type: "info", title: "Mock", message: "PresentMon downloaded." });
+      setPresentMonStatus({ installed: true, path: "mock" });
+      return;
+    }
+    setIsDownloadingPm(true);
+    try {
+      const path = await invoke<string>("download_presentmon");
+      setPresentMonStatus({ installed: true, path });
+      addToast({ type: "success", title: "Ready", message: "FPS counter is ready to use." });
+    } catch (e) {
+      addToast({ type: "error", title: "Download Failed", message: String(e) });
+    } finally {
+      setIsDownloadingPm(false);
+    }
+  }, [addToast]);
+
+  const toggleFpsCounter = useCallback(async (start: boolean) => {
+    if (!isTauri()) return;
+    try {
+      if (start && activeGame) {
+        await invoke("start_fps_counter", { processName: activeGame });
+      } else {
+        await invoke("stop_fps_counter");
+        setFps(null);
+      }
+    } catch (e) {
+      addToast({ type: "error", title: "FPS Target", message: String(e) });
+    }
+  }, [activeGame, addToast]);
+
+  // Restart FPS counter if active game changes while it's running
+  useEffect(() => {
+    if (!isTauri() || !activeGame || !presentMonStatus.installed) return;
+    if (fps !== null) {
+      // If FPS is currently active but the game changed, restart targeting new game
+      if (prevGameRef.current !== activeGame) {
+        invoke("start_fps_counter", { processName: activeGame }).catch(() => {});
+      }
+    }
+  }, [activeGame, presentMonStatus.installed, fps]);
+
+  // Listen for FPS updates from Rust
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: UnlistenFn | undefined;
+    listen<number>("fps-update", (event) => {
+      if (event.payload < 0) {
+        setFps(null); // Backend signaled stop
+      } else {
+        setFps(event.payload);
+      }
+    }).then(fn => { unlisten = fn; });
+    
+    return () => {
+      if (unlisten) unlisten();
+      invoke("stop_fps_counter").catch(() => {});
+    };
+  }, []);
+
   // Auto-optimize: apply batch gaming tweaks when a game is detected
+
   useEffect(() => {
     if (!isTauri()) return;
     if (autoOptimize && activeGame !== null && prevGameRef.current === null) {
@@ -201,6 +283,7 @@ export function useGaming() {
   // Start polling on mount
   useEffect(() => {
     setIsLoadingGpu(true);
+    checkPresentMon();
     Promise.all([fetchGpuMetrics(), detectGame()]).finally(() =>
       setIsLoadingGpu(false)
     );
@@ -219,15 +302,20 @@ export function useGaming() {
     activeGame,
     gpuMetrics,
     cpuLoad,
+    fps,
     isOverlayVisible,
     isLoadingGpu,
     isSettingLimit,
     autoOptimize,
     baseline,
+    presentMonStatus,
+    isDownloadingPm,
     setAutoOptimize,
     captureBaseline,
     setGpuPowerLimit,
     showOverlay,
     hideOverlay,
+    downloadPresentMon,
+    toggleFpsCounter,
   };
 }

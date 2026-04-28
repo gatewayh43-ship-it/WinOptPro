@@ -131,4 +131,32 @@ describe("useNetwork", () => {
 
         expect(callsAfter).toBeGreaterThan(callsBefore);
     });
+
+    it("ping returns latency value in pingResult", async () => {
+        const { result } = renderHook(() => useNetwork());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        await act(async () => {
+            await result.current.pingHost("8.8.8.8");
+        });
+
+        expect(result.current.pingResult?.latencyMs).toBe(12.5);
+    });
+
+    it("ping failure sets pingError and leaves pingResult null", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_network_interfaces") return mockInterfaces;
+            if (cmd === "ping_host") throw new Error("Timeout");
+            return null;
+        });
+        const { result } = renderHook(() => useNetwork());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        await act(async () => {
+            await result.current.pingHost("1.2.3.4");
+        });
+
+        expect(result.current.pingError).toBe("Timeout");
+        expect(result.current.pingResult).toBeNull();
+    });
 });

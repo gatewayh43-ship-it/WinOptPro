@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import type { Bundle, AppMetadata, ResolvedBundle } from "@/types/bundles";
 import rawBundles from "@/data/bundles.json";
 import rawMeta from "@/data/app_metadata.json";
+import { useToast } from "@/components/ToastSystem";
 
 // app_metadata.json structure: { categories: [...], apps: { "Mozilla.Firefox": {...}, ... } }
 // Access the apps sub-object for O(1) lookup
@@ -22,16 +23,15 @@ function loadCustomBundles(): Bundle[] {
 }
 
 function persist(bundles: Bundle[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bundles));
-  } catch {
-    // localStorage unavailable — silent fail, curated bundles unaffected
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(bundles));
 }
 
 export function useBundles() {
   const [customBundles, setCustomBundles] = useState<Bundle[]>(loadCustomBundles);
+  const customBundlesRef = useRef(customBundles);
+  customBundlesRef.current = customBundles;
   const [searchQuery, setSearchQuery] = useState("");
+  const { addToast } = useToast();
 
   const resolveBundle = useCallback((bundle: Bundle): ResolvedBundle => ({
     ...bundle,
@@ -43,6 +43,9 @@ export function useBundles() {
 
   const saveCustomBundle = useCallback(
     (bundle: Omit<Bundle, "id" | "type" | "createdAt">) => {
+      // Capture computed result from the updater (runs synchronously) so we can
+      // persist and toast outside the updater — no side effects inside setState.
+      let computed: { savedName: string; updated: Bundle[] } | null = null;
       setCustomBundles((prev) => {
         let name = bundle.name;
         let suffix = 2;
@@ -57,18 +60,30 @@ export function useBundles() {
           createdAt: new Date().toISOString(),
         };
         const updated = [...prev, newBundle];
-        persist(updated);
+        computed = { savedName: name, updated };
         return updated;
       });
+      if (!computed) return;
+      const { savedName, updated } = computed as { savedName: string; updated: Bundle[] };
+      try {
+        persist(updated);
+        addToast({ type: "success", title: "Bundle saved", message: `"${savedName}" bundle created.` });
+      } catch (e) {
+        addToast({ type: "error", title: "Failed to save bundle", message: String(e) });
+      }
     },
-    []
+    [addToast]
   );
 
   const updateCustomBundle = useCallback(
     (id: string, updates: Partial<Omit<Bundle, "id" | "type" | "createdAt">>) => {
       setCustomBundles((prev) => {
         const updated = prev.map((b) => (b.id === id ? { ...b, ...updates } : b));
-        persist(updated);
+        try {
+          persist(updated);
+        } catch {
+          // silent — curated bundles unaffected
+        }
         return updated;
       });
     },
@@ -78,7 +93,11 @@ export function useBundles() {
   const deleteCustomBundle = useCallback((id: string) => {
     setCustomBundles((prev) => {
       const updated = prev.filter((b) => b.id !== id);
-      persist(updated);
+      try {
+        persist(updated);
+      } catch {
+        // silent — curated bundles unaffected
+      }
       return updated;
     });
   }, []);

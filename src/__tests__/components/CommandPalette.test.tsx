@@ -99,7 +99,7 @@ describe("CommandPalette", () => {
             postMessage() {}
             terminate = terminateSpy;
         });
-        const { unmount } = render(<CommandPalette isOpen={true} onClose={vi.fn()} />);
+        const { unmount } = render(<CommandPalette isOpen={true} onClose={vi.fn()} onSelectTweak={vi.fn()} />);
         unmount();
         expect(terminateSpy).toHaveBeenCalledTimes(1);
     });

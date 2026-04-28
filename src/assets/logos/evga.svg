@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none">
+  <!-- EVGA: dark badge with wordmark -->
+  <rect width="120" height="100" rx="12" fill="#1A1A1A"/>
+  <text x="60" y="66" font-family="Arial Black, sans-serif" font-weight="900" font-size="34" fill="#FF4800" text-anchor="middle">EVGA</text>
+</svg>

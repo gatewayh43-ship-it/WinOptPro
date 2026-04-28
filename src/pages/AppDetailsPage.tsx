@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSmartStore } from "../hooks/useSmartStore";
 import { useAppStore } from "../store/appStore";
 import AppMetadata from "../data/app_metadata.json";
-import { Sparkles, Globe, Download, ArrowLeft, Github, Command, ShieldCheck, BadgeCheck, Star, ExternalLink } from "lucide-react";
+import { Sparkles, Globe, Download, ArrowLeft, Code, Command, ShieldCheck, BadgeCheck, Star, ExternalLink } from "lucide-react";
 
 interface AppDetailsPageProps {
     appId: string;
@@ -269,7 +269,7 @@ export function AppDetailsPage({ appId, appName, onBack }: AppDetailsPageProps) 
                                     className="flex items-center gap-3 p-3 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-black/20 dark:hover:bg-black/40 border border-transparent dark:border-white/5 hover:border-slate-400 dark:hover:border-white/20 transition-all group"
                                 >
                                     <div className="p-2 bg-slate-200 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-lg group-hover:scale-110 transition-transform">
-                                        <Github className="w-4 h-4" />
+                                        <Code className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-foreground dark:text-slate-200">Source Code</span>

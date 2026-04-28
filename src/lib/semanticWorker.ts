@@ -1,4 +1,4 @@
-import { pipeline, env } from '@xenova/transformers';
+import { pipeline, env } from '@huggingface/transformers';
 
 // Skip local checks since we are running in browser via CDN/wasm
 env.allowLocalModels = false;
@@ -11,7 +11,7 @@ class PipelineSingleton {
 
     static async getInstance(progress_callback?: Function) {
         if (this.instance === null) {
-            this.instance = await pipeline(this.task, this.model, { progress_callback });
+            this.instance = await pipeline(this.task, this.model, { progress_callback: progress_callback as any });
         }
         return this.instance;
     }

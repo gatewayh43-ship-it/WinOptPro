@@ -199,6 +199,59 @@ describe("useLatency", () => {
         });
     });
 
+    // ── edge cases ────────────────────────────────────────────────────────────
+
+    describe("edge cases", () => {
+        beforeEach(async () => {
+            vi.mocked(tauriCore.isTauri).mockReturnValue(true);
+            // Reset the shared addToast mock so prior tests don't pollute call counts
+            const { useToast } = await import("@/components/ToastSystem");
+            vi.mocked(useToast().addToast).mockClear();
+        });
+
+        it("flushStandby shows freed MB in success toast", async () => {
+            const { useToast } = await import("@/components/ToastSystem");
+            const { addToast } = useToast();
+            vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+                if (cmd === "get_latency_status") return REAL_STATUS;
+                if (cmd === "flush_standby_list") return 512;
+                return null;
+            });
+            const { result } = renderHook(() => useLatency());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+            await act(async () => {
+                await result.current.flushStandby();
+            });
+
+            expect(addToast).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: "success",
+                    message: expect.stringContaining("512"),
+                })
+            );
+        });
+
+        it("error toast only fires once on repeated fetch failures (dedup)", async () => {
+            const { useToast } = await import("@/components/ToastSystem");
+            const { addToast } = useToast();
+            vi.mocked(tauriCore.invoke).mockRejectedValue(new Error("NtQuery failed"));
+
+            const { result } = renderHook(() => useLatency());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+            // Trigger a second fetch — error is already set so toast must NOT fire again
+            await act(async () => {
+                await result.current.refresh();
+            });
+
+            const errorToastCalls = (addToast as ReturnType<typeof vi.fn>).mock.calls.filter(
+                (c: unknown[]) => (c[0] as { type?: string })?.type === "error"
+            );
+            expect(errorToastCalls.length).toBe(1);
+        });
+    });
+
     // ── polling ───────────────────────────────────────────────────────────────
 
     describe("polling (5s interval)", () => {

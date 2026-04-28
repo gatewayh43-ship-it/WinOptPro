@@ -77,7 +77,12 @@ export function usePrivacyAudit() {
                     );
                     return { score: computeMockScore(updated), issues: updated };
                 });
-                addToast({ type: "success", title: "Privacy Issues Fixed", message: `${ids.length} issue(s) resolved.` });
+                if (ids.length === 1) {
+                    const issue = MOCK_ISSUES.find(i => i.id === ids[0]);
+                    addToast({ type: "success", title: "Issue fixed", message: issue?.title ?? ids[0] });
+                } else {
+                    addToast({ type: "success", title: "Privacy Issues Fixed", message: `${ids.length} issue(s) resolved.` });
+                }
                 return;
             }
             await invoke("fix_privacy_issues", { issueIds: ids });
@@ -93,11 +98,28 @@ export function usePrivacyAudit() {
                     }
                 })
             );
-            const total = updatedIssues.reduce((s, i) => s + i.severity, 0);
-            const fixed = updatedIssues.filter(i => i.is_fixed).reduce((s, i) => s + i.severity, 0);
-            const score = total === 0 ? 100 : Math.round((fixed / total) * 100);
-            setAuditResult({ score, issues: updatedIssues });
-            addToast({ type: "success", title: "Privacy Issues Fixed", message: `${ids.length} issue(s) resolved.` });
+            const fixedCount = updatedIssues.filter(i => ids.includes(i.id) && i.is_fixed).length;
+            // Use functional updater to merge with latest state, avoiding stale closure overwrites
+            setAuditResult(prev => {
+                const base = prev?.issues ?? updatedIssues;
+                const mergedIssues = base.map(prevIssue => {
+                    const updated = updatedIssues.find(u => u.id === prevIssue.id);
+                    return updated ?? prevIssue;
+                });
+                const total = mergedIssues.reduce((s, i) => s + i.severity, 0);
+                const fixedSev = mergedIssues.filter(i => i.is_fixed).reduce((s, i) => s + i.severity, 0);
+                return { score: total === 0 ? 100 : Math.round((fixedSev / total) * 100), issues: mergedIssues };
+            });
+            if (ids.length === 1) {
+                const issue = updatedIssues.find(i => i.id === ids[0]);
+                addToast({
+                    type: fixedCount === 1 ? "success" : "error",
+                    title: fixedCount === 1 ? "Issue fixed" : "Failed to fix issue",
+                    message: issue?.title ?? ids[0],
+                });
+            } else {
+                addToast({ type: "success", title: "Privacy Issues Fixed", message: `${fixedCount} of ${ids.length} issue(s) fixed.` });
+            }
         } catch (err) {
             addToast({ type: "error", title: "Fix Failed", message: String(err) });
         } finally {

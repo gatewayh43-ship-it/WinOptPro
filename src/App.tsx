@@ -26,12 +26,14 @@ import { GpuDriverPage } from "./pages/GpuDriverPage";
 import { WslPage } from "./pages/WslPage";
 import { HelpPage } from "./pages/HelpPage";
 import { PrebuiltDebloatPage } from "./pages/PrebuiltDebloatPage";
+import { BenchmarkPage } from "./pages/BenchmarkPage";
 import { OnboardingModal } from "./components/OnboardingModal";
+import { ConsentModal } from "./components/ConsentModal";
 import { ThemeProvider } from "./hooks/useTheme";
 import { useGlobalCache } from "./hooks/useGlobalCache";
 import { GlobalLoadingScreen } from "./components/GlobalLoadingScreen";
 import { CommandPalette } from "./components/CommandPalette";
-import { ToastProvider } from "./components/ToastSystem";
+import { ToastProvider, useToast } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AIAssistantChat } from "./components/AI/AIAssistantChat";
 
@@ -47,8 +49,31 @@ function OverlayApp() {
   );
 }
 
+// Checks admin privileges once on mount and warns if not elevated.
+// Must be rendered inside ToastProvider.
+function AdminChecker() {
+  const { addToast } = useToast();
+  useEffect(() => {
+    if (isTauri()) {
+      invoke<boolean>("get_is_admin")
+        .then((admin) => {
+          if (!admin) {
+            addToast({
+              type: "warning",
+              title: "Not running as Administrator",
+              message: "WinOpt Pro requires administrator privileges for most features. Restart as Admin for full functionality.",
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [addToast]);
+  return null;
+}
+
 function App() {
   const [currentView, setCurrentView] = useState("home");
+  const [showConsent, setShowConsent] = useState(() => !localStorage.getItem('consent-accepted'));
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { isAppReady, setAppReady, setCacheObject, updateLoadingProgress } = useGlobalCache();
@@ -116,6 +141,22 @@ function App() {
     setShowOnboarding(!localStorage.getItem("onboardingComplete"));
   }, []);
 
+  // Wire installer model selection on first launch
+  useEffect(() => {
+    const stored = localStorage.getItem('ai-model');
+    if (!stored && isTauri()) {
+      invoke<string | null>('read_installer_config')
+        .then(model => {
+          if (model) {
+            // Write to localStorage before invoking to prevent race on multi-window launch
+            localStorage.setItem('ai-model', model);
+            invoke('pull_model', { model }).catch(() => {});
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
   const handleOnboardingClose = () => {
     localStorage.setItem("onboardingComplete", "true");
     setShowOnboarding(false);
@@ -165,6 +206,7 @@ function App() {
     gpu_driver: <GpuDriverPage />,
     wsl_manager: <WslPage />,
     prebuilt_debloater: <PrebuiltDebloatPage />,
+    benchmark: <BenchmarkPage />,
     help: <HelpPage />,
   };
 
@@ -178,13 +220,39 @@ function App() {
     }, 100);
   };
 
+  const handleConsentAccept = () => {
+    localStorage.setItem('consent-accepted', 'true');
+    if (isTauri()) {
+      invoke('record_consent', { accepted: true }).catch(() => {});
+    }
+    setShowConsent(false);
+  };
+
+  const handleConsentDecline = () => {
+    if (isTauri()) {
+      invoke('exit_app').catch(() => {});
+    } else {
+      // In dev/browser mode just proceed without consent
+      setShowConsent(false);
+    }
+  };
+
   if (!isAppReady) {
     return <GlobalLoadingScreen />;
+  }
+
+  if (showConsent) {
+    return (
+      <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+        <ConsentModal onAccept={handleConsentAccept} onDecline={handleConsentDecline} />
+      </ThemeProvider>
+    );
   }
 
   return (
     <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
       <ToastProvider>
+        <AdminChecker />
         <ErrorBoundary>
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
           <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} simpleOnly={true} />

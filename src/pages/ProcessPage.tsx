@@ -94,8 +94,13 @@ export function ProcessPage() {
 
     const handlePriorityChange = (pid: number, priority: 'Realtime' | 'High' | 'AboveNormal' | 'Normal' | 'BelowNormal' | 'Idle') => {
         const process = processes.find(p => p.pid === pid);
-        setPriorityConfirm({ pid, name: process?.name ?? `PID ${pid}`, priority });
-        setContextMenuPid(null);
+        const name = process?.name ?? `PID ${pid}`;
+        if (isCritical(name)) {
+            setPriorityConfirm({ pid, name, priority });
+        } else {
+            setProcessPriority(pid, priority);
+            setContextMenuPid(null);
+        }
     };
 
     return (
@@ -239,6 +244,8 @@ export function ProcessPage() {
                                                     onClick={() => setContextMenuPid(contextMenuPid === process.pid ? null : process.pid)}
                                                     className="p-1.5 rounded-lg text-slate-500 dark:text-slate-300 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
                                                     title={`More options for ${process.name}`}
+                                                    aria-label={`More options for ${process.name}`}
+                                                    aria-expanded={contextMenuPid === process.pid}
                                                 >
                                                     <MoreVertical className="w-4 h-4" />
                                                 </button>
@@ -284,6 +291,7 @@ export function ProcessPage() {
                                                 onClick={() => setProcessToKill(process)}
                                                 className="p-1.5 rounded-lg text-slate-500 dark:text-slate-300 hover:text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
                                                 title={`End Task: ${process.name}`}
+                                                aria-label={`End Task: ${process.name}`}
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>

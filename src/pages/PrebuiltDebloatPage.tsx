@@ -288,7 +288,7 @@ export function PrebuiltDebloatPage() {
                     >
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold flex items-center gap-3">
-                                <button onClick={() => setStep(1)} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors mr-2">
+                                <button onClick={() => setStep(1)} aria-label="Back" className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors mr-2">
                                     <ChevronRight className="w-5 h-5 rotate-180 text-slate-400 dark:text-slate-200" />
                                 </button>
                                 {selectedProfile.name} Targets

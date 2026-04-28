@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Sony: dark background with white wordmark (brand colors) -->
+  <rect width="100" height="100" rx="12" fill="#000000"/>
+  <text x="50" y="65" font-family="Arial, sans-serif" font-weight="700" font-size="28" fill="white" text-anchor="middle">SONY</text>
+</svg>

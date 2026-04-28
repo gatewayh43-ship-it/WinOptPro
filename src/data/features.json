@@ -3,12 +3,12 @@
         "id": "features-system-tweaks",
         "title": "System Tweaks",
         "description": "Registry, service, and policy tweaks across 10 categories. Risk-rated, searchable, and fully reversible with per-tweak educational context.",
-        "technicalDeepDive": "The System Tweaks engine processes `tweaks.json`, which defines 165 discrete optimization payloads. Under the hood, these payloads are executed securely using Rust's `std::process::Command` library to spawn non-interactive `powershell.exe` instances. For Registry mutations (`Set-ItemProperty`), it writes to `HKLM` or `HKCU`. For Windows Services (`Set-Service`), it manipulates the Service Control Manager database. Every execution relies on an atomic transaction model enforced by the App Hook `useTweakExecution.ts`, which guarantees that the original active value of a key is polled precisely before mutation. This origin state is dumped to the encrypted SQLite `history.db` to allow point-in-time reversibility.",
+        "technicalDeepDive": "The System Tweaks engine processes `tweaks.json`, which defines 165 discrete optimization payloads. Under the hood, these payloads are executed securely using Rust's `std::process::Command` library to spawn non-interactive `powershell.exe` instances. For Registry mutations (`Set-ItemProperty`), it writes to `HKLM` or `HKCU`. For Windows Services (`Set-Service`), it manipulates the Service Control Manager database. Every execution relies on an atomic transaction model enforced by the App Hook `useTweakExecution.ts`, which guarantees that the original active value of a key is polled precisely before mutation. This origin state is saved to the local SQLite `history.db` to allow point-in-time reversibility.",
         "keyCapabilities": [
             "Dynamic payload execution (Registry, Services, WMI).",
             "Point-in-time origin state capture and rollbacks.",
             "Green, Yellow, and Red (Expert Mode) semantic risk gating.",
-            "AES-256-GCM authenticated encryption of tweak payloads in the History schema."
+            "Local SQLite history schema for tweak payloads and outputs."
         ],
         "expertNote": "The System Tweaks module bypasses standard Windows Settings GUI restrictions, tapping directly into Group Policy variables and undocumented binary keys. Tweaks affecting core scheduler functions (like disabling Dynamic Tick or HPET) interface with the `bcdedit` boot configuration layer via elevated command prompts."
     },
@@ -210,15 +210,15 @@
     {
         "id": "features-history-audit-log",
         "title": "History / Audit Log",
-        "description": "Every tweak operation is logged with timestamp, command, and output. Fields encrypted with AES-256-GCM. Revert from history.",
-        "technicalDeepDive": "Under the hood, all Tweak modifications execute via the `useTweakExecution` loop. If an execution succeeds, it fires a query to a SQLite cache acting as the central immutable log table. However, since the command stdout or registry keys may contain uniquely identifying PC parameters, the sensitive string parameters (`stdout`, `stderr`, `commandline`) are passed through an `AES-256-GCM` encryption handler. The encryption key utilized fundamentally leverages the Windows `MachineGuid` mapped via `SHA-256`, guaranteeing that the SQLite table remains impenetrable if copied entirely to an unauthenticated secondary machine.",
+        "description": "Every tweak operation is logged locally with timestamp, command, and output. Revert from history.",
+        "technicalDeepDive": "Under the hood, all Tweak modifications execute via the `useTweakExecution` loop. If an execution succeeds, it records the operation in a local SQLite table that powers the History view and export flow. Audit rows are stored locally with the rest of the app data.",
         "keyCapabilities": [
             "Intercepts execution boundaries committing Immutable audit events.",
-            "Secure SQLite Table Schema formats.",
-            "AES-256-GCM payload encryption mapped intrinsically to hardware constraints.",
+            "Local SQLite table schema formats.",
+            "Local audit rows for straightforward support and export.",
             "Rollback operations deriving original endpoint values."
         ],
-        "expertNote": "Using `MachineGuid` cryptography ensures that security environments or corporate systems can evaluate software payloads safely. `AES-256-GCM` specifies authenticated encryption bounds identifying whether a log point was externally tampered with."
+        "expertNote": "History is a local accountability and recovery feature, not a secure vault. Treat exported audit logs as sensitive files and protect the Windows account or disk when confidentiality matters."
     },
     {
         "id": "features-windows-defender",

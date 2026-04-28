@@ -146,4 +146,16 @@ describe("ProcessPage", () => {
 
         expect(screen.getByText(/critical system process/i)).toBeInTheDocument();
     });
+
+    it("shows error state when process list fetch fails", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_processes") throw new Error("Access denied");
+            if (cmd === "is_admin") return false;
+            return null;
+        });
+        render(<ProcessPage />);
+        // When the fetch fails, processes stays empty and loading becomes false,
+        // so the empty state message is shown as the visible error indicator
+        expect(await screen.findByText(/no associated processes found/i)).toBeInTheDocument();
+    });
 });

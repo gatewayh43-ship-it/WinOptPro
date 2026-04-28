@@ -76,7 +76,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: 'qwen2.5:1.5b',
+                    model: localStorage.getItem('ai-model') ?? 'qwen2.5:1.5b',
                     messages: [
                         { role: 'system', content: systemPrompt },
                         ...chatHistory,
@@ -131,7 +131,7 @@ To improve your gaming latency, I recommend disabling Nagle's algorithm and netw
                                 <div>
                                     <h3 className="text-sm font-bold text-white">Pro AI Assistant</h3>
                                     <p className="text-[10px] text-green-400 font-medium flex items-center gap-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Qwen 2.5 (1.5B) Local
+                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> {localStorage.getItem('ai-model') ?? 'qwen2.5:1.5b'} Local
                                     </p>
                                 </div>
                             </div>

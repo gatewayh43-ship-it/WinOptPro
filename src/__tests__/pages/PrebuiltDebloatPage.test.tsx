@@ -274,8 +274,8 @@ describe("PrebuiltDebloatPage", () => {
             await user.click(screen.getByText("HP"));
             await waitFor(() => screen.getByText("HP Wolf Security"));
 
-            // Click the back arrow button (ChevronRight rotated 180°)
-            const backButton = screen.getByRole("button", { name: "" });
+            // Click the back arrow button
+            const backButton = screen.getByRole("button", { name: /back/i });
             await user.click(backButton);
 
             await waitFor(() => {

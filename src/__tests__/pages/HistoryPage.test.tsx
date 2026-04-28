@@ -123,7 +123,7 @@ describe("HistoryPage", () => {
         expect(clearBtn).not.toBeDisabled();
     });
 
-    it("Clear button triggers confirmation modal and calls clear_tweak_history on confirm", async () => {
+    it("clears history after confirming in modal", async () => {
         const user = setupUser();
         render(<HistoryPage />);
         await screen.findByText("Disable SysMain");

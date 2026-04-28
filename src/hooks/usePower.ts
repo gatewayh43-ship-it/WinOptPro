@@ -149,6 +149,7 @@ export function usePower() {
         try {
             if (!isTauri()) {
                 setPowerSettings(prev => prev ? { ...prev, [key]: value } : prev);
+                addToast({ type: "success", title: "Setting updated", message: `${key.replace(/_/g, " ")} set to ${value}.` });
                 return true;
             }
             await invoke("set_power_setting", {
@@ -159,6 +160,7 @@ export function usePower() {
                 isDc: is_dc,
             });
             setPowerSettings(prev => prev ? { ...prev, [key]: value } : prev);
+            addToast({ type: "success", title: "Setting updated", message: `${key.replace(/_/g, " ")} set to ${value}.` });
             return true;
         } catch (error) {
             addToast({ type: "error", title: "Failed to update setting", message: String(error) });

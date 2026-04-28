@@ -61,7 +61,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
               <div className="flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-primary" strokeWidth={1.8} />
                 <h3 className="text-[14px] font-bold text-foreground">Timer Resolution</h3>
-                <button onClick={refresh} title="Refresh" className="ml-auto text-slate-600 hover:text-slate-400 dark:text-slate-200 transition-colors">
+                <button onClick={refresh} title="Refresh" aria-label="Refresh latency data" className="ml-auto text-slate-600 hover:text-slate-400 dark:text-slate-200 transition-colors">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               </div>

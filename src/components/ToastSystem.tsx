@@ -90,7 +90,7 @@ function ToastContainer({
     onRemove: (id: string) => void;
 }) {
     return (
-        <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
             <AnimatePresence>
                 {toasts.map((toast) => (
                     <motion.div
@@ -112,6 +112,7 @@ function ToastContainer({
                         </div>
                         <button
                             onClick={() => onRemove(toast.id)}
+                            aria-label="Dismiss notification"
                             className="p-1 rounded-md hover:bg-white/5 text-slate-600 hover:text-white transition-colors shrink-0"
                         >
                             <X className="w-3.5 h-3.5" />

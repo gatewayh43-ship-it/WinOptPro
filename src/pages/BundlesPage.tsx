@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Search, Plus, Trash2, Edit3, Package, Boxes } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { useBundles } from "@/hooks/useBundles";
-import { useApps } from "@/hooks/useApps";
-import { BundleInstallModal } from "@/components/BundleInstallModal";
-import type { Bundle, ResolvedBundle } from "@/types/bundles";
+import { useApps as _useApps } from "@/hooks/useApps";
+import { BundleDetailPage } from "@/pages/BundleDetailPage";
+import type { Bundle } from "@/types/bundles";
 
 const GROUP_ORDER = [
   "Starters",
@@ -36,13 +36,13 @@ function BundleIcon({ name, className }: { name: string; className?: string }) {
 
 function BundleCard({
   bundle,
-  onInstall,
+  onOpen,
   onDelete,
   onEdit,
   resolvedApps,
 }: {
   bundle: Bundle;
-  onInstall: () => void;
+  onOpen: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
   resolvedApps: Array<{ appId: string; metadata: { name: string } | null }>;
@@ -73,19 +73,22 @@ function BundleCard({
   const iconColor = colorMap[bundle.color] ?? "text-primary bg-primary/10";
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3 hover:border-primary/30 transition-colors">
+    <div
+      className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
+      onClick={onOpen}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconColor}`}>
           <BundleIcon name={bundle.icon} />
         </div>
-        <div className="flex gap-1 ml-auto">
+        <div className="flex gap-1 ml-auto" onClick={(e) => e.stopPropagation()}>
           {bundle.type === "custom" && onEdit && (
-            <button data-testid={`edit-bundle-${bundle.id}`} onClick={onEdit} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            <button data-testid={`edit-bundle-${bundle.id}`} onClick={onEdit} aria-label={`Edit bundle ${bundle.name}`} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
               <Edit3 size={14} />
             </button>
           )}
           {bundle.type === "custom" && onDelete && (
-            <button data-testid={`delete-bundle-${bundle.id}`} onClick={onDelete} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors">
+            <button data-testid={`delete-bundle-${bundle.id}`} onClick={onDelete} aria-label={`Delete bundle ${bundle.name}`} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors">
               <Trash2 size={14} />
             </button>
           )}
@@ -112,10 +115,10 @@ function BundleCard({
       </div>
 
       <button
-        onClick={onInstall}
+        onClick={(e) => { e.stopPropagation(); onOpen(); }}
         className="w-full mt-auto py-2 text-sm font-medium rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
       >
-        Install Bundle
+        View &amp; Install Bundle →
       </button>
     </div>
   );
@@ -202,6 +205,8 @@ function CreateBundlePanel({ onSave, onCancel }: CreatePanelProps) {
             <button
               key={i}
               onClick={() => setIcon(i)}
+              aria-label={`Select icon ${i}`}
+              aria-pressed={icon === i}
               className={`p-2 rounded-xl border transition-colors ${icon === i ? "border-primary bg-primary/10" : "border-border hover:bg-muted"}`}
             >
               <BundleIcon name={i} className="w-4 h-4" />
@@ -217,6 +222,8 @@ function CreateBundlePanel({ onSave, onCancel }: CreatePanelProps) {
             <button
               key={c.value}
               onClick={() => setColor(c.value)}
+              aria-label={`Select color ${c.label}`}
+              aria-pressed={color === c.value}
               className={`w-6 h-6 rounded-full ${c.class} ${color === c.value ? "ring-2 ring-offset-2 ring-primary" : ""}`}
             />
           ))}
@@ -263,6 +270,7 @@ function CreateBundlePanel({ onSave, onCancel }: CreatePanelProps) {
                 <span className="flex-1 font-mono text-xs">{appId}</span>
                 <button
                   onClick={() => setSelectedApps((prev) => prev.filter((_, i) => i !== idx))}
+                  aria-label={`Remove ${appId} from bundle`}
                   className="text-muted-foreground hover:text-red-400 transition-colors"
                 >
                   <Trash2 size={12} />
@@ -301,24 +309,18 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
     filteredBundles,
   } = useBundles();
 
-  const { installApp, installedApps, checkInstalled } = useApps();
-
   const [showCreate, setShowCreate] = useState(false);
-  const [modalBundle, setModalBundle] = useState<ResolvedBundle | null>(null);
+  const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
 
-  const openModal = useCallback(
-    (bundle: Bundle) => {
-      const resolved = resolveBundle(bundle);
-      // Prefetch install status in the background — don't block modal open
-      Promise.all(
-        resolved.resolvedApps
-          .filter(({ metadata }) => metadata !== null)
-          .map(({ appId }) => checkInstalled(appId, appId))
-      ).catch(() => {/* silent */});
-      setModalBundle(resolved);
-    },
-    [resolveBundle, checkInstalled]
-  );
+  // Navigate to detail page when a bundle is selected
+  if (selectedBundle) {
+    return (
+      <BundleDetailPage
+        bundle={selectedBundle}
+        onBack={() => setSelectedBundle(null)}
+      />
+    );
+  }
 
   const isSearching = searchQuery.trim().length > 0;
 
@@ -337,7 +339,7 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
             <Boxes size={24} className="text-primary" />
             <h1 className="text-2xl font-bold">App Bundles</h1>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">Curated app collections for every setup. Install in one click.</p>
+          <p className="text-sm text-muted-foreground mt-1">Curated app collections for every setup. Click any bundle to explore and install.</p>
         </div>
         <button
           onClick={() => setShowCreate((v) => !v)}
@@ -394,7 +396,7 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
                     key={bundle.id}
                     bundle={bundle}
                     resolvedApps={resolved.resolvedApps}
-                    onInstall={() => openModal(bundle)}
+                    onOpen={() => setSelectedBundle(bundle)}
                     onDelete={bundle.type === "custom" ? () => deleteCustomBundle(bundle.id) : undefined}
                   />
                 );
@@ -416,7 +418,7 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
                       key={bundle.id}
                       bundle={bundle}
                       resolvedApps={resolved.resolvedApps}
-                      onInstall={() => openModal(bundle)}
+                      onOpen={() => setSelectedBundle(bundle)}
                       onDelete={() => deleteCustomBundle(bundle.id)}
                       onEdit={undefined}
                     />
@@ -441,7 +443,7 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
                         key={bundle.id}
                         bundle={bundle}
                         resolvedApps={resolved.resolvedApps}
-                        onInstall={() => openModal(bundle)}
+                        onOpen={() => setSelectedBundle(bundle)}
                       />
                     );
                   })}
@@ -450,17 +452,6 @@ export function BundlesPage({ setView: _setView }: { setView?: (view: string) =>
             );
           })}
         </div>
-      )}
-
-      {/* Install modal */}
-      {modalBundle && (
-        <BundleInstallModal
-          bundle={modalBundle}
-          isOpen={true}
-          onClose={() => setModalBundle(null)}
-          installApp={installApp}
-          installedApps={installedApps}
-        />
       )}
     </div>
   );

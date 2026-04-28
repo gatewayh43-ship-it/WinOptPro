@@ -115,7 +115,7 @@ describe("useGpuDriver", () => {
 
     it("clears mock timeout on unmount", () => {
         // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
-        const clearSpy = vi.spyOn(global, "clearTimeout");
+        const clearSpy = vi.spyOn(globalThis, "clearTimeout");
         const { unmount } = renderHook(() => useGpuDriver());
         unmount();
         expect(clearSpy).toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "../components/ToastSystem";
 import { useGlobalCache } from "./useGlobalCache";
@@ -48,7 +48,11 @@ export function useStartupItems() {
         fetchItems();
     }, [fetchItems]);
 
-    const toggleItem = async (id: string, currentlyEnabled: boolean) => {
+    const inFlight = useRef(new Set<string>());
+
+    const toggleItem = useCallback(async (id: string, currentlyEnabled: boolean, name: string) => {
+        if (inFlight.current.has(id)) return;
+        inFlight.current.add(id);
         try {
             await invoke("set_startup_item_state", {
                 id,
@@ -60,15 +64,17 @@ export function useStartupItems() {
             );
             addToast({
                 type: "success",
-                title: `Startup item ${!currentlyEnabled ? "enabled" : "disabled"}`,
+                title: `${!currentlyEnabled ? "Enabled" : "Disabled"} ${name}`,
             });
         } catch (err) {
             console.error("Failed to toggle startup item:", err);
             addToast({ type: "error", title: "Failed to update startup item" });
-            // Re-fetch to ensure sync
-            fetchItems();
+            // Re-fetch to ensure sync with backend
+            fetchItems(true);
+        } finally {
+            inFlight.current.delete(id);
         }
-    };
+    }, [addToast, fetchItems]);
 
     return { items, isLoading, error, refresh: () => fetchItems(true), toggleItem };
 }

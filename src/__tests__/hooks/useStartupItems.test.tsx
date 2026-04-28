@@ -53,7 +53,7 @@ describe("useStartupItems", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         await act(async () => {
-            await result.current.toggleItem("hkcu-discord", true);
+            await result.current.toggleItem("hkcu-discord", true, "Discord");
         });
 
         expect(tauriCore.invoke).toHaveBeenCalledWith("set_startup_item_state", {
@@ -67,7 +67,7 @@ describe("useStartupItems", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         await act(async () => {
-            await result.current.toggleItem("hkcu-discord", true);
+            await result.current.toggleItem("hkcu-discord", true, "Discord");
         });
 
         const discord = result.current.items.find(i => i.id === "hkcu-discord");
@@ -79,7 +79,7 @@ describe("useStartupItems", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         await act(async () => {
-            await result.current.toggleItem("hkcu-spotify", false);
+            await result.current.toggleItem("hkcu-spotify", false, "Spotify");
         });
 
         expect(tauriCore.invoke).toHaveBeenCalledWith("set_startup_item_state", {
@@ -99,6 +99,45 @@ describe("useStartupItems", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
         const callsAfter = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "get_startup_items").length;
 
+        expect(callsAfter).toBeGreaterThan(callsBefore);
+    });
+
+    it("toggleItem in-flight guard prevents double-call for same id", async () => {
+        let resolveToggle!: () => void;
+        const pendingToggle = new Promise<void>(res => { resolveToggle = res; });
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_startup_items") return mockItems;
+            if (cmd === "set_startup_item_state") return pendingToggle;
+            return null;
+        });
+
+        const { result } = renderHook(() => useStartupItems());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        // Fire two concurrent toggles for the same id — second should be ignored
+        act(() => { result.current.toggleItem("hkcu-discord", true, "Discord"); });
+        act(() => { result.current.toggleItem("hkcu-discord", true, "Discord"); });
+
+        resolveToggle();
+        await act(async () => {});
+
+        const toggleCalls = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "set_startup_item_state");
+        expect(toggleCalls).toHaveLength(1);
+    });
+
+    it("refresh (force=true) bypasses cache and re-invokes get_startup_items", async () => {
+        const { result } = renderHook(() => useStartupItems());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        // Cache is now populated; a second mount-style call (force=false) would skip invoke
+        const callsBefore = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "get_startup_items").length;
+
+        await act(async () => {
+            await result.current.refresh(); // refresh calls fetchItems(true)
+        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+        const callsAfter = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "get_startup_items").length;
         expect(callsAfter).toBeGreaterThan(callsBefore);
     });
 });

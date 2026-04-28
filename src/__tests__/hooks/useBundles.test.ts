@@ -2,6 +2,11 @@ import { renderHook, act } from "@/test/utils";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { Bundle } from "@/types/bundles";
 
+vi.mock("@/components/ToastSystem", () => {
+    const addToast = vi.fn();
+    return { useToast: () => ({ addToast }) };
+});
+
 // Mock JSON data — mirror the real structure: { categories: [...], apps: { ... } }
 vi.mock("@/data/app_metadata.json", () => ({
   default: {
@@ -160,6 +165,39 @@ describe("useBundles", () => {
       const { useBundles } = await import("@/hooks/useBundles");
       const { result } = renderHook(() => useBundles());
       expect(result.current.customBundles[0].name).toBe("Hydrated");
+    });
+  });
+
+  describe("saveCustomBundle persist error", () => {
+    it("does NOT fire success toast when localStorage.setItem throws", async () => {
+      const { useToast } = await import("@/components/ToastSystem");
+      const { addToast } = useToast();
+      // Reset mock so we count only calls from this test
+      (addToast as ReturnType<typeof vi.fn>).mockClear();
+
+      // Make localStorage.setItem throw so persist() throws
+      vi.spyOn(localStorage, "setItem").mockImplementationOnce(() => {
+        throw new Error("QuotaExceededError");
+      });
+
+      const { useBundles } = await import("@/hooks/useBundles");
+      const { result } = renderHook(() => useBundles());
+
+      act(() => {
+        result.current.saveCustomBundle({
+          group: "Other",
+          name: "Fail Bundle",
+          description: "",
+          icon: "Star",
+          color: "blue",
+          apps: ["Mozilla.Firefox"],
+        });
+      });
+
+      const successCalls = (addToast as ReturnType<typeof vi.fn>).mock.calls.filter(
+        (c: unknown[]) => (c[0] as { type?: string })?.type === "success"
+      );
+      expect(successCalls).toHaveLength(0);
     });
   });
 

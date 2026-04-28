@@ -10,7 +10,6 @@
     "types": ["vitest/globals"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"

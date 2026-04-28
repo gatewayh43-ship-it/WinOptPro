@@ -122,4 +122,19 @@ describe("useStorage", () => {
         const scanCallsAfter = vi.mocked(tauriCore.invoke).mock.calls.filter(c => c[0] === "scan_junk_files").length;
         expect(scanCallsAfter).toBeGreaterThan(scanCallsBefore);
     });
+
+    it("disk health fetch fails gracefully — error state only, no crash", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "scan_junk_files") return mockItems;
+            if (cmd === "get_disk_health") throw new Error("SMART unavailable");
+            return null;
+        });
+        const { result } = renderHook(() => useStorage());
+        await waitFor(() => expect(result.current.isScanning).toBe(false));
+        // disk health failure is swallowed — diskHealth is empty, no top-level error
+        expect(result.current.diskHealth).toEqual([]);
+        expect(result.current.error).toBeNull();
+        // items still loaded despite health failure
+        expect(result.current.items).toEqual(mockItems);
+    });
 });

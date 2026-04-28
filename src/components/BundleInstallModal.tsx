@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { X, ChevronDown, ChevronRight, AlertTriangle, CheckCircle, XCircle, ExternalLink } from "lucide-react";
 import type { AppInstallResult, BundleInstallModalProps } from "@/types/bundles";
+import { useToast } from "@/components/ToastSystem";
 
 export function BundleInstallModal({
   bundle,
@@ -9,6 +10,8 @@ export function BundleInstallModal({
   installApp,
   installedApps,
 }: BundleInstallModalProps) {
+  const { addToast } = useToast();
+
   const [selected, setSelected] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {};
     bundle.resolvedApps.forEach(({ appId, metadata }) => {
@@ -55,12 +58,23 @@ export function BundleInstallModal({
       ({ appId, metadata }) => metadata && selected[appId] && !installedApps[appId]
     );
     setInstalling(true);
+    const installResults: Record<string, AppInstallResult> = {};
     for (const { appId } of toInstall) {
       const result = await installApp(appId, "", appId);
+      installResults[appId] = result;
       setResults((prev) => ({ ...prev, [appId]: result }));
     }
     setInstalling(false);
-  }, [bundle.resolvedApps, selected, installedApps, installApp]);
+    const successCount = Object.values(installResults).filter(r => r.success).length;
+    const totalCount = toInstall.length;
+    if (successCount === totalCount) {
+      addToast({ type: "success", title: "Bundle installed", message: `${successCount} app${successCount !== 1 ? "s" : ""} installed successfully.` });
+    } else if (successCount > 0) {
+      addToast({ type: "warning", title: "Partial install", message: `${successCount} of ${totalCount} apps installed. Check the list for errors.` });
+    } else {
+      addToast({ type: "error", title: "Install failed", message: "No apps were installed. Check app IDs and your connection." });
+    }
+  }, [bundle.resolvedApps, selected, installedApps, installApp, addToast]);
 
   if (!isOpen) return null;
 
@@ -71,7 +85,7 @@ export function BundleInstallModal({
     : `Install ${selectedCount} app${selectedCount === 1 ? "" : "s"} →`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div data-testid="install-modal" className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[80vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
