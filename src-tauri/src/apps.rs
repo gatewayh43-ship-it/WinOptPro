@@ -65,7 +65,7 @@ async fn run_cmd(
 ) -> Result<(String, String, i32), String> {
 
 
-    let mut child = Command::new(program)
+    let child = Command::new(program)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -86,6 +86,26 @@ async fn run_cmd(
     Ok((stdout, stderr, exit_code))
 }
 
+fn validate_winget_search_query(query: &str) -> Result<String, String> {
+    let clean = query.trim();
+    if clean.is_empty() {
+        return Ok(String::new());
+    }
+    if clean.len() > 80 {
+        return Err("Search query is too long.".to_string());
+    }
+    if clean.starts_with('-') || clean.starts_with('/') {
+        return Err("Search query cannot start with an option prefix.".to_string());
+    }
+    if !clean
+        .chars()
+        .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, ' ' | '.' | '_' | '-' | '+'))
+    {
+        return Err("Search query contains unsupported characters.".to_string());
+    }
+    Ok(clean.to_string())
+}
+
 #[cfg(not(target_os = "windows"))]
 async fn run_cmd(
     _program: &str,
@@ -99,8 +119,7 @@ async fn run_cmd(
 
 #[command]
 pub async fn search_winget(query: String) -> Result<Vec<WingetSearchResult>, String> {
-    // Sanitize query to avoid command execution injections
-    let clean_query = query.replace(&['&', '|', ';', '>', '<', '"', '\''][..], "");
+    let clean_query = validate_winget_search_query(&query)?;
     if clean_query.is_empty() {
         return Ok(Vec::new());
     }
@@ -398,102 +417,3 @@ pub async fn install_app(winget_id: String, choco_id: String) -> Result<AppInsta
     }
 }
 
-/// Uninstall an app using winget, falling back to Remove-AppxPackage.
-#[command]
-pub async fn uninstall_app(winget_id: String) -> Result<AppInstallResult, String> {
-    log::info!("Attempting to uninstall app: {}", winget_id);
-
-    // ── Attempt 1: winget ───────────────────────────────────────────────────
-    match run_cmd(
-        "cmd",
-        &[
-            "/C",
-            "winget",
-            "uninstall",
-            "--id",
-            &winget_id,
-            "--silent",
-            "--accept-source-agreements"
-        ],
-        INSTALL_TIMEOUT,
-    )
-    .await
-    {
-        Ok((stdout, stderr, code)) => {
-            if code == 0 || stdout.contains("Successfully uninstalled") || stdout.contains("No installed package found") {
-                log::info!("winget uninstalled successfully: {}", winget_id);
-                return Ok(AppInstallResult {
-                    success: true,
-                    method: "winget".to_string(),
-                    output: stdout,
-                    error: String::new(),
-                });
-            } else {
-                log::warn!(
-                    "winget uninstall failed for {}: exit={}, stderr={}",
-                    winget_id,
-                    code,
-                    stderr
-                );
-            }
-        }
-        Err(e) => {
-            log::warn!("winget not available or errored during uninstall: {}", e);
-        }
-    }
-
-    // ── Attempt 2: PowerShell Remove-AppxPackage ──────────────────────────────
-    log::info!("winget failed or app is not a winget package. Trying Remove-AppxPackage for {}", winget_id);
-
-    // Validate winget_id — allowlist: alphanumeric, dot, dash, underscore only
-    let id_re = regex::Regex::new(r"^[a-zA-Z0-9.\-_]+$").expect("static regex");
-    if !id_re.is_match(&winget_id) {
-        log::warn!("Skipping Remove-AppxPackage: invalid characters in ID: {}", winget_id);
-        return Ok(AppInstallResult {
-            success: false,
-            method: "none".to_string(),
-            output: String::new(),
-            error: "App ID contains invalid characters".into(),
-        });
-    }
-
-    let ps_cmd = format!(
-        "Get-AppxPackage -Name '{}' | Remove-AppxPackage -AllUsers",
-        winget_id  // already validated above
-    );
-    match run_cmd(
-        "powershell",
-        &["-NoProfile", "-NonInteractive", "-Command", &ps_cmd],
-        INSTALL_TIMEOUT,
-    )
-    .await
-    {
-        Ok((stdout, stderr, code)) => {
-            if code == 0 {
-                log::info!("Remove-AppxPackage succeeded for {}", winget_id);
-                return Ok(AppInstallResult {
-                    success: true,
-                    method: "powershell".to_string(),
-                    output: stdout,
-                    error: String::new(),
-                });
-            } else {
-                log::error!("Remove-AppxPackage failed for {}: {}", winget_id, stderr);
-                return Ok(AppInstallResult {
-                    success: false,
-                    method: "powershell".to_string(),
-                    output: stdout,
-                    error: format!("Uninstall failed via winget and powershell. PsError: {}", stderr),
-                });
-            }
-        }
-        Err(e) => {
-            return Ok(AppInstallResult {
-                success: false,
-                method: "none".to_string(),
-                output: String::new(),
-                error: format!("Failed to execute powershell uninstall fallback: {}", e)
-            });
-        }
-    }
-}

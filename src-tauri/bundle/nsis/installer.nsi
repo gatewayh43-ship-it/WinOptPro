@@ -85,7 +85,7 @@ Function PrivacyPolicyPage
 
     ${NSD_CreateLabel} 0 0 100% 20u "Privacy Policy"
     ${NSD_CreateLabel} 0 25u 100% 30u "WinOpt Pro stores all data locally on your device. No telemetry or analytics are collected. The AI Assistant (if enabled) runs entirely offline."
-    ${NSD_CreateLabel} 0 60u 100% 60u "• All optimization history stored locally (encrypted)$\n• No data sent to external servers$\n• Update checker contacts GitHub only (optional, can be disabled)$\n• AI prompts never leave your device"
+    ${NSD_CreateLabel} 0 60u 100% 60u "• All optimization history stored locally$\n• No data sent to external servers$\n• Update checker contacts GitHub only (optional, can be disabled)$\n• AI prompts never leave your device"
     ${NSD_CreateCheckBox} 0 125u 100% 12u "I understand how WinOpt Pro handles my data"
     Pop $PrivacyCheckbox
 

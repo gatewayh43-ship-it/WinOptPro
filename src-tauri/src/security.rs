@@ -32,8 +32,7 @@ pub fn is_admin() -> Result<bool, String> {
 /// Execute a PowerShell command with UAC elevation (RunAs).
 /// Writes the script to a temp file, executes via ShellExecute "runas" verb,
 /// and captures output.
-#[command]
-pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String> {
+pub async fn run_elevated_powershell(code: &str) -> Result<ElevationResult, String> {
     #[cfg(windows)]
     {
         // Write the PowerShell code + result capture to a temp file
@@ -43,10 +42,15 @@ pub async fn elevate_and_execute(code: String) -> Result<ElevationResult, String
         let output_path = temp_dir.join(format!("winopt_{}.out", script_id));
         let error_path = temp_dir.join(format!("winopt_{}.err", script_id));
 
-        // Wrap the user code to capture output to files
+        // Wrap internal backend scripts to capture output to files. This helper is
+        // intentionally not exposed as an IPC command because elevated PowerShell
+        // is a trust boundary.
         let wrapped_code = format!(
-            r#"try {{
-    $result = Invoke-Command -ScriptBlock {{ {} }}
+            r#"$ErrorActionPreference = "Stop"
+try {{
+    $result = & {{
+{}
+    }}
     $result | Out-File -FilePath '{}' -Encoding UTF8 -Force
 }} catch {{
     $_.Exception.Message | Out-File -FilePath '{}' -Encoding UTF8 -Force
@@ -167,7 +171,7 @@ pub async fn defender_run_scan(scan_type: String) -> Result<String, String> {
     {
         let type_arg = if scan_type.to_lowercase() == "full" { "FullScan" } else { "QuickScan" };
         let code = format!("Start-MpScan -ScanType {}", type_arg);
-        let res = elevate_and_execute(code).await?;
+        let res = run_elevated_powershell(&code).await?;
         if res.success {
             Ok("Scan started successfully.".to_string())
         } else {
@@ -185,7 +189,7 @@ pub async fn defender_run_scan(scan_type: String) -> Result<String, String> {
 pub async fn defender_update_signatures() -> Result<String, String> {
     #[cfg(windows)]
     {
-        let res = elevate_and_execute("Update-MpSignature".to_string()).await?;
+        let res = run_elevated_powershell("Update-MpSignature").await?;
         if res.success {
             Ok("Signatures updated successfully.".to_string())
         } else {
@@ -204,7 +208,7 @@ pub async fn defender_set_realtime(enabled: bool) -> Result<String, String> {
     {
         let val = if enabled { "$false" } else { "$true" };
         let code = format!("Set-MpPreference -DisableRealtimeMonitoring {}", val);
-        let res = elevate_and_execute(code).await?;
+        let res = run_elevated_powershell(&code).await?;
         if res.success {
             Ok("Real-time protection setting updated.".to_string())
         } else {
@@ -227,6 +231,13 @@ mod tests {
         // Should not panic regardless of elevation state
         let result = is_admin();
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_is_admin_returns_bool_result() {
+        let result = is_admin();
+        assert!(result.is_ok(), "is_admin() must not return Err: {:?}", result);
+        let _ = result.unwrap();
     }
 
     #[test]

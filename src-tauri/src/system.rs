@@ -186,7 +186,7 @@ if ($g) {
             model: cpu_model,
             usage_pct: (cpu_usage * 10.0).round() / 10.0,
             freq_ghz: (cpu_freq * 100.0).round() / 100.0,
-            cores: sys.physical_core_count().unwrap_or(cpus.len()),
+            cores: sysinfo::System::physical_core_count().unwrap_or(cpus.len()),
             temp_c: cpu_temp,
         },
         ram: RamInfo {

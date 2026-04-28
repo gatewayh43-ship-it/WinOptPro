@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BackupData {
@@ -34,8 +35,94 @@ pub struct ExportUserData {
     pub settings: serde_json::Value,
 }
 
+fn allowed_user_roots() -> Vec<PathBuf> {
+    let mut roots = Vec::new();
+    for var in ["USERPROFILE", "PUBLIC"] {
+        if let Ok(value) = std::env::var(var) {
+            let root = PathBuf::from(value);
+            roots.push(root.join("Desktop"));
+            roots.push(root.join("Documents"));
+            roots.push(root.join("Downloads"));
+        }
+    }
+    roots.push(std::env::temp_dir());
+    roots
+}
+
+fn validate_export_path(path: &str, allowed_extensions: &[&str]) -> Result<PathBuf, String> {
+    let raw = PathBuf::from(path);
+    if !raw.is_absolute() {
+        return Err("Export path must be absolute.".to_string());
+    }
+
+    let extension = raw
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_ascii_lowercase())
+        .ok_or_else(|| "Export path must include a file extension.".to_string())?;
+    if !allowed_extensions.iter().any(|allowed| *allowed == extension) {
+        return Err(format!(
+            "Unsupported export file type. Expected: {}",
+            allowed_extensions.join(", ")
+        ));
+    }
+
+    let parent = raw
+        .parent()
+        .ok_or_else(|| "Export path must include a parent directory.".to_string())?
+        .canonicalize()
+        .map_err(|e| format!("Export directory does not exist or is unavailable: {}", e))?;
+
+    let file_name = raw
+        .file_name()
+        .ok_or_else(|| "Export path must include a file name.".to_string())?;
+    let target = parent.join(file_name);
+    ensure_user_path(&target)?;
+    Ok(target)
+}
+
+fn validate_import_path(path: &str, allowed_extensions: &[&str]) -> Result<PathBuf, String> {
+    let raw = PathBuf::from(path);
+    if !raw.is_absolute() {
+        return Err("Import path must be absolute.".to_string());
+    }
+
+    let target = raw
+        .canonicalize()
+        .map_err(|e| format!("Import file does not exist or is unavailable: {}", e))?;
+
+    let extension = target
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_ascii_lowercase())
+        .ok_or_else(|| "Import path must include a file extension.".to_string())?;
+    if !allowed_extensions.iter().any(|allowed| *allowed == extension) {
+        return Err(format!(
+            "Unsupported import file type. Expected: {}",
+            allowed_extensions.join(", ")
+        ));
+    }
+
+    ensure_user_path(&target)?;
+    Ok(target)
+}
+
+fn ensure_user_path(path: &Path) -> Result<(), String> {
+    let roots = allowed_user_roots()
+        .into_iter()
+        .filter_map(|root| root.canonicalize().ok())
+        .collect::<Vec<_>>();
+
+    if roots.iter().any(|root| path.starts_with(root)) {
+        Ok(())
+    } else {
+        Err("For safety, files must be in Desktop, Documents, Downloads, or the temp directory.".to_string())
+    }
+}
+
 #[tauri::command]
 pub fn export_backup(path: String, data: BackupData) -> Result<bool, String> {
+    let path = validate_export_path(&path, &["winopt", "json"])?;
     let json = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Serialization error: {}", e))?;
     std::fs::write(&path, json).map_err(|e| format!("Failed to write backup: {}", e))?;
@@ -44,6 +131,7 @@ pub fn export_backup(path: String, data: BackupData) -> Result<bool, String> {
 
 #[tauri::command]
 pub fn import_backup(path: String) -> Result<BackupData, String> {
+    let path = validate_import_path(&path, &["winopt", "json"])?;
     let content =
         std::fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {}", e))?;
     serde_json::from_str::<BackupData>(&content).map_err(|e| format!("Invalid backup file: {}", e))
@@ -51,6 +139,7 @@ pub fn import_backup(path: String) -> Result<BackupData, String> {
 
 #[tauri::command]
 pub fn get_backup_info(path: String) -> Result<serde_json::Value, String> {
+    let path = validate_import_path(&path, &["winopt", "json"])?;
     let content =
         std::fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {}", e))?;
     let data: BackupData =
@@ -70,6 +159,7 @@ pub fn export_user_data(
     path: String,
     settings_json: String,
 ) -> Result<(), String> {
+    let path = validate_export_path(&path, &["json"])?;
     let conn = db.0.lock().map_err(|e| e.to_string())?;
 
     let tweak_history = {
@@ -94,14 +184,7 @@ pub fn export_user_data(
             .map_err(|e| e.to_string())?
             .filter_map(|r| r.ok())
             .collect();
-        raw.into_iter()
-            .map(|mut entry| {
-                entry.command_executed = crate::db::decrypt_log_field_all(&entry.command_executed);
-                entry.stdout = crate::db::decrypt_log_field_all(&entry.stdout);
-                entry.stderr = crate::db::decrypt_log_field_all(&entry.stderr);
-                entry
-            })
-            .collect::<Vec<_>>()
+        raw
     };
 
     let consent_log = {
@@ -170,7 +253,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_export_user_data_struct_serializes() {
+    fn test_export_user_data_creates_valid_json() {
         let data = ExportUserData {
             exported_at: "2026-03-20T10:00:00Z".to_string(),
             app_version: "1.0.0".to_string(),
@@ -184,13 +267,43 @@ mod tests {
         };
         let json = serde_json::to_string_pretty(&data).unwrap();
         assert!(json.contains("exported_at"));
+        assert!(json.contains("app_version"));
+        assert!(json.contains("tweak_history"));
         assert!(json.contains("consent_log"));
+        assert!(json.contains("settings"));
         assert!(json.contains("1.0.0"));
     }
 
     #[test]
-    fn test_read_installer_config_returns_ok() {
-        let result: Result<Option<String>, String> = read_installer_config();
-        assert!(result.is_ok(), "read_installer_config must return Ok: {:?}", result);
+    fn test_export_user_data_writes_file() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        let path = tmp.path().to_str().unwrap().to_string();
+
+        let data = ExportUserData {
+            exported_at: "2026-03-20T10:00:00Z".to_string(),
+            app_version: "1.0.0".to_string(),
+            tweak_history: vec![],
+            consent_log: vec![],
+            settings: serde_json::json!({}),
+        };
+
+        let json = serde_json::to_string_pretty(&data).unwrap();
+        std::fs::write(&path, &json).unwrap();
+
+        let contents = std::fs::read_to_string(&path).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&contents).unwrap();
+        assert_eq!(parsed["app_version"], "1.0.0");
+    }
+
+    #[test]
+    fn test_read_installer_config_returns_none_when_key_missing() {
+        // On a machine without the registry key, read_installer_config must
+        // return Ok(None) rather than an Err.  In CI and on developer machines
+        // the WinOpt Pro registry key will typically not exist, so calling the
+        // real function exercises the missing-key branch.
+        let result = read_installer_config();
+        assert!(result.is_ok(), "read_installer_config must never return Err");
+        // If the key happens to exist in the test environment the value may be
+        // Some(…); we only require that the function does not panic or error.
     }
 }

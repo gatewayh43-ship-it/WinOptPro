@@ -41,7 +41,7 @@ pub struct BatchTweak {
 async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
     let start = Instant::now();
 
-    let mut child = Command::new("powershell")
+    let child = Command::new("powershell")
         .args([
             "-NoProfile",
             "-NonInteractive",

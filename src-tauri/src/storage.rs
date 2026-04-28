@@ -384,11 +384,10 @@ pub fn run_trim_optimization() -> Result<bool, String> {
 pub async fn get_disk_health() -> Result<Vec<DiskHealth>, String> {
     #[cfg(target_os = "windows")]
     {
-        use wmi::{COMLibrary, WMIConnection};
-        let com_con = COMLibrary::new().map_err(|e| format!("COM error: {}", e))?;
+        use wmi::WMIConnection;
         // Need to use the Microsoft\Windows\Storage namespace for MSFT_PhysicalDisk
         // Or simply stick to root/cimv2 Win32_DiskDrive for basic Status ("OK", "Pred Fail", etc.)
-        let wmi_con = WMIConnection::new(com_con).map_err(|e| format!("WMI parse error: {}", e))?;
+        let wmi_con = WMIConnection::new().map_err(|e| format!("WMI parse error: {}", e))?;
 
         #[derive(Deserialize, Debug)]
         #[serde(rename_all = "PascalCase")]

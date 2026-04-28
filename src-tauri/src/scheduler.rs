@@ -4,6 +4,8 @@ use std::process::Command;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 const TASK_ROOT: &str = "\\WinOpt\\";
+const WEEKLY_TEMP_CLEANUP: &str = "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path C:\\Windows\\Temp\\* -Recurse -Force -ErrorAction SilentlyContinue";
+const MONTHLY_DISK_SCAN: &str = "Get-WmiObject -Class Win32_DiskDrive | ForEach-Object { $status = $_.Status; Add-Content -Path $env:TEMP\\winopt-disk-health.log -Value \"$(Get-Date) $($_.Model) Status:$status\" }";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MaintenanceTask {
@@ -29,6 +31,27 @@ fn run_ps(cmd: &str) -> String {
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
         .unwrap_or_default()
+}
+
+fn validate_task_name(name: &str) -> Result<(), String> {
+    if name.is_empty() || name.len() > 64 {
+        return Err("Task name must be 1-64 characters.".to_string());
+    }
+    if !name
+        .chars()
+        .all(|ch| ch.is_ascii_alphanumeric() || ch == '_' || ch == '-')
+    {
+        return Err("Task name may only contain letters, numbers, '-' and '_'.".to_string());
+    }
+    Ok(())
+}
+
+fn predefined_action(name: &str) -> Option<&'static str> {
+    match name {
+        "WeeklyTempCleanup" => Some(WEEKLY_TEMP_CLEANUP),
+        "MonthlyDiskScan" => Some(MONTHLY_DISK_SCAN),
+        _ => None,
+    }
 }
 
 #[tauri::command]
@@ -71,6 +94,11 @@ pub fn create_maintenance_task(
     schedule: String,
     action_cmd: String,
 ) -> Result<bool, String> {
+    validate_task_name(&name)?;
+    let action_cmd = predefined_action(&name)
+        .filter(|expected| *expected == action_cmd)
+        .ok_or_else(|| "Only predefined maintenance tasks can be scheduled.".to_string())?;
+
     let task_path = format!("{}\\{}", TASK_ROOT.trim_end_matches('\\'), name);
     // Delete existing task with same name first (ignore errors)
     run_cmd(&["/Delete", "/TN", &task_path, "/F"]).ok();
@@ -107,6 +135,7 @@ pub fn create_maintenance_task(
 
 #[tauri::command]
 pub fn delete_maintenance_task(name: String) -> Result<bool, String> {
+    validate_task_name(&name)?;
     let task_path = format!("{}\\{}", TASK_ROOT.trim_end_matches('\\'), name);
     let output = run_cmd(&["/Delete", "/TN", &task_path, "/F"])
         .map_err(|e| format!("Failed to delete task: {}", e))?;
@@ -120,6 +149,7 @@ pub fn delete_maintenance_task(name: String) -> Result<bool, String> {
 
 #[tauri::command]
 pub fn run_maintenance_task_now(name: String) -> Result<bool, String> {
+    validate_task_name(&name)?;
     let task_path = format!("{}\\{}", TASK_ROOT.trim_end_matches('\\'), name);
     let output = run_cmd(&["/Run", "/TN", &task_path])
         .map_err(|e| format!("Failed to run task: {}", e))?;

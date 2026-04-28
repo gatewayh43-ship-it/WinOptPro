@@ -26,14 +26,25 @@ use ai::OllamaState;
 use std::sync::Mutex;
 use tauri::Manager;
 
+pub struct AdminState {
+    pub is_admin: bool,
+}
+
+#[tauri::command]
+fn get_is_admin(state: tauri::State<'_, AdminState>) -> bool {
+    state.is_admin
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::Destroyed = event {
-                let state = window.state::<OllamaState>();
-                ai::stop_ollama_sync(&state);
+                if window.label() == "main" {
+                    let state = window.state::<OllamaState>();
+                    ai::stop_ollama_sync(&state);
+                }
             }
         })
         .setup(|app| {
@@ -44,30 +55,23 @@ pub fn run() {
             })?;
             app.manage(DbState(Mutex::new(conn)));
             app.manage(OllamaState { process: Mutex::new(None) });
-            // Run DPAPI migration (idempotent — skips if already done)
-            {
-                let db_state = app.state::<DbState>();
-                let conn = db_state.0.lock().map_err(|e| {
-                    tauri::Error::from(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        e.to_string(),
-                    ))
-                })?;
-                if let Err(e) = db::migrate_to_dpapi(&conn) {
-                    log::error!("DPAPI migration failed (non-fatal): {}", e);
-                }
+            let is_admin_result = security::is_admin().unwrap_or(false);
+            if !is_admin_result {
+                log::warn!("WinOpt Pro is running WITHOUT administrator privileges.");
             }
+            app.manage(AdminState { is_admin: is_admin_result });
             // Initialize updater plugin (desktop only)
             #[cfg(desktop)]
             app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            // Admin
+            get_is_admin,
             // System
             system::get_system_vitals,
             // Security
             security::is_admin,
-            security::elevate_and_execute,
             security::defender_get_status,
             security::defender_run_scan,
             security::defender_update_signatures,

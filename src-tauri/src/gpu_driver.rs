@@ -4,6 +4,7 @@ use std::process::Command;
 use tauri::command;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+const ALLOWED_GPU_VENDORS: &[&str] = &["NVIDIA", "AMD", "Intel"];
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -38,6 +39,14 @@ fn detect_vendor(pnp_id: &str, name: &str) -> String {
     } else {
         "Unknown".to_string()
     }
+}
+
+fn canonical_gpu_vendor(vendor: &str) -> Result<&'static str, String> {
+    ALLOWED_GPU_VENDORS
+        .iter()
+        .copied()
+        .find(|allowed| allowed.eq_ignore_ascii_case(vendor.trim()))
+        .ok_or_else(|| "Unsupported GPU vendor.".to_string())
 }
 
 /// Get all installed GPU drivers via WMI + pnputil
@@ -270,6 +279,7 @@ fn sweep_gpu_registry(vendor: &str, log: &mut Vec<String>) {
 /// Schedule a clean driver removal on next Safe Mode boot via RunOnce
 #[command]
 pub fn schedule_safe_mode_removal(vendor: String) -> Result<bool, String> {
+    let vendor = canonical_gpu_vendor(&vendor)?;
     let temp_dir = std::env::var("TEMP").unwrap_or_else(|_| "C:\\Windows\\Temp".to_string());
     let script_path = format!("{}\\winopt_gpu_cleanup_{}.ps1", temp_dir, vendor.to_lowercase());
 

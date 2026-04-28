@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ};
 use winreg::RegKey;
-use wmi::{COMLibrary, WMIConnection};
+use wmi::WMIConnection;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StartupItem {
@@ -80,8 +80,7 @@ pub async fn get_startup_items() -> Result<Vec<StartupItem>, String> {
     }
 
     // Windows Services (Auto-start)
-    if let Ok(com_con) = COMLibrary::new() {
-        if let Ok(wmi_con) = WMIConnection::new(com_con.into()) {
+    if let Ok(wmi_con) = WMIConnection::new() {
             // We use a general query. WMI structs require exact matching usually, but we can deserialize to generic maps or custom structs.
             #[derive(Deserialize, Debug)]
             #[serde(rename_all = "PascalCase")]
@@ -103,12 +102,11 @@ pub async fn get_startup_items() -> Result<Vec<StartupItem>, String> {
                         name: format!("{} (Service)", svc.display_name),
                         command: svc.path_name.unwrap_or_else(|| "Unknown".to_string()),
                         location: "Windows Services".to_string(),
-                        enabled: true, // Auto-start means it's enabled for startup
+                        enabled: !svc.state.eq_ignore_ascii_case("Disabled"),
                     });
                 }
             }
         }
-    }
 
     Ok(items)
 }
@@ -192,7 +190,7 @@ pub async fn set_startup_item_state(id: String, enabled: bool) -> Result<(), Str
     
     if let Ok(existing) = approved_key.get_raw_value(&name_or_file) {
         if existing.bytes.len() >= 12 {
-            bytes = existing.bytes;
+            bytes = existing.bytes.to_vec();
         }
     }
 
@@ -203,7 +201,7 @@ pub async fn set_startup_item_state(id: String, enabled: bool) -> Result<(), Str
     }
 
     let reg_value = winreg::RegValue {
-        bytes,
+        bytes: bytes.into(),
         vtype: winreg::enums::REG_BINARY,
     };
 
