@@ -1,9 +1,9 @@
 # Privacy Policy
 
 **WinOpt Pro**
-**Last Updated:** [DATE]
-**Contact:** [CONTACT_EMAIL]
-**Website:** [WEBSITE_URL]
+**Last Updated:** April 27, 2026
+**Contact:** support@winoptpro.app
+**Website:** https://github.com/ronxldwilson/WinOpt
 
 ---
 
@@ -21,8 +21,8 @@ WinOpt Pro stores the following data **exclusively on your local device**:
 
 | Data Type | Location | Purpose |
 |---|---|---|
-| System configuration snapshots | Encrypted local SQLite database | Record of system state before and after optimization |
-| Optimization history and audit log | Encrypted local SQLite database (AES-256-GCM) | Allows you to review and revert past changes |
+| System configuration snapshots | Local SQLite database | Record of system state before and after optimization |
+| Optimization history and audit log | Local SQLite database | Allows you to review and revert past changes |
 | App settings and preferences | Browser localStorage (within Tauri WebView) | Persists your UI preferences across sessions |
 | Scheduled task configuration | Local SQLite database | Stores any maintenance tasks you configure |
 
@@ -33,7 +33,7 @@ WinOpt Pro does **not** collect, transmit, or store any of the following:
 - Your name, email address, or any personally identifiable information
 - Keystrokes, clipboard contents, or browsing history
 - Usage analytics, crash telemetry, or error reports sent to any remote server
-- Hardware identifiers transmitted externally (a local hardware ID is derived only for encryption key derivation and never leaves your device)
+- Hardware identifiers transmitted externally
 - Financial information or payment details (payment is processed by GitHub Sponsors or Microsoft; we never see your payment details)
 - Location data
 
@@ -74,9 +74,9 @@ We have no relationship with any advertising networks, analytics providers, data
 
 ## 5. Data Storage and Security
 
-### Local Encryption
+### Local Storage
 
-Sensitive data stored in WinOpt Pro's local SQLite database — including the optimization audit log, executed command records, and associated output — is encrypted at the field level using **AES-256-GCM** symmetric encryption. The encryption key is derived from your machine's unique hardware identifier (Windows `MachineGuid`) using SHA-256 and never leaves your device.
+WinOpt Pro stores its audit log and settings locally on your device.
 
 ### No Cloud Sync
 
@@ -117,7 +117,7 @@ If you are located in the European Economic Area (EEA), the United Kingdom, or S
 - **Right to Object:** You have the right to object to processing of your personal data.
 - **Right to Lodge a Complaint:** You have the right to lodge a complaint with your local supervisory authority if you believe your data protection rights have been violated.
 
-To exercise any of these rights or with any GDPR-related inquiry, contact us at [CONTACT_EMAIL].
+To exercise any of these rights or with any GDPR-related inquiry, contact us at support@winoptpro.app.
 
 Because WinOpt Pro does not transmit personal data to any servers, our role as a "data controller" under GDPR is minimal and limited to data stored locally on your machine, over which you retain full control.
 
@@ -136,18 +136,18 @@ This section applies to residents of California under the California Consumer Pr
 As a California resident, you have the following rights under CCPA (§1798.100 et seq.):
 
 - **Right to Know:** You have the right to know what personal information we have collected, the sources of that information, the purposes for collection, and any third parties with whom it is shared. Given that WinOpt Pro stores all data locally on your device, you can view all of it directly through the Export feature.
-- **Right to Delete:** You have the right to request deletion of personal information we hold. Use the Clear All App Data feature, or contact [CONTACT_EMAIL].
+- **Right to Delete:** You have the right to request deletion of personal information we hold. Use the Clear All App Data feature, or contact support@winoptpro.app.
 - **Right to Correct:** You have the right to request correction of inaccurate personal information.
 - **Right to Opt-Out of Sale or Sharing:** Because we do not sell or share personal information, there is nothing to opt out of. If this practice ever changes, we will update this policy and provide a clear opt-out mechanism before any such change takes effect.
 - **Right to Non-Discrimination:** We will not discriminate against you for exercising your CCPA rights.
 
-To submit a CCPA request or for any privacy-related inquiries, contact us at [CONTACT_EMAIL].
+To submit a CCPA request or for any privacy-related inquiries, contact us at support@winoptpro.app.
 
 ---
 
 ## 10. Children's Privacy
 
-WinOpt Pro is not directed at or intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe that a child under 13 has used WinOpt Pro, please contact us at [CONTACT_EMAIL] and we will take appropriate steps. Because WinOpt Pro stores no personal data on our servers, any data created by a minor exists only on the local device.
+WinOpt Pro is not directed at or intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe that a child under 13 has used WinOpt Pro, please contact us at support@winoptpro.app and we will take appropriate steps. Because WinOpt Pro stores no personal data on our servers, any data created by a minor exists only on the local device.
 
 ---
 
@@ -156,7 +156,7 @@ WinOpt Pro is not directed at or intended for use by children under the age of 1
 We may update this Privacy Policy from time to time to reflect changes in the Software's features or applicable law. When material changes are made, we will notify you via:
 
 - An in-app notification in the next Software update; and/or
-- A notice posted on [WEBSITE_URL].
+- A notice posted on https://github.com/ronxldwilson/WinOpt.
 
 The "Last Updated" date at the top of this policy will reflect the date of the most recent revision. Your continued use of WinOpt Pro after a policy update constitutes your acknowledgment of the updated policy.
 
@@ -166,7 +166,7 @@ The "Last Updated" date at the top of this policy will reflect the date of the m
 
 For any privacy-related questions, data requests, or concerns, please contact:
 
-**Email:** [CONTACT_EMAIL]
-**Website:** [WEBSITE_URL]
+**Email:** support@winoptpro.app
+**Website:** https://github.com/ronxldwilson/WinOpt
 
 We aim to respond to all privacy inquiries within 30 days.

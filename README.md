@@ -10,9 +10,9 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-FFC131?logo=tauri&logoColor=white)](https://tauri.app)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Rust](https://img.shields.io/badge/Rust-1.77%2B-CE422B?logo=rust&logoColor=white)](https://rust-lang.org)
-[![Tests](https://img.shields.io/badge/tests-643%20passing-brightgreen?logo=vitest)](https://vitest.dev)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-informational)](https://github.com/your-org/winopt-pro/releases)
+[![Tests](https://img.shields.io/badge/tests-765%20passing-brightgreen?logo=vitest)](https://vitest.dev)
+[![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-informational)](https://github.com/gatewayh43-ship-it/WinOptPro/releases)
 
 </div>
 
@@ -27,7 +27,7 @@
 - **Privacy Audit** — scans 9 telemetry, registry, and service vectors; one-click remediation
 - **Latency Optimizer** — Windows timer resolution tuner, standby RAM flusher, boot config (`bcdedit`) editor
 - **AI Assistant** — local Ollama LLM integration; ask questions, get tweak recommendations, analyze audit results — all offline
-- **Encrypted Audit Log** — every command executed is stored with AES-256-GCM field encryption, keyed to your machine GUID
+- **Local Audit Log** — every command executed is stored locally so you can review what changed
 
 ---
 
@@ -64,8 +64,8 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/winopt-pro.git
-cd winopt-pro
+git clone https://github.com/gatewayh43-ship-it/WinOptPro.git
+cd WinOptPro
 
 # 2. Install frontend dependencies
 npm install
@@ -113,7 +113,7 @@ The installer (`*.msi` / `*.exe`) is output to `src-tauri/target/release/bundle/
 | **Profiles** | Save and load named configuration sets | No |
 | **Command Palette** | Ctrl+K semantic search across all tweaks and features | No |
 | **AI Assistant** | Local Ollama LLM for offline recommendations and analysis | No |
-| **History / Audit Log** | AES-256-GCM encrypted log of every executed command | No |
+| **History / Audit Log** | Local log of every executed command | No |
 | **Windows Defender** | View and toggle Defender settings and exclusions | Yes |
 
 ---
@@ -177,7 +177,7 @@ WinOpt Pro
 ├── Backend (Rust + Tauri 2)
 │   ├── Tauri commands — #[tauri::command] functions registered in lib.rs
 │   ├── Windows APIs — windows-rs crate (WMI, registry, FFI)
-│   ├── Database — SQLite via rusqlite with AES-256-GCM field encryption
+│   ├── Database — SQLite via rusqlite for local history and settings
 │   └── System tools — sysinfo, pnputil, bcdedit, powercfg, schtasks
 │
 └── Tests — Vitest 643 tests across 58 files (hooks, pages, components, utils)
@@ -194,7 +194,6 @@ WinOpt Pro
 | Animations | framer-motion | Declarative, accessible animation |
 | State | Zustand | Minimal boilerplate, no context wrapping |
 | Rust Windows APIs | windows-rs | First-class Microsoft-maintained bindings |
-| Encryption | AES-256-GCM (aes-gcm crate) | Authenticated encryption for audit log fields |
 | Testing | Vitest + Testing Library | Fast, Vite-native, ESM-compatible |
 
 ### IPC Flow
@@ -213,7 +212,7 @@ React Component
 
 ### Database Schema
 
-The audit log (`history.db`) stores every executed command with encrypted sensitive fields:
+The audit log stores every executed command locally:
 
 ```sql
 CREATE TABLE audit_log (
@@ -221,14 +220,14 @@ CREATE TABLE audit_log (
     timestamp   TEXT NOT NULL,
     tweak_id    TEXT NOT NULL,
     action      TEXT NOT NULL,       -- "apply" | "revert"
-    command_executed TEXT,           -- AES-256-GCM encrypted
-    stdout      TEXT,                -- AES-256-GCM encrypted
-    stderr      TEXT,                -- AES-256-GCM encrypted
+    command_executed TEXT,
+    stdout      TEXT,
+    stderr      TEXT,
     success     INTEGER NOT NULL
 );
 ```
 
-Encrypted fields are prefixed with `enc:` for backward compatibility with unencrypted rows.
+The audit log is stored locally with the rest of the app data.
 
 ---
 
@@ -296,7 +295,7 @@ WinOptimizerRevamp/
 │   │   ├── backup.rs             # Export/import .winopt backup files
 │   │   ├── report.rs             # HTML system report generation
 │   │   ├── scheduler.rs          # Windows Task Scheduler integration
-│   │   ├── db.rs                 # SQLite audit log + AES-256-GCM encryption
+│   │   ├── db.rs                 # SQLite audit log
 │   │   ├── security.rs           # Defender, firewall, security settings
 │   │   ├── startup.rs            # Startup item management
 │   │   ├── process.rs            # Process list, kill, priority
@@ -337,7 +336,6 @@ Key dependencies include:
 - [Zustand](https://zustand-demo.pmnd.rs) — State management
 - [windows-rs](https://github.com/microsoft/windows-rs) — Windows API bindings
 - [sysinfo](https://github.com/GuillaumeGomez/sysinfo) — Cross-platform system info
-- [aes-gcm](https://github.com/RustCrypto/AEADs) — Authenticated encryption
 - [Vitest](https://vitest.dev) — Test framework
 - [Ollama](https://ollama.ai) — Local LLM runtime
 
@@ -345,27 +343,7 @@ Key dependencies include:
 
 ## License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2026 WinOpt Pro Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-```
+This project is proprietary software. See the [LICENSE](LICENSE) file for permitted use and redistribution terms.
 
 ---
 

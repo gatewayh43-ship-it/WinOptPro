@@ -40,7 +40,7 @@ npx shadcn add <c>       # add shadcn component → src/components/ui/
 | `backup.rs` | `export_backup`, `import_backup` |
 | `report.rs` | `generate_system_report` |
 | `scheduler.rs` | `list/create/delete/run_now` maintenance tasks (schtasks.exe) |
-| `db.rs` | SQLite audit log + AES-256-GCM field encryption |
+| `db.rs` | SQLite local audit log |
 | `security.rs` | Defender / firewall settings |
 | `startup.rs` | Startup item scan + enable/disable |
 | `process.rs` | Process list, kill, set priority |

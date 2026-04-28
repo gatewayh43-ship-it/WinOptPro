@@ -113,13 +113,11 @@ No. The AI Assistant uses [Ollama](https://ollama.com/), which runs a large lang
 
 The Ollama endpoint is configurable in Settings (default: `http://localhost:11434`). If you point it to a remote server, your queries would be sent to that server — but the default configuration is entirely local.
 
-### 13. What is the audit log? How is it encrypted?
+### 13. What is the audit log?
 
 The audit log (History page) records every tweak operation performed by WinOpt Pro: the tweak name, the command executed, the output, and whether it succeeded. This is useful for reviewing what was changed and for reverting specific operations.
 
-Sensitive fields (`command_executed`, `stdout`, `stderr`) are encrypted with AES-256-GCM. The encryption key is derived from `SHA-256(MachineGuid)` — a value unique to your Windows installation that never leaves your machine. This means the audit log cannot be read on another computer even if the database file is copied.
-
-Entries are prefixed with `enc:` to distinguish encrypted entries from legacy plaintext entries.
+The audit log is stored locally with the rest of the app data.
 
 ### 14. How often should I run the Privacy Audit?
 
@@ -224,7 +222,7 @@ Yes. Go to **Settings → Backup & Restore → Export Backup**. This creates a `
 
 On the new machine, go to **Settings → Backup & Restore → Import Backup** and select the file. WinOpt Pro will apply the tweaks and restore profiles.
 
-Note: profile and backup files do not contain the encrypted audit log, which is machine-specific.
+Note: profile and backup files do not contain the audit log.
 
 ### 24. How do I clean install GPU drivers?
 

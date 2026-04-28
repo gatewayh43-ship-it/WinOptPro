@@ -54,7 +54,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 - **Safe first** — every change is reversible; no silent failures; no destructive operations without confirmation
 - **Educated decisions** — explain what each change does before it happens; show the exact code that will run
 - **Real data only** — no hardcoded metrics; everything sourced from live WMI/WinAPI queries
-- **Privacy-preserving** — zero telemetry from WinOpt itself; all data stays local; audit log encrypted at rest
+- **Privacy-preserving** — zero telemetry from WinOpt itself; all data stays local
 - **Beginner-safe, expert-capable** — safe defaults with progressive disclosure for advanced users
 
 ---
@@ -97,7 +97,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-C1 | As a privacy user, I want a one-click Privacy Audit that scans all telemetry settings, tracking services, and firewall rules, and shows me the results as a categorized report. | P0 | ✅ Done (PrivacyAuditPage) |
 | US-C2 | As a privacy user, I want a Privacy Score from 0 to 100 so I can understand my current exposure level at a glance. | P0 | ✅ Done (PrivacyAuditPage score gauge) |
 | US-C3 | As a privacy user, I want to apply all privacy tweaks with a single "Harden Privacy" action after reviewing a full preview of every change. | P0 | ✅ Done (ProfilesPage) |
-| US-C4 | As a privacy user, I want an encrypted, local audit log of every system change made by WinOpt so I have a verifiable compliance record. | P1 | ✅ Done (AES-256-GCM field encryption on command_executed/stdout/stderr in db.rs; key derived from Windows MachineGuid via SHA-256) |
+| US-C4 | As a privacy user, I want a local audit log of every system change made by WinOpt so I have a verifiable compliance record. | P1 | ✅ Done (SQLite audit log in db.rs) |
 | US-C5 | As a privacy user, I want to click the alert banner on the Dashboard to navigate directly to the Privacy page so I can act on warnings immediately. | P0 | ✅ Done |
 
 ### Persona D — IT Professional / SysAdmin
@@ -109,7 +109,7 @@ WinOpt Pro is the **all-in-one Windows 10/11 optimization platform** for power u
 | US-D1 | As an IT pro, I want to generate a comprehensive system report (hardware, drivers, running services, Windows build, installed software) as a PDF so I can share it with stakeholders. | P1 | ✅ Done (SystemReportPage — HTML format) |
 | US-D2 | As an IT pro, I want to compare my system against CIS Benchmarks or Microsoft Security Baseline and see a compliance percentage with remediation steps. | P2 | 🔲 Not started |
 | US-D3 | As an IT pro, I want to schedule automated maintenance tasks (disk cleanup, temp removal) at off-peak hours so systems stay clean without manual work. | P2 | ✅ Done (StoragePage scheduler section) |
-| US-D4 | As an IT pro, I want to export all WinOpt settings, profiles, and history as an encrypted backup file so I can restore on a new machine or share with a team. | P2 | ✅ Done (SettingsPage Backup section) |
+| US-D4 | As an IT pro, I want to export all WinOpt settings, profiles, and history as a backup file so I can restore on a new machine or share with a team. | P2 | ✅ Done (SettingsPage Backup section) |
 | US-D5 | As an IT pro, I want to see every tweak's exact PowerShell code in the Inspector so I can verify and understand every system change before it runs. | P0 | ✅ Done (Inspector sidebar) |
 
 ### Persona E — Casual User
@@ -1076,7 +1076,7 @@ jobs:
 │           db · security · gaming                                        │
 │                                                                         │
 │  Key crates: wmi · winapi · rusqlite · serde_json · chrono             │
-│              uuid · aes-gcm · reqwest · tokio                          │
+│              uuid · rusqlite · serde_json · tokio                      │
 └─────────────────────────────┬───────────────────────────────────────────┘
                               │
 ┌─────────────────────────────▼───────────────────────────────────────────┐
@@ -1248,7 +1248,7 @@ install_driver_update(id)          -> Result<(), String>
 
 // ── Reports & Backup ────────────────────────────────────────────────────
 generate_system_report()           -> Result<String, String>
-create_backup(encrypt, passphrase) -> Result<String, String>
+create_backup() -> Result<String, String>
 restore_backup(path, passphrase)   -> Result<(), String>
 ```
 
@@ -1308,7 +1308,7 @@ restore_backup(path, passphrase)   -> Result<(), String>
 | Gaming Optimizer | Auto gaming mode, overlay, 190+ game detection, before/after panel | ✅ Done |
 | Power Manager | Plan selector, CPU freq editor, battery report | ✅ Done |
 | Driver Manager | Update scanner, backup, install, rollback | ✅ Done |
-| System Report & Backup | HTML export, encrypted backup, restore | ✅ Done |
+| System Report & Backup | HTML export, backup, restore | ✅ Done |
 | GPU Driver Cleaner | WMI+pnputil detection, uninstall, safe-mode scheduling | ✅ Done |
 | WSL Manager | 8 distros, 7-step wizard, .wslconfig editor, Linux Mode (WSLg) | ✅ Done |
 | Latency Optimizer | NtQueryTimerResolution FFI, standby flush, bcdedit display | ✅ Done |

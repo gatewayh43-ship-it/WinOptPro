@@ -563,7 +563,7 @@ Backup files exported by WinOpt Pro use the `.winopt` extension. Internally they
 }
 ```
 
-The `machine_id` is a truncated SHA-256 of the machine's MachineGuid (see Section 9) — it is not the full GUID and cannot be used to re-derive the encryption key. It is present for informational purposes only (to identify which machine created the backup).
+The `machine_id` is a truncated machine identifier. It is present for informational purposes only (to identify which machine created the backup).
 
 ### Automating Backups
 
@@ -587,50 +587,16 @@ To share a profile configuration:
 
 ## 9. History and Audit Log
 
-### AES-256-GCM Encryption
+### Local Storage
 
-WinOpt Pro's audit log (`db.rs`) encrypts sensitive fields of each history entry using AES-256-GCM:
+WinOpt Pro's audit log (`db.rs`) stores history entries locally:
 
-**Encrypted fields:**
 - `command_executed` — the Tauri command invoked
 - `stdout` — command output
 - `stderr` — error output
-
-**Plaintext fields (for browsing/filtering):**
 - `id`, `timestamp`, `tweak_id`, `action` (Apply/Revert), `user`
 
-### Key Derivation
-
-The encryption key is derived from the machine's `MachineGuid`:
-
-```rust
-// db.rs (simplified)
-fn get_machine_key() -> [u8; 32] {
-    let guid = registry::get_value(
-        "HKLM\\SOFTWARE\\Microsoft\\Cryptography",
-        "MachineGuid"
-    ).unwrap_or_default();
-
-    let mut hasher = sha2::Sha256::new();
-    hasher.update(guid.as_bytes());
-    hasher.finalize().into()
-}
-```
-
-The `MachineGuid` is a UUID generated at Windows installation time. It is stable across reboots but changes on re-installation. This means:
-- Audit logs from one machine are not readable on another machine (different key).
-- Reinstalling Windows invalidates old encrypted log entries.
-- The key is never stored anywhere — it is derived fresh from the MachineGuid each time.
-
-### Encryption Format
-
-Each encrypted field is stored with the prefix `enc:` followed by a base64-encoded blob containing the AES-256-GCM nonce (12 bytes) + ciphertext + authentication tag:
-
-```
-enc:<base64(nonce || ciphertext || tag)>
-```
-
-The `enc:` prefix allows backward compatibility — if a log entry predates encryption (e.g., from an older WinOpt Pro version), the field is stored as plaintext without the prefix and is read directly.
+This keeps the project simple and easy to inspect.
 
 ### Reading Raw Logs
 
@@ -645,7 +611,7 @@ It is a SQLite database. To read it directly:
 sqlite3 "%APPDATA%/WinOptPro/audit.db" "SELECT id, timestamp, tweak_id, action FROM audit_log ORDER BY timestamp DESC LIMIT 20;"
 ```
 
-Encrypted fields will appear as `enc:<base64>` strings when read directly. To decrypt them, you would need to re-implement the key derivation and AES-256-GCM decryption using the machine's MachineGuid.
+Older development-build history rows may be shown exactly as they were stored.
 
 ---
 
@@ -711,9 +677,6 @@ features = [
 ]
 
 [dependencies]
-aes-gcm = "0.10"     # AES-256-GCM for audit log encryption
-sha2 = "0.10"        # SHA-256 for key derivation
-base64 = "0.22"      # Encoding encrypted blobs
 sysinfo = "0.30"     # Process enumeration for gaming detection
 ```
 

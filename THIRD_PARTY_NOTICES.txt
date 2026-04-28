@@ -102,12 +102,6 @@ Copyright (c) 2022 Lucide Contributors
 
 ---
 
-## aes-gcm
-License: MIT OR Apache-2.0
-Copyright (c) 2019-2023 RustCrypto Developers
-
----
-
 ## winreg
 License: MIT
 Copyright (c) 2015 Igor Shaula

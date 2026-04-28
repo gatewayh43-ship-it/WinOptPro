@@ -1,10 +1,10 @@
 # End-User License Agreement (EULA)
 
 **WinOpt Pro**
-**Last Updated:** [DATE]
-**Publisher:** [AUTHOR_NAME] / [COMPANY_NAME]
-**Contact:** [CONTACT_EMAIL]
-**Website:** [WEBSITE_URL]
+**Last Updated:** April 27, 2026
+**Publisher:** WinOpt Pro Team
+**Contact:** support@winoptpro.app
+**Website:** https://github.com/ronxldwilson/WinOpt
 
 ---
 
@@ -14,11 +14,11 @@ PLEASE READ THIS END-USER LICENSE AGREEMENT ("AGREEMENT" OR "EULA") CAREFULLY BE
 
 ## 1. Grant of License
 
-Subject to the terms and conditions of this Agreement, [AUTHOR_NAME] / [COMPANY_NAME] ("Licensor") grants you ("Licensee" or "you") a limited, non-exclusive, non-transferable, non-sublicensable license to install and use WinOpt Pro solely for your personal or internal commercial purposes on Windows computers that you own or legitimately control.
+Subject to the terms and conditions of this Agreement, WinOpt Pro Team ("Licensor") grants you ("Licensee" or "you") a limited, non-exclusive, non-transferable, non-sublicensable license to install and use WinOpt Pro solely for your personal or internal commercial purposes on Windows computers that you own or legitimately control.
 
 This license permits installation on up to the number of devices specified at the time of purchase (typically one device per license unless otherwise stated). You may make one backup copy of the Software for archival purposes only.
 
-This license does not transfer any ownership rights. The Software is licensed, not sold. [AUTHOR_NAME] / [COMPANY_NAME] retains all ownership and intellectual property rights in and to the Software.
+This license does not transfer any ownership rights. The Software is licensed, not sold. WinOpt Pro Team retains all ownership and intellectual property rights in and to the Software.
 
 ---
 
@@ -76,7 +76,7 @@ You must be at least thirteen (13) years of age to use the Software. By installi
 
 ## 6. Refund and Cancellation Policy
 
-**Direct Purchases (via [WEBSITE_URL]):** If you purchased WinOpt Pro directly from the Licensor and are not satisfied, you may request a refund within seven (7) calendar days of your original purchase date by contacting [CONTACT_EMAIL] with your order information. Refunds are generally not available after the 7-day window has elapsed or after the software has been meaningfully used to apply system optimizations, at the Licensor's reasonable discretion.
+**Direct Purchases (via https://github.com/ronxldwilson/WinOpt):** If you purchased WinOpt Pro directly from the Licensor and are not satisfied, you may request a refund within seven (7) calendar days of your original purchase date by contacting support@winoptpro.app with your order information. Refunds are generally not available after the 7-day window has elapsed or after the software has been meaningfully used to apply system optimizations, at the Licensor's reasonable discretion.
 
 **Microsoft Store Purchases:** Purchases made through the Microsoft Store are governed exclusively by Microsoft's refund and return policy, as published at https://support.microsoft.com/. The Licensor has no ability to process refunds for Microsoft Store transactions directly. Please contact Microsoft support for refund requests related to Store purchases.
 
@@ -86,15 +86,15 @@ You must be at least thirteen (13) years of age to use the Software. By installi
 
 ## 7. Export Compliance
 
-This Software contains encryption technology (AES-256-GCM) and is subject to United States Export Administration Regulations (EAR). You agree to comply with all applicable export and re-export control laws and regulations, including the EAR administered by the U.S. Department of Commerce, Bureau of Industry and Security (BIS).
+You agree to comply with all applicable laws and regulations when using WinOpt Pro.
 
-This Software is classified under Export Control Classification Number (ECCN) **5E002** and may only be exported, re-exported, or transferred in accordance with applicable U.S. export law, including any applicable license exceptions. By downloading, installing, or using this Software, you represent and warrant that you are not located in, or a national or resident of, any country subject to a U.S. government embargo or on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce Denied Person's List or Entity List.
+By downloading, installing, or using this Software, you represent and warrant that you are not located in, or a national or resident of, any country or territory subject to applicable embargoes or sanctions, and that you are not otherwise prohibited from receiving the Software.
 
 ---
 
 ## 8. Governing Law and Dispute Resolution
 
-This Agreement shall be governed by and construed in accordance with the laws of [GOVERNING_LAW_JURISDICTION], without regard to its conflict of law principles. Any dispute, claim, or controversy arising out of or relating to this Agreement or the Software shall be subject to the exclusive jurisdiction of the courts located in [GOVERNING_LAW_JURISDICTION]. If you are a consumer in a jurisdiction with mandatory consumer protection laws, those protections are not waived by this clause.
+This Agreement shall be governed by and construed in accordance with the laws applicable in the publisher's principal jurisdiction, without regard to conflict of law principles. If you are a consumer in a jurisdiction with mandatory consumer protection laws, those protections are not waived by this clause.
 
 ---
 
@@ -115,7 +115,7 @@ The Licensor reserves the right to terminate this Agreement at any time with not
 
 ## 10. Entire Agreement
 
-This Agreement constitutes the entire agreement between you and [AUTHOR_NAME] / [COMPANY_NAME] with respect to the Software and supersedes all prior or contemporaneous understandings, agreements, representations, and warranties, whether written or oral, with respect to the Software.
+This Agreement constitutes the entire agreement between you and WinOpt Pro Team with respect to the Software and supersedes all prior or contemporaneous understandings, agreements, representations, and warranties, whether written or oral, with respect to the Software.
 
 If any provision of this Agreement is held to be invalid or unenforceable, such provision shall be modified to the minimum extent necessary to make it enforceable, and the remaining provisions shall continue in full force and effect.
 
@@ -135,9 +135,9 @@ The Software may include or be distributed with third-party open-source componen
 
 For questions regarding this Agreement, please contact:
 
-**[AUTHOR_NAME] / [COMPANY_NAME]**
-Email: [CONTACT_EMAIL]
-Website: [WEBSITE_URL]
+**WinOpt Pro Team**
+Email: support@winoptpro.app
+Website: https://github.com/ronxldwilson/WinOpt
 
 ---
 

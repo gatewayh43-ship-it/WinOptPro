@@ -51,8 +51,8 @@ Install the following before cloning:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/winopt-pro.git
-cd winopt-pro
+git clone https://github.com/ronxldwilson/WinOpt.git
+cd WinOpt
 
 # 2. Install Node dependencies
 npm install
@@ -105,7 +105,7 @@ WinOptimizerRevamp/
 │   │   ├── AppDetailsPage.tsx        # Individual app detail view
 │   │   ├── DefenderPage.tsx          # Windows Defender settings
 │   │   ├── SystemReportPage.tsx      # HTML report generator
-│   │   ├── HistoryPage.tsx           # Encrypted audit log viewer
+│   │   ├── HistoryPage.tsx           # Audit log viewer
 │   │   ├── ProfilesPage.tsx          # Save/load configuration profiles
 │   │   └── SettingsPage.tsx          # App settings, backup/restore, Expert Mode
 │   │
@@ -191,7 +191,7 @@ WinOptimizerRevamp/
 │   │   ├── backup.rs                 # .winopt JSON export/import
 │   │   ├── report.rs                 # HTML system report
 │   │   ├── scheduler.rs              # schtasks.exe wrapper
-│   │   ├── db.rs                     # SQLite + AES-256-GCM audit log
+│   │   ├── db.rs                     # SQLite local audit log
 │   │   ├── security.rs               # Defender, firewall
 │   │   ├── startup.rs                # Startup item registry management
 │   │   ├── process.rs                # Process list (sysinfo), kill, priority
@@ -626,7 +626,7 @@ feat(gaming): add before/after GPU baseline comparison
 fix(wsl): handle missing kernel update error in wizard step 2
 test(hooks): add useLatency timer resolution mock
 docs(readme): update tweak category counts post-uplift
-refactor(db): extract encryption helpers to separate module
+refactor(db): extract audit log helpers to separate module
 ```
 
 - Keep the subject line under 72 characters.
@@ -694,7 +694,7 @@ When filing a bug, include:
 
 ### Security issues
 
-Do not open a public issue for security vulnerabilities. Email the maintainers directly at `security@winopt-pro.example.com` with a description and reproduction steps. We follow responsible disclosure and aim to respond within 48 hours.
+Do not open a public issue for security vulnerabilities. Email the maintainers directly at `support@winoptpro.app` with a description and reproduction steps. We follow responsible disclosure and aim to respond within 48 hours.
 
 ---
 

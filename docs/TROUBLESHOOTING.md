@@ -475,7 +475,7 @@ If none of the above steps resolve your issue, please open a GitHub Issue.
 7. **Event Viewer logs** — open Event Viewer → Windows Logs → Application, filter for errors around the time of the issue, export as CSV and attach
 8. **System specs** — CPU model, RAM amount, GPU model, drive type (SSD/HDD)
 
-**GitHub Issues:** https://github.com/[your-org]/winopt-pro/issues
+**GitHub Issues:** https://github.com/ronxldwilson/WinOpt/issues
 
 Please search existing issues before opening a new one — your problem may already be reported with a workaround.
 

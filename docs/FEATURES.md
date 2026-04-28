@@ -75,7 +75,7 @@ Shortcut cards to the most frequently used actions:
 
 ### Recent Activity
 
-A scrollable list of the last 10 actions recorded in the encrypted audit log, shown with timestamp, tweak name, and apply/revert status. Each entry links to the full History page.
+A scrollable list of the last 10 recorded actions, shown with timestamp, tweak name, and apply/revert status. Each entry links to the full History page.
 
 ---
 
@@ -106,7 +106,7 @@ A scrollable list of the last 10 actions recorded in the encrypted audit log, sh
 Each tweak card has a single toggle button:
 - **Apply** — executes the tweak (registry write, service change, PowerShell command, or Group Policy modification)
 - **Revert** — restores the original value captured before the tweak was applied
-- Applied state is persisted in the local SQLite database (encrypted)
+- Applied state is persisted in the local SQLite database
 - A toast notification confirms success or reports the error
 
 ### Expert Mode Toggle
@@ -182,7 +182,7 @@ The total number of issues is shown in the page header.
 
 ### Fix All At Once
 
-The **Fix All Issues** button iterates through every failed check and applies the corresponding registry or service change automatically. Each fix is logged to the encrypted audit log.
+The **Fix All Issues** button iterates through every failed check and applies the corresponding registry or service change automatically. Each fix is logged to history.
 
 ### Re-Scan
 
@@ -862,13 +862,13 @@ Profiles include metadata: name, creation date, number of tweaks, description (o
 
 ## System — History & Audit Log
 
-**What it is:** A chronological log of every tweak operation performed by WinOpt Pro, with field-level AES-256-GCM encryption on sensitive command data.
+**What it is:** A chronological local log of every tweak operation performed by WinOpt Pro.
 
 **When to use it:** To review what changes have been made, audit the system for unauthorized modifications, or revert a specific operation.
 
-### Encryption
+### Local Storage
 
-The `command_executed`, `stdout`, and `stderr` fields of each log entry are encrypted with AES-256-GCM. The encryption key is derived from `SHA-256(MachineGuid)` — unique per machine, never leaves the device. Entries are prefixed with `enc:` for backward compatibility detection.
+The `command_executed`, `stdout`, and `stderr` fields are stored locally in the database.
 
 ### Log Viewer
 

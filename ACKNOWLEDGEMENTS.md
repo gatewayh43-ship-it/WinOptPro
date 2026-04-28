@@ -24,10 +24,7 @@ WinOpt Pro is built on the shoulders of a remarkable ecosystem of open-source pr
 - **[Rust](https://www.rust-lang.org)** (MIT / Apache 2.0) — The backend language. Rust's memory safety guarantees and Windows API access made it the right choice for a system-level tool.
 - **[windows-rs](https://github.com/microsoft/windows-rs)** (MIT / Apache 2.0) — Microsoft's first-party Rust bindings for the Windows API. Used for WMI queries, registry access, NT system calls (NtQueryTimerResolution, NtSetSystemInformation), and more.
 - **[sysinfo](https://github.com/GuillaumeGomez/sysinfo)** (MIT) — Cross-platform system information library. Used for real-time CPU, memory, disk, and process data.
-- **[rusqlite](https://github.com/rusqlite/rusqlite)** (MIT) — SQLite bindings for Rust. Powers the encrypted audit log.
-- **[aes-gcm](https://github.com/RustCrypto/AEADs)** (MIT / Apache 2.0) — RustCrypto's AES-256-GCM authenticated encryption implementation. Used for field-level encryption of sensitive audit log entries.
-- **[sha2](https://github.com/RustCrypto/hashes)** (MIT / Apache 2.0) — SHA-256 implementation from RustCrypto. Used to derive the encryption key from the machine GUID.
-- **[base64](https://github.com/marshallpierce/rust-base64)** (MIT / Apache 2.0) — Used for encoding/decoding encrypted field values in the audit database.
+- **[rusqlite](https://github.com/rusqlite/rusqlite)** (MIT) — SQLite bindings for Rust. Powers the local audit log.
 - **[serde](https://serde.rs)** (MIT / Apache 2.0) — Rust's serialization/deserialization framework. Used everywhere JSON is exchanged between Rust and the frontend.
 - **[tokio](https://tokio.rs)** (MIT) — Async runtime for Rust. Used by Tauri internally and for async command handling.
 - **[tauri-plugin-shell](https://github.com/tauri-apps/plugins-workspace)** (MIT / Apache 2.0) — Tauri plugin for running shell commands from the Rust backend.
@@ -87,7 +84,7 @@ Thank you to the communities whose collective knowledge makes projects like this
 
 ## License Notes
 
-WinOpt Pro is licensed under the **MIT License**.
+WinOpt Pro is proprietary software. See [LICENSE](LICENSE) for use and redistribution terms.
 
 All direct dependencies listed above are licensed under permissive open-source licenses (MIT, Apache 2.0, ISC). No GPL-licensed code is included in the distributed binary.
 
@@ -106,8 +103,6 @@ All direct dependencies listed above are licensed under permissive open-source l
 | windows-rs | MIT / Apache 2.0 |
 | sysinfo | MIT |
 | rusqlite | MIT |
-| aes-gcm | MIT / Apache 2.0 |
-| sha2 | MIT / Apache 2.0 |
 | serde | MIT / Apache 2.0 |
 | Vitest | MIT |
 | Testing Library | MIT |

@@ -8,7 +8,7 @@ on:
 
 # Required GitHub Secrets:
 # TAURI_SIGNING_PRIVATE_KEY: content of your generated private key file
-# TAURI_SIGNING_PRIVATE_KEY_PASSWORD: passphrase used during key generation
+# TAURI_SIGNING_PRIVATE_KEY_PASSWORD: optional passphrase used during key generation
 
 jobs:
   build-windows:
@@ -44,7 +44,7 @@ jobs:
             exit 1
           fi
 
-      - name: Build signed release
+      - name: Build release artifacts
         run: npx tauri build
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -60,6 +60,8 @@ jobs:
         with:
           draft: false
           generate_release_notes: true
+          body: |
+            Early build notice: these installers are not Authenticode signed yet. Windows may show SmartScreen or unknown-publisher warnings during download or installation.
           files: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/msi/*.msi

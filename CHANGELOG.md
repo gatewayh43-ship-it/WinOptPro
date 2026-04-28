@@ -6,6 +6,14 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [Unreleased]
+
+### Release Notes
+
+- Early builds are unsigned while Authenticode signing is deferred. Windows may show SmartScreen or unknown-publisher warnings during download or installation.
+
+---
+
 ## [1.0.0] - 2026-03-20
 
 ### Summary
@@ -225,7 +233,7 @@ Full initial production release of WinOpt Pro. This release represents the compl
 
 ### Added — History & Audit Log
 
-- AES-256-GCM field encryption on `command_executed`, `stdout`, `stderr`; key = SHA-256(MachineGuid); `enc:` prefix for backward compatibility
+- Local SQLite audit log for `command_executed`, `stdout`, and `stderr`
 - Log viewer: timestamp, tweak name, operation (Apply/Revert), status, user
 - Filter by date range, operation type, status; free-text search on tweak name
 - Revert from history entry
@@ -310,7 +318,7 @@ Full initial production release of WinOpt Pro. This release represents the compl
 - AI Assistant: Ollama-based chat sidebar + endpoint/model config in Settings + `useAIAssistant` hook
 - Command Palette: Ctrl+K modal + Web Worker semantic search + `useCommandPalette` hook
 - GPU info in SystemVitals: `GpuInfo` struct + Win32_VideoController in `system.rs`
-- AES-256-GCM field encryption in `db.rs`: `command_executed`, `stdout`, `stderr` fields encrypted; key = SHA-256(MachineGuid); `enc:` prefix; Cargo.toml: aes-gcm 0.10, sha2 0.10, base64 0.22
+- Local SQLite history in `db.rs`: `command_executed`, `stdout`, and `stderr` fields stored locally for audit visibility
 
 ### Changed
 
@@ -377,13 +385,13 @@ Full initial production release of WinOpt Pro. This release represents the compl
 
 ---
 
-[Unreleased]: https://github.com/[your-org]/winopt-pro/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/[your-org]/winopt-pro/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/[your-org]/winopt-pro/compare/v0.9.0...v1.0.0
-[0.9.0]: https://github.com/[your-org]/winopt-pro/compare/v0.8.0...v0.9.0
-[0.8.0]: https://github.com/[your-org]/winopt-pro/compare/v0.7.0...v0.8.0
-[0.7.0]: https://github.com/[your-org]/winopt-pro/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/[your-org]/winopt-pro/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/[your-org]/winopt-pro/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/[your-org]/winopt-pro/compare/v0.1.0...v0.4.0
-[0.1.0]: https://github.com/[your-org]/winopt-pro/releases/tag/v0.1.0
+[Unreleased]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.9.0...v1.0.0
+[0.9.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/gatewayh43-ship-it/WinOptPro/compare/v0.1.0...v0.4.0
+[0.1.0]: https://github.com/gatewayh43-ship-it/WinOptPro/releases/tag/v0.1.0
