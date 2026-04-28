@@ -6,11 +6,13 @@ import { useTweakExecution } from "../hooks/useTweakExecution";
 import { useToast } from "../components/ToastSystem";
 import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
 import { ProgressModal, type ProgressItem } from "../components/ProgressModal";
+import { RestorePointPrompt } from "../components/RestorePointPrompt";
 import { useAppStore } from "../store/appStore";
 
 export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
     const [selectedTweaks, setSelectedTweaks] = useState<string[]>([]);
     const [activeTweak, setActiveTweak] = useState<typeof tweaksData[0] | null>(null);
+    const [showRestorePrompt, setShowRestorePrompt] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [showProgress, setShowProgress] = useState(false);
     const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
@@ -551,7 +553,14 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                         </button>
 
                         <button
-                            onClick={() => setShowConfirm(true)}
+                            onClick={() => {
+                                const hasRed = selectedTweaks.some(id => tweaksData.find(t => t.id === id)?.riskLevel === "Red");
+                                if (hasRed) {
+                                    setShowRestorePrompt(true);
+                                } else {
+                                    setShowConfirm(true);
+                                }
+                            }}
                             disabled={isExecuting}
                             className="btn-tactile bg-primary text-white dark:bg-white dark:text-black px-4 py-1.5 rounded-full font-bold text-sm flex items-center gap-1.5 shadow-lg whitespace-nowrap disabled:opacity-50"
                         >
@@ -560,6 +569,22 @@ export function TweaksPage({ categoryTitle }: { categoryTitle: string }) {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Restore-point prompt — shown only when batch contains Red tweaks */}
+            <RestorePointPrompt
+                isOpen={showRestorePrompt}
+                highRiskCount={selectedTweaks.filter(id => tweaksData.find(t => t.id === id)?.riskLevel === "Red").length}
+                onCreatedAndContinue={() => {
+                    setShowRestorePrompt(false);
+                    addToast({ type: "success", title: "Restore point created" });
+                    setShowConfirm(true);
+                }}
+                onSkipAndContinue={() => {
+                    setShowRestorePrompt(false);
+                    setShowConfirm(true);
+                }}
+                onCancel={() => setShowRestorePrompt(false)}
+            />
 
             {/* Confirmation Modal */}
             <ConfirmDeployModal

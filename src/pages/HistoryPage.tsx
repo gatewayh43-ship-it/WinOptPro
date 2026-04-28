@@ -5,6 +5,16 @@ import { Clock, Trash2, CheckCircle2, XCircle, RotateCcw, Calendar, ChevronDown 
 import { useToast } from "../components/ToastSystem";
 import type { TweakHistoryEntry } from "../store/appStore";
 import { ConfirmDeployModal } from "../components/ConfirmDeployModal";
+import tweaksData from "../data/tweaks.json";
+
+// Lookup table: tweakId → revertCode (built once from tweaks.json).
+const REVERT_LOOKUP: Record<string, string> = (() => {
+    const map: Record<string, string> = {};
+    for (const t of tweaksData) {
+        map[t.id] = t.execution?.revertCode ?? "";
+    }
+    return map;
+})();
 
 type FilterAction = "ALL" | "APPLIED" | "REVERTED" | "FAILED";
 
@@ -224,6 +234,25 @@ export function HistoryPage() {
                                                                             <pre className="text-[11px] text-red-400/80 font-mono bg-red-500/5 rounded-lg p-3 border border-red-500/10 overflow-x-auto">
                                                                                 {entry.stderr}
                                                                             </pre>
+                                                                        </div>
+                                                                    )}
+                                                                    {entry.action === "APPLIED" && (
+                                                                        <div>
+                                                                            <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex items-center">
+                                                                                <RotateCcw className="w-3 h-3 mr-1" /> Revert command
+                                                                            </p>
+                                                                            {REVERT_LOOKUP[entry.tweakId] ? (
+                                                                                <div className="bg-slate-900 dark:bg-[#050505] rounded-lg p-3 border border-border">
+                                                                                    <code className="text-[11px] text-blue-400/80 font-mono break-all leading-loose">
+                                                                                        <span className="text-blue-500 select-none mr-2">PS&gt;</span>
+                                                                                        {REVERT_LOOKUP[entry.tweakId]}
+                                                                                    </code>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <p className="text-[11px] text-slate-500 dark:text-slate-300 italic px-3 py-2 rounded-lg bg-amber-500/[0.06] border border-amber-500/20">
+                                                                                    Permanent — no automatic revert available for this tweak.
+                                                                                </p>
+                                                                            )}
                                                                         </div>
                                                                     )}
                                                                     <div className="flex items-center gap-4 text-[11px] text-slate-500 dark:text-slate-300 font-mono">

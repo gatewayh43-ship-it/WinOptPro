@@ -130,6 +130,7 @@ pub fn run() {
             backup::get_backup_info,
             backup::export_user_data,
             backup::read_installer_config,
+            backup::create_restore_point,
             // Report
             report::generate_system_report,
             report::save_system_report,

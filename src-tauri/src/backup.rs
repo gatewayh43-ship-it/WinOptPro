@@ -248,6 +248,77 @@ pub fn read_installer_config() -> Result<Option<String>, String> {
     }
 }
 
+/// Validate a restore-point description: free text but bounded length and
+/// no PowerShell-meaningful characters that could escape the quoted argument.
+fn validate_restore_point_description(input: &str) -> Result<String, String> {
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        return Err("Description cannot be empty.".to_string());
+    }
+    if trimmed.len() > 64 {
+        return Err("Description must be 64 characters or fewer.".to_string());
+    }
+    // Disallow quote characters and backticks so we cannot break out of the
+    // single-quoted PowerShell string literal we build below.
+    if trimmed.chars().any(|c| matches!(c, '\'' | '"' | '`' | '$' | '\n' | '\r')) {
+        return Err("Description contains unsupported characters.".to_string());
+    }
+    Ok(trimmed.to_string())
+}
+
+/// Create a Windows System Restore Point. Requires admin + System Protection enabled.
+/// Returns Ok(true) on success; Err with a user-readable reason on failure.
+#[tauri::command]
+pub async fn create_restore_point(description: String) -> Result<bool, String> {
+    let safe_desc = validate_restore_point_description(&description)?;
+
+    #[cfg(windows)]
+    {
+        use tokio::process::Command;
+        use tokio::time::{timeout, Duration};
+
+        // Single-quoted PS literal; safe_desc has been validated to contain no
+        // single quotes, dollar signs, or backticks.
+        let script = format!(
+            "Checkpoint-Computer -Description '{}' -RestorePointType MODIFY_SETTINGS",
+            safe_desc
+        );
+
+        let cmd = Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy", "Bypass",
+                "-Command", &script,
+            ])
+            .output();
+
+        let output = timeout(Duration::from_secs(60), cmd)
+            .await
+            .map_err(|_| "Restore point creation timed out after 60s.".to_string())?
+            .map_err(|e| format!("Failed to invoke PowerShell: {}", e))?;
+
+        if output.status.success() {
+            Ok(true)
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            // Surface the most common cause clearly.
+            if stderr.contains("WMI") || stderr.contains("0x80042302") {
+                Err("System Protection is disabled. Enable it in System Properties → System Protection.".to_string())
+            } else if stderr.contains("denied") || stderr.contains("Access") {
+                Err("Permission denied. Restore points require Administrator privileges.".to_string())
+            } else {
+                Err(format!("Restore point creation failed: {}", stderr.trim()))
+            }
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = safe_desc;
+        Err("System Restore is only available on Windows.".to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
