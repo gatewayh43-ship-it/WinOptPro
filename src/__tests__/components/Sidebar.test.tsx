@@ -25,7 +25,7 @@ vi.mock("framer-motion", async () => {
 
 function renderSidebar(currentView: string, setView = vi.fn()) {
     return render(
-        <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+        <ThemeProvider defaultTheme="dark">
             <Sidebar currentView={currentView} setView={setView} />
         </ThemeProvider>
     );
@@ -158,7 +158,7 @@ describe("Sidebar", () => {
         await user.click(screen.getByTitle("Rose"));
 
         expect(screen.queryByTitle("Teal")).not.toBeInTheDocument();
-        expect(localStorage.getItem("vite-ui-color")).toBe("rose");
+        expect(localStorage.getItem("vite-ui-theme")).toBe("dark-rose");
     });
 
     it("closes the color picker when clicking outside (backdrop)", async () => {
