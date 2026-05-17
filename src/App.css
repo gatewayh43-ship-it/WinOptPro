@@ -150,6 +150,65 @@
   --gradient-text: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
 }
 
+.theme-claude {
+  --bg: #F7F3EC;
+  --fg: #1C1917;
+  --card-bg: #FDFAF5;
+  --card-fg: #1C1917;
+  --border: rgba(0, 0, 0, 0.07);
+  --input: rgba(0, 0, 0, 0.04);
+  --primary: #C96A2A;
+  --glass-bg: rgba(253, 250, 245, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --bento-shadow: 0 4px 20px -4px rgba(180, 120, 60, 0.10);
+  --bento-hover-shadow: 0 8px 30px -6px rgba(180, 120, 60, 0.18);
+  --bento-border: rgba(0, 0, 0, 0.05);
+  --gradient-text: linear-gradient(135deg, #C96A2A 0%, #E8924A 100%);
+  --scrollbar-thumb: #D6CAB8;
+  --scrollbar-thumb-hover: #B8A898;
+}
+
+.theme-fluent {
+  --bg: #F0F0F0;
+  --fg: #1C1C1C;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-fg: #1C1C1C;
+  --border: rgba(0, 0, 0, 0.10);
+  --input: rgba(0, 0, 0, 0.04);
+  --primary: #0078D4;
+  --glass-bg: rgba(243, 243, 243, 0.80);
+  --glass-border: rgba(255, 255, 255, 0.60);
+  --bento-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --bento-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  --bento-border: rgba(255, 255, 255, 0.80);
+  --gradient-text: linear-gradient(135deg, #0078D4 0%, #50C8FF 100%);
+  --scrollbar-thumb: #BFBFBF;
+  --scrollbar-thumb-hover: #999999;
+}
+
+.theme-fluent .bento-card {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-cyberpunk {
+  --bg: #050508;
+  --fg: #F0F4F8;
+  --card-bg: #0C0C16;
+  --card-fg: #F0F4F8;
+  --border: rgba(6, 182, 212, 0.12);
+  --input: rgba(6, 182, 212, 0.08);
+  --primary: #22D3EE;
+  --glass-bg: rgba(12, 12, 22, 0.90);
+  --glass-border: rgba(6, 182, 212, 0.15);
+  --bento-shadow: 0 0 0 1px rgba(6, 182, 212, 0.07), 0 10px 30px rgba(0, 0, 0, 0.85);
+  --bento-hover-shadow: 0 0 0 1px rgba(6, 182, 212, 0.20), 0 16px 40px rgba(0, 0, 0, 0.90);
+  --bento-border: rgba(6, 182, 212, 0.10);
+  --gradient-text: linear-gradient(135deg, #22D3EE 0%, #FFFFFF 100%);
+  --scrollbar-thumb: #1E2A35;
+  --scrollbar-thumb-hover: #2A3A48;
+}
+
 /* Custom UI Utilities */
 .glass-panel {
   background: var(--glass-bg);
