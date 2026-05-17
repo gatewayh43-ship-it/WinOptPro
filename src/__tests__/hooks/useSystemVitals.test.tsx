@@ -23,7 +23,6 @@ function settingsWithInterval(ms: number) {
     return {
         userSettings: {
             theme: "dark" as const,
-            colorScheme: "default" as const,
             expertModeEnabled: false,
             autoRefreshVitals: true,
             autoRefreshIntervalMs: ms,
@@ -37,7 +36,6 @@ function settingsWithInterval(ms: number) {
 const settingsNoRefresh = {
     userSettings: {
         theme: "dark" as const,
-        colorScheme: "default" as const,
         expertModeEnabled: false,
         autoRefreshVitals: false,
         autoRefreshIntervalMs: 3000,

@@ -23,7 +23,6 @@ const mockBackupData = {
     applied_tweaks: ["DisableVBS", "DisableMemoryCompression"],
     user_settings: {
         theme: "dark" as const,
-        colorScheme: "default" as const,
         expertModeEnabled: false,
         autoRefreshVitals: true,
         autoRefreshIntervalMs: 3000,
@@ -37,7 +36,6 @@ function resetStore() {
         appliedTweaks: [],
         userSettings: {
             theme: "dark",
-            colorScheme: "default",
             expertModeEnabled: false,
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,

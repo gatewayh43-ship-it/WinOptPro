@@ -6,7 +6,7 @@ import {
     ChevronDown, HelpCircle, Boxes, CalendarClock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "../../hooks/useTheme";
+import { useTheme, ThemeName } from "../../hooks/useTheme";
 
 const COLOR_SCHEMES = [
     { id: "default", color: "#4318FF", label: "Violet" },
@@ -81,8 +81,29 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 export function Sidebar({ currentView, setView }: { currentView: string, setView: (s: string) => void }) {
-    const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
+    const { theme, setTheme } = useTheme();
     const [showColorPicker, setShowColorPicker] = useState(false);
+
+    const isDesignTheme = ["claude", "fluent", "cyberpunk"].includes(theme);
+
+    // Toggle dark/light base while preserving accent
+    const toggleBase = () => {
+        if (theme === "dark")           return setTheme("light");
+        if (theme === "light")          return setTheme("dark");
+        if (theme.startsWith("dark-"))  return setTheme(`light-${theme.slice(5)}` as ThemeName);
+        if (theme.startsWith("light-")) return setTheme(`dark-${theme.slice(6)}` as ThemeName);
+    };
+
+    // Change accent while preserving base
+    const setAccent = (accent: string) => {
+        const base = theme.startsWith("light") ? "light" : "dark";
+        setTheme(accent === "default" ? base : `${base}-${accent}` as ThemeName);
+    };
+
+    // Derive current accent for active ring display
+    const currentAccent = (theme === "dark" || theme === "light")
+        ? "default"
+        : theme.split("-")[1];
 
     // Track expanded groups - all expanded by default
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
@@ -231,42 +252,46 @@ export function Sidebar({ currentView, setView }: { currentView: string, setView
 
             {/* Theme Controls */}
             <div className="px-2 lg:px-5 mb-4 flex flex-col lg:flex-row lg:grid lg:grid-cols-2 gap-2">
-                <button
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="flex items-center justify-center p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5"
-                    title="Toggle Theme"
-                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                    {theme === "dark" ? <Sun className="w-4 h-4 text-slate-400" /> : <Moon className="w-4 h-4 text-slate-500 dark:text-slate-300" />}
-                </button>
-                <div className="relative">
-                    {showColorPicker && (
-                        <>
-                            <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)} />
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-card border border-border rounded-2xl shadow-2xl flex flex-col gap-1.5 z-50">
-                                {COLOR_SCHEMES.map(scheme => (
-                                    <button
-                                        key={scheme.id}
-                                        title={scheme.label}
-                                        aria-label={`Set color scheme to ${scheme.label}`}
-                                        onClick={() => { setColorScheme(scheme.id as any); setShowColorPicker(false); }}
-                                        className={`w-5 h-5 rounded-full transition-all hover:scale-110 active:scale-95 ${colorScheme === scheme.id ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110" : ""}`}
-                                        style={{ backgroundColor: scheme.color }}
-                                    />
-                                ))}
-                            </div>
-                        </>
-                    )}
+                {!isDesignTheme && (
                     <button
-                        onClick={() => setShowColorPicker(!showColorPicker)}
+                        onClick={toggleBase}
                         className="flex items-center justify-center p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5"
-                        title="Change Color Theme"
-                        aria-label="Change color theme"
-                        aria-expanded={showColorPicker}
+                        title="Toggle Theme"
+                        aria-label={theme.startsWith("dark") ? "Switch to light mode" : "Switch to dark mode"}
                     >
-                        <div className="w-4 h-4 rounded-full border-2 border-current opacity-60" style={{ backgroundColor: COLOR_SCHEMES.find(s => s.id === colorScheme)?.color ?? "#4318FF" }} />
+                        {theme.startsWith("dark") ? <Sun className="w-4 h-4 text-slate-400" /> : <Moon className="w-4 h-4 text-slate-500 dark:text-slate-300" />}
                     </button>
-                </div>
+                )}
+                {!isDesignTheme && (
+                    <div className="relative">
+                        {showColorPicker && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)} />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-card border border-border rounded-2xl shadow-2xl flex flex-col gap-1.5 z-50">
+                                    {COLOR_SCHEMES.map(scheme => (
+                                        <button
+                                            key={scheme.id}
+                                            title={scheme.label}
+                                            aria-label={`Set color scheme to ${scheme.label}`}
+                                            onClick={() => { setAccent(scheme.id); setShowColorPicker(false); }}
+                                            className={`w-5 h-5 rounded-full transition-all hover:scale-110 active:scale-95 ${currentAccent === scheme.id ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110" : ""}`}
+                                            style={{ backgroundColor: scheme.color }}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                        <button
+                            onClick={() => setShowColorPicker(!showColorPicker)}
+                            className="flex items-center justify-center p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors border border-black/5 dark:border-white/5"
+                            title="Change Color Theme"
+                            aria-label="Change color theme"
+                            aria-expanded={showColorPicker}
+                        >
+                            <div className="w-4 h-4 rounded-full border-2 border-current opacity-60" style={{ backgroundColor: COLOR_SCHEMES.find(s => s.id === currentAccent)?.color ?? "#4318FF" }} />
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Command Palette Trigger */}

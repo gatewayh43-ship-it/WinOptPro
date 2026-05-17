@@ -46,7 +46,7 @@ const IS_GAMING_OVERLAY = window.location.hash === "#gaming-overlay";
 // Overlay shell — renders independently, no sidebar or chrome
 function OverlayApp() {
   return (
-    <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+    <ThemeProvider defaultTheme="dark">
       <GamingOverlayPage />
     </ThemeProvider>
   );
@@ -282,14 +282,14 @@ function App() {
 
   if (showConsent) {
     return (
-      <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+      <ThemeProvider defaultTheme="dark">
         <ConsentModal onAccept={handleConsentAccept} onDecline={handleConsentDecline} />
       </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider defaultTheme="dark" defaultColorScheme="default">
+    <ThemeProvider defaultTheme="dark">
       <ToastProvider>
         <AdminChecker />
         <BootErrorReporter />
