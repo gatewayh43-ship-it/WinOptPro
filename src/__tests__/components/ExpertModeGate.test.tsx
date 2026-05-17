@@ -27,7 +27,6 @@ function setExpertMode(enabled: boolean) {
     useAppStore.setState({
         userSettings: {
             theme: "dark",
-            colorScheme: "default",
             expertModeEnabled: enabled,
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,

@@ -264,7 +264,6 @@ describe("TweaksPage integration", () => {
         useAppStore.setState({
             userSettings: {
                 theme: "dark",
-                colorScheme: "default",
                 expertModeEnabled: false,
                 autoRefreshVitals: true,
                 autoRefreshIntervalMs: 3000,

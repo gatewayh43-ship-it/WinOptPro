@@ -30,7 +30,6 @@ function resetStore() {
     useAppStore.setState({
         userSettings: {
             theme: "dark",
-            colorScheme: "default",
             expertModeEnabled: false,
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,
