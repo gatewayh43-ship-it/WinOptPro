@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ThemeName } from "@/hooks/useTheme";
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -96,8 +97,7 @@ export interface TweakHistoryEntry {
 }
 
 export interface UserSettings {
-  theme: "dark" | "light";
-  colorScheme: "default" | "teal" | "rose" | "amber" | "emerald" | "violet";
+  theme: ThemeName;
   expertModeEnabled: boolean;
   autoRefreshVitals: boolean;
   autoRefreshIntervalMs: number;
@@ -152,7 +152,6 @@ export const useAppStore = create<AppState>()(
       appliedTweaks: [],
       userSettings: {
         theme: "dark",
-        colorScheme: "default",
         expertModeEnabled: false,
         autoRefreshVitals: true,
         autoRefreshIntervalMs: 3000,
@@ -218,6 +217,20 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "winopt-storage",
+      version: 2,
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as any;
+        if (version < 2) {
+          const t = state?.userSettings?.theme ?? "dark";
+          const c = state?.userSettings?.colorScheme ?? "default";
+          const merged = c === "default" ? t : `${t}-${c}`;
+          return {
+            ...state,
+            userSettings: { ...state.userSettings, theme: merged, colorScheme: undefined },
+          };
+        }
+        return state;
+      },
       partialize: (state) => ({
         appliedTweaks: state.appliedTweaks,
         userSettings: state.userSettings,
