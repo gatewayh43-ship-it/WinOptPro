@@ -1,28 +1,42 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light";
-type ColorScheme = "default" | "teal" | "rose" | "amber" | "emerald" | "violet";
+export type ThemeName =
+  | "dark" | "dark-teal" | "dark-rose" | "dark-amber" | "dark-emerald" | "dark-violet"
+  | "light" | "light-teal" | "light-rose" | "light-amber" | "light-emerald" | "light-violet"
+  | "claude" | "fluent" | "cyberpunk";
+
+type ThemeProviderState = {
+    theme: ThemeName;
+    setTheme: (theme: ThemeName) => void;
+};
+
+const CLASS_MAP: Record<ThemeName, string[]> = {
+    "dark":           ["dark"],
+    "dark-teal":      ["dark", "theme-teal"],
+    "dark-rose":      ["dark", "theme-rose"],
+    "dark-amber":     ["dark", "theme-amber"],
+    "dark-emerald":   ["dark", "theme-emerald"],
+    "dark-violet":    ["dark", "theme-violet"],
+    "light":          ["light"],
+    "light-teal":     ["light", "theme-teal"],
+    "light-rose":     ["light", "theme-rose"],
+    "light-amber":    ["light", "theme-amber"],
+    "light-emerald":  ["light", "theme-emerald"],
+    "light-violet":   ["light", "theme-violet"],
+    "claude":         ["light", "theme-claude"],
+    "fluent":         ["light", "theme-fluent"],
+    "cyberpunk":      ["dark",  "theme-cyberpunk"],
+};
 
 type ThemeProviderProps = {
     children: React.ReactNode;
-    defaultTheme?: Theme;
-    defaultColorScheme?: ColorScheme;
+    defaultTheme?: ThemeName;
     storageKey?: string;
-    colorStorageKey?: string;
-};
-
-type ThemeProviderState = {
-    theme: Theme;
-    colorScheme: ColorScheme;
-    setTheme: (theme: Theme) => void;
-    setColorScheme: (scheme: ColorScheme) => void;
 };
 
 const initialState: ThemeProviderState = {
     theme: "dark",
-    colorScheme: "default" as ColorScheme,
     setTheme: () => null,
-    setColorScheme: () => null,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -30,42 +44,33 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 export function ThemeProvider({
     children,
     defaultTheme = "dark",
-    defaultColorScheme = "default",
     storageKey = "vite-ui-theme",
-    colorStorageKey = "vite-ui-color",
     ...props
 }: ThemeProviderProps) {
-    const [theme, setTheme] = useState<Theme>(
-        () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-    );
-
-    const [colorScheme, setColorScheme] = useState<ColorScheme>(
-        () => (localStorage.getItem(colorStorageKey) as ColorScheme) || defaultColorScheme
+    const [theme, setTheme] = useState<ThemeName>(
+        () => (localStorage.getItem(storageKey) as ThemeName) || defaultTheme
     );
 
     useEffect(() => {
         const root = window.document.documentElement;
 
-        root.classList.remove("light", "dark");
-        root.classList.add(theme);
+        // Remove all existing dark/light and theme-* classes
+        const classesToRemove = Array.from(root.classList).filter(
+            (cls) => cls === "dark" || cls === "light" || cls.startsWith("theme-")
+        );
+        root.classList.remove(...classesToRemove);
 
-        // Manage color schemes
-        const themeClasses = ["theme-default", "theme-teal", "theme-rose", "theme-amber", "theme-emerald", "theme-violet"];
-        root.classList.remove(...themeClasses);
-        root.classList.add(`theme-${colorScheme}`);
-    }, [theme, colorScheme]);
+        // Add the classes for the current theme
+        root.classList.add(...CLASS_MAP[theme]);
 
-    const value = {
+        localStorage.setItem(storageKey, theme);
+    }, [theme, storageKey]);
+
+    const value: ThemeProviderState = {
         theme,
-        colorScheme,
-        setTheme: (theme: Theme) => {
-            localStorage.setItem(storageKey, theme);
-            setTheme(theme);
+        setTheme: (newTheme: ThemeName) => {
+            setTheme(newTheme);
         },
-        setColorScheme: (scheme: ColorScheme) => {
-            localStorage.setItem(colorStorageKey, scheme);
-            setColorScheme(scheme);
-        }
     };
 
     return (
