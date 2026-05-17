@@ -32,7 +32,10 @@ fn detect_vendor(pnp_id: &str, name: &str) -> String {
     let name_upper = name.to_uppercase();
     if pnp_upper.contains("VEN_10DE") || name_upper.contains("NVIDIA") {
         "NVIDIA".to_string()
-    } else if pnp_upper.contains("VEN_1002") || name_upper.contains("AMD") || name_upper.contains("RADEON") {
+    } else if pnp_upper.contains("VEN_1002")
+        || name_upper.contains("AMD")
+        || name_upper.contains("RADEON")
+    {
         "AMD".to_string()
     } else if pnp_upper.contains("VEN_8086") || name_upper.contains("INTEL") {
         "Intel".to_string()
@@ -79,8 +82,8 @@ $controllers | ConvertTo-Json -Compress
         pnp_device_id: Option<String>,
     }
 
-    let controllers: Vec<WmiController> = serde_json::from_str(&stdout)
-        .map_err(|e| format!("Failed to parse GPU info: {}", e))?;
+    let controllers: Vec<WmiController> =
+        serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse GPU info: {}", e))?;
 
     // Get pnputil INF mapping
     let pnputil_out = Command::new("pnputil")
@@ -105,7 +108,12 @@ $controllers | ConvertTo-Json -Compress
         // Parse WMI date format: "20231005000000.000000+000" → "2023-10-05"
         let raw_date = ctrl.driver_date.unwrap_or_default();
         let date = if raw_date.len() >= 8 {
-            format!("{}-{}-{}", &raw_date[0..4], &raw_date[4..6], &raw_date[6..8])
+            format!(
+                "{}-{}-{}",
+                &raw_date[0..4],
+                &raw_date[4..6],
+                &raw_date[6..8]
+            )
         } else {
             raw_date
         };
@@ -147,7 +155,10 @@ fn find_inf_for_vendor(pnputil_text: &str, vendor: &str) -> String {
 
 /// Uninstall GPU drivers for a given vendor via pnputil + registry sweep
 #[command]
-pub fn uninstall_gpu_drivers(vendor: String, delete_driver_store: bool) -> Result<DriverRemovalResult, String> {
+pub fn uninstall_gpu_drivers(
+    vendor: String,
+    delete_driver_store: bool,
+) -> Result<DriverRemovalResult, String> {
     let mut log = Vec::new();
     let mut removed_packages = Vec::new();
 
@@ -164,7 +175,10 @@ pub fn uninstall_gpu_drivers(vendor: String, delete_driver_store: bool) -> Resul
     let infs = collect_vendor_infs(&pnputil_text, &vendor);
 
     if infs.is_empty() {
-        log.push(format!("No {} driver packages found in driver store.", vendor));
+        log.push(format!(
+            "No {} driver packages found in driver store.",
+            vendor
+        ));
         return Ok(DriverRemovalResult {
             success: true,
             vendor,
@@ -174,7 +188,11 @@ pub fn uninstall_gpu_drivers(vendor: String, delete_driver_store: bool) -> Resul
         });
     }
 
-    log.push(format!("Found {} driver package(s): {}", infs.len(), infs.join(", ")));
+    log.push(format!(
+        "Found {} driver package(s): {}",
+        infs.len(),
+        infs.join(", ")
+    ));
 
     // Step 2: delete each INF
     for inf in &infs {
@@ -207,7 +225,10 @@ pub fn uninstall_gpu_drivers(vendor: String, delete_driver_store: bool) -> Resul
     log.push("Sweeping registry...".to_string());
     sweep_gpu_registry(&vendor, &mut log);
 
-    log.push(format!("{} driver removal complete. Reboot required.", vendor));
+    log.push(format!(
+        "{} driver removal complete. Reboot required.",
+        vendor
+    ));
     Ok(DriverRemovalResult {
         success: true,
         vendor,
@@ -245,15 +266,26 @@ fn collect_vendor_infs(pnputil_text: &str, vendor: &str) -> Vec<String> {
 fn sweep_gpu_registry(vendor: &str, log: &mut Vec<String>) {
     // Clean per-device Video registry entries
     let video_key_result = Command::new("reg")
-        .args(["query", r"HKLM\SYSTEM\CurrentControlSet\Control\Video", "/s", "/k"])
+        .args([
+            "query",
+            r"HKLM\SYSTEM\CurrentControlSet\Control\Video",
+            "/s",
+            "/k",
+        ])
         .creation_flags(CREATE_NO_WINDOW)
         .output();
 
     if let Ok(out) = video_key_result {
         let text = String::from_utf8_lossy(&out.stdout).to_string();
         let vendor_upper = vendor.to_uppercase();
-        let count = text.lines().filter(|l| l.to_uppercase().contains(&vendor_upper)).count();
-        log.push(format!("  Found {} Video registry key(s) referencing {}", count, vendor));
+        let count = text
+            .lines()
+            .filter(|l| l.to_uppercase().contains(&vendor_upper))
+            .count();
+        log.push(format!(
+            "  Found {} Video registry key(s) referencing {}",
+            count, vendor
+        ));
     }
 
     // Try to delete vendor-specific software key
@@ -281,7 +313,11 @@ fn sweep_gpu_registry(vendor: &str, log: &mut Vec<String>) {
 pub fn schedule_safe_mode_removal(vendor: String) -> Result<bool, String> {
     let vendor = canonical_gpu_vendor(&vendor)?;
     let temp_dir = std::env::var("TEMP").unwrap_or_else(|_| "C:\\Windows\\Temp".to_string());
-    let script_path = format!("{}\\winopt_gpu_cleanup_{}.ps1", temp_dir, vendor.to_lowercase());
+    let script_path = format!(
+        "{}\\winopt_gpu_cleanup_{}.ps1",
+        temp_dir,
+        vendor.to_lowercase()
+    );
 
     let vendor_lower = vendor.to_lowercase();
     let script = format!(
@@ -339,7 +375,13 @@ Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOn
 #[command]
 pub fn reboot_system() -> Result<bool, String> {
     let result = Command::new("shutdown")
-        .args(["/r", "/t", "5", "/c", "WinOpt Pro: GPU driver removal reboot"])
+        .args([
+            "/r",
+            "/t",
+            "5",
+            "/c",
+            "WinOpt Pro: GPU driver removal reboot",
+        ])
         .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|e| format!("Failed to run shutdown: {}", e))?;

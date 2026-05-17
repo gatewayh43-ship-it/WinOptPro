@@ -199,13 +199,7 @@ pub async fn execute_batch_tweaks(
     let mut results = Vec::with_capacity(tweaks.len());
 
     for tweak in tweaks {
-        let result = execute_tweak(
-            db.clone(),
-            tweak.id,
-            tweak.name,
-            tweak.code,
-        )
-        .await?;
+        let result = execute_tweak(db.clone(), tweak.id, tweak.name, tweak.code).await?;
         results.push(result);
     }
 

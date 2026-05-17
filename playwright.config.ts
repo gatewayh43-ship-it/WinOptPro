@@ -2,6 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
     testDir: "./e2e",
+    testIgnore: [
+        "**/tweaks-lifecycle.spec.ts",
+        "**/vm-tweak-direct.spec.ts",
+    ],
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,

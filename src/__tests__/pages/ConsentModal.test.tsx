@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, setupUser } from "@/test/utils";
+import { fireEvent, render, screen, setupUser } from "@/test/utils";
 import { ConsentModal } from "@/components/ConsentModal";
 
 describe("ConsentModal", () => {
@@ -38,5 +38,33 @@ describe("ConsentModal", () => {
         await user.click(screen.getByRole("button", { name: /Decline & Exit/i }));
         expect(onDecline).toHaveBeenCalledTimes(1);
         expect(onAccept).not.toHaveBeenCalled();
+    });
+
+    it("calls onDecline when Escape is pressed", () => {
+        const onAccept = vi.fn();
+        const onDecline = vi.fn();
+        render(<ConsentModal onAccept={onAccept} onDecline={onDecline} />);
+
+        fireEvent.keyDown(document, { key: "Escape" });
+
+        expect(onDecline).toHaveBeenCalledTimes(1);
+        expect(onAccept).not.toHaveBeenCalled();
+    });
+
+    it("keeps Tab focus inside the modal", () => {
+        const onAccept = vi.fn();
+        const onDecline = vi.fn();
+        render(<ConsentModal onAccept={onAccept} onDecline={onDecline} />);
+
+        const accept = screen.getByRole("button", { name: /Accept & Continue/i });
+        const decline = screen.getByRole("button", { name: /Decline & Exit/i });
+
+        expect(accept).toHaveFocus();
+        decline.focus();
+        fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+        expect(accept).toHaveFocus();
+
+        fireEvent.keyDown(document, { key: "Tab" });
+        expect(decline).toHaveFocus();
     });
 });

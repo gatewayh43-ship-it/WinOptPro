@@ -46,13 +46,18 @@ pub fn get_power_plans() -> Result<Vec<PowerPlan>, String> {
         if line.contains("Power Scheme GUID:") {
             // Line format: Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced) *
             let parts: Vec<&str> = line.split("  (").collect();
-            if parts.len() < 2 { continue; }
-            
-            let guid_part = parts[0].replace("Power Scheme GUID: ", "").trim().to_string();
-            
+            if parts.len() < 2 {
+                continue;
+            }
+
+            let guid_part = parts[0]
+                .replace("Power Scheme GUID: ", "")
+                .trim()
+                .to_string();
+
             let name_end_idx = parts[1].rfind(')').unwrap_or(parts[1].len());
             let name = parts[1][..name_end_idx].to_string();
-            
+
             let is_active = line.ends_with('*');
 
             plans.push(PowerPlan {
@@ -123,7 +128,8 @@ if ($null -ne $b) {
 
 #[tauri::command]
 pub fn get_power_settings(guid: String) -> Result<PowerSettings, String> {
-    let script = format!(r#"
+    let script = format!(
+        r#"
 $g = '{}'
 $proc = '54533251-82be-4824-96c1-47b60b740d00'
 $minP = '893dee8e-2bef-41e0-89c6-b55d0929964c'
@@ -149,7 +155,9 @@ function Get-Val([string[]]$a) {{
     display_timeout_dc = Get-Val @('/getdcvalueindex',$g,$disp,$dispOff)
     sleep_timeout_dc = Get-Val @('/getdcvalueindex',$g,$slp,$slpTO)
 }} | ConvertTo-Json -Compress
-"#, guid);
+"#,
+        guid
+    );
 
     let output = Command::new("powershell")
         .args(["-NoProfile", "-NonInteractive", "-Command", &script])
@@ -170,9 +178,19 @@ pub fn set_power_setting(
     value: u32,
     is_dc: bool,
 ) -> Result<bool, String> {
-    let idx_flag = if is_dc { "/setdcvalueindex" } else { "/setacvalueindex" };
+    let idx_flag = if is_dc {
+        "/setdcvalueindex"
+    } else {
+        "/setacvalueindex"
+    };
     let output = Command::new("powercfg")
-        .args([idx_flag, &guid, &sub_guid, &setting_guid, &value.to_string()])
+        .args([
+            idx_flag,
+            &guid,
+            &sub_guid,
+            &setting_guid,
+            &value.to_string(),
+        ])
         .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|e| format!("Failed to set power setting: {}", e))?;

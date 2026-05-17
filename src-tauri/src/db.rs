@@ -268,5 +268,4 @@ mod tests {
             .unwrap();
         assert_eq!(cmd, "reg add HKCU\\test");
     }
-
 }

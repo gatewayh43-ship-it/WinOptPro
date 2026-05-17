@@ -89,8 +89,14 @@ try {{
             .map_err(|e| format!("Elevated command failed: {}", e))?;
 
         // Read output files
-        let output = std::fs::read_to_string(&output_path).unwrap_or_default().trim().to_string();
-        let error = std::fs::read_to_string(&error_path).unwrap_or_default().trim().to_string();
+        let output = std::fs::read_to_string(&output_path)
+            .unwrap_or_default()
+            .trim()
+            .to_string();
+        let error = std::fs::read_to_string(&error_path)
+            .unwrap_or_default()
+            .trim()
+            .to_string();
         let success = result.status.success() && error.is_empty();
 
         // Cleanup temp files
@@ -156,7 +162,8 @@ pub async fn defender_get_status() -> Result<DefenderStatus, String> {
         }
 
         let json = String::from_utf8_lossy(&output.stdout);
-        let status: DefenderStatus = serde_json::from_str(&json).map_err(|e| format!("JSON parsing error: {} - '{}'", e, json))?;
+        let status: DefenderStatus = serde_json::from_str(&json)
+            .map_err(|e| format!("JSON parsing error: {} - '{}'", e, json))?;
         Ok(status)
     }
     #[cfg(not(windows))]
@@ -169,7 +176,11 @@ pub async fn defender_get_status() -> Result<DefenderStatus, String> {
 pub async fn defender_run_scan(scan_type: String) -> Result<String, String> {
     #[cfg(windows)]
     {
-        let type_arg = if scan_type.to_lowercase() == "full" { "FullScan" } else { "QuickScan" };
+        let type_arg = if scan_type.to_lowercase() == "full" {
+            "FullScan"
+        } else {
+            "QuickScan"
+        };
         let code = format!("Start-MpScan -ScanType {}", type_arg);
         let res = run_elevated_powershell(&code).await?;
         if res.success {
@@ -236,7 +247,11 @@ mod tests {
     #[test]
     fn test_is_admin_returns_bool_result() {
         let result = is_admin();
-        assert!(result.is_ok(), "is_admin() must not return Err: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "is_admin() must not return Err: {:?}",
+            result
+        );
         let _ = result.unwrap();
     }
 

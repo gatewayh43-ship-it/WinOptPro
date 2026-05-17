@@ -5,7 +5,16 @@ import { test, expect, Page } from "@playwright/test";
 /** Clear onboarding flag so it doesn't block tests. */
 async function skipOnboarding(page: Page) {
     await page.addInitScript(() => {
+        window.localStorage.setItem("consent-accepted", "true");
         window.localStorage.setItem("onboardingComplete", "true");
+    });
+    await page.goto("/");
+}
+
+async function showOnboarding(page: Page) {
+    await page.addInitScript(() => {
+        window.localStorage.setItem("consent-accepted", "true");
+        window.localStorage.removeItem("onboardingComplete");
     });
     await page.goto("/");
 }
@@ -22,12 +31,12 @@ async function navigateTo(page: Page, label: string) {
 
 test.describe("AC-01: Onboarding Modal", () => {
     test("shows onboarding modal on first visit", async ({ page }) => {
-        await page.goto("/");
+        await showOnboarding(page);
         await expect(page.getByText(/Monitor your CPU, RAM/i)).toBeVisible({ timeout: 8000 });
     });
 
     test("advances through all 3 steps and closes", async ({ page }) => {
-        await page.goto("/");
+        await showOnboarding(page);
         await expect(page.getByText(/Monitor your CPU, RAM/i)).toBeVisible();
         // Step 1 → 2
         await page.getByRole("button", { name: /next/i }).click();
@@ -41,7 +50,7 @@ test.describe("AC-01: Onboarding Modal", () => {
     });
 
     test("sets localStorage flag on completion", async ({ page }) => {
-        await page.goto("/");
+        await showOnboarding(page);
         await page.getByRole("button", { name: /next/i }).click();
         await page.getByRole("button", { name: /next/i }).click();
         await page.getByRole("button", { name: /get started/i }).click();
@@ -63,7 +72,8 @@ test.describe("Core Navigation", () => {
     test.beforeEach(async ({ page }) => { await skipOnboarding(page); });
 
     test("loads the dashboard view by default", async ({ page }) => {
-        await expect(page.getByText(/system health/i)).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole("heading", { name: /Good (morning|afternoon|evening), Commander/i })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByRole("heading", { name: /Health Index/i })).toBeVisible();
     });
 
     test("navigates to Performance view via sidebar", async ({ page }) => {
@@ -92,7 +102,7 @@ test.describe("Core Navigation", () => {
         { title: "Network Analyzer", heading: /Network Analyzer/i },
         { title: "Startup Apps", heading: /Startup/i },
         { title: "Storage Optimizer", heading: /Storage/i },
-        { title: "Recommended Apps", heading: /Recommended Apps|Curated/i },
+        { title: "App Store", heading: /App Store/i },
         { title: "Profiles", heading: /Profiles/i },
         { title: "History", heading: /History/i },
         { title: "Settings", heading: /Settings/i },
@@ -158,7 +168,10 @@ test.describe("AC-05: Command Palette", () => {
 // ═════════════════════════════════════════════════════════════════════════════
 
 test.describe("AC-13: Dashboard — System Vitals", () => {
-    test.beforeEach(async ({ page }) => { await skipOnboarding(page); });
+    test.beforeEach(async ({ page }) => {
+        await skipOnboarding(page);
+        await navigateTo(page, "System Dashboard");
+    });
 
     test("shows Live Telemetry status indicator", async ({ page }) => {
         // Should show either "Live Telemetry Active" or "Connecting…"
@@ -213,7 +226,10 @@ test.describe("AC-13: Dashboard — System Vitals", () => {
 // ═════════════════════════════════════════════════════════════════════════════
 
 test.describe("AC-07: Dashboard Alert Banner", () => {
-    test.beforeEach(async ({ page }) => { await skipOnboarding(page); });
+    test.beforeEach(async ({ page }) => {
+        await skipOnboarding(page);
+        await navigateTo(page, "System Dashboard");
+    });
 
     test("privacy alert banner is visible on dashboard", async ({ page }) => {
         await expect(
@@ -532,10 +548,10 @@ test.describe("Startup Manager Page", () => {
     });
 
     test("shows items count or loading state", async ({ page }) => {
-        const count = page.getByText(/Startup Items Detected/i);
-        const scanning = page.getByText(/Scanning registry/i);
-        const noItems = page.getByText(/No startup items/i);
-        await expect(count.or(scanning).or(noItems)).toBeVisible({ timeout: 10000 });
+        await expect(page.locator("body")).toContainText(
+            /Startup Items Detected|Scanning registry|No startup items/i,
+            { timeout: 10000 }
+        );
     });
 });
 
@@ -564,10 +580,10 @@ test.describe("Storage Optimizer Page", () => {
     });
 
     test("shows categories or scanning/clean state", async ({ page }) => {
-        const categories = page.getByText(/Categories Found/i);
-        const scanning = page.getByText(/Deep scanning/i);
-        const clean = page.getByText(/Your system is clean/i);
-        await expect(categories.or(scanning).or(clean)).toBeVisible({ timeout: 10000 });
+        await expect(page.locator("body")).toContainText(
+            /Categories Found|Deep scanning|Your system is clean/i,
+            { timeout: 10000 }
+        );
     });
 });
 
@@ -616,23 +632,24 @@ test.describe("Network Analyzer Page", () => {
 test.describe("Apps Page", () => {
     test.beforeEach(async ({ page }) => {
         await skipOnboarding(page);
-        await navigateTo(page, "Recommended Apps");
+        await navigateTo(page, "App Store");
     });
 
-    test("displays Recommended Apps heading", async ({ page }) => {
+    test("displays App Store heading", async ({ page }) => {
         await expect(
-            page.getByText(/Recommended Apps|Curated essential software/i).first()
+            page.getByRole("heading", { name: /App Store/i }).first()
         ).toBeVisible({ timeout: 5000 });
     });
 
-    test("shows category tabs", async ({ page }) => {
-        // Should have at least "All" and some categories
-        await expect(page.getByText("All").first()).toBeVisible({ timeout: 5000 });
+    test("shows app discovery controls", async ({ page }) => {
+        await expect(page.getByText(/Carousel/i).first()).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText(/List/i).first()).toBeVisible();
+        await expect(page.getByText(/App Bundles/i).first()).toBeVisible();
     });
 
     test("has search input", async ({ page }) => {
         await expect(
-            page.getByPlaceholder(/Search/i)
+            page.getByPlaceholder(/Search packages/i)
         ).toBeVisible({ timeout: 5000 });
     });
 
@@ -709,9 +726,8 @@ test.describe("Power Manager Page", () => {
         await expect(page.getByText(/Current Active Profile/i).first()).toBeVisible({ timeout: 5000 });
     });
 
-    test("shows at least one power plan with GUID", async ({ page }) => {
+    test("shows available power profiles", async ({ page }) => {
         await expect(page.getByText(/Available Profiles/i).first()).toBeVisible({ timeout: 5000 });
-        const guidRegex = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i;
-        await expect(page.getByText(guidRegex).first()).toBeVisible({ timeout: 5000 });
+        await expect(page.getByRole("heading", { name: /Balanced|High performance|Power saver/i }).first()).toBeVisible({ timeout: 5000 });
     });
 });

@@ -81,8 +81,12 @@ try {
     }
 
     if ($Recreate -and (Test-Path $VMPath)) {
-        Write-Host "Removing existing VM path $VMPath..." -ForegroundColor Yellow
-        Remove-Item -Path $VMPath -Recurse -Force
+        Write-Host "Removing existing VM artifacts while preserving copied IsoSource..." -ForegroundColor Yellow
+        foreach ($target in @($VHDPath, $ISOPath, (Join-Path $VMPath $VMName))) {
+            if (Test-Path $target) {
+                Remove-Item -Path $target -Recurse -Force
+            }
+        }
     }
 
     New-Item -Path $VMPath -ItemType Directory -Force | Out-Null
@@ -92,13 +96,56 @@ try {
         New-Item -Path $isoSource -ItemType Directory -Force | Out-Null
     }
 
-    Write-Host "[1/8] Copying Windows media from $USBDrive to $isoSource..." -ForegroundColor Yellow
-    robocopy "$USBDrive\" "$isoSource" /MIR /XD "System Volume Information" /R:2 /W:2 /NFL /NDL /NJH /NJS | Out-Null
-    if ($LASTEXITCODE -gt 7) {
-        throw "robocopy failed with exit code $LASTEXITCODE"
+    Write-Host "[1/8] Preparing Windows media from $USBDrive..." -ForegroundColor Yellow
+    $isoSourceReady = (Test-Path (Join-Path $isoSource "setup.exe")) -and
+        (Test-Path (Join-Path $isoSource "sources\install.wim")) -and
+        (Test-Path (Join-Path $isoSource "boot\etfsboot.com")) -and
+        ((Test-Path (Join-Path $isoSource "efi\microsoft\boot\efisys_noprompt.bin")) -or
+         (Test-Path (Join-Path $isoSource "efi\microsoft\boot\efisys.bin"))) -and
+        ((Get-ChildItem -Path $isoSource -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count -gt 1000)
+
+    if ($isoSourceReady) {
+        Write-Host "  OK IsoSource already exists and looks complete; skipping media copy." -ForegroundColor Green
+    } else {
+        Write-Host "  Syncing Windows media from $USBDrive to $isoSource..." -ForegroundColor DarkGray
+        $sourceRoot = (Resolve-Path "$USBDrive\").Path.TrimEnd("\")
+        $sourceFiles = Get-ChildItem -Path "$sourceRoot\" -Recurse -File -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch "\\System Volume Information\\" }
+
+        $copied = 0
+        $skipped = 0
+        foreach ($sourceFile in $sourceFiles) {
+            $relativePath = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart("\")
+            $destFile = Join-Path $isoSource $relativePath
+            $destDir = Split-Path $destFile -Parent
+            if (-not (Test-Path $destDir)) {
+                New-Item -Path $destDir -ItemType Directory -Force | Out-Null
+            }
+
+            if ((Test-Path $destFile) -and ((Get-Item $destFile).Length -eq $sourceFile.Length)) {
+                $skipped++
+                continue
+            }
+
+            Copy-Item -LiteralPath $sourceFile.FullName -Destination $destFile -Force
+            $copied++
+        }
+
+        Write-Host "  OK Media sync complete. Copied: $copied, skipped unchanged: $skipped" -ForegroundColor Green
+
+        $postCopyCount = (Get-ChildItem -Path $isoSource -Recurse -File -ErrorAction SilentlyContinue | Measure-Object).Count
+        if ($postCopyCount -lt 1000) {
+            throw "IsoSource still looks incomplete after copy. File count: $postCopyCount"
+        }
     }
 
     Write-Host "[2/8] Writing unattended install answer file..." -ForegroundColor Yellow
+    $oemUnattend = Join-Path $isoSource 'sources\$OEM$\$$\Panther\unattend.xml'
+    if (Test-Path $oemUnattend) {
+        Write-Host "  Removing OEM Panther unattend file that would override WinOpt test account settings." -ForegroundColor Yellow
+        Remove-Item -Path $oemUnattend -Force
+    }
+
     $escapedUser = [Security.SecurityElement]::Escape($GuestUser)
     $escapedPassword = [Security.SecurityElement]::Escape($GuestPassword)
     $escapedProductKey = [Security.SecurityElement]::Escape($ProductKey)
@@ -228,20 +275,35 @@ try {
           <PlainText>true</PlainText>
         </Password>
       </AutoLogon>
-      <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
-          <Order>1</Order>
-          <Description>Enable PowerShell automation</Description>
-          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "Enable-PSRemoting -Force -SkipNetworkProfileCheck; Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force; New-NetFirewallRule -DisplayName 'WinOpt Vite Dev' -Direction Inbound -LocalPort 1420 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue"</CommandLine>
-        </SynchronousCommand>
-      </FirstLogonCommands>
     </component>
   </settings>
 </unattend>
 "@
 
     $answerPath = Join-Path $isoSource "Autounattend.xml"
+    $unattendPathMatches = [regex]::Matches($autounattend, '<Path>(.*?)</Path>', [System.Text.RegularExpressions.RegexOptions]::Singleline)
+    foreach ($match in $unattendPathMatches) {
+        $pathValue = $match.Groups[1].Value
+        if ($pathValue.Length -gt 259) {
+            throw "Generated Autounattend.xml contains a RunSynchronous Path longer than Windows Setup allows (259 chars): $($pathValue.Substring(0, 120))..."
+        }
+    }
     Set-Content -Path $answerPath -Value $autounattend -Encoding UTF8
+
+    $setupScriptsDir = Join-Path $isoSource 'sources\$OEM$\$$\Setup\Scripts'
+    New-Item -Path $setupScriptsDir -ItemType Directory -Force | Out-Null
+    $setupComplete = @"
+@echo off
+set LOG=C:\WinOpt-SetupComplete.log
+echo WinOpt SetupComplete started %DATE% %TIME% > %LOG%
+net user "$GuestUser" "$GuestPassword" /add /y >> %LOG% 2>&1
+net localgroup Administrators "$GuestUser" /add >> %LOG% 2>&1
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f >> %LOG% 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Enable-PSRemoting -Force -SkipNetworkProfileCheck; Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force; New-NetFirewallRule -DisplayName 'WinOpt Vite Dev' -Direction Inbound -LocalPort 1420 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'WinOpt Playwright CDP' -Direction Inbound -LocalPort 9222 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue; New-Item -Path 'C:\WinOpt' -ItemType Directory -Force | Out-Null" >> %LOG% 2>&1
+echo WinOpt SetupComplete finished %DATE% %TIME% >> %LOG%
+exit /b 0
+"@
+    Set-Content -Path (Join-Path $setupScriptsDir "SetupComplete.cmd") -Value $setupComplete -Encoding ASCII
 
     Write-Host "[3/8] Locating oscdimg..." -ForegroundColor Yellow
     $oscdimg = @(
@@ -266,7 +328,12 @@ try {
     if (Test-Path $ISOPath) {
         Remove-Item -Path $ISOPath -Force
     }
-    $bootData = "2#p0,e,b`"$isoSource\boot\etfsboot.com`"#pEF,e,b`"$isoSource\efi\microsoft\boot\efisys.bin`""
+    $efiBootImage = Join-Path $isoSource "efi\microsoft\boot\efisys_noprompt.bin"
+    if (-not (Test-Path $efiBootImage)) {
+        $efiBootImage = Join-Path $isoSource "efi\microsoft\boot\efisys.bin"
+    }
+    $biosBootImage = Join-Path $isoSource "boot\etfsboot.com"
+    $bootData = "2#p0,e,b`"$biosBootImage`"#pEF,e,b`"$efiBootImage`""
     & $oscdimg -m -o -u2 -udfver102 -bootdata:$bootData "$isoSource\" "$ISOPath"
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $ISOPath)) {
         throw "oscdimg failed with exit code $LASTEXITCODE"
@@ -299,22 +366,39 @@ try {
     $credential = [System.Management.Automation.PSCredential]::new($GuestUser, $secure)
 
     Write-Host "[7/8] Waiting for PowerShell Direct and provisioning guest..." -ForegroundColor Yellow
+    Write-Host "PowerShell Direct only becomes available after Windows finishes OOBE and creates the local test account." -ForegroundColor DarkGray
     $session = $null
-    for ($i = 1; $i -le 90; $i++) {
+    $lastConnectError = $null
+    $directReady = $false
+    for ($i = 1; $i -le 120; $i++) {
         try {
-            $session = New-PSSession -VMName $VMName -Credential $credential -ErrorAction Stop
-            $ready = Invoke-Command -Session $session -ScriptBlock { hostname }
-            if ($ready) { break }
+            $probe = Invoke-Command -VMName $VMName -Credential $credential -ScriptBlock {
+                [PSCustomObject]@{
+                    ComputerName = $env:COMPUTERNAME
+                    UserName = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+                    SetupCompleteLog = Test-Path "C:\WinOpt-SetupComplete.log"
+                }
+            } -ErrorAction Stop
+
+            if ($probe) {
+                Write-Host ("  OK PowerShell Direct ready on {0} as {1}; SetupComplete log present: {2}" -f $probe.ComputerName, $probe.UserName, $probe.SetupCompleteLog) -ForegroundColor Green
+                $directReady = $true
+                break
+            }
         } catch {
-            if ($session) { Remove-PSSession $session -ErrorAction SilentlyContinue }
-            $session = $null
-            Start-Sleep -Seconds 20
+            $lastConnectError = $_.Exception.Message
+            if (($i -eq 1) -or ($i % 10 -eq 0)) {
+                Write-Host ("  Still waiting for guest automation ({0}/120): {1}" -f $i, $lastConnectError) -ForegroundColor DarkGray
+            }
+            Start-Sleep -Seconds 30
         }
     }
 
-    if (-not $session) {
-        throw "PowerShell Direct did not become available for $GuestUser."
+    if (-not $directReady) {
+        throw "PowerShell Direct did not become available for $GuestUser. Last error: $lastConnectError. Run scripts\vm-copy-offline-logs.ps1 to inspect Windows setup logs."
     }
+
+    $session = New-PSSession -VMName $VMName -Credential $credential -ErrorAction Stop
 
     Invoke-Command -Session $session -ScriptBlock {
         $ErrorActionPreference = "Continue"
@@ -353,6 +437,13 @@ try {
 
     Write-Host ""
     Write-Host "VM setup complete. Transcript: $transcriptPath" -ForegroundColor Green
+} catch {
+    Write-Host ""
+    Write-Host "VM setup failed:" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host ""
+    $_ | Format-List * -Force
+    throw
 } finally {
     Stop-Transcript | Out-Null
 }

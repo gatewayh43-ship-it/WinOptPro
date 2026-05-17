@@ -29,28 +29,28 @@ if (-not (Test-Path $runner)) {
     throw "VM test runner not found: $runner"
 }
 
-$argsList = @(
-    "-VMName", $VMName,
-    "-Checkpoint", $Checkpoint,
-    "-ProjectDir", $ProjectDir,
-    "-DirectVerify",
-    "-NoOpenReport",
-    "-GuestUser", $GuestUser
-)
+$runnerParams = @{
+    VMName = $VMName
+    Checkpoint = $Checkpoint
+    ProjectDir = $ProjectDir
+    DirectVerify = $true
+    NoOpenReport = $true
+    GuestUser = $GuestUser
+}
 
 if ($GuestPassword) {
-    $argsList += @("-GuestPassword", $GuestPassword)
+    $runnerParams.GuestPassword = $GuestPassword
 }
 
 if ($SkipRestore) {
-    $argsList += "-SkipRestore"
+    $runnerParams.SkipRestore = $true
 }
 
 if ($TestFilter) {
-    $argsList += @("-TestFilter", $TestFilter)
+    $runnerParams.TestFilter = $TestFilter
 }
 
-& $runner @argsList
+& $runner @runnerParams
 $exitCode = $LASTEXITCODE
 
 $uiResults = Join-Path $ProjectDir "test-results\vm-test-results.json"

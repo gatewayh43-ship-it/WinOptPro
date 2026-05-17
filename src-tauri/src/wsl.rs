@@ -101,7 +101,12 @@ fn parse_distros(raw: &str) -> Vec<WslDistro> {
         let state = parts[1].to_string();
         let version: u8 = parts[2].parse().unwrap_or(2);
 
-        distros.push(WslDistro { name, state, version, is_default });
+        distros.push(WslDistro {
+            name,
+            state,
+            version,
+            is_default,
+        });
     }
     distros
 }
@@ -360,8 +365,8 @@ pub fn clean_uninstall_wsl() -> Result<bool, String> {
 /// Read and parse ~/.wslconfig [wsl2] section
 #[command]
 pub fn get_wsl_config() -> Result<WslConfig, String> {
-    let userprofile = std::env::var("USERPROFILE")
-        .unwrap_or_else(|_| "C:\\Users\\Default".to_string());
+    let userprofile =
+        std::env::var("USERPROFILE").unwrap_or_else(|_| "C:\\Users\\Default".to_string());
     let config_path = format!("{}\\.wslconfig", userprofile);
 
     let content = std::fs::read_to_string(&config_path).unwrap_or_default();
@@ -395,7 +400,12 @@ pub fn get_wsl_config() -> Result<WslConfig, String> {
 
         let mut parts = line.splitn(2, '=');
         let key = parts.next().unwrap_or("").trim();
-        let val = parts.next().unwrap_or("").trim().trim_end_matches("GB").trim();
+        let val = parts
+            .next()
+            .unwrap_or("")
+            .trim()
+            .trim_end_matches("GB")
+            .trim();
 
         match key {
             "memory" => config.memory_gb = val.trim_end_matches("GB").trim().parse().ok(),
@@ -417,8 +427,8 @@ pub fn get_wsl_config() -> Result<WslConfig, String> {
 /// Write ~/.wslconfig [wsl2] section from WslConfig struct
 #[command]
 pub fn set_wsl_config(config: WslConfig) -> Result<bool, String> {
-    let userprofile = std::env::var("USERPROFILE")
-        .unwrap_or_else(|_| "C:\\Users\\Default".to_string());
+    let userprofile =
+        std::env::var("USERPROFILE").unwrap_or_else(|_| "C:\\Users\\Default".to_string());
     let config_path = format!("{}\\.wslconfig", userprofile);
 
     let mut lines = vec!["[wsl2]".to_string()];
@@ -432,7 +442,10 @@ pub fn set_wsl_config(config: WslConfig) -> Result<bool, String> {
     if let Some(swap) = config.swap_gb {
         lines.push(format!("swap={}GB", swap));
     }
-    lines.push(format!("localhostForwarding={}", config.localhost_forwarding));
+    lines.push(format!(
+        "localhostForwarding={}",
+        config.localhost_forwarding
+    ));
     lines.push(format!("networkingMode={}", config.networking_mode));
     lines.push(format!("dnsTunneling={}", config.dns_tunneling));
     lines.push(format!("firewall={}", config.firewall));
@@ -458,9 +471,15 @@ pub fn check_desktop_envs(distro: String) -> Result<Vec<String>, String> {
 
     for line in stdout.lines() {
         let line = line.trim();
-        if line.contains("xfce4-session") { found.push("xfce4".to_string()); }
-        if line.contains("kwin_x11") { found.push("kde".to_string()); }
-        if line.contains("gnome-session") { found.push("gnome".to_string()); }
+        if line.contains("xfce4-session") {
+            found.push("xfce4".to_string());
+        }
+        if line.contains("kwin_x11") {
+            found.push("kde".to_string());
+        }
+        if line.contains("gnome-session") {
+            found.push("gnome".to_string());
+        }
     }
 
     Ok(found)
@@ -540,7 +559,10 @@ pub fn get_wsl_setup_state() -> Result<WslSetupState, String> {
     };
 
     let has_distro = !distros.is_empty();
-    let default_distro = distros.iter().find(|d| d.is_default).map(|d| d.name.clone());
+    let default_distro = distros
+        .iter()
+        .find(|d| d.is_default)
+        .map(|d| d.name.clone());
 
     // Check desktop envs in default distro
     let (has_desktop_env, installed_des) = if let Some(ref default) = default_distro {
@@ -549,9 +571,15 @@ pub fn get_wsl_setup_state() -> Result<WslSetupState, String> {
         let mut found = Vec::new();
         if let Some(o) = out {
             let stdout = String::from_utf8_lossy(&o.stdout).to_string();
-            if stdout.contains("xfce4-session") { found.push("xfce4".to_string()); }
-            if stdout.contains("kwin_x11") { found.push("kde".to_string()); }
-            if stdout.contains("gnome-session") { found.push("gnome".to_string()); }
+            if stdout.contains("xfce4-session") {
+                found.push("xfce4".to_string());
+            }
+            if stdout.contains("kwin_x11") {
+                found.push("kde".to_string());
+            }
+            if stdout.contains("gnome-session") {
+                found.push("gnome".to_string());
+            }
         }
         let has = !found.is_empty();
         (has, found)
@@ -576,8 +604,7 @@ pub fn get_wsl_setup_state() -> Result<WslSetupState, String> {
 /// Shutdown all WSL instances
 #[command]
 pub fn shutdown_wsl() -> Result<bool, String> {
-    let out = run_wsl(&["--shutdown"])
-        .map_err(|e| format!("Failed to shutdown WSL: {}", e))?;
+    let out = run_wsl(&["--shutdown"]).map_err(|e| format!("Failed to shutdown WSL: {}", e))?;
 
     if out.status.success() {
         Ok(true)

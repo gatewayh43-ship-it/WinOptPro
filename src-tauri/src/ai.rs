@@ -1,9 +1,9 @@
-use tauri::State;
-use std::process::{Command, Child, Stdio};
-use std::sync::Mutex;
-use std::path::PathBuf;
-use std::os::windows::process::CommandExt;
 use std::fs;
+use std::os::windows::process::CommandExt;
+use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
+use std::sync::Mutex;
+use tauri::State;
 
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
@@ -117,7 +117,9 @@ pub fn is_valid_model_name(model: &str) -> bool {
         return false;
     }
     let valid_part = |s: &str| {
-        !s.is_empty() && s.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
+        !s.is_empty()
+            && s.chars()
+                .all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
     };
     valid_part(parts[0]) && valid_part(parts[1])
 }
@@ -174,27 +176,46 @@ mod tests {
     fn test_valid_model_names_accepted() {
         let valid = ["qwen2.5:1.5b", "qwen2.5:0.5b", "llama3.2:1b", "mistral:7b"];
         for model in &valid {
-            assert!(is_valid_model_name(model), "Model '{}' should be valid", model);
+            assert!(
+                is_valid_model_name(model),
+                "Model '{}' should be valid",
+                model
+            );
         }
     }
 
     #[test]
     fn test_invalid_model_names_rejected() {
-        let invalid = ["model; rm -rf /", "model`whoami`", "model$(calc)", "", "noconn", "../../../etc/passwd"];
+        let invalid = [
+            "model; rm -rf /",
+            "model`whoami`",
+            "model$(calc)",
+            "",
+            "noconn",
+            "../../../etc/passwd",
+        ];
         for model in &invalid {
-            assert!(!is_valid_model_name(model), "Model '{}' should be rejected", model);
+            assert!(
+                !is_valid_model_name(model),
+                "Model '{}' should be rejected",
+                model
+            );
         }
     }
 
     #[test]
     fn test_stop_ollama_sync_when_no_process() {
-        let state = OllamaState { process: std::sync::Mutex::new(None) };
+        let state = OllamaState {
+            process: std::sync::Mutex::new(None),
+        };
         stop_ollama_sync(&state); // Must not panic
     }
 
     #[test]
     fn test_stop_ollama_sync_clears_state() {
-        let state = OllamaState { process: std::sync::Mutex::new(None) };
+        let state = OllamaState {
+            process: std::sync::Mutex::new(None),
+        };
         stop_ollama_sync(&state);
         let guard = state.process.lock().unwrap();
         assert!(guard.is_none());

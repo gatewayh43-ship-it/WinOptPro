@@ -38,7 +38,8 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
     let mut items = Vec::new();
 
     // 1. User Temp
-    let user_temp = env::var("TEMP").unwrap_or_else(|_| "C:\\Users\\Default\\AppData\\Local\\Temp".to_string());
+    let user_temp =
+        env::var("TEMP").unwrap_or_else(|_| "C:\\Users\\Default\\AppData\\Local\\Temp".to_string());
     if let Ok(size) = calculate_dir_size(&user_temp) {
         items.push(CleanupItem {
             id: "user_temp".to_string(),
@@ -76,7 +77,8 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
     }
 
     // 4. Windows Update Cache (SoftwareDistribution\Download) (Requires Admin and stopping wuauserv ideally, but we'll try)
-    let wu_cache = env::var("WINDIR").unwrap_or_else(|_| "C:\\Windows".to_string()) + "\\SoftwareDistribution\\Download";
+    let wu_cache = env::var("WINDIR").unwrap_or_else(|_| "C:\\Windows".to_string())
+        + "\\SoftwareDistribution\\Download";
     if let Ok(size) = calculate_dir_size(&wu_cache) {
         if size > 0 {
             items.push(CleanupItem {
@@ -84,7 +86,9 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
                 category: "System Cache".to_string(),
                 path: wu_cache,
                 size_bytes: size,
-                description: "Cached Windows Update installation files. Deleting frees significant space.".to_string(),
+                description:
+                    "Cached Windows Update installation files. Deleting frees significant space."
+                        .to_string(),
             });
         }
     }
@@ -104,10 +108,14 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
     }
 
     // 6. Browser Caches
-    let local_appdata = env::var("LOCALAPPDATA").unwrap_or_else(|_| "C:\\Users\\Default\\AppData\\Local".to_string());
-    
+    let local_appdata = env::var("LOCALAPPDATA")
+        .unwrap_or_else(|_| "C:\\Users\\Default\\AppData\\Local".to_string());
+
     // Chrome
-    let chrome_cache = format!("{}\\Google\\Chrome\\User Data\\Default\\Cache\\Cache_Data", local_appdata);
+    let chrome_cache = format!(
+        "{}\\Google\\Chrome\\User Data\\Default\\Cache\\Cache_Data",
+        local_appdata
+    );
     if let Ok(size) = calculate_dir_size(&chrome_cache) {
         if size > 0 {
             items.push(CleanupItem {
@@ -121,7 +129,10 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
     }
 
     // Edge
-    let edge_cache = format!("{}\\Microsoft\\Edge\\User Data\\Default\\Cache\\Cache_Data", local_appdata);
+    let edge_cache = format!(
+        "{}\\Microsoft\\Edge\\User Data\\Default\\Cache\\Cache_Data",
+        local_appdata
+    );
     if let Ok(size) = calculate_dir_size(&edge_cache) {
         if size > 0 {
             items.push(CleanupItem {
@@ -148,7 +159,7 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
         }
     }
 
-    // 8. Windows Event Logs (C:\Windows\System32\winevt\Logs) - We don't delete these directly as they are locked, 
+    // 8. Windows Event Logs (C:\Windows\System32\winevt\Logs) - We don't delete these directly as they are locked,
     // but we can query them later or leave them to a PowerShell tweak. We'll skip raw deletion of evtx files here.
 
     Ok(items)
@@ -160,7 +171,7 @@ fn calculate_dir_size(path: &str) -> Result<u64, String> {
 
 fn calculate_dir_size_with_filter(path: &str, filter_prefix: &str) -> Result<u64, String> {
     let mut total_size = 0;
-    
+
     // Ignore permission denied errors gracefully
     for entry in WalkDir::new(path).into_iter().filter_map(|e| e.ok()) {
         if entry.file_type().is_file() {
@@ -182,9 +193,9 @@ pub async fn execute_cleanup(item_ids: Vec<String>) -> Result<CleanupResult, Str
     let mut items_removed = 0;
     let mut errors = Vec::new();
 
-    // Get the mapped paths 
+    // Get the mapped paths
     let all_items = scan_junk_files().await?;
-    
+
     for id in item_ids {
         if id == "recycle_bin" {
             #[cfg(target_os = "windows")]
@@ -194,14 +205,17 @@ pub async fn execute_cleanup(item_ids: Vec<String>) -> Result<CleanupResult, Str
                     .args(&["-NoProfile", "-Command", "Clear-RecycleBin -Force"])
                     .creation_flags(0x08000000)
                     .output();
-                    
+
                 match output {
                     Ok(out) if out.status.success() => {
                         items_removed += 1;
-                    },
+                    }
                     Ok(out) => {
-                        errors.push(format!("Failed to empty Recycle Bin: {}", String::from_utf8_lossy(&out.stderr)));
-                    },
+                        errors.push(format!(
+                            "Failed to empty Recycle Bin: {}",
+                            String::from_utf8_lossy(&out.stderr)
+                        ));
+                    }
                     Err(e) => {
                         errors.push(format!("Failed to execute Clear-RecycleBin: {}", e));
                     }
@@ -231,17 +245,27 @@ fn clean_directory(path: &str) -> (u64, usize, Vec<String>) {
     let mut removed = 0;
     let mut errors = Vec::new();
 
-    for entry in WalkDir::new(path).min_depth(1).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(path)
+        .min_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         let p = entry.path();
-        
+
         if entry.file_type().is_file() {
             // For Thumbnail Cache, only delete thumbcache files
-            if path.ends_with("Explorer") && !p.file_name().unwrap_or_default().to_string_lossy().starts_with("thumbcache_") {
+            if path.ends_with("Explorer")
+                && !p
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .starts_with("thumbcache_")
+            {
                 continue;
             }
 
             let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
-            
+
             // Send to Recycle Bin instead of permanent deletion per requirements
             match trash::delete(p) {
                 Ok(_) => {
@@ -268,7 +292,7 @@ fn clean_directory(path: &str) -> (u64, usize, Vec<String>) {
             }
         }
     }
-    
+
     (freed, removed, errors)
 }
 
@@ -344,7 +368,9 @@ $results | ConvertTo-Json -Depth 3
     let raw: Vec<RawDisk> = serde_json::from_str(&json_str).unwrap_or_default();
 
     fn parse_num<T: std::str::FromStr>(v: &Option<serde_json::Value>) -> Option<T> {
-        v.as_ref()?.as_u64().and_then(|n| T::from_str(&n.to_string()).ok())
+        v.as_ref()?
+            .as_u64()
+            .and_then(|n| T::from_str(&n.to_string()).ok())
     }
 
     let disks = raw
@@ -399,12 +425,16 @@ pub async fn get_disk_health() -> Result<Vec<DiskHealth>, String> {
 
         let mut results = Vec::new();
         let query = "SELECT Model, Status, MediaType FROM Win32_DiskDrive";
-        
+
         if let Ok(disks) = wmi_con.raw_query::<Win32DiskDrive>(query) {
             for disk in disks {
                 let status = disk.status.clone();
-                let health = if status.eq_ignore_ascii_case("OK") { "Healthy" } else { "Warning/Failing" };
-                
+                let health = if status.eq_ignore_ascii_case("OK") {
+                    "Healthy"
+                } else {
+                    "Warning/Failing"
+                };
+
                 results.push(DiskHealth {
                     name: disk.model,
                     status: status,
@@ -413,10 +443,10 @@ pub async fn get_disk_health() -> Result<Vec<DiskHealth>, String> {
                 });
             }
         }
-        
+
         return Ok(results);
     }
-    
+
     #[cfg(not(target_os = "windows"))]
     Err("Not supported on this OS".to_string())
 }

@@ -60,7 +60,10 @@ fn validate_export_path(path: &str, allowed_extensions: &[&str]) -> Result<PathB
         .and_then(|ext| ext.to_str())
         .map(|ext| ext.to_ascii_lowercase())
         .ok_or_else(|| "Export path must include a file extension.".to_string())?;
-    if !allowed_extensions.iter().any(|allowed| *allowed == extension) {
+    if !allowed_extensions
+        .iter()
+        .any(|allowed| *allowed == extension)
+    {
         return Err(format!(
             "Unsupported export file type. Expected: {}",
             allowed_extensions.join(", ")
@@ -96,7 +99,10 @@ fn validate_import_path(path: &str, allowed_extensions: &[&str]) -> Result<PathB
         .and_then(|ext| ext.to_str())
         .map(|ext| ext.to_ascii_lowercase())
         .ok_or_else(|| "Import path must include a file extension.".to_string())?;
-    if !allowed_extensions.iter().any(|allowed| *allowed == extension) {
+    if !allowed_extensions
+        .iter()
+        .any(|allowed| *allowed == extension)
+    {
         return Err(format!(
             "Unsupported import file type. Expected: {}",
             allowed_extensions.join(", ")
@@ -116,15 +122,18 @@ fn ensure_user_path(path: &Path) -> Result<(), String> {
     if roots.iter().any(|root| path.starts_with(root)) {
         Ok(())
     } else {
-        Err("For safety, files must be in Desktop, Documents, Downloads, or the temp directory.".to_string())
+        Err(
+            "For safety, files must be in Desktop, Documents, Downloads, or the temp directory."
+                .to_string(),
+        )
     }
 }
 
 #[tauri::command]
 pub fn export_backup(path: String, data: BackupData) -> Result<bool, String> {
     let path = validate_export_path(&path, &["winopt", "json"])?;
-    let json = serde_json::to_string_pretty(&data)
-        .map_err(|e| format!("Serialization error: {}", e))?;
+    let json =
+        serde_json::to_string_pretty(&data).map_err(|e| format!("Serialization error: {}", e))?;
     std::fs::write(&path, json).map_err(|e| format!("Failed to write backup: {}", e))?;
     Ok(true)
 }
@@ -206,8 +215,8 @@ pub fn export_user_data(
         rows
     };
 
-    let settings = serde_json::from_str::<serde_json::Value>(&settings_json)
-        .unwrap_or(serde_json::json!({}));
+    let settings =
+        serde_json::from_str::<serde_json::Value>(&settings_json).unwrap_or(serde_json::json!({}));
 
     let data = ExportUserData {
         exported_at: chrono::Utc::now().to_rfc3339(),
@@ -217,10 +226,9 @@ pub fn export_user_data(
         settings,
     };
 
-    let json = serde_json::to_string_pretty(&data)
-        .map_err(|e| format!("Serialization error: {}", e))?;
-    std::fs::write(&path, json)
-        .map_err(|e| format!("Failed to write export file: {}", e))?;
+    let json =
+        serde_json::to_string_pretty(&data).map_err(|e| format!("Serialization error: {}", e))?;
+    std::fs::write(&path, json).map_err(|e| format!("Failed to write export file: {}", e))?;
 
     Ok(())
 }
@@ -260,7 +268,10 @@ fn validate_restore_point_description(input: &str) -> Result<String, String> {
     }
     // Disallow quote characters and backticks so we cannot break out of the
     // single-quoted PowerShell string literal we build below.
-    if trimmed.chars().any(|c| matches!(c, '\'' | '"' | '`' | '$' | '\n' | '\r')) {
+    if trimmed
+        .chars()
+        .any(|c| matches!(c, '\'' | '"' | '`' | '$' | '\n' | '\r'))
+    {
         return Err("Description contains unsupported characters.".to_string());
     }
     Ok(trimmed.to_string())
@@ -288,8 +299,10 @@ pub async fn create_restore_point(description: String) -> Result<bool, String> {
             .args([
                 "-NoProfile",
                 "-NonInteractive",
-                "-ExecutionPolicy", "Bypass",
-                "-Command", &script,
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                &script,
             ])
             .output();
 
@@ -306,7 +319,10 @@ pub async fn create_restore_point(description: String) -> Result<bool, String> {
             if stderr.contains("WMI") || stderr.contains("0x80042302") {
                 Err("System Protection is disabled. Enable it in System Properties → System Protection.".to_string())
             } else if stderr.contains("denied") || stderr.contains("Access") {
-                Err("Permission denied. Restore points require Administrator privileges.".to_string())
+                Err(
+                    "Permission denied. Restore points require Administrator privileges."
+                        .to_string(),
+                )
             } else {
                 Err(format!("Restore point creation failed: {}", stderr.trim()))
             }
@@ -373,7 +389,10 @@ mod tests {
         // the WinOpt Pro registry key will typically not exist, so calling the
         // real function exercises the missing-key branch.
         let result = read_installer_config();
-        assert!(result.is_ok(), "read_installer_config must never return Err");
+        assert!(
+            result.is_ok(),
+            "read_installer_config must never return Err"
+        );
         // If the key happens to exist in the test environment the value may be
         // Some(…); we only require that the function does not panic or error.
     }

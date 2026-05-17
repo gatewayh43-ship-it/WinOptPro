@@ -41,10 +41,7 @@ pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
-        if let Ok(output) = Command::new("ipconfig")
-            .creation_flags(0x08000000)
-            .output() 
-        {
+        if let Ok(output) = Command::new("ipconfig").creation_flags(0x08000000).output() {
             let stdout = String::from_utf8_lossy(&output.stdout);
             let mut current_adapter = String::new();
             for line in stdout.lines() {
@@ -71,7 +68,10 @@ pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
             mac_address: data.mac_address().to_string(),
             received_bytes: data.total_received(),
             transmitted_bytes: data.total_transmitted(),
-            ip_v4: ip_map.get(name).cloned().unwrap_or_else(|| "Not Connected".to_string()),
+            ip_v4: ip_map
+                .get(name)
+                .cloned()
+                .unwrap_or_else(|| "Not Connected".to_string()),
         })
         .collect();
 
@@ -98,7 +98,7 @@ pub async fn ping_host(host: String) -> Result<PingResult, String> {
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
-        
+
         // Run Windows ping
         // ping -n 10 <host>
         let output = Command::new("ping")
@@ -113,14 +113,14 @@ pub async fn ping_host(host: String) -> Result<PingResult, String> {
         match output {
             Ok(out) => {
                 let stdout = String::from_utf8_lossy(&out.stdout);
-                
+
                 let mut latencies = Vec::new();
                 let mut packet_loss_pct = 0.0;
                 let mut success = false;
 
                 for line in stdout.lines() {
                     let lower_line = line.to_lowercase();
-                    
+
                     // Parse general packet loss
                     if lower_line.contains("lost =") || lower_line.contains("loss)") {
                         if let Some(start) = lower_line.find("(") {
@@ -137,7 +137,9 @@ pub async fn ping_host(host: String) -> Result<PingResult, String> {
                     if lower_line.contains("ttl=") {
                         success = true;
                         if let Some(time_idx) = lower_line.find("time=") {
-                            let end_idx = lower_line[time_idx..].find("ms").unwrap_or(lower_line.len() - time_idx);
+                            let end_idx = lower_line[time_idx..]
+                                .find("ms")
+                                .unwrap_or(lower_line.len() - time_idx);
                             let time_str = &lower_line[time_idx + 5..time_idx + end_idx];
                             if let Ok(ms) = time_str.trim().parse::<f32>() {
                                 latencies.push(ms);
@@ -157,16 +159,16 @@ pub async fn ping_host(host: String) -> Result<PingResult, String> {
                     let min = latencies.iter().fold(f32::INFINITY, |a, &b| a.min(b));
                     let max = latencies.iter().fold(0.0_f32, |a, &b| a.max(b));
                     let avg = latencies.iter().sum::<f32>() / latencies.len() as f32;
-                    
+
                     min_ms = Some(min);
                     max_ms = Some(max);
                     avg_ms = Some(avg);
-                    
+
                     // Simple Jitter (Average of absolute differences between consecutive latencies)
                     if latencies.len() > 1 {
                         let mut sum_diffs = 0.0;
                         for i in 1..latencies.len() {
-                            sum_diffs += (latencies[i] - latencies[i-1]).abs();
+                            sum_diffs += (latencies[i] - latencies[i - 1]).abs();
                         }
                         jitter_ms = Some(sum_diffs / (latencies.len() - 1) as f32);
                     } else {
@@ -187,7 +189,7 @@ pub async fn ping_host(host: String) -> Result<PingResult, String> {
             Err(e) => Err(format!("Failed to execute ping command: {}", e)),
         }
     }
-    
+
     #[cfg(not(target_os = "windows"))]
     {
         Err("Ping is currently only implemented for Windows.".to_string())

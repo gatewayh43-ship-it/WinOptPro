@@ -72,7 +72,13 @@ pub struct SystemVitals {
 /// Collect real system vitals using the `sysinfo` crate.
 /// This replaces the hardcoded values in the frontend.
 #[command]
-pub fn get_system_vitals() -> Result<SystemVitals, String> {
+pub async fn get_system_vitals() -> Result<SystemVitals, String> {
+    tokio::task::spawn_blocking(collect_system_vitals)
+        .await
+        .map_err(|e| format!("System vitals task failed: {}", e))?
+}
+
+fn collect_system_vitals() -> Result<SystemVitals, String> {
     let mut sys = System::new_all();
     // Refresh twice with a small delay for accurate CPU usage
     sys.refresh_cpu_all();
@@ -92,7 +98,10 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
     } else {
         cpus.iter().map(|c| c.frequency() as f64).sum::<f64>() / cpus.len() as f64 / 1000.0
     };
-    let cpu_model = cpus.first().map(|c| c.brand().to_string()).unwrap_or_default();
+    let cpu_model = cpus
+        .first()
+        .map(|c| c.brand().to_string())
+        .unwrap_or_default();
 
     // CPU temperature from components
     let components = Components::new_with_refreshed_list();
@@ -122,7 +131,11 @@ pub fn get_system_vitals() -> Result<SystemVitals, String> {
         let free = disk.available_space() as f64 / (1024.0 * 1024.0 * 1024.0);
         let name = disk.name().to_string_lossy().to_string();
         // Use the mount point as the key (e.g. "C:")
-        let key = if mount.len() >= 2 { mount[..2].to_string() } else { mount.clone() };
+        let key = if mount.len() >= 2 {
+            mount[..2].to_string()
+        } else {
+            mount.clone()
+        };
         drive_map.insert(
             key,
             DriveInfo {
@@ -169,9 +182,15 @@ if ($g) {
             .ok()
             .and_then(|o| {
                 let s = String::from_utf8_lossy(&o.stdout).trim().to_string();
-                if s.is_empty() { return None; }
+                if s.is_empty() {
+                    return None;
+                }
                 #[derive(serde::Deserialize)]
-                struct GpuRaw { name: String, driver_version: String, vram_mb: u64 }
+                struct GpuRaw {
+                    name: String,
+                    driver_version: String,
+                    vram_mb: u64,
+                }
                 serde_json::from_str::<GpuRaw>(&s).ok().map(|r| GpuInfo {
                     name: r.name,
                     driver_version: r.driver_version,

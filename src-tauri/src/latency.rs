@@ -19,13 +19,11 @@ pub struct LatencyStatus {
 
 // Type alias for NtQueryTimerResolution:
 // NTSTATUS NtQueryTimerResolution(PULONG MinimumResolution, PULONG MaximumResolution, PULONG CurrentResolution)
-type NtQueryTimerResolutionFn =
-    unsafe extern "system" fn(*mut u32, *mut u32, *mut u32) -> i32;
+type NtQueryTimerResolutionFn = unsafe extern "system" fn(*mut u32, *mut u32, *mut u32) -> i32;
 
 // Type alias for NtSetSystemInformation:
 // NTSTATUS NtSetSystemInformation(SYSTEM_INFORMATION_CLASS, PVOID, ULONG)
-type NtSetSystemInformationFn =
-    unsafe extern "system" fn(i32, *mut std::ffi::c_void, u32) -> i32;
+type NtSetSystemInformationFn = unsafe extern "system" fn(i32, *mut std::ffi::c_void, u32) -> i32;
 
 /// Dynamically resolve an ntdll function by name and transmute it to the desired function type.
 /// Returns None if the function cannot be found.
@@ -39,8 +37,7 @@ unsafe fn resolve_ntdll<T: Copy>(name: &[u8]) -> Option<T> {
 /// Query the current Windows timer resolution via NtQueryTimerResolution.
 /// Returns (min, max, current) in 100ns units.
 fn query_timer_resolution() -> Option<(u32, u32, u32)> {
-    let func: NtQueryTimerResolutionFn =
-        unsafe { resolve_ntdll(b"NtQueryTimerResolution\0")? };
+    let func: NtQueryTimerResolutionFn = unsafe { resolve_ntdll(b"NtQueryTimerResolution\0")? };
     let (mut min, mut max, mut cur) = (0u32, 0u32, 0u32);
     let status = unsafe { func(&mut min, &mut max, &mut cur) };
     if status == 0 {
@@ -147,7 +144,10 @@ pub fn flush_standby_list() -> Result<u64, String> {
     };
 
     if status < 0 {
-        return Err(format!("NtSetSystemInformation failed with status 0x{:08X}", status as u32));
+        return Err(format!(
+            "NtSetSystemInformation failed with status 0x{:08X}",
+            status as u32
+        ));
     }
 
     let after_mb = get_standby_ram_mb();

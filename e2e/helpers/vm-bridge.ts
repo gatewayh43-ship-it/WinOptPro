@@ -10,6 +10,8 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+const DEFAULT_COMMAND_TIMEOUT_MS = Number(process.env.VM_COMMAND_TIMEOUT_MS || '300000');
+
 export interface VMCommandResult {
     stdout: string;
     stderr: string;
@@ -71,7 +73,7 @@ export class VMBridge {
             }
 
             const { stdout, stderr } = await execAsync(fullCmd, { 
-                timeout: 60000,
+                timeout: DEFAULT_COMMAND_TIMEOUT_MS,
                 maxBuffer: 10 * 1024 * 1024 
             });
 

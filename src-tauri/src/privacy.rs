@@ -160,7 +160,11 @@ fn check_issue(issue: &PrivacyIssue) -> bool {
 
 fn compute_score(issues: &[PrivacyIssue]) -> u32 {
     let total: u32 = issues.iter().map(|i| i.severity).sum();
-    let fixed: u32 = issues.iter().filter(|i| i.is_fixed).map(|i| i.severity).sum();
+    let fixed: u32 = issues
+        .iter()
+        .filter(|i| i.is_fixed)
+        .map(|i| i.severity)
+        .sum();
     if total == 0 {
         return 100;
     }
@@ -192,7 +196,11 @@ pub fn fix_privacy_issues(issue_ids: Vec<String>) -> Result<bool, String> {
                 .output();
             match out {
                 Ok(o) if !o.status.success() => {
-                    eprintln!("Fix failed for {}: {}", id, String::from_utf8_lossy(&o.stderr));
+                    eprintln!(
+                        "Fix failed for {}: {}",
+                        id,
+                        String::from_utf8_lossy(&o.stderr)
+                    );
                     all_ok = false;
                 }
                 Err(e) => {

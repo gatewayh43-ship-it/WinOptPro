@@ -22,7 +22,8 @@ fn esc(s: &str) -> String {
 #[tauri::command]
 pub fn generate_system_report() -> Result<String, String> {
     // Gather data from PowerShell
-    let os_info = run_ps(r#"
+    let os_info = run_ps(
+        r#"
 $os = Get-WmiObject Win32_OperatingSystem
 $cs = Get-WmiObject Win32_ComputerSystem
 $cpu = Get-WmiObject Win32_Processor | Select-Object -First 1
@@ -46,25 +47,31 @@ $free_gb = [math]::Round($os.FreePhysicalMemory / 1MB, 2)
     bios_version = $bios.SMBIOSBIOSVersion
     last_boot = $os.LastBootUpTime
 } | ConvertTo-Json -Compress
-"#);
+"#,
+    );
 
-    let disks = run_ps(r#"
+    let disks = run_ps(
+        r#"
 Get-WmiObject Win32_LogicalDisk -Filter "DriveType=3" |
     Select-Object DeviceID,
         @{N='size_gb';E={[math]::Round($_.Size/1GB,1)}},
         @{N='free_gb';E={[math]::Round($_.FreeSpace/1GB,1)}} |
     ConvertTo-Json -Compress
-"#);
+"#,
+    );
 
-    let network = run_ps(r#"
+    let network = run_ps(
+        r#"
 Get-WmiObject Win32_NetworkAdapterConfiguration -Filter "IPEnabled=True" |
     Select-Object Description,
         @{N='ip';E={$_.IPAddress -join ', '}},
         @{N='mac';E={$_.MACAddress}} |
     ConvertTo-Json -Compress
-"#);
+"#,
+    );
 
-    let startup = run_ps(r#"
+    let startup = run_ps(
+        r#"
 $items = @()
 $items += Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction SilentlyContinue |
     Get-Member -MemberType NoteProperty | Where-Object Name -notmatch '^PS' |
@@ -73,20 +80,25 @@ $items += Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Run'
     Get-Member -MemberType NoteProperty | Where-Object Name -notmatch '^PS' |
     ForEach-Object { @{ name=$_.Name; location='HKLM Run' } }
 if ($items.Count -eq 0) { '[]' } else { $items | ConvertTo-Json -Compress }
-"#);
+"#,
+    );
 
-    let top_procs = run_ps(r#"
+    let top_procs = run_ps(
+        r#"
 Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 15 |
     Select-Object Name, Id,
         @{N='mem_mb';E={[math]::Round($_.WorkingSet64/1MB,1)}},
         @{N='cpu';E={[math]::Round($_.CPU,1)}} |
     ConvertTo-Json -Compress
-"#);
+"#,
+    );
 
     // Parse OS info for display
     let os_val: serde_json::Value = serde_json::from_str(&os_info).unwrap_or(serde_json::json!({}));
-    let disks_val: serde_json::Value = serde_json::from_str(&disks).unwrap_or(serde_json::json!([]));
-    let net_val: serde_json::Value = serde_json::from_str(&network).unwrap_or(serde_json::json!([]));
+    let disks_val: serde_json::Value =
+        serde_json::from_str(&disks).unwrap_or(serde_json::json!([]));
+    let net_val: serde_json::Value =
+        serde_json::from_str(&network).unwrap_or(serde_json::json!([]));
     let startup_val: serde_json::Value =
         serde_json::from_str(&startup).unwrap_or(serde_json::json!([]));
     let procs_val: serde_json::Value =
@@ -98,10 +110,15 @@ Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 15 |
         .unwrap_or(0);
 
     fn str_val(v: &serde_json::Value, k: &str) -> String {
-        v.get(k).and_then(|x| x.as_str()).unwrap_or("N/A").to_string()
+        v.get(k)
+            .and_then(|x| x.as_str())
+            .unwrap_or("N/A")
+            .to_string()
     }
     fn num_val(v: &serde_json::Value, k: &str) -> String {
-        v.get(k).map(|x| x.to_string()).unwrap_or_else(|| "N/A".into())
+        v.get(k)
+            .map(|x| x.to_string())
+            .unwrap_or_else(|| "N/A".into())
     }
 
     let disk_rows = {
@@ -121,8 +138,13 @@ Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 15 |
                     .zip(d.get("free_gb").and_then(|f| f.as_f64()))
                     .map(|(s, f)| format!("{:.1}", s - f))
                     .unwrap_or_else(|| "N/A".into());
-                format!("<tr><td>{}</td><td>{} GB</td><td>{} GB</td><td>{} GB</td></tr>",
-                    esc(&id), esc(&size), esc(&used), esc(&free))
+                format!(
+                    "<tr><td>{}</td><td>{} GB</td><td>{} GB</td><td>{} GB</td></tr>",
+                    esc(&id),
+                    esc(&size),
+                    esc(&used),
+                    esc(&free)
+                )
             })
             .collect::<Vec<_>>()
             .join("\n")
@@ -139,8 +161,12 @@ Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 15 |
                 let desc = str_val(n, "Description");
                 let ip = str_val(n, "ip");
                 let mac = str_val(n, "mac");
-                format!("<tr><td>{}</td><td>{}</td><td>{}</td></tr>",
-                    esc(&desc), esc(&ip), esc(&mac))
+                format!(
+                    "<tr><td>{}</td><td>{}</td><td>{}</td></tr>",
+                    esc(&desc),
+                    esc(&ip),
+                    esc(&mac)
+                )
             })
             .collect::<Vec<_>>()
             .join("\n")
@@ -178,14 +204,20 @@ Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 15 |
                 let pid = num_val(p, "Id");
                 let mem = num_val(p, "mem_mb");
                 let cpu = num_val(p, "cpu");
-                format!("<tr><td>{}</td><td>{}</td><td>{} MB</td><td>{} s</td></tr>",
-                    esc(&name), esc(&pid), esc(&mem), esc(&cpu))
+                format!(
+                    "<tr><td>{}</td><td>{}</td><td>{} MB</td><td>{} s</td></tr>",
+                    esc(&name),
+                    esc(&pid),
+                    esc(&mem),
+                    esc(&cpu)
+                )
             })
             .collect::<Vec<_>>()
             .join("\n")
     };
 
-    let html = format!(r#"<!DOCTYPE html>
+    let html = format!(
+        r#"<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">

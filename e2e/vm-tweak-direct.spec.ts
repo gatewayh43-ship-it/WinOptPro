@@ -27,9 +27,13 @@
 import { test } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { VMBridge, VMCommandResult } from './helpers/vm-bridge';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const tweaksDataPath = path.resolve(__dirname, '../src/data/tweaks.json');
 const tweaksData: TweakDef[] = JSON.parse(fs.readFileSync(tweaksDataPath, 'utf-8'));
@@ -100,6 +104,19 @@ function writeProgress(result: TweakTestResult) {
     fs.writeFileSync(
         path.join(LOG_DIR, 'direct-results.json'),
         JSON.stringify(allResults, null, 2)
+    );
+}
+
+function writeCurrent(tweak: TweakDef, phase: string) {
+    fs.writeFileSync(
+        path.join(LOG_DIR, 'direct-current.json'),
+        JSON.stringify({
+            tweakId: tweak.id,
+            tweakName: tweak.name,
+            category: tweak.category,
+            phase,
+            timestamp: new Date().toISOString(),
+        }, null, 2)
     );
 }
 
@@ -186,6 +203,7 @@ test.describe('VM Tweak Direct Verification', () => {
 
             try {
                 // ── Phase 1: Baseline ─────────────────────────────────────
+                writeCurrent(tweak, 'baseline');
                 let baselineOutput = '';
                 if (tweak.validationCmd) {
                     const { result: pr, raw } = await runPhase('baseline', tweak.validationCmd);
@@ -201,13 +219,13 @@ test.describe('VM Tweak Direct Verification', () => {
                 }
 
                 // ── Phase 2: Apply ───────────────────────────────────────
+                writeCurrent(tweak, 'apply');
                 const { result: applyPhase } = await runPhase('apply', tweak.execution.code);
                 result.phases.apply = applyPhase;
 
                 if (applyPhase.status === 'FAIL') {
                     result.overallStatus = 'FAIL';
                     result.error = `Apply failed: ${applyPhase.error}`;
-                    writeProgress(result);
                     // Still attempt revert so the system is not left in a bad state
                 }
 
@@ -216,6 +234,7 @@ test.describe('VM Tweak Direct Verification', () => {
 
                 // ── Phase 3: Validate apply ──────────────────────────────
                 if (tweak.validationCmd) {
+                    writeCurrent(tweak, 'validateApply');
                     const { result: vp, raw } = await runPhase('validateApply', tweak.validationCmd);
                     const postApplyOutput = normaliseVal(raw.stdout);
                     const stateChanged = postApplyOutput !== baselineOutput;
@@ -243,6 +262,7 @@ test.describe('VM Tweak Direct Verification', () => {
                 }
 
                 // ── Phase 4: Revert ──────────────────────────────────────
+                writeCurrent(tweak, 'revert');
                 const { result: revertPhase } = await runPhase('revert', tweak.execution.revertCode);
                 result.phases.revert = revertPhase;
 
@@ -256,6 +276,7 @@ test.describe('VM Tweak Direct Verification', () => {
 
                 // ── Phase 5: Validate revert ─────────────────────────────
                 if (tweak.validationCmd && baselineOutput !== '') {
+                    writeCurrent(tweak, 'validateRevert');
                     const { result: vrp, raw } = await runPhase('validateRevert', tweak.validationCmd);
                     const postRevertOutput = normaliseVal(raw.stdout);
                     const reverted = postRevertOutput === baselineOutput;

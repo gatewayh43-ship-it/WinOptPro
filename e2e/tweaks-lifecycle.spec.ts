@@ -19,16 +19,20 @@
 import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
 // Load tweaks data directly
-const tweaksDataPath = path.resolve(__dirname, '../../src/data/tweaks.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const tweaksDataPath = path.resolve(__dirname, '../src/data/tweaks.json');
 const tweaksData: any[] = JSON.parse(fs.readFileSync(tweaksDataPath, 'utf-8'));
 
 // ─── Test Configuration ─────────────────────────────────────────────────────
 
 const USE_VM_BRIDGE = process.env.VM_BRIDGE === 'true';
 const VM_NAME = process.env.VM_NAME || 'WinOpt-TestVM';
-const LOG_DIR = path.resolve(__dirname, '../../test-results/vm-lifecycle');
+const LOG_DIR = path.resolve(__dirname, '../test-results/vm-lifecycle');
 
 // Create log directory
 if (!fs.existsSync(LOG_DIR)) {

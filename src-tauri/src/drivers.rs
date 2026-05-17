@@ -55,12 +55,22 @@ if ($result.Count -eq 0) { '[]' } else { $result | ConvertTo-Json -Compress }
     }
     // Handle single object (PowerShell omits array wrapper for 1 item)
     if stdout.starts_with('{') {
-        let single: DriverInfo = serde_json::from_str(&stdout)
-            .map_err(|e| format!("Parse error: {} — raw: {}", e, &stdout[..stdout.len().min(300)]))?;
+        let single: DriverInfo = serde_json::from_str(&stdout).map_err(|e| {
+            format!(
+                "Parse error: {} — raw: {}",
+                e,
+                &stdout[..stdout.len().min(300)]
+            )
+        })?;
         return Ok(vec![single]);
     }
-    serde_json::from_str::<Vec<DriverInfo>>(&stdout)
-        .map_err(|e| format!("Parse error: {} — raw: {}", e, &stdout[..stdout.len().min(300)]))
+    serde_json::from_str::<Vec<DriverInfo>>(&stdout).map_err(|e| {
+        format!(
+            "Parse error: {} — raw: {}",
+            e,
+            &stdout[..stdout.len().min(300)]
+        )
+    })
 }
 
 #[tauri::command]

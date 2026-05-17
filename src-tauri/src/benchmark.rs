@@ -47,7 +47,9 @@ try {
 
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
     if stdout.starts_with("ERROR") || stdout.is_empty() {
-        return Err("No WinSAT assessment found. Run 'winsat formal' as Administrator first.".to_string());
+        return Err(
+            "No WinSAT assessment found. Run 'winsat formal' as Administrator first.".to_string(),
+        );
     }
 
     #[derive(Deserialize)]
@@ -64,11 +66,17 @@ try {
     let raw: Raw = serde_json::from_str(&stdout)
         .map_err(|e| format!("Failed to parse WinSAT output: {}\nRaw: {}", e, stdout))?;
 
-    let base = [raw.CPUScore, raw.MemoryScore, raw.DiskScore, raw.GraphicsScore, raw.GamingGraphicsScore]
-        .iter()
-        .cloned()
-        .filter(|&v| v > 0.0)
-        .fold(f32::INFINITY, f32::min);
+    let base = [
+        raw.CPUScore,
+        raw.MemoryScore,
+        raw.DiskScore,
+        raw.GraphicsScore,
+        raw.GamingGraphicsScore,
+    ]
+    .iter()
+    .cloned()
+    .filter(|&v| v > 0.0)
+    .fold(f32::INFINITY, f32::min);
 
     Ok(PcScore {
         cpu_score: raw.CPUScore,
@@ -127,7 +135,9 @@ pub async fn run_speed_test() -> Result<SpeedTestResult, String> {
 
     let output = Command::new("powershell")
         .args([
-            "-NoProfile", "-NonInteractive", "-Command",
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
             &format!(
                 r#"try {{
     $r = Invoke-WebRequest -Uri '{url}' -UseBasicParsing -TimeoutSec 30
@@ -227,7 +237,9 @@ pub struct CpuBenchResult {
 fn prime_sieve(limit: usize) -> usize {
     let mut sieve = vec![true; limit];
     sieve[0] = false;
-    if limit > 1 { sieve[1] = false; }
+    if limit > 1 {
+        sieve[1] = false;
+    }
     let mut i = 2;
     while i * i < limit {
         if sieve[i] {
@@ -280,7 +292,8 @@ pub async fn run_cpu_benchmark() -> Result<CpuBenchResult, String> {
     let mc_elapsed = mc_start.elapsed().as_secs_f64();
     let _ = mc_acc;
 
-    let multi_score = (((ITERATIONS as f64 * SIEVE_SIZE as f64 * thread_count as f64) / mc_elapsed) / 1_000.0) as u64;
+    let multi_score = (((ITERATIONS as f64 * SIEVE_SIZE as f64 * thread_count as f64) / mc_elapsed)
+        / 1_000.0) as u64;
     let overall_score = (single_score + multi_score) / 2;
 
     Ok(CpuBenchResult {
@@ -323,7 +336,11 @@ fn find_diskspd() -> Option<String> {
         .output()
         .ok()?;
     let path = String::from_utf8_lossy(&which.stdout).trim().to_string();
-    if !path.is_empty() { Some(path.lines().next()?.to_string()) } else { None }
+    if !path.is_empty() {
+        Some(path.lines().next()?.to_string())
+    } else {
+        None
+    }
 }
 
 #[command]
@@ -335,7 +352,18 @@ pub async fn run_disk_benchmark() -> Result<DiskBenchResult, String> {
     if let Some(diskspd) = find_diskspd() {
         // diskspd: 5 sec read + 5 sec write, 4K blocks, 4 threads, 4 outstanding
         let read_out = Command::new(&diskspd)
-            .args(["-b4K", "-d5", "-o4", "-t4", "-r", "-w0", "-c64M", "-Si", "-Rtext", &bench_path])
+            .args([
+                "-b4K",
+                "-d5",
+                "-o4",
+                "-t4",
+                "-r",
+                "-w0",
+                "-c64M",
+                "-Si",
+                "-Rtext",
+                &bench_path,
+            ])
             .creation_flags(CREATE_NO_WINDOW)
             .output()
             .map_err(|e| format!("diskspd failed: {}", e))?;
@@ -344,7 +372,18 @@ pub async fn run_disk_benchmark() -> Result<DiskBenchResult, String> {
         let read_mbps = parse_diskspd_mbps(&read_text, "read");
 
         let write_out = Command::new(&diskspd)
-            .args(["-b4K", "-d5", "-o4", "-t4", "-r", "-w100", "-c64M", "-Si", "-Rtext", &bench_path])
+            .args([
+                "-b4K",
+                "-d5",
+                "-o4",
+                "-t4",
+                "-r",
+                "-w100",
+                "-c64M",
+                "-Si",
+                "-Rtext",
+                &bench_path,
+            ])
             .creation_flags(CREATE_NO_WINDOW)
             .output()
             .map_err(|e| format!("diskspd write failed: {}", e))?;
@@ -475,7 +514,11 @@ fn find_blender_exe() -> Option<String> {
         .output()
         .ok()?;
     let path = String::from_utf8_lossy(&which.stdout).trim().to_string();
-    if !path.is_empty() { Some(path.lines().next()?.to_string()) } else { None }
+    if !path.is_empty() {
+        Some(path.lines().next()?.to_string())
+    } else {
+        None
+    }
 }
 
 #[command]
@@ -528,8 +571,10 @@ pub async fn run_blender_benchmark(
         let output = Command::new(&cli)
             .args([
                 "benchmark",
-                "--blender-version", "4.0",
-                "--device-type", &device_type,
+                "--blender-version",
+                "4.0",
+                "--device-type",
+                &device_type,
                 "--json",
                 scene,
             ])
@@ -556,7 +601,10 @@ pub async fn run_blender_benchmark(
             if let Some(first) = results.into_iter().find(|r| r.samples_per_minute.is_some()) {
                 return Ok(BlenderBenchResult {
                     samples_per_minute: first.samples_per_minute.unwrap_or(0.0),
-                    device_name: first.device_info.and_then(|d| d.name).unwrap_or_else(|| device_type.clone()),
+                    device_name: first
+                        .device_info
+                        .and_then(|d| d.name)
+                        .unwrap_or_else(|| device_type.clone()),
                     device_type: device_type.clone(),
                     scene: scene.to_string(),
                     blender_version: check.blender_version.unwrap_or_else(|| "4.0".to_string()),
@@ -565,13 +613,21 @@ pub async fn run_blender_benchmark(
             }
         }
 
-        return Err(format!("Failed to parse Blender benchmark output:\n{}", stdout));
+        return Err(format!(
+            "Failed to parse Blender benchmark output:\n{}",
+            stdout
+        ));
     }
 
     // Fallback: use blender --benchmark (older method)
     let output = Command::new(&blender_path)
-        .args(["--background", "--factory-startup",
-               "-noaudio", "--engine", "CYCLES"])
+        .args([
+            "--background",
+            "--factory-startup",
+            "-noaudio",
+            "--engine",
+            "CYCLES",
+        ])
         .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|e| format!("Blender render benchmark failed: {}", e))?;
@@ -580,7 +636,11 @@ pub async fn run_blender_benchmark(
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Simple: estimate from render time if printed
-    let samples_per_minute = if duration > 0.0 { 60.0 / duration * 100.0 } else { 0.0 };
+    let samples_per_minute = if duration > 0.0 {
+        60.0 / duration * 100.0
+    } else {
+        0.0
+    };
     let _ = stdout;
 
     Ok(BlenderBenchResult {
@@ -588,7 +648,9 @@ pub async fn run_blender_benchmark(
         device_name: device_type.clone(),
         device_type,
         scene: scene.to_string(),
-        blender_version: check.blender_version.unwrap_or_else(|| "Unknown".to_string()),
+        blender_version: check
+            .blender_version
+            .unwrap_or_else(|| "Unknown".to_string()),
         duration_secs: (duration * 10.0).round() / 10.0,
     })
 }
