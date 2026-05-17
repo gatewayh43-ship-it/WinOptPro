@@ -17,22 +17,24 @@ This document is the canonical reference for every module and feature in WinOpt 
 9. [System Tuning — Windows Update](#system-tuning--windows-update)
 10. [Apps & Packages — App Store](#apps--packages--app-store)
 11. [Apps & Packages — WSL Manager](#apps--packages--wsl-manager)
-12. [Apps & Packages — Driver Manager](#apps--packages--driver-manager)
-13. [Apps & Packages — GPU Driver Cleaner](#apps--packages--gpu-driver-cleaner)
-14. [Apps & Packages — Startup Apps](#apps--packages--startup-apps)
-15. [Utilities — Gaming Optimizer](#utilities--gaming-optimizer)
-16. [Utilities — Latency Optimizer](#utilities--latency-optimizer)
-17. [Utilities — Power Manager](#utilities--power-manager)
-18. [Utilities — Windows Defender](#utilities--windows-defender)
-19. [Utilities — Process Manager](#utilities--process-manager)
-20. [Utilities — Network Analyzer](#utilities--network-analyzer)
-21. [Utilities — Storage Optimizer](#utilities--storage-optimizer)
-22. [Utilities — System Report](#utilities--system-report)
-23. [System — Profiles](#system--profiles)
-24. [System — History & Audit Log](#system--history--audit-log)
-25. [System — Settings](#system--settings)
-26. [System — Help Center](#system--help-center)
-27. [Cross-Cutting Features](#cross-cutting-features)
+12. [Apps & Packages — App Store Bundles](#apps--packages--app-store-bundles)
+13. [Apps & Packages — Driver Manager](#apps--packages--driver-manager)
+14. [Apps & Packages — GPU Driver Cleaner](#apps--packages--gpu-driver-cleaner)
+15. [Apps & Packages — Startup Apps](#apps--packages--startup-apps)
+16. [Utilities — Gaming Optimizer](#utilities--gaming-optimizer)
+17. [Utilities — Latency Optimizer](#utilities--latency-optimizer)
+18. [Utilities — Power Manager](#utilities--power-manager)
+19. [Utilities — Benchmark](#utilities--benchmark)
+20. [Utilities — Windows Defender](#utilities--windows-defender)
+21. [Utilities — Process Manager](#utilities--process-manager)
+22. [Utilities — Network Analyzer](#utilities--network-analyzer)
+23. [Utilities — Storage Optimizer](#utilities--storage-optimizer)
+24. [Utilities — System Report](#utilities--system-report)
+25. [System — Profiles](#system--profiles)
+26. [System — History & Audit Log](#system--history--audit-log)
+27. [System — Settings](#system--settings)
+28. [System — Help Center](#system--help-center)
+29. [Cross-Cutting Features](#cross-cutting-features)
 
 ---
 
@@ -984,7 +986,7 @@ A toggle to unlock Red-risk tweaks application-wide. Equivalent to the toggle on
 
 ### Tweaks Browser
 
-- Browse all 162 tweaks organized by category
+- Browse all 165 tweaks organized by category
 - Enable/Disable any tweak directly from the Help page — changes sync immediately with the Tweaks page (shared Zustand state via `useAppStore`)
 - Expand each tweak card to see full description, risk level, apply/revert commands, and whether a reboot is required
 - Filter by category tab or use the search input to find tweaks by name or description
@@ -1025,6 +1027,61 @@ A step-by-step quick-start walkthrough for new users, covering first launch, run
 
 ---
 
+## Apps & Packages — App Store Bundles
+
+**What it is:** Curated collections of apps that can be installed in one click. Bundles group related apps by use case so you can set up a new machine quickly without manually selecting apps one by one.
+
+**When to use it:** After a fresh Windows install, or when building a machine for a specific purpose (gaming rig, developer workstation, creative suite, etc.).
+
+### Curated Bundles
+
+WinOpt Pro ships with 22 curated bundles organized into 6 groups:
+
+| Group | Examples |
+|-------|---------|
+| Starters | Essential Apps, Privacy Starter Pack |
+| Gaming | Core Gaming Setup, Competitive FPS, Game Recording & Streaming |
+| Power Users | Developer Essentials, System Monitoring Suite |
+| Creative | Content Creation Suite, Audio Production |
+| Community Picks | Community Favorites |
+| Curated Collections | The Privacy-First Build, The Open-Source Desktop |
+
+### Custom Bundles
+
+The **My Bundles** section lets you build your own bundle:
+- Name the bundle and add an icon
+- Drag apps into the bundle from the App Store catalog
+- Reorder apps with drag-to-reorder
+- Save to `localStorage` for persistence across sessions
+
+### Installing a Bundle
+
+Clicking **Install Bundle** opens the Bundle Install Modal:
+- Shows a checklist of all apps in the bundle
+- Check or uncheck individual apps before installing
+- Progress is tracked per app with real-time status
+- Already-installed apps are skipped automatically
+
+---
+
+## Utilities — Benchmark
+
+**What it is:** A built-in system benchmark that measures CPU, memory, and disk performance so you can quantify the impact of tweaks and optimizations.
+
+**When to use it:** Before and after applying a batch of tweaks to measure objective performance gains. Also useful for diagnosing whether a system is performing at expected levels for its hardware.
+
+### What It Measures
+
+- **CPU** — single-core and multi-core throughput test
+- **Memory** — sequential read/write bandwidth and latency
+- **Disk** — sequential and random read/write IOPS for each drive
+
+### Results Display
+
+Results are shown with a score per category and a comparison against a reference baseline. Each benchmark run is timestamped and stored locally so you can compare before/after results.
+
+---
+
 ## Cross-Cutting Features
 
 ### Command Palette (Ctrl+K)
@@ -1058,10 +1115,10 @@ Toasts auto-dismiss after 4 seconds. Error toasts require manual dismissal.
 ### Sidebar Navigation
 
 The left sidebar contains all navigation links organized into 4 collapsible groups:
-- **Tuning** — Tweaks, Privacy Audit
-- **Apps** — App Store, WSL Manager, Driver Manager, GPU Driver Cleaner, Startup Apps
-- **Utilities** — Gaming Optimizer, Latency Optimizer, Power Manager, Defender, Process Manager, Network Analyzer, Storage Optimizer, System Report
-- **System** — Profiles, History, Settings
+- **System Tuning** — System Dashboard, Performance, Privacy, Gaming, Network, Power, Debloater Wizard, Windows UI, Updates
+- **Apps & Packages** — App Store, Software Updates, Bundles, WSL Manager, Driver Manager, GPU Driver Cleaner, Startup Apps
+- **Utilities** — Gaming Optimizer, Latency Optimizer, Power Manager, Benchmark, Privacy Audit, Defender Support, Process Manager, Network Analyzer, Storage Optimizer, System Report
+- **System** — Profiles, Automations, History, Settings, Help & Docs
 
 Each group is expanded by default. Groups collapse with a click to reduce visual clutter. On narrow windows the sidebar collapses to icon-only mode.
 

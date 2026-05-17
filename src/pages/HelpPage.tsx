@@ -290,11 +290,11 @@ function HomeSection({ onNavigate }: { onNavigate: (id: string, tab?: number) =>
                         </div>
                     </div>
                     <p className="text-[14px] text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-                        WinOpt Pro is an all-in-one Windows optimization tool with <strong className="text-foreground">162+ system tweaks</strong>, a gaming optimizer, GPU driver cleaner, WSL manager, privacy audit, latency optimizer, and much more — all fully reversible.
+                        WinOpt Pro is an all-in-one Windows optimization tool with <strong className="text-foreground">165+ system tweaks</strong>, a gaming optimizer, GPU driver cleaner, WSL manager, privacy audit, latency optimizer, and much more — all fully reversible.
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
                         {[
-                            { label: "162+ tweaks", color: "bg-violet-500/15 text-violet-400 border-violet-500/30" },
+                            { label: "165+ tweaks", color: "bg-violet-500/15 text-violet-400 border-violet-500/30" },
                             { label: "All reversible", color: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
                             { label: "391 curated apps", color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
                             { label: "Windows 10/11", color: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30" },

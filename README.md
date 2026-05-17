@@ -10,7 +10,7 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-FFC131?logo=tauri&logoColor=white)](https://tauri.app)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Rust](https://img.shields.io/badge/Rust-1.77%2B-CE422B?logo=rust&logoColor=white)](https://rust-lang.org)
-[![Tests](https://img.shields.io/badge/tests-765%20passing-brightgreen?logo=vitest)](https://vitest.dev)
+[![Tests](https://img.shields.io/badge/tests-769%20passing-brightgreen?logo=vitest)](https://vitest.dev)
 [![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-informational)](https://github.com/gatewayh43-ship-it/WinOptPro/releases)
 
@@ -107,7 +107,9 @@ The installer (`*.msi` / `*.exe`) is output to `src-tauri/target/release/bundle/
 | **Power Manager** | Power plans, battery health, per-setting AC/DC timeouts | Some settings |
 | **Startup Apps** | Enable/disable startup entries (registry + Task Scheduler) | No |
 | **App Store** | 391-app curated catalog with full metadata (logos, pros/cons, GitHub/MS Store links), install via winget/chocolatey | Yes (install) |
+| **App Store Bundles** | Curated install bundles (Gaming, Power Users, Creative, etc.) — install a full set of apps in one click or build custom bundles | Yes (install) |
 | **Software Updates** | Scan updateable WinGet packages, choose stable/beta where supported, and schedule automatic update scripts | Yes |
+| **Benchmark** | Built-in system benchmark for CPU, memory, and disk to measure before/after optimization impact | No |
 | **System Report** | Generates full HTML system report, save to disk | No |
 | **Help Center** | Searchable tweak browser with enable/disable, category guides, keyboard shortcuts, FAQ | No |
 | **Backup & Restore** | Export/import settings profiles as `.winopt` JSON files | No |
@@ -182,7 +184,7 @@ WinOpt Pro
 │   ├── Database — SQLite via rusqlite for local history and settings
 │   └── System tools — sysinfo, pnputil, bcdedit, powercfg, schtasks
 │
-└── Tests — Vitest 643 tests across 58 files (hooks, pages, components, utils)
+└── Tests — Vitest 769 tests across 61 files (hooks, pages, components, utils)
 ```
 
 ### Key Technology Choices
@@ -265,13 +267,13 @@ npm run lint
 ```
 WinOptimizerRevamp/
 ├── src/                          # React frontend
-│   ├── pages/                    # 21 page components
+│   ├── pages/                    # 29 page components
 │   ├── components/
 │   │   ├── layout/               # MainLayout, Sidebar
 │   │   ├── ui/                   # shadcn/ui generated components
 │   │   ├── AI/                   # AI Assistant chat UI
 │   │   └── ...                   # Shared components
-│   ├── hooks/                    # 20+ custom React hooks
+│   ├── hooks/                    # 25+ custom React hooks
 │   ├── data/                     # tweaks.json, apps.json, app_metadata.json
 │   ├── __tests__/                # 643 Vitest tests
 │   │   ├── hooks/                # Hook unit tests

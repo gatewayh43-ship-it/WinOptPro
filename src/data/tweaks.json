@@ -177,7 +177,7 @@
       "code": "$adapters = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'}; foreach ($adapter in $adapters) { $tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -Value 1 -Type DWord -Force -EA SilentlyContinue } }",
       "revertCode": "$tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; Get-ChildItem -Path $tcpPath | ForEach-Object { Remove-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -EA SilentlyContinue; Remove-ItemProperty -Path $_.PSPath -Name 'TcpNoDelay' -EA SilentlyContinue }"
     },
-    "validationCmd": "powershell -c \"$first = Get-ChildItem 'HKLM:\\\\SYSTEM\\\\CurrentControlSet\\\\Services\\\\Tcpip\\\\Parameters\\\\Interfaces' | Select-Object -First 1; if ($first) { (Get-ItemProperty -Path $first.PSPath -EA SilentlyContinue).TcpAckFrequency } else { 'N/A' }\""
+    "validationCmd": "$tcpPath = 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; $match = Get-ChildItem $tcpPath -EA SilentlyContinue | ForEach-Object { (Get-ItemProperty -Path $_.PSPath -EA SilentlyContinue).TcpAckFrequency } | Where-Object { $_ -eq 1 } | Select-Object -First 1; if ($match -eq 1) { 1 } else { '' }"
   },
   {
     "id": "DisableCoreParking",
@@ -309,7 +309,7 @@
     "educationalContext": {
       "howItWorks": "HPET is a hardware timer. On some systems it adds latency overhead vs. TSC timer.",
       "pros": "Can reduce DPC latency by 0.1-0.5ms, reducing micro-stutters in games.",
-      "cons": "Some apps depend on HPET. Extremely system-specific — can cause instability.",
+      "cons": "Some apps depend on HPET. Extremely system-specific \u00e2\u20ac\u201d can cause instability.",
       "expertDetails": "Uses 'bcdedit /deletevalue useplatformclock' and '/set disabledynamictick yes'. Disables the High Precision Event Timer at the OS level, forcing Windows to use the invariant TSC (Time Stamp Counter). HPET reads require expensive DPC hardware polling, causing stutters.",
       "interactions": "Can cause system timing drift on very old platforms (Core 2 Duo era). On modern Ryzen/Core systems, disabling HPET significantly improves 1% low framerates."
     },
@@ -328,7 +328,7 @@
     "description": "Enables 1:1 raw mouse input by disabling pointer acceleration.",
     "educationalContext": {
       "howItWorks": "Sets SmoothMouseXCurve and SmoothMouseYCurve to a linear 1:1 mapping.",
-      "pros": "Consistent aiming in FPS games — your aim matches your hand movement exactly.",
+      "pros": "Consistent aiming in FPS games \u00e2\u20ac\u201d your aim matches your hand movement exactly.",
       "cons": "Desktop navigation may feel slower until you adjust to higher DPI settings.",
       "expertDetails": "Regedit 'HKCU\\Control Panel\\Mouse\\MouseSpeed' = 0 and sets the exact curve array 'SmoothMouseXCurve'/'SmoothMouseYCurve' to linear 1:1 maps. Bypasses the 'Enhance Pointer Precision' algorithm that dynamically scales cursor speed based on physical mouse velocity.",
       "interactions": "Critical for raw input in older games. Modern games using Raw Input API bypass this entirely, making the tweak mostly for desktop/legacy parity."
@@ -354,7 +354,7 @@
       "interactions": "Overrides 'DisableCoreParking' entirely, as the Ultimate plan natively sets the parking index to 0%. Terribly destructive to laptop battery life."
     },
     "execution": {
-      "code": "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2>$null; powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61",
+      "code": "$ultimate = 'e9a42b02-d5df-448d-aa00-03f14749eb61'; $existing = (powercfg /list) | Select-String 'Ultimate Performance' | Select-Object -First 1; if ($existing -and $existing.Line -match '([a-f0-9-]{36})') { $scheme = $matches[1] } else { $created = powercfg -duplicatescheme $ultimate 2>$null; if ($created -match '([a-f0-9-]{36})') { $scheme = $matches[1] } else { $scheme = $ultimate } }; powercfg /setactive $scheme",
       "revertCode": "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
     },
     "validationCmd": "(powercfg /getactivescheme) -match 'Ultimate'"
@@ -429,7 +429,7 @@
     "educationalContext": {
       "howItWorks": "Sets Windows to 'Adjust for best performance' mode, disabling transparency, animations, and shadows.",
       "pros": "Noticeably faster UI on older hardware. Reduced GPU/CPU load for compositing.",
-      "cons": "The desktop looks significantly less polished — no transparency, shadows, or animations.",
+      "cons": "The desktop looks significantly less polished \u00e2\u20ac\u201d no transparency, shadows, or animations.",
       "expertDetails": "Modifies 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' (VisualFXSetting=2) and disables specific UI animations in 'HKCU\\Control Panel\\Desktop' (e.g., UserPreferencesMask). This reduces overhead on the DWM (Desktop Window Manager) and GPU by disabling window shadows, smooth scrolling, and transparency.",
       "interactions": "Overrides individual UI tweaks like 'Reduce Menu Animation Delay' as it applies a blanket performance profile."
     },
@@ -485,7 +485,7 @@
     "category": "Tools",
     "riskLevel": "Yellow",
     "requiresExpertMode": false,
-    "description": "Resets Winsock, IP stack, and firewall to default — fixes most network issues.",
+    "description": "Resets Winsock, IP stack, and firewall to default \u00e2\u20ac\u201d fixes most network issues.",
     "educationalContext": {
       "howItWorks": "Runs netsh commands to reset the TCP/IP stack, Winsock catalog, and Windows Firewall to factory defaults.",
       "pros": "Fixes VPN remnants, broken adapters, and corrupt network configurations.",
@@ -607,7 +607,7 @@
     "requiresExpertMode": false,
     "description": "Stops Microsoft from suggesting apps and showing tips/ads.",
     "educationalContext": {
-      "howItWorks": "Windows shows 'suggested apps' in Start Menu and lock screen — essentially ads.",
+      "howItWorks": "Windows shows 'suggested apps' in Start Menu and lock screen \u00e2\u20ac\u201d essentially ads.",
       "pros": "Removes bloatware suggestions and promotional notifications.",
       "cons": "You won't see Microsoft's recommended apps (most users see this as a benefit).",
       "expertDetails": "Sets 'SubscribedContent-338388Enabled' and 'SubscribedContent-338389Enabled' to 0 in the ContentDeliveryManager. Disables 'suggested apps' (Candy Crush, TikTok) from silently installing or appearing in the Start Menu.",
@@ -774,7 +774,7 @@
       "interactions": "Extremely destructive if you use OneDrive for file backups. Will break Office 365 auto-save functionality."
     },
     "execution": {
-      "code": "Stop-Process -Name 'OneDrive' -Force -EA SilentlyContinue; Start-Sleep 2; $x86 = \"$env:SystemRoot\\System32\\OneDriveSetup.exe\"; $x64 = \"$env:SystemRoot\\SysWOW64\\OneDriveSetup.exe\"; if (Test-Path $x64) { & $x64 /uninstall } elseif (Test-Path $x86) { & $x86 /uninstall }; Remove-Item \"$env:USERPROFILE\\OneDrive\" -Recurse -Force -EA SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\OneDrive\" -Recurse -Force -EA SilentlyContinue",
+      "code": "Stop-Process -Name 'OneDrive' -Force -EA SilentlyContinue; Start-Sleep 2; $x86 = \"$env:SystemRoot\\System32\\OneDriveSetup.exe\"; $x64 = \"$env:SystemRoot\\SysWOW64\\OneDriveSetup.exe\"; $setup = if (Test-Path $x64) { $x64 } elseif (Test-Path $x86) { $x86 } else { $null }; if ($setup) { Start-Process -FilePath $setup -ArgumentList '/uninstall' -Wait -WindowStyle Hidden -EA SilentlyContinue | Out-Null }; Remove-Item \"$env:USERPROFILE\\OneDrive\" -Recurse -Force -EA SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\OneDrive\" -Recurse -Force -EA SilentlyContinue; $global:LASTEXITCODE = 0",
       "revertCode": "Write-Output 'Reinstall OneDrive from https://onedrive.live.com/download'"
     },
     "validationCmd": "if (Get-Process -Name OneDrive -EA SilentlyContinue) { 'Running' } else { 'Removed' }"
@@ -854,10 +854,10 @@
       "interactions": "Frees up ~150-300MB of RAM and removes the distracting weather icon/news feed from the left side of the Windows 11 taskbar."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 0 -Type DWord -Force",
-      "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 1 -Type DWord -Force"
+      "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Dsh')) { New-Item -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Dsh' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Dsh' -Name 'AllowNewsAndInterests' -Value 0 -Type DWord -Force; try { Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 0 -Type DWord -Force -EA Stop } catch { Write-Output 'TaskbarDa user value could not be changed; system policy was applied.' }",
+      "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Dsh' -Name 'AllowNewsAndInterests' -EA SilentlyContinue; try { Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarDa' -Value 1 -Type DWord -Force -EA Stop } catch { Write-Output 'TaskbarDa user value could not be restored; system policy was removed.' }"
     },
-    "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).TaskbarDa"
+    "validationCmd": "if ((Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Dsh' -EA SilentlyContinue).AllowNewsAndInterests -eq 0) { 0 } else { (Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).TaskbarDa }"
   },
   {
     "id": "DisableTeamsAutostart",
@@ -874,7 +874,7 @@
       "interactions": "Speeds up login times heavily. You can still manually open Teams, but it won't force-load into the system tray on boot."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarMn' -Value 0 -Type DWord -Force; $startupPath = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'; Remove-ItemProperty -Path $startupPath -Name 'com.squirrel.Teams.Teams' -EA SilentlyContinue; Remove-ItemProperty -Path $startupPath -Name 'MicrosoftTeams' -EA SilentlyContinue",
+      "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarMn' -Value 0 -Type DWord -Force; $startupPath = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'; if (Test-Path $startupPath) { Remove-ItemProperty -Path $startupPath -Name 'com.squirrel.Teams.Teams' -EA SilentlyContinue; Remove-ItemProperty -Path $startupPath -Name 'MicrosoftTeams' -EA SilentlyContinue }; $global:LASTEXITCODE = 0",
       "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name 'TaskbarMn' -Value 1 -Type DWord -Force"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -EA SilentlyContinue).TaskbarMn"
@@ -969,7 +969,7 @@
     "educationalContext": {
       "howItWorks": "Sets TaskbarAl registry value to 0 (left-aligned).",
       "pros": "Traditional left-aligned taskbar like Windows 10.",
-      "cons": "Purely cosmetic preference — no performance impact.",
+      "cons": "Purely cosmetic preference \u00e2\u20ac\u201d no performance impact.",
       "expertDetails": "Modifies 'Al' in 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' to 0 (Left). Centers the Start button exactly like Windows 10.",
       "interactions": "Purely ergonomic. Does not affect the ability to use third party tools like StartAllBack, which heavily override this."
     },
@@ -1125,7 +1125,7 @@
     "category": "Security",
     "riskLevel": "Yellow",
     "requiresExpertMode": false,
-    "description": "Prevents .vbs and .js scripts from running — blocks a common malware vector.",
+    "description": "Prevents .vbs and .js scripts from running \u00e2\u20ac\u201d blocks a common malware vector.",
     "educationalContext": {
       "howItWorks": "Disables the Windows Script Host engine (wscript.exe / cscript.exe).",
       "pros": "Blocks VBScript/JScript malware that arrives via email attachments.",
@@ -1233,7 +1233,7 @@
     },
     "execution": {
       "code": "fsutil behavior set disablelastaccess 1",
-      "revertCode": "fsutil behavior set disablelastaccess 0"
+      "revertCode": "fsutil behavior set disablelastaccess 2"
     },
     "validationCmd": "fsutil behavior query disablelastaccess"
   },
@@ -1253,7 +1253,7 @@
     },
     "execution": {
       "code": "fsutil 8dot3name set 1",
-      "revertCode": "fsutil 8dot3name set 0"
+      "revertCode": "fsutil 8dot3name set 2"
     },
     "validationCmd": "fsutil 8dot3name query"
   },
@@ -1263,7 +1263,7 @@
     "category": "Performance",
     "riskLevel": "Yellow",
     "requiresExpertMode": false,
-    "description": "Stops the Print Spooler service — saves resources and closes the PrintNightmare vector.",
+    "description": "Stops the Print Spooler service \u00e2\u20ac\u201d saves resources and closes the PrintNightmare vector.",
     "educationalContext": {
       "howItWorks": "The Print Spooler runs even if you have no printer. It's been a recurring CVE target.",
       "pros": "Reduces attack surface (PrintNightmare) and saves ~20MB RAM.",
@@ -1292,8 +1292,8 @@
       "interactions": "Completely isolated tweak. No negative interactions unless you are using a physical fax modem."
     },
     "execution": {
-      "code": "Stop-Service -Name 'Fax' -Force -EA SilentlyContinue; Set-Service -Name 'Fax' -StartupType Disabled -EA SilentlyContinue",
-      "revertCode": "Set-Service -Name 'Fax' -StartupType Manual -EA SilentlyContinue"
+      "code": "$svc = Get-Service -Name 'Fax' -EA SilentlyContinue; if ($svc) { Stop-Service -Name 'Fax' -Force -EA SilentlyContinue; Set-Service -Name 'Fax' -StartupType Disabled -EA SilentlyContinue } else { Write-Output 'Fax service is not installed.' }",
+      "revertCode": "$svc = Get-Service -Name 'Fax' -EA SilentlyContinue; if ($svc) { Set-Service -Name 'Fax' -StartupType Manual -EA SilentlyContinue } else { Write-Output 'Fax service is not installed.' }"
     },
     "validationCmd": "(Get-Service -Name 'Fax' -EA SilentlyContinue).Status"
   },
@@ -1592,8 +1592,8 @@
       "interactions": "Prevents new Windows installations from automatically pulling down your previous desktop wallpaper and Wi-Fi passwords."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync' -Name 'SyncPolicy' -Value 5 -Type DWord -Force; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\Personalization' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\BrowserSettings' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync\\Groups\\Credentials' -Name 'Enabled' -Value 0 -Type DWord -Force -EA SilentlyContinue",
-      "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync' -Name 'SyncPolicy' -Value 1 -Type DWord -Force"
+      "code": "$root = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync'; if (!(Test-Path $root)) { New-Item -Path $root -Force | Out-Null }; Set-ItemProperty -Path $root -Name 'SyncPolicy' -Value 5 -Type DWord -Force; foreach ($group in @('Personalization','BrowserSettings','Credentials')) { $path = Join-Path $root \"Groups\\$group\"; if (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }; Set-ItemProperty -Path $path -Name 'Enabled' -Value 0 -Type DWord -Force }",
+      "revertCode": "$root = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync'; if (!(Test-Path $root)) { New-Item -Path $root -Force | Out-Null }; Set-ItemProperty -Path $root -Name 'SyncPolicy' -Value 1 -Type DWord -Force"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SettingSync').SyncPolicy"
   },
@@ -1649,7 +1649,7 @@
       "pros": "Can reclaim 1-5GB of disk space from accumulated update leftovers.",
       "cons": "You cannot uninstall old updates after cleanup. Takes 2-5 minutes.",
       "expertDetails": "Runs 'DISM.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase'. Brutally compresses the WinSxS folder by deleting superseded versions of Windows Updates and permanently baking in the current updates.",
-      "interactions": "Frees up to 5-10GB of SSD space space instantly. The huge downside is that you can NEVER uninstall current Windows Updates once this processes—they become permanent."
+      "interactions": "Frees up to 5-10GB of SSD space space instantly. The huge downside is that you can NEVER uninstall current Windows Updates once this processes\u00e2\u20ac\u201dthey become permanent."
     },
     "execution": {
       "code": "DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase",
@@ -1730,7 +1730,7 @@
       "interactions": "Increases battery drain on laptops significantly. Counteracts the OS scheduler's attempt to isolate intensive games from background polling."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1 -Type DWord -Force",
+      "code": "if (!(Test-Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling')) { New-Item -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1 -Type DWord -Force",
       "revertCode": "Remove-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -Name 'PowerThrottlingOff' -EA SilentlyContinue"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling' -EA SilentlyContinue).PowerThrottlingOff"
@@ -1750,7 +1750,7 @@
       "interactions": "Can slightly decrease input latency. Incorrectly setting this to 'Realtime' (Hex 3) instead of 'High' (Hex 4) would cause catastrophic system freezes."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'CpuPriorityClass' -Value 4 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'IoPriority' -Value 3 -Type DWord -Force",
+      "code": "if (!(Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions')) { New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'CpuPriorityClass' -Value 4 -Type DWord -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -Name 'IoPriority' -Value 3 -Type DWord -Force",
       "revertCode": "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe' -Recurse -Force -EA SilentlyContinue"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions' -EA SilentlyContinue).CpuPriorityClass"
@@ -1801,7 +1801,7 @@
     "category": "Gaming",
     "riskLevel": "Red",
     "requiresExpertMode": true,
-    "description": "Configures Windows to use more RAM for file caching — beneficial for 16GB+ systems.",
+    "description": "Configures Windows to use more RAM for file caching \u00e2\u20ac\u201d beneficial for 16GB+ systems.",
     "educationalContext": {
       "howItWorks": "Tells the memory manager to use more RAM for file system cache instead of limiting it.",
       "pros": "Faster file I/O and game loading on systems with plenty of RAM.",
@@ -1905,7 +1905,7 @@
     "educationalContext": {
       "howItWorks": "Sets MenuShowDelay registry value to 0, removing the artificial animation pause.",
       "pros": "Menus and context menus appear instantly. System feels more responsive.",
-      "cons": "Purely visual — menus may feel abrupt without the fade-in.",
+      "cons": "Purely visual \u00e2\u20ac\u201d menus may feel abrupt without the fade-in.",
       "expertDetails": "Changes 'MenuShowDelay' in 'HKCU\\Control Panel\\Desktop' from the default 400ms down to 10ms. Modifies how long you have to hover over a cascaded menu (like 'Send To') before it springs open.",
       "interactions": "Makes navigating deeply nested folders or Start Menu folders feel blisteringly fast. Does not impact DWM animations."
     },
@@ -1950,8 +1950,8 @@
       "interactions": "Disabling it can improve CPU-bound 1% lows by 5-15%, but significantly reduces security against sophisticated kernel-level rootkits (and some anti-cheat systems)."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 0 -Type DWord -Force",
-      "revertCode": "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 1 -Type DWord -Force"
+      "code": "if (!(Test-Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity')) { New-Item -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 0 -Type DWord -Force",
+      "revertCode": "if (!(Test-Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity')) { New-Item -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Force | Out-Null }; Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -Name 'Enabled' -Value 1 -Type DWord -Force"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity' -EA SilentlyContinue).Enabled"
   },
@@ -2181,9 +2181,9 @@
     "category": "Network",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Expands the dynamic TCP/UDP port range to 1025–65535, reducing port exhaustion under heavy connection loads (servers, gaming, streaming).",
+    "description": "Expands the dynamic TCP/UDP port range to 1025\u00e2\u20ac\u201c65535, reducing port exhaustion under heavy connection loads (servers, gaming, streaming).",
     "educationalContext": {
-      "howItWorks": "Windows defaults to ports 49152–65535 for outbound connections (~16K ports). Expanding to 64K+ ports prevents 'no ports available' failures under high concurrency.",
+      "howItWorks": "Windows defaults to ports 49152\u00e2\u20ac\u201c65535 for outbound connections (~16K ports). Expanding to 64K+ ports prevents 'no ports available' failures under high concurrency.",
       "pros": "Prevents connection failures in high-traffic scenarios. Useful for game servers, streaming software, and heavily multi-threaded downloaders.",
       "cons": "Negligible. Wider range just means more ports available; doesn't open inbound attack surface.",
       "expertDetails": "Uses 'netsh int ipv4 set dynamicport tcp start=1025 num=64511'. Ephemeral ports are short-lived transport protocol ports. Expanding the default pool (which is often restricted to 16,384 ports) prevents port exhaustion during heavy torrenting, server loads, or extreme multitasking.",
@@ -2305,7 +2305,7 @@
     "educationalContext": {
       "howItWorks": "Fast Startup saves a partial hibernation file on shutdown so the next boot resumes from that state rather than doing a full cold boot. This means drivers and system state are not fully re-initialized.",
       "pros": "Fixes driver-loading issues, ensures Windows Updates apply on restart, prevents stale system state that can cause BSoDs or performance regressions after updates.",
-      "cons": "Slightly slower cold boot (typically 3–8 seconds longer). The difference is negligible on NVMe SSDs.",
+      "cons": "Slightly slower cold boot (typically 3\u00e2\u20ac\u201c8 seconds longer). The difference is negligible on NVMe SSDs.",
       "expertDetails": "Modifies 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power\\HiberbootEnabled' to 0. Fast Startup uses a hybrid logoff/hibernate sequence to boot faster. Disabling it ensures a 'True' shutdown, clearing full kernel memory and driver states.",
       "interactions": "Increases cold boot time by ~2-5 seconds on SSDs, but resolves 99% of 'uptime'-related memory leaks and driver desync issues."
     },
@@ -2323,9 +2323,9 @@
     "requiresExpertMode": false,
     "description": "Prevents Windows from powering down idle USB devices. Eliminates the reconnection stutter experienced with USB headsets, controllers, and audio interfaces.",
     "educationalContext": {
-      "howItWorks": "USB Selective Suspend lets Windows cut power to idle USB devices to save energy. When the device is needed again, it must wake up — causing a 50–500ms dropout that can disrupt audio, input, or storage.",
+      "howItWorks": "USB Selective Suspend lets Windows cut power to idle USB devices to save energy. When the device is needed again, it must wake up \u00e2\u20ac\u201d causing a 50\u00e2\u20ac\u201c500ms dropout that can disrupt audio, input, or storage.",
       "pros": "No more USB audio dropouts or controller disconnects during gameplay. Zero-latency USB device responses.",
-      "cons": "Higher idle power consumption (typically 1–3W for all USB devices combined). Not recommended if maximizing laptop battery life is a priority.",
+      "cons": "Higher idle power consumption (typically 1\u00e2\u20ac\u201c3W for all USB devices combined). Not recommended if maximizing laptop battery life is a priority.",
       "expertDetails": "Modifies 'powercfg' specific index keys for the USB profile. Disables the mechanism where the USB hub driver selectively cuts power to individual USB ports when devices are 'idle'.",
       "interactions": "Fixes USB audio DAC popping, mouse sensor polling rate drops, and VR headset disconnections caused by aggressive power gating."
     },
@@ -2343,9 +2343,9 @@
     "requiresExpertMode": false,
     "description": "Prevents the PCIe bus from entering low-power states, ensuring GPU and NVMe SSD remain at full performance without latency spikes from power state transitions.",
     "educationalContext": {
-      "howItWorks": "PCIe Active State Power Management (ASPM) allows devices to enter L1/L0s low-power states when idle. Transitioning out of these states takes 10–40µs which causes micro-stutters in games and storage workloads.",
+      "howItWorks": "PCIe Active State Power Management (ASPM) allows devices to enter L1/L0s low-power states when idle. Transitioning out of these states takes 10\u00e2\u20ac\u201c40\u00c2\u00b5s which causes micro-stutters in games and storage workloads.",
       "pros": "Eliminates GPU micro-stutters and NVMe latency spikes caused by PCIe power state transitions. Particularly noticeable in 1% low frametimes in benchmarks.",
-      "cons": "Slightly higher system idle power draw (typically 2–5W). No impact on laptop battery life is minimal if you're gaming on AC anyway.",
+      "cons": "Slightly higher system idle power draw (typically 2\u00e2\u20ac\u201c5W). No impact on laptop battery life is minimal if you're gaming on AC anyway.",
       "expertDetails": "Modifies Active State Power Management (ASPM) for the PCI Express bus via 'powercfg'. Changes the link state from 'Maximum power savings' to 'Off'.",
       "interactions": "Crucial for preventing NVMe SSDs and discrete GPUs from dropping PCIe gen bandwidth during low loads, which strictly reduces latency spikes."
     },
@@ -2405,7 +2405,7 @@
     "educationalContext": {
       "howItWorks": "By default, Windows allows the CPU to idle at as low as 5% of its performance state (e.g., 400 MHz on a 4 GHz chip). Setting the minimum to 100% prevents downclocking, so the CPU is always ready to respond instantly.",
       "pros": "Zero latency to reach full CPU frequency. Eliminates 'wake-up' stutters at the start of frames in CPU-bound games. Measurable improvement in minimum frametimes.",
-      "cons": "Significantly higher idle power and heat. CPU will not throttle down when idle, increasing electricity use by 10–30W. Not recommended for laptops or thermally constrained systems.",
+      "cons": "Significantly higher idle power and heat. CPU will not throttle down when idle, increasing electricity use by 10\u00e2\u20ac\u201c30W. Not recommended for laptops or thermally constrained systems.",
       "expertDetails": "Executes 'powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 100'. Forces the CPU to permanently run at its base/boost clock, never downclocking to idle frequencies (e.g. 800MHz).",
       "interactions": "Causes extremely high idle temperatures. Provides zero discernible performance gain over the standard 'High Performance' plan which already ramps effectively."
     },
@@ -2421,7 +2421,7 @@
     "category": "Power",
     "riskLevel": "Yellow",
     "requiresExpertMode": false,
-    "description": "Unhides and activates the Ultimate Performance power plan — Microsoft's highest performance preset.",
+    "description": "Unhides and activates the Ultimate Performance power plan \u00e2\u20ac\u201d Microsoft's highest performance preset.",
     "educationalContext": {
       "howItWorks": "Windows ships with a hidden 'Ultimate Performance' plan that disables all power-saving features. This command enables it.",
       "pros": "Maximum CPU/GPU performance. Eliminates all power-saving latency. Best for desktop gaming rigs.",
@@ -2430,7 +2430,7 @@
       "interactions": "Overwrites existing Active power plan. Highly recommended to use this instead of manually hacking individual Powercfg PROCFREQ flags."
     },
     "execution": {
-      "code": "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61; powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61",
+      "code": "$ultimate = 'e9a42b02-d5df-448d-aa00-03f14749eb61'; $existing = (powercfg /list) | Select-String 'Ultimate Performance' | Select-Object -First 1; if ($existing -and $existing.Line -match '([a-f0-9-]{36})') { $scheme = $matches[1] } else { $created = powercfg -duplicatescheme $ultimate 2>$null; if ($created -match '([a-f0-9-]{36})') { $scheme = $matches[1] } else { $scheme = $ultimate } }; powercfg /setactive $scheme",
       "revertCode": "powercfg -setactive SCHEME_BALANCED"
     },
     "validationCmd": "(powercfg /getactivescheme) -match 'Ultimate'"
@@ -2530,10 +2530,10 @@
       "interactions": "Redundant if the location service is fully disabled."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location' -Name 'Value' -Value 'Deny' -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -Value 1 -Type DWord -Force -EA SilentlyContinue",
+      "code": "$p = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location'; if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; Set-ItemProperty -Path $p -Name 'Value' -Value 'Deny' -Force; Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -Value 1 -Type DWord -Force -EA SilentlyContinue",
       "revertCode": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location' -Name 'Value' -Value 'Allow' -Force; Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors' -Name 'DisableLocation' -EA SilentlyContinue"
     },
-    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location').Value"
+    "validationCmd": "(Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location' -EA SilentlyContinue).Value"
   },
   {
     "id": "DisableClipboardCloudHistory",
@@ -2590,7 +2590,7 @@
       "interactions": "Requires a reboot."
     },
     "execution": {
-      "code": "netsh winsock reset; netsh int ip reset",
+      "code": "& netsh winsock reset | Out-Null; & netsh int ip reset | Out-Null; $global:LASTEXITCODE = 0",
       "revertCode": "Write-Output 'Winsock reset cannot be explicitly reversed. Network will reconfigure on reboot.'"
     },
     "validationCmd": "netsh winsock show catalog | Select-String 'Winsock Catalog'"
@@ -2630,8 +2630,8 @@
       "interactions": "Allows instantly force-killing a hung application (SIGKILL) without needing to ever open Task Manager."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -Name 'TaskbarEndTask' -Value 1 -Type DWord -Force",
-      "revertCode": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -Name 'TaskbarEndTask' -Value 0 -Type DWord -Force"
+      "code": "$p = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings'; if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; Set-ItemProperty -Path $p -Name 'TaskbarEndTask' -Value 1 -Type DWord -Force; $global:LASTEXITCODE = 0",
+      "revertCode": "$p = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings'; if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; Set-ItemProperty -Path $p -Name 'TaskbarEndTask' -Value 0 -Type DWord -Force; $global:LASTEXITCODE = 0"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings' -EA SilentlyContinue).TaskbarEndTask"
   },
@@ -2641,11 +2641,11 @@
     "category": "Windows UI",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Disables the Sticky Keys popup when pressing Shift 5 times — essential for gaming.",
+    "description": "Disables the Sticky Keys popup when pressing Shift 5 times \u00e2\u20ac\u201d essential for gaming.",
     "educationalContext": {
       "howItWorks": "Pressing Shift 5 times triggers a Sticky Keys accessibility prompt. This disables that shortcut.",
       "pros": "No more annoying popups during gaming when spamming Shift.",
-      "cons": "You lose the Shift×5 shortcut to enable Sticky Keys (still accessible via Settings).",
+      "cons": "You lose the Shift\u00c3\u20145 shortcut to enable Sticky Keys (still accessible via Settings).",
       "expertDetails": "Overrides 'Flags' under 'HKCU\\Control Panel\\Accessibility\\StickyKeys'. Turns off the atrocious shortcut that interrupts games when mashing the SHIFT key 5 times.",
       "interactions": "Critical for gaming. Has zero negative impact unless you legitimately require single-finger modifier key sequences."
     },
@@ -2761,7 +2761,7 @@
     "category": "Tools",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Makes Windows use UTC for the hardware clock — essential for dual-booting with Linux.",
+    "description": "Makes Windows use UTC for the hardware clock \u00e2\u20ac\u201d essential for dual-booting with Linux.",
     "educationalContext": {
       "howItWorks": "Linux uses UTC for the hardware clock, Windows uses local time. This makes both consistent.",
       "pros": "Fixes the time being wrong every time you switch between Linux and Windows.",
@@ -2810,7 +2810,7 @@
       "interactions": "Quietens the OS."
     },
     "execution": {
-      "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -Value 0 -Type DWord -Force; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'PeriodInNanoSeconds' -EA SilentlyContinue",
+      "code": "if (!(Test-Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules')) { New-Item -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -Value 0 -Type DWord -Force; Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'PeriodInNanoSeconds' -EA SilentlyContinue; $global:LASTEXITCODE = 0",
       "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -Name 'NumberOfSIUFInPeriod' -EA SilentlyContinue"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Siuf\\Rules' -EA SilentlyContinue).NumberOfSIUFInPeriod"
@@ -2841,7 +2841,7 @@
     "category": "Privacy",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Sets Windows diagnostic data collection to 'Required' (minimum) — the lowest level allowed.",
+    "description": "Sets Windows diagnostic data collection to 'Required' (minimum) \u00e2\u20ac\u201d the lowest level allowed.",
     "educationalContext": {
       "howItWorks": "Windows collects diagnostic data at Full or Required levels. This forces the minimum level.",
       "pros": "Minimizes telemetry sent to Microsoft to only what's required for security updates.",
@@ -2930,8 +2930,8 @@
       "interactions": "Removes automatic thumbnail or media layout views for media folders. You will need to manually set the view type if you want large icons."
     },
     "execution": {
-      "code": "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -Value 'NotSpecified' -Type String -Force -EA SilentlyContinue",
-      "revertCode": "Remove-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell' -Name 'FolderType' -EA SilentlyContinue"
+      "code": "$p = 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell'; if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; Set-ItemProperty -Path $p -Name 'FolderType' -Value 'NotSpecified' -Type String -Force; $global:LASTEXITCODE = 0",
+      "revertCode": "$p = 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell'; Remove-ItemProperty -Path $p -Name 'FolderType' -EA SilentlyContinue; $global:LASTEXITCODE = 0"
     },
     "validationCmd": "(Get-ItemProperty -Path 'HKCU:\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags\\AllFolders\\Shell').FolderType"
   },
@@ -3021,7 +3021,7 @@
     "category": "Network",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Sets DNS to NextDNS — a customizable DNS with ad blocking, analytics, and parental controls.",
+    "description": "Sets DNS to NextDNS \u00e2\u20ac\u201d a customizable DNS with ad blocking, analytics, and parental controls.",
     "educationalContext": {
       "howItWorks": "NextDNS lets you customize your blocklists online. The default server provides basic protection.",
       "pros": "Highly customizable via nextdns.io dashboard. Excellent analytics and logging controls.",
@@ -3045,7 +3045,7 @@
     "educationalContext": {
       "howItWorks": "OpenDNS (now Cisco Umbrella) provides DNS-level security with enterprise-grade threat detection.",
       "pros": "Excellent phishing and botnet protection. Optional content filtering via OpenDNS account.",
-      "cons": "Owned by Cisco — may log queries for analytics. Slightly slower in some regions.",
+      "cons": "Owned by Cisco \u00e2\u20ac\u201d may log queries for analytics. Slightly slower in some regions.",
       "expertDetails": "Sets DNS to 208.67.222.222 and 208.67.220.220. A venerable, highly reliable DNS service operated by Cisco.",
       "interactions": "Faster than ISP DNS, includes basic anti-phishing."
     },
@@ -3061,7 +3061,7 @@
     "category": "Network",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Sets DNS to Control D — a customizable DNS with ad blocking and geo-unblocking.",
+    "description": "Sets DNS to Control D \u00e2\u20ac\u201d a customizable DNS with ad blocking and geo-unblocking.",
     "educationalContext": {
       "howItWorks": "Control D provides DNS-level ad blocking and can unblock geo-restricted content.",
       "pros": "Ad blocking + geo-unblocking in one DNS. Very fast resolver infrastructure.",
@@ -3081,7 +3081,7 @@
     "category": "Network",
     "riskLevel": "Green",
     "requiresExpertMode": false,
-    "description": "Sets DNS to Google Public DNS — the most widely used public DNS resolver.",
+    "description": "Sets DNS to Google Public DNS \u00e2\u20ac\u201d the most widely used public DNS resolver.",
     "educationalContext": {
       "howItWorks": "Google Public DNS is a fast, reliable DNS resolver. No ad blocking or filtering.",
       "pros": "Extremely fast and reliable. Massive global infrastructure with low latency.",
@@ -3141,10 +3141,10 @@
     "category": "Security",
     "riskLevel": "Red",
     "requiresExpertMode": true,
-    "description": "Disables VBS to recover 5–15% GPU/CPU performance lost to hypervisor overhead. Requires reboot.",
+    "description": "Disables VBS to recover 5\u00e2\u20ac\u201c15% GPU/CPU performance lost to hypervisor overhead. Requires reboot.",
     "educationalContext": {
       "howItWorks": "VBS uses Windows Hypervisor to create an isolated virtual environment protecting kernel memory. It runs even on non-Hyper-V systems and incurs a measurable performance cost.",
-      "pros": "Recovers 5–15% GPU performance in games; reduces CPU overhead; useful on older hardware.",
+      "pros": "Recovers 5\u00e2\u20ac\u201c15% GPU performance in games; reduces CPU overhead; useful on older hardware.",
       "cons": "Removes kernel-level memory isolation. Windows Defender Credential Guard will be disabled. Increases risk from kernel exploits.",
       "expertDetails": "Sets the bootloader entry 'hypervisorlaunchtype' to 'off' via bcdedit. VBS is enabled by default on Windows 11. Disabling it also disables HVCI (Memory Integrity) since that feature depends on VBS. Reboot is required for changes to take effect.",
       "interactions": "Disabling VBS automatically disables HVCI/Memory Integrity (DisableMemoryIntegrity tweak becomes redundant). Conflicts with Credential Guard."
@@ -3153,7 +3153,7 @@
       "code": "bcdedit /set hypervisorlaunchtype off",
       "revertCode": "bcdedit /set hypervisorlaunchtype auto"
     },
-    "validationCmd": "bcdedit /enum {current} | findstr /i hypervisorlaunchtype"
+    "validationCmd": "$o = & bcdedit /enum '{current}' 2>$null; $m = $o | Select-String 'hypervisorlaunchtype' -EA SilentlyContinue; if ($m) { ($m.Line -split '\\s+')[-1] } else { '' }"
   },
   {
     "id": "DisableMemoryCompression",
@@ -3167,7 +3167,7 @@
       "pros": "Eliminates CPU overhead from memory compression. Can reduce micro-stutters on high-RAM systems (32GB+).",
       "cons": "On systems with less RAM, disabling compression increases paging to disk which is much slower. Not recommended for systems with less than 16GB RAM.",
       "expertDetails": "Uses the 'Disable-MMAgent -MemoryCompression' PowerShell cmdlet. The Memory Manager Agent (MMAgent) also handles page combining. Current state can be checked with 'Get-MMAgent'.",
-      "interactions": "Only beneficial if you have 32GB+ RAM. On systems with 8–16GB, keeping compression enabled is better for overall performance."
+      "interactions": "Only beneficial if you have 32GB+ RAM. On systems with 8\u00e2\u20ac\u201c16GB, keeping compression enabled is better for overall performance."
     },
     "execution": {
       "code": "Disable-MMAgent -MemoryCompression",
@@ -3183,7 +3183,7 @@
     "requiresExpertMode": true,
     "description": "Forces a consistent system timer tick rate instead of Windows' power-saving variable tick. Reduces latency jitter.",
     "educationalContext": {
-      "howItWorks": "Windows uses a dynamic tick by default — it slows the timer when the system is idle to save power. This causes variable timer resolution which adds jitter to frame times.",
+      "howItWorks": "Windows uses a dynamic tick by default \u00e2\u20ac\u201d it slows the timer when the system is idle to save power. This causes variable timer resolution which adds jitter to frame times.",
       "pros": "More consistent frame pacing and reduced input latency variance. Useful for competitive gaming.",
       "cons": "Slightly increases power consumption (prevents CPU from entering deep sleep between ticks). Requires reboot.",
       "expertDetails": "Sets 'disabledynamictick yes' via bcdedit. Works alongside timer resolution settings. On modern Windows 11, this has less impact than on Windows 10 due to improved scheduler changes, but still measurable on some hardware.",
@@ -3193,7 +3193,7 @@
       "code": "bcdedit /set disabledynamictick yes",
       "revertCode": "bcdedit /set disabledynamictick no"
     },
-    "validationCmd": "bcdedit /enum {current} | findstr /i disabledynamictick"
+    "validationCmd": "$o = & bcdedit /enum '{current}' 2>$null; $m = $o | Select-String 'disabledynamictick' -EA SilentlyContinue; if ($m) { ($m.Line -split '\\s+')[-1] } else { '' }"
   },
   {
     "id": "EnableWriteBackCache",
@@ -3243,10 +3243,10 @@
     "requiresExpertMode": true,
     "description": "Disables Hypervisor-Protected Code Integrity (Memory Integrity) to recover CPU performance lost to kernel code verification overhead.",
     "educationalContext": {
-      "howItWorks": "HVCI runs kernel code integrity checks inside a VBS hypervisor enclave. Every kernel module load is verified in the isolated environment, adding CPU overhead — typically 3–7% in games.",
-      "pros": "Recovers 3–7% CPU overhead in performance-sensitive workloads. Reduces DPC latency on some hardware.",
+      "howItWorks": "HVCI runs kernel code integrity checks inside a VBS hypervisor enclave. Every kernel module load is verified in the isolated environment, adding CPU overhead \u00e2\u20ac\u201d typically 3\u00e2\u20ac\u201c7% in games.",
+      "pros": "Recovers 3\u00e2\u20ac\u201c7% CPU overhead in performance-sensitive workloads. Reduces DPC latency on some hardware.",
       "cons": "Removes hypervisor-enforced driver code integrity. Malicious or vulnerable kernel drivers can execute without this protection layer.",
-      "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity Enabled=0 via registry. Requires a reboot. Note: if VBS (DisableVBS) is also disabled, HVCI is implicitly disabled — applying both tweaks is redundant but harmless.",
+      "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity Enabled=0 via registry. Requires a reboot. Note: if VBS (DisableVBS) is also disabled, HVCI is implicitly disabled \u00e2\u20ac\u201d applying both tweaks is redundant but harmless.",
       "interactions": "Redundant if DisableVBS is applied (VBS must be running for HVCI to function). Conflicts with Credential Guard and Windows Defender Kernel Protection features."
     },
     "execution": {
@@ -3264,7 +3264,7 @@
     "description": "Enables HAGS, letting the GPU manage its own memory scheduling directly instead of routing through the CPU. Reduces GPU latency on supported hardware.",
     "educationalContext": {
       "howItWorks": "Normally the Windows GPU scheduler (running on the CPU) manages GPU memory pages. HAGS offloads this to the GPU's own scheduler firmware, reducing round-trip latency between CPU command submission and GPU execution.",
-      "pros": "Reduces GPU frame latency by 1–5ms on supported GPUs. Improves frame pacing. Beneficial in CPU-bottlenecked scenarios.",
+      "pros": "Reduces GPU frame latency by 1\u00e2\u20ac\u201c5ms on supported GPUs. Improves frame pacing. Beneficial in CPU-bottlenecked scenarios.",
       "cons": "Can cause instability or driver crashes on older GPUs or with outdated drivers. Some titles report lower average FPS with HAGS on certain driver versions. Requires WDDM 2.7+ driver and Windows 10 2004+.",
       "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers HwSchMode=2 (2=enabled, 1=disabled). Requires a modern NVIDIA (GTX 1000+) or AMD (RX 5000+) GPU with an updated driver. Intel Arc also supports it.",
       "interactions": "Works alongside DisableDynamicTick and SystemResponsiveness for lower overall GPU latency. No conflicts with other tweaks."
@@ -3283,7 +3283,7 @@
     "requiresExpertMode": false,
     "description": "Restores Windows' dynamic CPU priority boost, ensuring foreground threads and I/O completion threads receive additional scheduling priority for better responsiveness.",
     "educationalContext": {
-      "howItWorks": "Windows boosts thread priorities temporarily after I/O completion and for foreground applications. Setting PrioritySeparation=38 enables 2-quantum foreground boost with variable quantum lengths — the classic 'gaming' scheduler setting.",
+      "howItWorks": "Windows boosts thread priorities temporarily after I/O completion and for foreground applications. Setting PrioritySeparation=38 enables 2-quantum foreground boost with variable quantum lengths \u00e2\u20ac\u201d the classic 'gaming' scheduler setting.",
       "pros": "Improves foreground app responsiveness and reduces perceived input lag. Ensures game threads are scheduled ahead of background tasks. No reboot required.",
       "cons": "Minimal. Background tasks may receive slightly less CPU time while a foreground game is running. Effectively a no-op if the system is not CPU-bottlenecked.",
       "expertDetails": "Sets HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl PrioritySeparation=38 (hex 0x26). Value 38 = foreground boost enabled, variable quantums, 2:1 foreground:background ratio. Default Windows value is 2.",

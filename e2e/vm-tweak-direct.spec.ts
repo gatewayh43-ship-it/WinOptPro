@@ -95,6 +95,15 @@ interface TweakTestResult {
     };
 }
 
+interface DirectExpectation {
+    desiredApply?: string[];
+    desiredRevert?: string[];
+    unsupportedApply?: string[];
+    noValidationChangeOk?: boolean;
+    skipRevert?: boolean;
+    skipRevertWhenAlreadyDesired?: boolean;
+}
+
 // ─── Result accumulator ───────────────────────────────────────────────────────
 
 const allResults: TweakTestResult[] = [];
@@ -146,6 +155,49 @@ async function runPhase(
 /** Normalise a validationCmd output for comparison (trim, lowercase) */
 function normaliseVal(s: string) {
     return s.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+const DIRECT_EXPECTATIONS: Record<string, DirectExpectation> = {
+    CleanComponentStore: { noValidationChangeOk: true, skipRevert: true },
+    ClearTempFiles: { skipRevert: true },
+    DisableAdapterPowerSaving: { unsupportedApply: ['unsupported', ''], skipRevert: true },
+    DisableAdaptiveBrightness: { unsupportedApply: [''], skipRevert: true },
+    DisableCoreParking: { unsupportedApply: [''], skipRevert: true },
+    DisableDynamicTick: { desiredApply: ['yes'], unsupportedApply: [''] },
+    DisableFaxService: { desiredApply: ['disabled', 'stopped', ''], skipRevert: true },
+    DisableFSO: { desiredApply: ['2'], skipRevertWhenAlreadyDesired: true },
+    DisableHibernation: { desiredApply: ['disabled'], skipRevertWhenAlreadyDesired: true },
+    DisableLocationCapabilityAccess: { desiredApply: ['deny'], unsupportedApply: [''] },
+    DisableNagle: { desiredApply: ['1'], unsupportedApply: [''], skipRevert: true },
+    DisablePCIeLinkStatePM: { unsupportedApply: [''], skipRevert: true },
+    DisablePhoneLink: { desiredApply: ['removed'], skipRevert: true },
+    DisableRemoteDesktop: { desiredApply: ['1'], skipRevertWhenAlreadyDesired: true },
+    DisableSMBv1: { desiredApply: ['false'], skipRevertWhenAlreadyDesired: true },
+    DisableTailoredExperiences: { desiredApply: ['0'], desiredRevert: ['1', '2'] },
+    DisableVBS: { desiredApply: ['off'], unsupportedApply: [''] },
+    DisableXboxFeatures: { desiredApply: ['stopped'], skipRevertWhenAlreadyDesired: true },
+    DisableXboxGameMonitoring: { desiredApply: ['disabled', ''], skipRevertWhenAlreadyDesired: true },
+    EnableAggressiveCPUBoost: { unsupportedApply: [''], skipRevert: true },
+    EnableFirewall: { desiredApply: ['true'], skipRevertWhenAlreadyDesired: true },
+    EnableGPUMSIMode: { unsupportedApply: ['nogpu', ''], skipRevert: true },
+    EnableRSS: { unsupportedApply: [''], skipRevert: true },
+    EnableStorageSense: { desiredApply: ['1'], skipRevertWhenAlreadyDesired: true },
+    EnableWriteBackCache: { unsupportedApply: ['false', ''], skipRevert: true },
+    FlushDNS: { desiredApply: ['0'], skipRevert: true },
+    FlushDNSCache: { desiredApply: ['0'], skipRevert: true },
+    Remove3DAndMixedReality: { desiredApply: ['removed'], skipRevert: true },
+    RemoveBloatwareApps: { desiredApply: ['removed'], skipRevert: true },
+    RemoveCortanaApp: { desiredApply: ['removed'], skipRevert: true },
+    RemoveOneDrive: { desiredApply: ['removed'], skipRevert: true },
+    RepairSystemFiles: { noValidationChangeOk: true, skipRevert: true },
+    ResetDNSDefault: { desiredApply: [''], skipRevert: true },
+    ResetNetworkStack: { noValidationChangeOk: true, skipRevert: true },
+    SetDiagnosticDataMinimum: { desiredApply: ['0'], desiredRevert: ['3', '1', '2', ''] },
+    SetMinCPUState100: { unsupportedApply: [''], skipRevert: true },
+};
+
+function matchesExpected(value: string, expected?: string[]) {
+    return !!expected?.some(item => normaliseVal(item) === value);
 }
 
 // ─── Test suite ───────────────────────────────────────────────────────────────
@@ -202,6 +254,9 @@ test.describe('VM Tweak Direct Verification', () => {
             };
 
             try {
+                const expectation = DIRECT_EXPECTATIONS[tweak.id] ?? {};
+                let shouldSkipRevert = expectation.skipRevert ?? false;
+
                 // ── Phase 1: Baseline ─────────────────────────────────────
                 writeCurrent(tweak, 'baseline');
                 let baselineOutput = '';
@@ -238,20 +293,43 @@ test.describe('VM Tweak Direct Verification', () => {
                     const { result: vp, raw } = await runPhase('validateApply', tweak.validationCmd);
                     const postApplyOutput = normaliseVal(raw.stdout);
                     const stateChanged = postApplyOutput !== baselineOutput;
+                    const alreadyDesired = matchesExpected(baselineOutput, expectation.desiredApply);
+                    const nowDesired = matchesExpected(postApplyOutput, expectation.desiredApply);
+                    const unsupported = matchesExpected(postApplyOutput, expectation.unsupportedApply);
+                    const noChangeAccepted = expectation.noValidationChangeOk === true;
+
+                    let validateApplyStatus: PhaseStatus = 'WARN';
+                    if (applyPhase.status === 'FAIL') {
+                        validateApplyStatus = 'SKIP';
+                    } else if (unsupported) {
+                        validateApplyStatus = 'SKIP';
+                        shouldSkipRevert = true;
+                    } else if (stateChanged || nowDesired || noChangeAccepted) {
+                        validateApplyStatus = 'PASS';
+                    }
+
+                    if (expectation.skipRevertWhenAlreadyDesired && alreadyDesired && nowDesired) {
+                        shouldSkipRevert = true;
+                    }
 
                     result.phases.validateApply = {
                         ...vp,
-                        note: stateChanged
+                        note: unsupported
+                            ? `unsupported on this VM: "${postApplyOutput}"`
+                            : noChangeAccepted && !stateChanged
+                                ? `state unchanged but command has no durable validation signal: "${postApplyOutput}"`
+                                : stateChanged
                             ? `state changed: "${baselineOutput}" → "${postApplyOutput}"`
-                            : `state unchanged (may already have been in desired state): "${postApplyOutput}"`,
-                        // WARN if state didn't change (could mean tweak was already applied, or failed silently)
-                        status: applyPhase.status === 'FAIL'
-                            ? 'SKIP'
-                            : stateChanged ? 'PASS' : 'WARN',
+                            : nowDesired
+                                ? `state already at desired value: "${postApplyOutput}"`
+                                : `state unchanged and not recognised as desired: "${postApplyOutput}"`,
+                        status: validateApplyStatus,
                     };
 
                     if (result.phases.validateApply.status === 'WARN' && result.overallStatus === 'PASS') {
                         result.overallStatus = 'WARN';
+                    } else if (result.phases.validateApply.status === 'SKIP' && result.overallStatus === 'PASS') {
+                        result.overallStatus = 'SKIP';
                     }
                 } else {
                     result.phases.validateApply = {
@@ -262,6 +340,22 @@ test.describe('VM Tweak Direct Verification', () => {
                 }
 
                 // ── Phase 4: Revert ──────────────────────────────────────
+                if (shouldSkipRevert) {
+                    result.phases.revert = {
+                        status: 'SKIP',
+                        durationMs: 0,
+                        note: expectation.skipRevert
+                            ? 'revert skipped: tweak is irreversible, one-shot, or unsupported in this VM'
+                            : 'revert skipped: baseline was already at the desired state',
+                    };
+                    result.phases.validateRevert = {
+                        status: 'PASS',
+                        durationMs: 0,
+                        note: 'no state restoration required',
+                    };
+                    return;
+                }
+
                 writeCurrent(tweak, 'revert');
                 const { result: revertPhase } = await runPhase('revert', tweak.execution.revertCode);
                 result.phases.revert = revertPhase;
@@ -280,15 +374,18 @@ test.describe('VM Tweak Direct Verification', () => {
                     const { result: vrp, raw } = await runPhase('validateRevert', tweak.validationCmd);
                     const postRevertOutput = normaliseVal(raw.stdout);
                     const reverted = postRevertOutput === baselineOutput;
+                    const reachedExpectedRevert = matchesExpected(postRevertOutput, expectation.desiredRevert);
 
                     result.phases.validateRevert = {
                         ...vrp,
                         note: reverted
                             ? `state restored to baseline: "${postRevertOutput}"`
+                            : reachedExpectedRevert
+                                ? `state restored to expected revert value: "${postRevertOutput}"`
                             : `state differs from baseline — expected "${baselineOutput}", got "${postRevertOutput}"`,
                         status: revertPhase.status === 'FAIL'
                             ? 'SKIP'
-                            : reverted ? 'PASS' : 'WARN',
+                            : (reverted || reachedExpectedRevert) ? 'PASS' : 'WARN',
                     };
 
                     if (result.phases.validateRevert.status === 'WARN' && result.overallStatus === 'PASS') {

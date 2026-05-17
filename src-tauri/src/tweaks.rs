@@ -7,7 +7,8 @@ use tokio::time::{timeout, Duration};
 
 use crate::db::{self, DbState, TweakHistoryEntry};
 
-const TWEAK_TIMEOUT: Duration = Duration::from_secs(30);
+const DEFAULT_TWEAK_TIMEOUT: Duration = Duration::from_secs(30);
+const LONG_RUNNING_TWEAK_TIMEOUT: Duration = Duration::from_secs(30 * 60);
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -38,7 +39,10 @@ pub struct BatchTweak {
 
 /// Run a PowerShell command with a proper async timeout.
 /// If the timeout fires, the child process is killed immediately.
-async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String> {
+async fn run_powershell(
+    code: &str,
+    timeout_duration: Duration,
+) -> Result<(String, String, i32, i64), String> {
     let start = Instant::now();
 
     let child = Command::new("powershell")
@@ -56,9 +60,14 @@ async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String
         .spawn()
         .map_err(|e| format!("Failed to spawn PowerShell: {}", e))?;
 
-    let output = timeout(TWEAK_TIMEOUT, child.wait_with_output())
+    let output = timeout(timeout_duration, child.wait_with_output())
         .await
-        .map_err(|_| "Tweak timed out after 30 seconds".to_string())?
+        .map_err(|_| {
+            format!(
+                "Tweak timed out after {} seconds",
+                timeout_duration.as_secs()
+            )
+        })?
         .map_err(|e| format!("PowerShell execution failed: {}", e))?;
 
     let duration_ms = start.elapsed().as_millis() as i64;
@@ -69,6 +78,13 @@ async fn run_powershell(code: &str) -> Result<(String, String, i32, i64), String
     Ok((stdout, stderr, exit_code, duration_ms))
 }
 
+fn timeout_for_tweak(tweak_id: &str) -> Duration {
+    match tweak_id {
+        "CleanComponentStore" | "RepairSystemFiles" => LONG_RUNNING_TWEAK_TIMEOUT,
+        _ => DEFAULT_TWEAK_TIMEOUT,
+    }
+}
+
 /// Execute a single tweak's PowerShell code.
 #[command]
 pub async fn execute_tweak(
@@ -77,7 +93,8 @@ pub async fn execute_tweak(
     tweak_name: String,
     code: String,
 ) -> Result<TweakResult, String> {
-    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&code).await?;
+    let (stdout, stderr, exit_code, duration_ms) =
+        run_powershell(&code, timeout_for_tweak(&tweak_id)).await?;
     let success = exit_code == 0 && stderr.is_empty();
 
     // Record in history
@@ -127,7 +144,7 @@ pub async fn validate_tweak(validation_cmd: String) -> Result<TweakValidationRes
         });
     }
 
-    match run_powershell(&validation_cmd).await {
+    match run_powershell(&validation_cmd, DEFAULT_TWEAK_TIMEOUT).await {
         Ok((stdout, _stderr, exit_code, _duration)) => {
             let state = if exit_code == 0 && !stdout.is_empty() {
                 "Applied".to_string()
@@ -155,7 +172,8 @@ pub async fn revert_tweak(
     tweak_name: String,
     revert_code: String,
 ) -> Result<TweakResult, String> {
-    let (stdout, stderr, exit_code, duration_ms) = run_powershell(&revert_code).await?;
+    let (stdout, stderr, exit_code, duration_ms) =
+        run_powershell(&revert_code, timeout_for_tweak(&tweak_id)).await?;
     let success = exit_code == 0 && stderr.is_empty();
 
     let entry = TweakHistoryEntry {
@@ -212,7 +230,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_powershell_basic() {
-        let result = run_powershell("Write-Output 'hello world'").await;
+        let result = run_powershell("Write-Output 'hello world'", DEFAULT_TWEAK_TIMEOUT).await;
         assert!(result.is_ok());
         let (stdout, stderr, exit_code, duration_ms) = result.unwrap();
         assert_eq!(stdout, "hello world");
@@ -223,7 +241,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_powershell_exit_code() {
-        let result = run_powershell("exit 42").await;
+        let result = run_powershell("exit 42", DEFAULT_TWEAK_TIMEOUT).await;
         assert!(result.is_ok());
         let (_, _, exit_code, _) = result.unwrap();
         assert_eq!(exit_code, 42);
@@ -231,7 +249,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_powershell_stderr() {
-        let result = run_powershell("Write-Error 'test error' -EA Continue").await;
+        let result = run_powershell(
+            "Write-Error 'test error' -EA Continue",
+            DEFAULT_TWEAK_TIMEOUT,
+        )
+        .await;
         assert!(result.is_ok());
         let (_, stderr, _, _) = result.unwrap();
         assert!(!stderr.is_empty());
