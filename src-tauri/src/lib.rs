@@ -1,3 +1,4 @@
+mod ai;
 mod apps;
 mod backup;
 mod benchmark;
@@ -19,10 +20,9 @@ mod system;
 mod tweaks;
 mod update;
 mod wsl;
-mod ai;
 
-use db::DbState;
 use ai::OllamaState;
+use db::DbState;
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -54,15 +54,20 @@ pub fn run() {
                 Box::<dyn std::error::Error>::from(e)
             })?;
             app.manage(DbState(Mutex::new(conn)));
-            app.manage(OllamaState { process: Mutex::new(None) });
+            app.manage(OllamaState {
+                process: Mutex::new(None),
+            });
             let is_admin_result = security::is_admin().unwrap_or(false);
             if !is_admin_result {
                 log::warn!("WinOpt Pro is running WITHOUT administrator privileges.");
             }
-            app.manage(AdminState { is_admin: is_admin_result });
+            app.manage(AdminState {
+                is_admin: is_admin_result,
+            });
             // Initialize updater plugin (desktop only)
             #[cfg(desktop)]
-            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -106,6 +111,8 @@ pub fn run() {
             // Apps
             apps::check_choco_available,
             apps::check_app_installed,
+            apps::scan_software_updates,
+            apps::update_software_package,
             apps::install_app,
             apps::search_winget,
             apps::get_winget_info,
@@ -139,6 +146,14 @@ pub fn run() {
             scheduler::create_maintenance_task,
             scheduler::delete_maintenance_task,
             scheduler::run_maintenance_task_now,
+            scheduler::get_software_update_automation,
+            scheduler::configure_software_update_automation,
+            scheduler::delete_software_update_automation,
+            scheduler::list_feature_automation_presets,
+            scheduler::list_feature_automations,
+            scheduler::configure_feature_automation,
+            scheduler::delete_feature_automation,
+            scheduler::run_feature_automation_now,
             // Gaming
             gaming::detect_active_game,
             gaming::get_gpu_metrics,

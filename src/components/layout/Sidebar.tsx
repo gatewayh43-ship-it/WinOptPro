@@ -3,7 +3,7 @@ import {
     Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium,
     MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
     Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
-    ChevronDown, HelpCircle, Boxes
+    ChevronDown, HelpCircle, Boxes, CalendarClock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../hooks/useTheme";
@@ -47,6 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
     {
         id: "apps", label: "Apps & Packages", items: [
             { id: "apps", label: "App Store", lucideIcon: Package },
+            { id: "software_updates", label: "Software Updates", lucideIcon: RefreshCcw },
             { id: "bundles", label: "Bundles", lucideIcon: Boxes },
             { id: "wsl_manager", label: "WSL Manager", lucideIcon: Terminal },
             { id: "drivers", label: "Driver Manager", lucideIcon: Cpu },
@@ -71,6 +72,7 @@ const NAV_GROUPS: NavGroup[] = [
     {
         id: "system", label: "System", items: [
             { id: "profiles", label: "Profiles", lucideIcon: Layers },
+            { id: "automations", label: "Automations", lucideIcon: CalendarClock },
             { id: "history", label: "History", lucideIcon: Clock },
             { id: "settings", label: "Settings", lucideIcon: Settings },
             { id: "help", label: "Help & Docs", lucideIcon: HelpCircle },

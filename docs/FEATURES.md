@@ -341,6 +341,45 @@ WinOpt Pro queries `winget list` on page load to determine which apps are alread
 
 ---
 
+## Apps & Packages — Software Updates
+
+**What it is:** A WinGet-powered updater for installed desktop software. It scans packages with available upgrades, lets you choose exactly which packages to update, and updates them one by one.
+
+**When to use it:** When you want a controlled update pass instead of blindly upgrading everything on the machine.
+
+### Capabilities
+
+- **Scan installed software** using `winget list --upgrade-available`
+- **Selective updates** with checkboxes, package filtering, and per-package status
+- **Stable by default** via `winget upgrade --id <package> -e --silent`
+- **Beta where known** using curated alternate package IDs for apps with separate beta/insider channels
+- **Scheduled automation** through Windows Task Scheduler under `\WinOpt\SoftwareAutoUpdate`
+- **Frequency controls** for daily, weekly, or monthly runs at a chosen time
+- **Automation settings** for all detected updates or selected packages only, include pinned packages, and allow reboot
+
+---
+
+## System — Automation Center
+
+**What it is:** A central Task Scheduler control panel for recurring WinOpt maintenance scripts.
+
+**When to use it:** When you want WinOpt to keep doing routine maintenance without manually opening each module.
+
+### Included Automations
+
+- **Storage:** temp cleanup, SSD TRIM, disk health snapshots
+- **Security:** Defender signature updates, Defender quick scans
+- **Diagnostics:** network health checks, top process snapshots, system inventory reports
+- **Inventory:** driver inventory, startup app inventory, WSL status snapshots
+- **Power:** battery health reports
+- **Privacy:** telemetry and CEIP baseline snapshots
+
+### Safety Model
+
+The Automation Center schedules only repeatable maintenance and audit tasks. It intentionally does not automate high-impact flows like debloat profiles, GPU driver removal, app installs, arbitrary tweak deployment, or process killing.
+
+---
+
 ## Apps & Packages — WSL Manager
 
 **What it is:** A full graphical interface for managing Windows Subsystem for Linux (WSL 2), including distro lifecycle, resource configuration, desktop environment setup, and Linux GUI app support (WSLg).

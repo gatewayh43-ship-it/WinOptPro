@@ -3,7 +3,7 @@ import { useApps } from "../hooks/useApps";
 import { useSmartStore } from "../hooks/useSmartStore";
 import { AppDetailsPage } from "./AppDetailsPage";
 import AppMetadata from "../data/app_metadata.json";
-import { Search, Sparkles, MessageSquare, ArrowRight, Loader2, LayoutGrid, List, ChevronLeft, ChevronRight, BadgeCheck, Boxes } from "lucide-react";
+import { Search, Sparkles, MessageSquare, ArrowRight, Loader2, LayoutGrid, List, ChevronLeft, ChevronRight, BadgeCheck, Boxes, RefreshCw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 function AppIcon({ logoUrl, appName, className = "" }: { logoUrl: string; appName: string; className?: string }) {
@@ -145,24 +145,46 @@ export function AppsPage({ setView }: { setView?: (view: string) => void }) {
                 </div>
             )}
 
-            {/* Bundles hero card */}
-            <div
-                data-testid="bundles-hero-card"
-                onClick={() => setView?.("bundles")}
-                className="w-full cursor-pointer rounded-2xl bg-gradient-to-r from-primary/10 via-violet-500/10 to-primary/5 border border-primary/20 p-5 flex items-center gap-4 hover:border-primary/40 hover:from-primary/15 transition-all group mb-4"
-            >
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-                    <Boxes size={22} className="text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold">App Bundles</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">22 bundles</span>
+            {/* Store shortcuts */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
+                <div
+                    data-testid="software-updates-hero-card"
+                    onClick={() => setView?.("software_updates")}
+                    className="w-full cursor-pointer rounded-2xl bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-primary/5 border border-emerald-500/20 p-5 flex items-center gap-4 hover:border-emerald-500/40 hover:from-emerald-500/15 transition-all group"
+                >
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/25 transition-colors">
+                        <RefreshCw size={22} className="text-emerald-500" />
                     </div>
-                    <p className="text-sm text-muted-foreground mt-0.5">Install curated app collections in one click.</p>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold">Software Updates</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-medium">Stable by default</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5">Scan installed apps and update selected packages one by one.</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-emerald-500 font-medium shrink-0">
+                        Open <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
                 </div>
-                <div className="flex items-center gap-1 text-sm text-primary font-medium shrink-0">
-                    Browse <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+
+                <div
+                    data-testid="bundles-hero-card"
+                    onClick={() => setView?.("bundles")}
+                    className="w-full cursor-pointer rounded-2xl bg-gradient-to-r from-primary/10 via-violet-500/10 to-primary/5 border border-primary/20 p-5 flex items-center gap-4 hover:border-primary/40 hover:from-primary/15 transition-all group"
+                >
+                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
+                        <Boxes size={22} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold">App Bundles</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">22 bundles</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5">Install curated app collections in one click.</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-primary font-medium shrink-0">
+                        Browse <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ use tokio::time::{timeout, Duration};
 
 const INSTALL_TIMEOUT: Duration = Duration::from_secs(120);
 const CHECK_TIMEOUT: Duration = Duration::from_secs(15);
+const UPDATE_TIMEOUT: Duration = Duration::from_secs(180);
 
 // ── Return types ────────────────────────────────────────────────────────────
 
@@ -23,6 +24,29 @@ pub struct AppInstallResult {
 pub struct AppCheckResult {
     pub installed: bool,
     pub method: String, // which package manager detected it
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SoftwareUpdateItem {
+    pub name: String,
+    pub package_id: String,
+    pub current_version: String,
+    pub available_version: String,
+    pub source: String,
+    pub beta_package_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SoftwareUpdateResult {
+    pub success: bool,
+    pub method: String,
+    pub package_id: String,
+    pub target_package_id: String,
+    pub channel: String,
+    pub output: String,
+    pub error: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -63,8 +87,6 @@ async fn run_cmd(
     args: &[&str],
     time_limit: Duration,
 ) -> Result<(String, String, i32), String> {
-
-
     let child = Command::new(program)
         .args(args)
         .stdout(Stdio::piped())
@@ -104,6 +126,94 @@ fn validate_winget_search_query(query: &str) -> Result<String, String> {
         return Err("Search query contains unsupported characters.".to_string());
     }
     Ok(clean.to_string())
+}
+
+fn validate_package_id(id: &str) -> Result<String, String> {
+    let clean = id.trim();
+    if clean.is_empty() {
+        return Err("Package ID is required.".to_string());
+    }
+    if clean.len() > 120 {
+        return Err("Package ID is too long.".to_string());
+    }
+    if !clean
+        .chars()
+        .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '.' | '_' | '-'))
+    {
+        return Err("Package ID contains unsupported characters.".to_string());
+    }
+    Ok(clean.to_string())
+}
+
+fn known_beta_package_id(package_id: &str) -> Option<String> {
+    match package_id {
+        "Microsoft.VisualStudioCode" => Some("Microsoft.VisualStudioCode.Insiders".to_string()),
+        "Microsoft.Edge" => Some("Microsoft.EdgeBeta".to_string()),
+        "Google.Chrome" => Some("Google.Chrome.Beta".to_string()),
+        "BitSum.ProcessLasso" => Some("BitSum.ProcessLasso.Beta".to_string()),
+        _ => None,
+    }
+}
+
+fn slice_table_cell(line: &str, start: usize, end: Option<usize>) -> String {
+    line.get(start..end.unwrap_or(line.len()))
+        .unwrap_or("")
+        .trim()
+        .to_string()
+}
+
+fn parse_winget_upgrade_table(stdout: &str) -> Vec<SoftwareUpdateItem> {
+    let lines: Vec<&str> = stdout.lines().collect();
+    let Some(header_index) = lines.iter().position(|line| {
+        line.contains("Name")
+            && line.contains("Id")
+            && line.contains("Version")
+            && line.contains("Available")
+    }) else {
+        return Vec::new();
+    };
+
+    let header = lines[header_index];
+    let Some(id_start) = header.find("Id") else {
+        return Vec::new();
+    };
+    let Some(version_start) = header.find("Version") else {
+        return Vec::new();
+    };
+    let Some(available_start) = header.find("Available") else {
+        return Vec::new();
+    };
+    let source_start = header.find("Source");
+
+    lines
+        .iter()
+        .skip(header_index + 1)
+        .filter_map(|line| {
+            let trimmed = line.trim();
+            if trimmed.is_empty() || trimmed.chars().all(|ch| ch == '-' || ch.is_whitespace()) {
+                return None;
+            }
+
+            let package_id = slice_table_cell(line, id_start, Some(version_start));
+            if package_id.is_empty() || validate_package_id(&package_id).is_err() {
+                return None;
+            }
+
+            let available_end = source_start.unwrap_or(line.len());
+            let source = source_start
+                .map(|start| slice_table_cell(line, start, None))
+                .unwrap_or_default();
+
+            Some(SoftwareUpdateItem {
+                name: slice_table_cell(line, 0, Some(id_start)),
+                current_version: slice_table_cell(line, version_start, Some(available_start)),
+                available_version: slice_table_cell(line, available_start, Some(available_end)),
+                beta_package_id: known_beta_package_id(&package_id),
+                package_id,
+                source,
+            })
+        })
+        .collect()
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -153,13 +263,21 @@ pub async fn search_winget(query: String) -> Result<Vec<WingetSearchResult>, Str
                 }
 
                 // Split line by at least 2 spaces
-                let parts: Vec<&str> = line.split("  ").filter(|s| !s.is_empty()).map(|s| s.trim()).collect();
+                let parts: Vec<&str> = line
+                    .split("  ")
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.trim())
+                    .collect();
                 if parts.len() >= 3 {
                     results.push(WingetSearchResult {
                         name: parts[0].to_string(),
                         id: parts[1].to_string(),
                         version: parts[2].to_string(),
-                        match_type: if parts.len() > 3 { parts[3].to_string() } else { "".to_string() },
+                        match_type: if parts.len() > 3 {
+                            parts[3].to_string()
+                        } else {
+                            "".to_string()
+                        },
                     });
                 }
             }
@@ -172,7 +290,7 @@ pub async fn search_winget(query: String) -> Result<Vec<WingetSearchResult>, Str
 #[command]
 pub async fn get_winget_info(id: String) -> Result<WingetAppInfo, String> {
     let clean_id = id.replace(&['&', '|', ';', '>', '<', '"', '\''][..], "");
-    
+
     match run_cmd(
         "winget",
         &["show", "--id", &clean_id, "--accept-source-agreements"],
@@ -200,11 +318,19 @@ pub async fn get_winget_info(id: String) -> Result<WingetAppInfo, String> {
 
             for line in lines {
                 let txt = line.trim();
-                if txt.is_empty() { continue; }
+                if txt.is_empty() {
+                    continue;
+                }
 
                 // The output format is loosely Key: Value
                 if txt.starts_with("Found ") {
-                    info.name = txt.replace("Found ", "").split(" [").next().unwrap_or("").trim().to_string();
+                    info.name = txt
+                        .replace("Found ", "")
+                        .split(" [")
+                        .next()
+                        .unwrap_or("")
+                        .trim()
+                        .to_string();
                 } else if txt.starts_with("Version: ") {
                     info.version = txt.replace("Version: ", "").trim().to_string();
                     reading_tags = false;
@@ -228,33 +354,41 @@ pub async fn get_winget_info(id: String) -> Result<WingetAppInfo, String> {
                     }
                 }
             }
-            
+
             Ok(info)
         }
         Err(e) => Err(e),
     }
 }
 
-pub async fn scrape_app_metadata_internal(app_name: String, _publisher: String, homepage: String) -> AppScrapeMetadata {
-     let mut meta = AppScrapeMetadata {
+pub async fn scrape_app_metadata_internal(
+    app_name: String,
+    _publisher: String,
+    homepage: String,
+) -> AppScrapeMetadata {
+    let mut meta = AppScrapeMetadata {
         screenshots: Vec::new(),
         github_url: None,
         social_links: Vec::new(),
-        alternative_downloads: Vec::new()
+        alternative_downloads: Vec::new(),
     };
-    
+
     // Fallback static images for well known apps for the demo
     let search_lower = app_name.to_lowercase();
     if search_lower.contains("vlc") {
         meta.screenshots.push("https://images.sftcdn.net/images/t_app-cover-l,f_auto/p/1626db4c-96d0-11e6-b9dc-00163ed833e7/2785233116/vlc-media-player-2785233116.png".to_string());
-        meta.alternative_downloads.push("https://www.videolan.org/vlc/".to_string());
+        meta.alternative_downloads
+            .push("https://www.videolan.org/vlc/".to_string());
     } else if search_lower.contains("steam") {
-        meta.screenshots.push("https://cdn.akamai.steamstatic.com/store/about/home_hero_bg_english.jpg".to_string());
+        meta.screenshots.push(
+            "https://cdn.akamai.steamstatic.com/store/about/home_hero_bg_english.jpg".to_string(),
+        );
     } else if search_lower.contains("discord") {
         meta.screenshots.push("https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg".to_string());
-        meta.social_links.push("https://twitter.com/discord".to_string());
+        meta.social_links
+            .push("https://twitter.com/discord".to_string());
     }
-    
+
     if homepage.contains("github.com") {
         meta.github_url = Some(homepage.clone());
     }
@@ -266,7 +400,11 @@ pub async fn scrape_app_metadata_internal(app_name: String, _publisher: String, 
 }
 
 #[command]
-pub async fn scrape_app_metadata(app_name: String, publisher: String, homepage: String) -> Result<AppScrapeMetadata, String> {
+pub async fn scrape_app_metadata(
+    app_name: String,
+    publisher: String,
+    homepage: String,
+) -> Result<AppScrapeMetadata, String> {
     Ok(scrape_app_metadata_internal(app_name, publisher, homepage).await)
 }
 
@@ -276,6 +414,35 @@ pub async fn check_choco_available() -> Result<bool, String> {
     match run_cmd("choco", &["--version"], CHECK_TIMEOUT).await {
         Ok((_, _, code)) => Ok(code == 0),
         Err(_) => Ok(false),
+    }
+}
+
+/// Scan installed software that WinGet can upgrade.
+#[command]
+pub async fn scan_software_updates() -> Result<Vec<SoftwareUpdateItem>, String> {
+    match run_cmd(
+        "winget",
+        &[
+            "list",
+            "--upgrade-available",
+            "--accept-source-agreements",
+            "--disable-interactivity",
+        ],
+        UPDATE_TIMEOUT,
+    )
+    .await
+    {
+        Ok((stdout, stderr, code)) => {
+            if code != 0 {
+                return Err(if stderr.is_empty() {
+                    format!("winget list returned {}", code)
+                } else {
+                    stderr
+                });
+            }
+            Ok(parse_winget_upgrade_table(&stdout))
+        }
+        Err(e) => Err(e),
     }
 }
 
@@ -315,6 +482,86 @@ pub async fn check_app_installed(winget_id: String) -> Result<AppCheckResult, St
         installed: false,
         method: "none".to_string(),
     })
+}
+
+/// Update a selected package. Stable uses WinGet upgrade; beta uses a known alternate package ID.
+#[command]
+pub async fn update_software_package(
+    package_id: String,
+    channel: String,
+    beta_package_id: Option<String>,
+) -> Result<SoftwareUpdateResult, String> {
+    let clean_id = validate_package_id(&package_id)?;
+    let clean_channel = channel.trim().to_ascii_lowercase();
+    if clean_channel != "stable" && clean_channel != "beta" {
+        return Err("Channel must be stable or beta.".to_string());
+    }
+
+    let target_id = if clean_channel == "beta" {
+        let candidate = beta_package_id.or_else(|| known_beta_package_id(&clean_id));
+        validate_package_id(
+            candidate
+                .as_deref()
+                .ok_or_else(|| "No known beta package is available for this app.".to_string())?,
+        )?
+    } else {
+        clean_id.clone()
+    };
+
+    let args = if clean_channel == "beta" {
+        vec![
+            "install",
+            "--id",
+            target_id.as_str(),
+            "-e",
+            "--silent",
+            "--accept-package-agreements",
+            "--accept-source-agreements",
+            "--disable-interactivity",
+        ]
+    } else {
+        vec![
+            "upgrade",
+            "--id",
+            target_id.as_str(),
+            "-e",
+            "--silent",
+            "--accept-package-agreements",
+            "--accept-source-agreements",
+            "--disable-interactivity",
+        ]
+    };
+
+    match run_cmd("winget", &args, UPDATE_TIMEOUT).await {
+        Ok((stdout, stderr, code)) => Ok(SoftwareUpdateResult {
+            success: code == 0,
+            method: if clean_channel == "beta" {
+                "winget-install-beta".to_string()
+            } else {
+                "winget-upgrade".to_string()
+            },
+            package_id: clean_id,
+            target_package_id: target_id,
+            channel: clean_channel,
+            output: stdout,
+            error: if code == 0 {
+                String::new()
+            } else if stderr.is_empty() {
+                format!("winget returned {}", code)
+            } else {
+                stderr
+            },
+        }),
+        Err(e) => Ok(SoftwareUpdateResult {
+            success: false,
+            method: "winget".to_string(),
+            package_id: clean_id,
+            target_package_id: target_id,
+            channel: clean_channel,
+            output: String::new(),
+            error: e,
+        }),
+    }
 }
 
 /// Install an app using winget, falling back to Chocolatey if winget fails.
@@ -416,4 +663,3 @@ pub async fn install_app(winget_id: String, choco_id: String) -> Result<AppInsta
         }),
     }
 }
-

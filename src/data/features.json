@@ -182,6 +182,19 @@
         "expertNote": "Utilizing Winget directly accesses Microsoft's curated and community-driven application manifests, providing vastly superior download security via SHA256 target verification inside the payload scripts naturally blocking heavily-modified installer blobs."
     },
     {
+        "id": "features-software-updates",
+        "title": "Software Updates",
+        "description": "Scan installed software for available WinGet upgrades, choose packages and stable/beta channels, and schedule automatic update scripts.",
+        "technicalDeepDive": "The updater calls `winget list --upgrade-available` through the Rust command layer, parses the fixed-width output into structured package rows, then runs selected upgrades sequentially through exact package IDs. Stable updates use `winget upgrade --id <package> -e --silent`; beta updates use curated alternate package IDs where publishers expose a separate beta, insider, dev, or preview package. Scheduled automation writes a local PowerShell script under ProgramData and registers it with Windows Task Scheduler under the WinOpt task path.",
+        "keyCapabilities": [
+            "Scans WinGet-detectable installed packages with available upgrades.",
+            "Updates selected packages one by one with per-package success or failure state.",
+            "Defaults to stable releases and exposes beta only for known alternate package IDs.",
+            "Creates a configurable Windows Task Scheduler automation with frequency, time, scope, channel, pinned-package, and reboot settings."
+        ],
+        "expertNote": "There is no universal WinGet beta channel flag. Beta support is intentionally explicit and package-ID based so automation does not guess at prerelease installers."
+    },
+    {
         "id": "features-system-report",
         "title": "System Report",
         "description": "Generate a full HTML system report covering hardware, software, tweaks applied, and health status. Save to disk.",
@@ -206,6 +219,19 @@
             "Shareable profiles enabling community-driven tuning methodologies."
         ],
         "expertNote": "Due to dynamic differences in system architecture (e.g. attempting to apply NVIDIA optimizations to an AMD system), applying foreign profiles inherently forces evaluation bounds bypassing parameters that don't match compatible OS bounds."
+    },
+    {
+        "id": "features-automation-center",
+        "title": "Automation Center",
+        "description": "Schedule recurring WinOpt maintenance scripts for cleanup, Defender, inventories, diagnostics, and health reports.",
+        "technicalDeepDive": "The Automation Center writes vetted PowerShell scripts into ProgramData and registers each selected routine as a Windows Task Scheduler job under the WinOpt task path. Each automation is a fixed preset with sanitized IDs, validated frequency and time values, hidden non-interactive execution, and logs written under ProgramData\\WinOpt\\AutomationLogs for auditing.",
+        "keyCapabilities": [
+            "Schedules storage cleanup, TRIM, Defender updates, and Defender quick scans.",
+            "Exports recurring driver, startup, process, WSL, disk, battery, system, network, and privacy snapshots.",
+            "Supports daily, weekly, and monthly schedules with a chosen run time.",
+            "Keeps risky actions like debloat, GPU driver removal, arbitrary tweaks, and process killing out of automation."
+        ],
+        "expertNote": "Scheduled jobs run with highest privileges where Task Scheduler permits it. Review enabled automations periodically and keep ProgramData\\WinOpt\\AutomationLogs private because reports can include installed software and system inventory."
     },
     {
         "id": "features-history-audit-log",

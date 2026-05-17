@@ -107,10 +107,12 @@ The installer (`*.msi` / `*.exe`) is output to `src-tauri/target/release/bundle/
 | **Power Manager** | Power plans, battery health, per-setting AC/DC timeouts | Some settings |
 | **Startup Apps** | Enable/disable startup entries (registry + Task Scheduler) | No |
 | **App Store** | 391-app curated catalog with full metadata (logos, pros/cons, GitHub/MS Store links), install via winget/chocolatey | Yes (install) |
+| **Software Updates** | Scan updateable WinGet packages, choose stable/beta where supported, and schedule automatic update scripts | Yes |
 | **System Report** | Generates full HTML system report, save to disk | No |
 | **Help Center** | Searchable tweak browser with enable/disable, category guides, keyboard shortcuts, FAQ | No |
 | **Backup & Restore** | Export/import settings profiles as `.winopt` JSON files | No |
 | **Profiles** | Save and load named configuration sets | No |
+| **Automation Center** | Schedule recurring WinOpt maintenance scripts for cleanup, security, reports, inventories, and diagnostics | Yes |
 | **Command Palette** | Ctrl+K semantic search across all tweaks and features | No |
 | **AI Assistant** | Local Ollama LLM for offline recommendations and analysis | No |
 | **History / Audit Log** | Local log of every executed command | No |

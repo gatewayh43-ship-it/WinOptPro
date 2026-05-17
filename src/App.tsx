@@ -13,6 +13,7 @@ import { StoragePage } from "./pages/StoragePage";
 import { ProcessPage } from "./pages/ProcessPage";
 import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
 import { AppsPage } from "./pages/AppsPage";
+import { SoftwareUpdatesPage } from "./pages/SoftwareUpdatesPage";
 import { BundlesPage } from "./pages/BundlesPage";
 import { PowerPage } from "./pages/PowerPage";
 import { DefenderPage } from "./pages/DefenderPage";
@@ -27,6 +28,7 @@ import { WslPage } from "./pages/WslPage";
 import { HelpPage } from "./pages/HelpPage";
 import { PrebuiltDebloatPage } from "./pages/PrebuiltDebloatPage";
 import { BenchmarkPage } from "./pages/BenchmarkPage";
+import { AutomationPage } from "./pages/AutomationPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ConsentModal } from "./components/ConsentModal";
 import { ThemeProvider } from "./hooks/useTheme";
@@ -228,6 +230,7 @@ function App() {
     settings: <SettingsPage onTriggerGuide={() => setShowOnboarding(true)} />,
     profiles: <ProfilesPage />,
     apps: <AppsPage setView={setCurrentView} />,
+    software_updates: <SoftwareUpdatesPage />,
     bundles: <BundlesPage setView={setCurrentView} />,
     power_manager: <PowerPage />,
     defender: <DefenderPage />,
@@ -238,6 +241,7 @@ function App() {
     wsl_manager: <WslPage />,
     prebuilt_debloater: <PrebuiltDebloatPage />,
     benchmark: <BenchmarkPage />,
+    automations: <AutomationPage />,
     help: <HelpPage />,
   };
 
