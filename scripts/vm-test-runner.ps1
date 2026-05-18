@@ -59,6 +59,8 @@ param(
     [switch]$DirectVerify,
     # Run ONLY the direct verification, skipping UI tests and dev server
     [switch]$DirectVerifyOnly,
+    # After direct tweak verification, also run features-direct.spec.ts
+    [switch]$FeaturesVerify,
     # Do not open the Playwright report window after completion
     [switch]$NoOpenReport,
     # Guest local administrator username for PowerShell Direct
@@ -740,9 +742,119 @@ exit `$code
     Write-Host "[6/7] Skipping direct verification (use -DirectVerify to enable)" -ForegroundColor DarkGray
 }
 
+# --- Step 6.5: Features Direct Verification ----------------------------------
+
+$featuresExitCode = 0
+
+if ($FeaturesVerify) {
+    Write-Host ""
+    Write-Host "[6.5/7] Running features direct verification (UI + bridge for Group A features)..." -ForegroundColor Yellow
+    Write-Host "  Results: $ProjectDir\test-results\features-direct\features-summary.json" -ForegroundColor DarkGray
+    Write-Host ""
+
+    $session = New-WinOptVmSession
+    try {
+        $featuresProcessId = Invoke-Command -Session $session -ScriptBlock {
+            $project   = "C:\WinOpt\WinOptimizerRevamp"
+            $nodeDir   = "C:\WinOpt\tools\nodejs"
+            $playwright = Join-Path $project "node_modules\.bin\playwright.cmd"
+
+            if (-not (Test-Path $playwright)) {
+                throw "Playwright CLI not found: $playwright"
+            }
+
+            Remove-Item -Path "C:\WinOpt\features-playwright.log" -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path "C:\WinOpt\features-exitcode.txt"   -Force -ErrorAction SilentlyContinue
+
+            $script = @"
+`$ErrorActionPreference = 'Continue'
+if (Test-Path '$nodeDir') { `$env:Path = '$nodeDir;' + `$env:Path }
+`$env:PLAYWRIGHT_BROWSERS_PATH = 'C:\WinOpt\ms-playwright'
+`$env:VM_URL    = 'http://localhost:1420'
+`$env:VM_BRIDGE = 'false'
+Remove-Item Env:VM_NAME -ErrorAction SilentlyContinue
+Remove-Item Env:WINOPT_VM_PASSWORD -ErrorAction SilentlyContinue
+Set-Location '$project'
+& '$playwright' test features-direct --config=playwright.vm.config.ts *> 'C:\WinOpt\features-playwright.log'
+`$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
+Set-Content -Path 'C:\WinOpt\features-exitcode.txt' -Value `$code -Encoding ASCII
+exit `$code
+"@
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
+            $proc = Start-Process -FilePath powershell.exe `
+                -ArgumentList @("-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand", $encoded) `
+                -WindowStyle Hidden -PassThru
+            return $proc.Id
+        }
+
+        Write-Host "  Guest features process: $featuresProcessId" -ForegroundColor DarkGray
+        $featDeadline = (Get-Date).AddHours(1)
+
+        while ($true) {
+            $state = Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
+                param($Pid)
+                $proc     = Get-Process -Id $Pid -ErrorAction SilentlyContinue
+                $exitPath = "C:\WinOpt\features-exitcode.txt"
+                $logPath  = "C:\WinOpt\features-playwright.log"
+                [ordered]@{
+                    running  = $null -ne $proc
+                    exitCode = if (Test-Path $exitPath) { (Get-Content $exitPath -Raw).Trim() } else { "" }
+                    logTail  = if (Test-Path $logPath)  { (Get-Content $logPath  -Tail 6) -join "`n" } else { "" }
+                }
+            }
+
+            if ($state.logTail) {
+                Write-Host "  Features progress:" -ForegroundColor DarkGray
+                $state.logTail -split "`n" | Where-Object { $_.Trim() } | ForEach-Object {
+                    Write-Host "    $_" -ForegroundColor DarkGray
+                }
+            }
+
+            if (-not $state.running) {
+                $featuresExitCode = if ($state.exitCode -match '^\d+$') { [int]$state.exitCode } else { 1 }
+                break
+            }
+
+            if ((Get-Date) -gt $featDeadline) {
+                Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
+                    param($p) Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
+                }
+                throw "Features verification did not finish within 1 hour."
+            }
+
+            Start-Sleep -Seconds 10
+        }
+
+        Copy-Item -FromSession $session `
+            -Path "C:\WinOpt\WinOptimizerRevamp\test-results\features-direct" `
+            -Destination (Join-Path $ProjectDir "test-results") `
+            -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item -FromSession $session `
+            -Path "C:\WinOpt\features-playwright.log" `
+            -Destination $runLogDir -Force -ErrorAction SilentlyContinue
+    } finally {
+        Remove-PSSession $session -ErrorAction SilentlyContinue
+    }
+
+    # Show summary
+    $featuresSummary = "$ProjectDir\test-results\features-direct\features-summary.json"
+    if (Test-Path $featuresSummary) {
+        $fs = Get-Content $featuresSummary | ConvertFrom-Json
+        Write-Host ""
+        Write-Host "  Features Verify Results:" -ForegroundColor $(if ($fs.failed -eq 0) { "Green" } else { "Yellow" })
+        Write-Host "    PASS:  $($fs.passed)"  -ForegroundColor Green
+        Write-Host "    FAIL:  $($fs.failed)"  -ForegroundColor $(if ($fs.failed -gt 0) { "Red" } else { "Green" })
+        Write-Host "    WARN:  $($fs.warned)"  -ForegroundColor Yellow
+        Write-Host "    SKIP:  $($fs.skipped)" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Host ""
+    Write-Host "[6.5/7] Skipping features verification (use -FeaturesVerify to enable)" -ForegroundColor DarkGray
+}
+
 # --- Step 7: Generate Report --------------------------------------------------
 
-$overallExitCode = [Math]::Max($testExitCode, $directExitCode)
+$overallExitCode = [Math]::Max([Math]::Max($testExitCode, $directExitCode), $featuresExitCode)
 
 Write-Host ""
 Write-Host "[7/7] Generating test report..." -ForegroundColor Yellow
