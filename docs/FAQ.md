@@ -264,4 +264,4 @@ Full recovery steps are in the TROUBLESHOOTING.md file.
 
 ---
 
-*Last updated: 2026-03-11*
+*Last updated: 2026-05-18*

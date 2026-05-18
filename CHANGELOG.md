@@ -17,7 +17,7 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [1.0.0] - 2026-03-20
 
 ### Summary
-Initial public release. Full-featured Windows optimizer with 162+ tweaks across Performance, Gaming, Privacy, Security, Network, Power, Debloat, and more. Includes Gaming Optimizer, Privacy Audit, AI Assistant (local Ollama), WSL Manager, GPU Driver Cleaner, Latency Optimizer, App Store with 391 apps and bundle collections, NSIS wizard installer, and Microsoft Store distribution.
+Initial public release. Full-featured Windows optimizer with 165+ tweaks across Performance, Gaming, Privacy, Security, Network, Power, Debloat, and more. Includes Gaming Optimizer, Privacy Audit, AI Assistant (local Ollama), WSL Manager, GPU Driver Cleaner, Latency Optimizer, App Store with 391 apps and bundle collections, NSIS wizard installer, and Microsoft Store distribution.
 
 ---
 
@@ -30,7 +30,7 @@ Post-launch enhancements: expanded game detection library, comprehensive Help Ce
 ### Added
 
 - **Help Center** (`HelpPage.tsx`) — searchable knowledge base with:
-  - Interactive Tweaks Browser: browse all 162 tweaks by category with live Enable/Disable toggle; uses shared `useAppStore` state so changes reflect immediately on the Tweaks page
+  - Interactive Tweaks Browser: browse all 165 tweaks by category with live Enable/Disable toggle; uses shared `useAppStore` state so changes reflect immediately on the Tweaks page
   - Category guides (Performance, Gaming, Privacy, Network, Power, Security, Debloat, Windows UI)
   - Keyboard shortcuts reference panel
   - FAQ accordion (common questions and answers)
@@ -58,7 +58,7 @@ Post-launch enhancements: expanded game detection library, comprehensive Help Ce
 
 ### Tests
 
-- Test suite expanded from 417 → **643 tests across 58 files**
+- Test suite expanded from 417 → **769 tests across 61 files**
 - 19 new test files added:
   - Pages: Dashboard, GamingPage, HelpPage, PrivacyAuditPage, LatencyPage, DriverManagerPage, GamingOverlayPage, SystemReportPage, AppDetailsPage, TweaksPage
   - Hooks: useBackup, useDrivers, useGaming, useGlobalCache, useLatency, usePrivacyAudit, useScheduler, useSmartStore, useSystemReport

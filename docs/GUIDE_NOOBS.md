@@ -331,4 +331,4 @@ A technique used in network communications that bundles small packets together b
 
 ---
 
-*WinOpt Pro — Beginner's Guide | Last updated: 2026-03-11*
+*WinOpt Pro — Beginner's Guide | Last updated: 2026-05-18*

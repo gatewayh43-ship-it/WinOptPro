@@ -138,10 +138,10 @@ From the Home page you can navigate to **System Dashboard** (in the System Tunin
 
 The left sidebar is your primary navigation. It is organized into four collapsible groups:
 
-- **System Tuning**: System Dashboard, Performance Tweaks, Privacy, Gaming, Network, Power, Debloater Wizard, Windows UI, Windows Updates
-- **Apps & Packages**: App Store (391 curated apps), WSL Manager, Driver Manager, GPU Driver Cleaner, Startup Apps
-- **Utilities**: Gaming Optimizer, Latency Optimizer, Power Manager, Privacy Audit, Defender Support, Process Manager, Network Analyzer, Storage Optimizer, System Report
-- **System**: Profiles, History, Settings, Help & Docs
+- **System Tuning**: System Dashboard, Performance, Privacy, Gaming, Network, Power, Debloater Wizard, Windows UI, Updates
+- **Apps & Packages**: App Store, Software Updates, Bundles, WSL Manager, Driver Manager, GPU Driver Cleaner, Startup Apps
+- **Utilities**: Gaming Optimizer, Latency Optimizer, Power Manager, Benchmark, Privacy Audit, Defender Support, Process Manager, Network Analyzer, Storage Optimizer, System Report
+- **System**: Profiles, Automations, History, Settings, Help & Docs
 
 The **Home** button at the top of the sidebar always returns you to the starting page. Click any group header to collapse or expand that group.
 
@@ -423,4 +423,4 @@ Before opening an issue:
 
 ---
 
-*WinOpt Pro — Setup Guide | Last updated: 2026-03-11*
+*WinOpt Pro — Setup Guide | Last updated: 2026-05-18*

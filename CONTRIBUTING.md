@@ -159,10 +159,10 @@ WinOptimizerRevamp/
 │   │   ├── apps.json                 # Curated app catalog
 │   │   └── app_metadata.json         # App icons and metadata
 │   │
-│   ├── __tests__/                    # Vitest test suite (643 tests)
-│   │   ├── hooks/                    # 19 hook unit test files
-│   │   ├── pages/                    # 21 page integration test files
-│   │   ├── components/               # 17 component test files
+│   ├── __tests__/                    # Vitest test suite (769 tests)
+│   │   ├── hooks/                    # 25 hook unit test files
+│   │   ├── pages/                    # 29 page integration test files
+│   │   ├── components/               # 16 component test files
 │   │   └── utils/                    # filterTweaks data integrity tests
 │   │
 │   ├── test/                         # Test infrastructure
@@ -477,7 +477,7 @@ use windows::Win32::System::Registry::*;
 ### Running tests
 
 ```bash
-# Run all 643 tests
+# Run all 769 tests
 npx vitest run
 
 # Watch mode (re-runs on file save)
@@ -638,7 +638,7 @@ refactor(db): extract audit log helpers to separate module
 Before opening a PR, confirm:
 
 - [ ] `npx tsc --noEmit` passes with zero errors
-- [ ] `npx vitest run` passes (all 643 tests green)
+- [ ] `npx vitest run` passes (all 769 tests green)
 - [ ] `cargo fmt` and `cargo clippy` pass inside `src-tauri/`
 - [ ] New feature has at least one hook test and one page/component test
 - [ ] New tweak has a JSON entry with all required fields and a data integrity test

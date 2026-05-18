@@ -51,7 +51,7 @@ Expert Mode does NOT:
 
 **Settings** (gear icon in sidebar) → scroll to **Expert Mode** → toggle on. A confirmation dialog explains the risks. Your confirmation is logged to the audit trail with a timestamp.
 
-### Current Red-Risk Tweaks (as of 2026-03-04)
+### Current Red-Risk Tweaks (as of 2026-05-18)
 
 | Tweak ID | Category | What It Changes |
 |----------|----------|----------------|
@@ -65,7 +65,6 @@ Expert Mode does NOT:
 | DisableMemoryCompression | Performance | Powershell: Disable-MMAgent -MemoryCompression |
 | DisableFTH | Performance | HKLM\SOFTWARE\Microsoft\FTH — Enabled=0 |
 | EnableWriteBackCache | Performance | Disk device policy via DeviceIoControl IOCTL_STORAGE_SET_PROPERTY |
-| DisableDynamicTick | Gaming | bcdedit /set disabledynamictick yes |
 
 ---
 
@@ -722,7 +721,7 @@ Fields:
 
 ### Adding Rust Commands
 
-Tauri commands are registered in `src-tauri/src/main.rs`:
+Tauri commands are registered in `src-tauri/src/lib.rs`:
 
 ```rust
 fn main() {
@@ -753,7 +752,7 @@ pub async fn my_new_command(param: String) -> Result<String, String> {
 }
 ```
 
-Declare the module in `main.rs`:
+Declare the module in `lib.rs`:
 ```rust
 mod my_module;
 ```
@@ -814,8 +813,8 @@ Run tests after adding new features:
 npx vitest run
 ```
 
-All 643+ existing tests must continue to pass before committing.
+All 769+ existing tests must continue to pass before committing.
 
 ---
 
-*WinOpt Pro — Advanced / Expert Guide | Last updated: 2026-03-11*
+*WinOpt Pro — Advanced / Expert Guide | Last updated: 2026-05-18*
