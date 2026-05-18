@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, Lock, Trash2 } from "lucide-react";
+import { Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, Lock, Trash2 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
-import { useTheme } from "../hooks/useTheme";
+import { useTheme, ThemeName } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
 import { useBackup } from "../hooks/useBackup";
 import { useSystemVitals } from "@/hooks/useSystemVitals";
@@ -18,14 +18,94 @@ const AI_MODELS = [
     { id: 'qwen2.5:14b', label: 'Qwen 2.5 14B — High End', size: '~9GB', minRamGb: 16, minVramGb: 8 },
 ] as const;
 
-const COLOR_SCHEMES = [
-    { id: "default", color: "#4318FF", label: "Violet" },
-    { id: "teal", color: "#05cd99", label: "Teal" },
-    { id: "rose", color: "#f43f5e", label: "Rose" },
-    { id: "amber", color: "#f59e0b", label: "Amber" },
-    { id: "emerald", color: "#10b981", label: "Emerald" },
-    { id: "violet", color: "#8b5cf6", label: "Purple" },
+const THEMES = [
+    // Classic Dark
+    { id: "dark",          label: "Default",  group: "classic-dark"  as const, color: "#3b82f6" },
+    { id: "dark-teal",     label: "Teal",     group: "classic-dark"  as const, color: "#05cd99" },
+    { id: "dark-rose",     label: "Rose",     group: "classic-dark"  as const, color: "#f43f5e" },
+    { id: "dark-amber",    label: "Amber",    group: "classic-dark"  as const, color: "#f59e0b" },
+    { id: "dark-emerald",  label: "Emerald",  group: "classic-dark"  as const, color: "#10b981" },
+    { id: "dark-violet",   label: "Violet",   group: "classic-dark"  as const, color: "#8b5cf6" },
+    // Classic Light
+    { id: "light",         label: "Default",  group: "classic-light" as const, color: "#4318FF" },
+    { id: "light-teal",    label: "Teal",     group: "classic-light" as const, color: "#05cd99" },
+    { id: "light-rose",    label: "Rose",     group: "classic-light" as const, color: "#f43f5e" },
+    { id: "light-amber",   label: "Amber",    group: "classic-light" as const, color: "#f59e0b" },
+    { id: "light-emerald", label: "Emerald",  group: "classic-light" as const, color: "#10b981" },
+    { id: "light-violet",  label: "Violet",   group: "classic-light" as const, color: "#8b5cf6" },
+    // Design Themes
+    { id: "claude",       label: "Claude",    group: "design" as const, color: "#C96A2A",
+      description: "Warm minimal",   preview: { bg: "#F7F3EC", card: "#FDFAF5", accent: "#C96A2A" } },
+    { id: "fluent",       label: "Fluent",    group: "design" as const, color: "#0078D4",
+      description: "Windows 11",     preview: { bg: "#F0F0F0", card: "#FFFFFF",  accent: "#0078D4" } },
+    { id: "cyberpunk",    label: "Cyberpunk", group: "design" as const, color: "#22D3EE",
+      description: "Dark editorial", preview: { bg: "#050508", card: "#0C0C16",  accent: "#22D3EE" } },
 ] as const;
+
+function ThemeSwatch({ entry, active, onClick }: {
+    entry: { id: string; label: string; color: string };
+    active: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            title={entry.label}
+            className="flex flex-col items-center gap-1.5 group"
+            data-testid={`theme-swatch-${entry.id}`}
+        >
+            <div
+                className={`w-9 h-9 rounded-full border-2 transition-all ${active ? "scale-110" : "hover:scale-105"}`}
+                style={{
+                    backgroundColor: entry.color,
+                    borderColor: active ? entry.color : "transparent",
+                    boxShadow: active ? `0 0 0 2px ${entry.color}40` : undefined,
+                }}
+            />
+            <span className={`text-[10px] font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                {entry.label}
+            </span>
+        </button>
+    );
+}
+
+function ThemeCard({ entry, active, onClick }: {
+    entry: { id: string; label: string; color: string; description?: string; preview?: { bg: string; card: string; accent: string } };
+    active: boolean;
+    onClick: () => void;
+}) {
+    const { preview } = entry;
+    return (
+        <button
+            onClick={onClick}
+            className={`rounded-xl border-2 p-3 transition-all text-left w-full ${active ? "scale-[1.02]" : "hover:scale-[1.01]"}`}
+            style={{
+                borderColor: active ? entry.color : "transparent",
+                boxShadow: active ? `0 0 0 2px ${entry.color}40` : undefined,
+                backgroundColor: preview?.bg ?? "#111",
+            }}
+            data-testid={`theme-card-${entry.id}`}
+        >
+            {preview && (
+                <div className="flex gap-1.5 mb-2 pointer-events-none">
+                    <div className="w-2 rounded-sm flex-shrink-0" style={{ backgroundColor: preview.accent, minHeight: "40px" }} />
+                    <div className="flex-1 flex flex-col gap-1">
+                        <div className="rounded h-3" style={{ backgroundColor: preview.card, opacity: 0.9 }} />
+                        <div className="rounded h-3" style={{ backgroundColor: preview.card, opacity: 0.7 }} />
+                    </div>
+                </div>
+            )}
+            <div className="mt-1">
+                <div className="text-[11px] font-semibold" style={{ color: entry.color }}>{entry.label}</div>
+                {entry.description && (
+                    <div className="text-[10px] opacity-60 mt-0.5" style={{ color: preview ? "#fff" : undefined }}>
+                        {entry.description}
+                    </div>
+                )}
+            </div>
+        </button>
+    );
+}
 
 function SettingSection({ icon: Icon, title, description, children }: {
     icon: React.ElementType; title: string; description: string; children: React.ReactNode;
@@ -267,7 +347,7 @@ function DataPrivacySection() {
 
 export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }) {
     const { userSettings, updateSettings } = useAppStore();
-    const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
+    const { theme, setTheme } = useTheme();
     const { addToast } = useToast();
     const { vitals: systemVitals } = useSystemVitals();
     const [showExpertConfirm, setShowExpertConfirm] = useState(false);
@@ -335,7 +415,6 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
             showDeployConfirmation: true,
         });
         setTheme("dark");
-        setColorScheme("default");
         localStorage.removeItem("ai-model");
         setSelectedModel("qwen2.5:1.5b");
         addToast({ type: "success", title: "Settings reset to defaults" });
@@ -372,39 +451,46 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                 <div className="space-y-4">
                     {/* Appearance */}
                     <SettingSection icon={Palette} title="Appearance" description="Theme, color scheme, and visual preferences.">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Theme</span>
-                            <div className="flex gap-2 bg-black/5 dark:bg-white/[0.02] border border-border rounded-xl p-1">
-                                <button
-                                    onClick={() => setTheme("dark")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "dark" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-300 hover:text-foreground"
-                                        }`}
-                                >
-                                    <Moon className="w-3.5 h-3.5" /> Dark
-                                </button>
-                                <button
-                                    onClick={() => setTheme("light")}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all ${theme === "light" ? "bg-primary/20 dark:bg-primary/15 text-primary border border-primary/20" : "text-slate-500 dark:text-slate-300 hover:text-foreground"
-                                        }`}
-                                >
-                                    <Sun className="w-3.5 h-3.5" /> Light
-                                </button>
+                        {/* Classic Dark row */}
+                        <div className="mb-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Classic Dark</p>
+                            <div className="flex flex-wrap gap-3">
+                                {THEMES.filter(t => t.group === "classic-dark").map(t => (
+                                    <ThemeSwatch
+                                        key={t.id}
+                                        entry={t}
+                                        active={theme === t.id}
+                                        onClick={() => setTheme(t.id as ThemeName)}
+                                    />
+                                ))}
                             </div>
                         </div>
 
+                        {/* Classic Light row */}
+                        <div className="mb-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Classic Light</p>
+                            <div className="flex flex-wrap gap-3">
+                                {THEMES.filter(t => t.group === "classic-light").map(t => (
+                                    <ThemeSwatch
+                                        key={t.id}
+                                        entry={t}
+                                        active={theme === t.id}
+                                        onClick={() => setTheme(t.id as ThemeName)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Design Themes grid */}
                         <div>
-                            <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 block mb-3">Accent Color</span>
-                            <div className="flex gap-2.5">
-                                {COLOR_SCHEMES.map(scheme => (
-                                    <button
-                                        key={scheme.id}
-                                        title={scheme.label}
-                                        onClick={() => setColorScheme(scheme.id as any)}
-                                        className={`w-7 h-7 rounded-full transition-all hover:scale-110 active:scale-95 ${colorScheme === scheme.id
-                                            ? "ring-2 ring-white/40 ring-offset-2 ring-offset-card scale-110"
-                                            : "opacity-60 hover:opacity-100"
-                                            }`}
-                                        style={{ backgroundColor: scheme.color }}
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Design Themes</p>
+                            <div className="grid grid-cols-3 gap-3">
+                                {THEMES.filter(t => t.group === "design").map(t => (
+                                    <ThemeCard
+                                        key={t.id}
+                                        entry={t as any}
+                                        active={theme === t.id}
+                                        onClick={() => setTheme(t.id as ThemeName)}
                                     />
                                 ))}
                             </div>
