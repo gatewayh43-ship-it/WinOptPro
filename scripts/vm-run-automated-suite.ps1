@@ -17,6 +17,7 @@ param(
     [string]$Checkpoint = "01-TestReady",
     [string]$ProjectDir = "F:\WinOpt\WinOptimizerRevamp",
     [switch]$SkipRestore,
+    [switch]$FeaturesVerify,
     [string]$TestFilter = "",
     [string]$GuestUser = "WinOptTest",
     [string]$GuestPassword = $env:WINOPT_VM_PASSWORD
@@ -50,23 +51,31 @@ if ($TestFilter) {
     $runnerParams.TestFilter = $TestFilter
 }
 
+if ($FeaturesVerify) {
+    $runnerParams.FeaturesVerify = $true
+}
+
 & $runner @runnerParams
 $exitCode = $LASTEXITCODE
 
 $uiResults = Join-Path $ProjectDir "test-results\vm-test-results.json"
 $directResults = Join-Path $ProjectDir "test-results\vm-direct\direct-summary.json"
+$featuresResults = Join-Path $ProjectDir "test-results\features-direct\features-summary.json"
 
 Write-Host ""
 Write-Host "Automated VM suite artifacts:" -ForegroundColor Cyan
 Write-Host "  UI results:     $uiResults" -ForegroundColor White
 Write-Host "  Direct results: $directResults" -ForegroundColor White
+Write-Host "  Features results: $featuresResults" -ForegroundColor White
 Write-Host "  HTML report:    $(Join-Path $ProjectDir 'playwright-report\index.html')" -ForegroundColor White
 
 if ($exitCode -ne 0) {
     exit $exitCode
 }
 
-foreach ($artifact in @($uiResults, $directResults)) {
+$requiredArtifacts = @($uiResults, $directResults)
+if ($FeaturesVerify) { $requiredArtifacts += $featuresResults }
+foreach ($artifact in $requiredArtifacts) {
     if (-not (Test-Path $artifact)) {
         Write-Error "Expected artifact was not created: $artifact"
         exit 1
