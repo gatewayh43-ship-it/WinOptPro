@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, setupUser, waitFor } from "@/test/utils";
+import { render, screen, fireEvent, setupUser, waitFor } from "@/test/utils";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { useAppStore } from "@/store/appStore";
-import type { ReactNode } from "react";
+import { ThemeProvider } from "@/hooks/useTheme";
+import type { ReactNode, ReactElement } from "react";
 
 vi.mock("@/hooks/useSystemVitals", () => ({
     useSystemVitals: vi.fn(() => ({
@@ -28,11 +29,18 @@ vi.mock("framer-motion", async () => {
     };
 });
 
+function renderWithTheme(ui: ReactElement) {
+    return render(
+        <ThemeProvider defaultTheme="dark">
+            {ui}
+        </ThemeProvider>
+    );
+}
+
 function resetStore() {
     useAppStore.setState({
         userSettings: {
             theme: "dark",
-            colorScheme: "default",
             expertModeEnabled: false,
             autoRefreshVitals: true,
             autoRefreshIntervalMs: 3000,
@@ -43,23 +51,20 @@ function resetStore() {
 }
 
 describe("SettingsPage", () => {
-    beforeEach(resetStore);
+    beforeEach(() => {
+        resetStore();
+        localStorage.clear();
+    });
 
     it("renders Appearance, System Monitoring, and Safety sections", () => {
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         expect(screen.getByText("Appearance")).toBeInTheDocument();
         expect(screen.getByText("System Monitoring")).toBeInTheDocument();
         expect(screen.getByText("Safety & Execution")).toBeInTheDocument();
     });
 
-    it("renders theme toggle buttons", () => {
-        render(<SettingsPage />);
-        expect(screen.getByRole("button", { name: /dark/i })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /light/i })).toBeInTheDocument();
-    });
-
     it("renders reset defaults button", () => {
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         expect(screen.getByRole("button", { name: /reset defaults/i })).toBeInTheDocument();
     });
 
@@ -67,7 +72,6 @@ describe("SettingsPage", () => {
         useAppStore.setState({
             userSettings: {
                 theme: "dark",
-                colorScheme: "default",
                 expertModeEnabled: true,
                 autoRefreshVitals: false,
                 autoRefreshIntervalMs: 10000,
@@ -76,7 +80,7 @@ describe("SettingsPage", () => {
             },
         });
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         await user.click(screen.getByRole("button", { name: /reset defaults/i }));
         const settings = useAppStore.getState().userSettings;
         expect(settings.expertModeEnabled).toBe(false);
@@ -87,7 +91,7 @@ describe("SettingsPage", () => {
 
     it("toggling expert mode shows confirmation modal", async () => {
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         const expertToggle = screen.getByRole("button", { name: /expert mode/i });
         await user.click(expertToggle);
         expect(await screen.findByText("Expert Mode Warning")).toBeInTheDocument();
@@ -95,7 +99,7 @@ describe("SettingsPage", () => {
 
     it("Cancel in expert mode modal closes it without enabling", async () => {
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         await user.click(screen.getByRole("button", { name: /expert mode/i }));
         await screen.findByText("Expert Mode Warning");
         await user.click(screen.getByRole("button", { name: /^cancel$/i }));
@@ -105,7 +109,7 @@ describe("SettingsPage", () => {
 
     it("I Understand enables expert mode and closes modal", async () => {
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         await user.click(screen.getByRole("button", { name: /expert mode/i }));
         await screen.findByText("Expert Mode Warning");
         await user.click(screen.getByRole("button", { name: /i understand, enable/i }));
@@ -118,7 +122,7 @@ describe("SettingsPage", () => {
             userSettings: { ...useAppStore.getState().userSettings, expertModeEnabled: true },
         });
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         const expertToggle = screen.getByRole("button", { name: /expert mode/i });
         await user.click(expertToggle);
         // Turning it OFF should not show modal
@@ -128,7 +132,7 @@ describe("SettingsPage", () => {
 
     it("Auto-refresh toggle updates store", async () => {
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         const autoRefreshToggle = screen.getByRole("button", { name: /auto-refresh system vitals/i });
         await user.click(autoRefreshToggle);
         expect(useAppStore.getState().userSettings.autoRefreshVitals).toBe(false);
@@ -136,16 +140,43 @@ describe("SettingsPage", () => {
 
     it("Deploy confirmation toggle updates store", async () => {
         const user = setupUser();
-        render(<SettingsPage />);
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
         const confirmToggle = screen.getByRole("button", { name: /show confirmation before deploying/i });
         await user.click(confirmToggle);
         expect(useAppStore.getState().userSettings.showDeployConfirmation).toBe(false);
     });
 
-    it("renders color scheme swatches", () => {
-        render(<SettingsPage />);
-        expect(screen.getByTitle("Violet")).toBeInTheDocument();
-        expect(screen.getByTitle("Teal")).toBeInTheDocument();
-        expect(screen.getByTitle("Rose")).toBeInTheDocument();
+    describe("Appearance section", () => {
+        it("renders classic dark swatches", () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            expect(screen.getByTestId("theme-swatch-dark")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-dark-teal")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-dark-violet")).toBeInTheDocument();
+        });
+
+        it("renders classic light swatches", () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            expect(screen.getByTestId("theme-swatch-light")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-light-rose")).toBeInTheDocument();
+        });
+
+        it("renders design theme cards", () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            expect(screen.getByTestId("theme-card-claude")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-card-fluent")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-card-cyberpunk")).toBeInTheDocument();
+        });
+
+        it("clicking a theme swatch updates localStorage", async () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            fireEvent.click(screen.getByTestId("theme-swatch-dark-rose"));
+            expect(localStorage.getItem("vite-ui-theme")).toBe("dark-rose");
+        });
+
+        it("clicking a design theme card updates localStorage", async () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            fireEvent.click(screen.getByTestId("theme-card-claude"));
+            expect(localStorage.getItem("vite-ui-theme")).toBe("claude");
+        });
     });
 });
