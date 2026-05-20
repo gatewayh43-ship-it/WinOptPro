@@ -244,7 +244,7 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                     <FeatureModuleCard 
                         delay={0.35} icon={ShieldCheck} title="Privacy Audit" 
                         description="Block Windows telemetry, disable targeted ads, and secure your personal data in one click." 
-                        colorClass="text-emerald-500" onClick={() => setView("privacy")} 
+                        colorClass="text-emerald-500" onClick={() => setView("privacy_audit")} 
                     />
                     <FeatureModuleCard 
                         delay={0.4} icon={Zap} title="Pre-built Debloater" 

@@ -33,13 +33,6 @@ const THEMES = [
     { id: "light-amber",   label: "Amber",    group: "classic-light" as const, color: "#f59e0b" },
     { id: "light-emerald", label: "Emerald",  group: "classic-light" as const, color: "#10b981" },
     { id: "light-violet",  label: "Violet",   group: "classic-light" as const, color: "#8b5cf6" },
-    // Design Themes
-    { id: "claude",       label: "Claude",    group: "design" as const, color: "#C96A2A",
-      description: "Warm minimal",   preview: { bg: "#F7F3EC", card: "#FDFAF5", accent: "#C96A2A" } },
-    { id: "fluent",       label: "Fluent",    group: "design" as const, color: "#0078D4",
-      description: "Windows 11",     preview: { bg: "#F0F0F0", card: "#FFFFFF",  accent: "#0078D4" } },
-    { id: "cyberpunk",    label: "Cyberpunk", group: "design" as const, color: "#22D3EE",
-      description: "Dark editorial", preview: { bg: "#050508", card: "#0C0C16",  accent: "#22D3EE" } },
 ] as const;
 
 function ThemeSwatch({ entry, active, onClick }: {
@@ -65,44 +58,6 @@ function ThemeSwatch({ entry, active, onClick }: {
             <span className={`text-[10px] font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
                 {entry.label}
             </span>
-        </button>
-    );
-}
-
-function ThemeCard({ entry, active, onClick }: {
-    entry: { id: string; label: string; color: string; description?: string; preview?: { bg: string; card: string; accent: string } };
-    active: boolean;
-    onClick: () => void;
-}) {
-    const { preview } = entry;
-    return (
-        <button
-            onClick={onClick}
-            className={`rounded-xl border-2 p-3 transition-all text-left w-full ${active ? "scale-[1.02]" : "hover:scale-[1.01]"}`}
-            style={{
-                borderColor: active ? entry.color : "transparent",
-                boxShadow: active ? `0 0 0 2px ${entry.color}40` : undefined,
-                backgroundColor: preview?.bg ?? "#111",
-            }}
-            data-testid={`theme-card-${entry.id}`}
-        >
-            {preview && (
-                <div className="flex gap-1.5 mb-2 pointer-events-none">
-                    <div className="w-2 rounded-sm flex-shrink-0" style={{ backgroundColor: preview.accent, minHeight: "40px" }} />
-                    <div className="flex-1 flex flex-col gap-1">
-                        <div className="rounded h-3" style={{ backgroundColor: preview.card, opacity: 0.9 }} />
-                        <div className="rounded h-3" style={{ backgroundColor: preview.card, opacity: 0.7 }} />
-                    </div>
-                </div>
-            )}
-            <div className="mt-1">
-                <div className="text-[11px] font-semibold" style={{ color: entry.color }}>{entry.label}</div>
-                {entry.description && (
-                    <div className="text-[10px] opacity-60 mt-0.5" style={{ color: preview ? "#fff" : undefined }}>
-                        {entry.description}
-                    </div>
-                )}
-            </div>
         </button>
     );
 }
@@ -481,20 +436,6 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             </div>
                         </div>
 
-                        {/* Design Themes grid */}
-                        <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Design Themes</p>
-                            <div className="grid grid-cols-3 gap-3">
-                                {THEMES.filter(t => t.group === "design").map(t => (
-                                    <ThemeCard
-                                        key={t.id}
-                                        entry={t as any}
-                                        active={theme === t.id}
-                                        onClick={() => setTheme(t.id as ThemeName)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
                     </SettingSection>
 
                     {/* System Monitoring */}

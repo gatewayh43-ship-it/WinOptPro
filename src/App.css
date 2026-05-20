@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "./assets/mesh-backgrounds.css";
 
 @import "tailwindcss";
@@ -27,17 +27,66 @@
 }
 
 :root {
-  /* Light Mode (Healthcare Dashboard Style #f4f7fe background, #ffffff cards) */
-  --bg: #f4f7fe;
-  --fg: #1e293b;
+  --color-primary-violet: #4318FF;
+  --color-primary-blue: #3b82f6;
+  --color-primary-teal: #05cd99;
+  --color-primary-rose: #f43f5e;
+  --color-primary-amber: #f59e0b;
+  --color-primary-emerald: #10b981;
+  --color-primary-violet-soft: #868CFF;
 
-  --card-bg: #ffffff;
-  --card-fg: #0f172a;
+  --color-light-bg: #f4f7fe;
+  --color-light-card: #ffffff;
+  --color-light-fg: #1e293b;
+  --color-light-fg-card: #0f172a;
+
+  --color-dark-bg: #09090b;
+  --color-dark-card: #18181b;
+  --color-dark-card-hover: #131318;
+  --color-dark-fg: #fafafa;
+
+  --color-emerald: #10b981;
+  --color-emerald-light: #34d399;
+  --color-amber: #f59e0b;
+  --color-amber-light: #fbbf24;
+  --color-red: #ef4444;
+  --color-red-light: #f87171;
+  --color-blue: #3b82f6;
+  --color-blue-light: #60a5fa;
+  --color-purple: #8b5cf6;
+  --color-purple-light: #a78bfa;
+  --color-sky: #0ea5e9;
+  --color-sky-light: #38bdf8;
+  --color-orange: #f97316;
+  --color-orange-light: #fb923c;
+  --color-yellow: #eab308;
+  --color-yellow-light: #facc15;
+  --color-pink: #ec4899;
+  --color-indigo: #6366f1;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ease-tactile: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+
+  /* Light Mode (Healthcare Dashboard Style #f4f7fe background, #ffffff cards) */
+  --bg: var(--color-light-bg);
+  --fg: var(--color-light-fg);
+
+  --card-bg: var(--color-light-card);
+  --card-fg: var(--color-light-fg-card);
 
   --border: rgba(0, 0, 0, 0.06);
   --input: rgba(0, 0, 0, 0.04);
 
-  --primary: #4318FF;
+  --primary: var(--color-primary-violet);
   /* Vibrant Purple/Blue from Intelly Dashboard */
 
   --glass-bg: rgba(255, 255, 255, 0.7);
@@ -71,16 +120,16 @@
 
 .dark {
   /* Dark Mode (Industry Standard Dark Mode - Zinc 950 / 900) */
-  --bg: #09090b;
-  --fg: #fafafa;
+  --bg: var(--color-dark-bg);
+  --fg: var(--color-dark-fg);
 
-  --card-bg: #18181b;
-  --card-fg: #fafafa;
+  --card-bg: var(--color-dark-card);
+  --card-fg: var(--color-dark-fg);
 
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
 
-  --primary: #3b82f6;
+  --primary: var(--color-primary-blue);
 
   --glass-bg: rgba(24, 24, 27, 0.85); /* Darker glass for better contrast */
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -224,11 +273,11 @@
 }
 
 .bento-card {
-  background: var(--color-card);
+  background: var(--card-bg);
   border: 1px solid var(--bento-border);
   border-radius: 20px;
   box-shadow: var(--bento-shadow);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s var(--ease-out-expo);
   overflow: hidden;
   position: relative;
 }
@@ -246,11 +295,11 @@
 }
 
 .dark .bento-card:hover {
-  background: #131318;
+  background: var(--color-dark-card-hover);
 }
 
 .bento-card:hover {
-  border-color: var(--color-border);
+  border-color: var(--border);
   box-shadow: var(--bento-hover-shadow);
   transform: translateY(-2px);
 }
@@ -261,7 +310,7 @@
 
 /* Micro-Interactions (Phase 7) */
 .btn-tactile {
-  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  transition: transform 0.15s var(--ease-tactile), box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .btn-tactile:hover {
@@ -284,12 +333,13 @@
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
   overflow: hidden;
   letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -300,7 +350,13 @@ h4,
 h5,
 h6,
 .font-heading {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: var(--font-display);
+}
+
+code,
+kbd,
+.font-mono {
+  font-family: var(--font-mono);
 }
 
 /* Subtle background noise */

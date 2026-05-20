@@ -161,7 +161,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
 
     return (
         <>
-        <div className="space-y-6 pb-12 mix-blend-plus-lighter relative z-10">
+        <div className="space-y-6 pb-12 relative z-10">
 
             {/* Hero Banner (Webflow Dark style) */}
             <motion.div
@@ -354,7 +354,7 @@ export function Dashboard({ onTriggerGuide, setView }: { onTriggerGuide?: () => 
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="bento-card relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between p-1 group cursor-pointer"
-                onClick={() => setView?.("privacy")}
+                onClick={() => setView?.("privacy_audit")}
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
                 <div className="flex items-center space-x-5 p-5 relative z-10 w-full">

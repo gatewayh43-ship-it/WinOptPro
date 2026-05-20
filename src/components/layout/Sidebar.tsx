@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme, ThemeName } from "../../hooks/useTheme";
 
 const COLOR_SCHEMES = [
-    { id: "default", color: "#4318FF", label: "Violet" },
+    { id: "default", color: "#3b82f6", label: "Blue" },
     { id: "teal", color: "#05cd99", label: "Teal" },
     { id: "rose", color: "#f43f5e", label: "Rose" },
     { id: "amber", color: "#f59e0b", label: "Amber" },

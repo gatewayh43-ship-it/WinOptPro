@@ -81,8 +81,8 @@ export function MainLayout({
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-10 pt-5 pb-4 sm:pb-6 lg:pb-10 relative z-10 w-full">
-                    <div className="max-w-6xl mx-auto h-full">
+                <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-10 pt-4 pb-4 sm:pb-6 lg:pb-10 relative z-10 w-full">
+                    <div className={`${currentView === "home" ? "max-w-[1400px]" : "max-w-6xl"} mx-auto h-full`}>
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={`${currentView}-${refreshKey}`}
