@@ -22,6 +22,7 @@ export function MainLayout({
         setIsRefreshing(true);
         const viewToCacheKey: Record<string, string[]> = {
             network: ['network'],
+            network_optimizer: ['network_optimizer_report'],
             storage: ['storage_items', 'storage_health'],
             wsl_manager: ['wsl_status', 'wsl_config', 'wsl_setup'],
             drivers: ['drivers'],

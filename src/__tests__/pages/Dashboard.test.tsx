@@ -136,13 +136,13 @@ describe("Dashboard", () => {
         expect(screen.getByText("Privacy Intervention Recommended")).toBeInTheDocument();
     });
 
-    it("clicking privacy banner calls setView with 'privacy'", async () => {
+    it("clicking privacy banner calls setView with 'privacy_audit'", async () => {
         const user = setupUser();
         render(<Dashboard onTriggerGuide={onTriggerGuide} setView={setView} />);
         const banner = screen.getByText("Privacy Intervention Recommended").closest("div");
         if (banner) await user.click(banner);
         await waitFor(() => {
-            expect(setView).toHaveBeenCalledWith("privacy");
+            expect(setView).toHaveBeenCalledWith("privacy_audit");
         });
     });
 

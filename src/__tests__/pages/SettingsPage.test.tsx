@@ -160,11 +160,11 @@ describe("SettingsPage", () => {
             expect(screen.getByTestId("theme-swatch-light-rose")).toBeInTheDocument();
         });
 
-        it("renders design theme cards", () => {
+        it("does not render deprecated design theme cards", () => {
             renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
-            expect(screen.getByTestId("theme-card-claude")).toBeInTheDocument();
-            expect(screen.getByTestId("theme-card-fluent")).toBeInTheDocument();
-            expect(screen.getByTestId("theme-card-cyberpunk")).toBeInTheDocument();
+            expect(screen.queryByTestId("theme-card-claude")).not.toBeInTheDocument();
+            expect(screen.queryByTestId("theme-card-fluent")).not.toBeInTheDocument();
+            expect(screen.queryByTestId("theme-card-cyberpunk")).not.toBeInTheDocument();
         });
 
         it("clicking a theme swatch updates localStorage", async () => {
@@ -173,10 +173,10 @@ describe("SettingsPage", () => {
             expect(localStorage.getItem("vite-ui-theme")).toBe("dark-rose");
         });
 
-        it("clicking a design theme card updates localStorage", async () => {
+        it("clicking a light accent swatch updates localStorage", async () => {
             renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
-            fireEvent.click(screen.getByTestId("theme-card-claude"));
-            expect(localStorage.getItem("vite-ui-theme")).toBe("claude");
+            fireEvent.click(screen.getByTestId("theme-swatch-light-violet"));
+            expect(localStorage.getItem("vite-ui-theme")).toBe("light-violet");
         });
     });
 });

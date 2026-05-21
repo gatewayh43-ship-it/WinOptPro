@@ -130,7 +130,7 @@ describe("Dashboard", () => {
 
     // ── Alert Banner navigation ───────────────────────────────────────────────
 
-    it("calls setView with 'privacy' when alert banner is clicked", async () => {
+    it("calls setView with 'privacy_audit' when alert banner is clicked", async () => {
         const user = setupUser();
         const setView = vi.fn();
         render(<Dashboard setView={setView} />);
@@ -138,6 +138,6 @@ describe("Dashboard", () => {
         const banner = screen.getByText("Privacy Intervention Recommended").closest("div")!;
         await user.click(banner);
 
-        expect(setView).toHaveBeenCalledWith("privacy");
+        expect(setView).toHaveBeenCalledWith("privacy_audit");
     });
 });

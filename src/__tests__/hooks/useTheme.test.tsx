@@ -33,13 +33,13 @@ describe("useTheme", () => {
         expect(result.current.theme).toBe("dark");
     });
 
-    it("returns theme from localStorage", () => {
+    it("falls back from deprecated design themes in localStorage", () => {
         localStorage.setItem("vite-ui-theme", "cyberpunk");
         const wrapper = ({ children }: { children: React.ReactNode }) => (
             <ThemeProvider>{children}</ThemeProvider>
         );
         const { result } = renderHook(() => useTheme(), { wrapper });
-        expect(result.current.theme).toBe("cyberpunk");
+        expect(result.current.theme).toBe("dark");
     });
 
     it("setTheme updates the theme", () => {

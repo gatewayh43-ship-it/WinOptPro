@@ -108,6 +108,8 @@ pub fn run() {
             // Network
             network::get_network_interfaces,
             network::ping_host,
+            network::scan_network_optimizer,
+            network::apply_network_optimizer_action,
             // Apps
             apps::check_choco_available,
             apps::check_app_installed,

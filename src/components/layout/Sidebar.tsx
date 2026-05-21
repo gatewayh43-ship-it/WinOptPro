@@ -3,7 +3,7 @@ import {
     Search, Command, Moon, Sun, Zap, Settings, Gamepad2, Clock, Layers, BatteryMedium,
     MonitorCog, RefreshCcw, Power, HardDrive, Activity, Network, Package, Shield, ShieldCheck,
     Cpu, FileText, Timer, LayoutDashboard, Gauge, ShieldAlert, Globe, CircuitBoard, Terminal,
-    ChevronDown, HelpCircle, Boxes, CalendarClock
+    ChevronDown, HelpCircle, Boxes, CalendarClock, SlidersHorizontal
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme, ThemeName } from "../../hooks/useTheme";
@@ -64,6 +64,7 @@ const NAV_GROUPS: NavGroup[] = [
             { id: "privacy_audit", label: "Privacy Audit", lucideIcon: ShieldCheck },
             { id: "defender", label: "Defender Support", lucideIcon: Shield },
             { id: "processes", label: "Process Manager", lucideIcon: Activity },
+            { id: "network_optimizer", label: "Network Optimizer", lucideIcon: SlidersHorizontal },
             { id: "network", label: "Network Analyzer", lucideIcon: Network },
             { id: "storage", label: "Storage Optimizer", lucideIcon: HardDrive },
             { id: "system_report", label: "System Report", lucideIcon: FileText },

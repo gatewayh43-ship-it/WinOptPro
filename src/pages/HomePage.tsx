@@ -290,11 +290,11 @@ export function HomePage({ setView }: { setView: (v: string) => void }) {
                             <div className="p-3 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-2xl"><Network className="w-6 h-6" /></div>
                             <div>
                                 <h3 className="text-xl font-bold text-foreground">Network Analyzer</h3>
-                                <p className="text-sm text-slate-500 dark:text-white font-medium">Test ping, latency, and monitor adapter speeds.</p>
+                                <p className="text-sm text-slate-500 dark:text-white font-medium">Analyze Wi-Fi, wired routes, DNS, jitter, and optimization profiles.</p>
                             </div>
                         </div>
-                        <button onClick={() => setView("network")} className="mt-4 w-full py-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-bold transition-colors border border-border">
-                            Analyze Network
+                        <button onClick={() => setView("network_optimizer")} className="mt-4 w-full py-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-bold transition-colors border border-border">
+                            Optimize Network
                         </button>
                     </BentoBox>
                 </div>

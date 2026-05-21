@@ -12,6 +12,7 @@ import { StartupPage } from "./pages/StartupPage";
 import { StoragePage } from "./pages/StoragePage";
 import { ProcessPage } from "./pages/ProcessPage";
 import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
+import { NetworkOptimizerPage } from "./pages/NetworkOptimizerPage";
 import { AppsPage } from "./pages/AppsPage";
 import { SoftwareUpdatesPage } from "./pages/SoftwareUpdatesPage";
 import { BundlesPage } from "./pages/BundlesPage";
@@ -213,6 +214,7 @@ function App() {
     performance: <TweaksPage categoryTitle="Performance" />,
     privacy: <TweaksPage categoryTitle="Privacy" />,
     network_tweaks: <TweaksPage categoryTitle="Network" />,
+    network_optimizer: <NetworkOptimizerPage />,
     tools: <TweaksPage categoryTitle="Tools" />,
     gaming: <TweaksPage categoryTitle="Gaming" />,
     gaming_optimizer: <GamingPage />,

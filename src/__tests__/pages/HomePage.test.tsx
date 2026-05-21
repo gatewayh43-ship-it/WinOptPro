@@ -227,11 +227,11 @@ describe("HomePage", () => {
             expect(setView).toHaveBeenCalledWith("dashboard");
         });
 
-        it("'Analyze Network' button calls setView with 'network'", async () => {
+        it("'Optimize Network' button calls setView with 'network_optimizer'", async () => {
             const user = setupUser();
             render(<HomePage setView={setView} />);
-            await user.click(screen.getByRole("button", { name: /analyze network/i }));
-            expect(setView).toHaveBeenCalledWith("network");
+            await user.click(screen.getByRole("button", { name: /optimize network/i }));
+            expect(setView).toHaveBeenCalledWith("network_optimizer");
         });
 
         it("Gaming Optimizer card click calls setView with 'gaming_optimizer'", async () => {
@@ -243,11 +243,11 @@ describe("HomePage", () => {
             expect(setView).toHaveBeenCalledWith("gaming_optimizer");
         });
 
-        it("Privacy Audit card click calls setView with 'privacy'", async () => {
+        it("Privacy Audit card click calls setView with 'privacy_audit'", async () => {
             const user = setupUser();
             render(<HomePage setView={setView} />);
             await user.click(screen.getByText("Privacy Audit"));
-            expect(setView).toHaveBeenCalledWith("privacy");
+            expect(setView).toHaveBeenCalledWith("privacy_audit");
         });
 
         it("Pre-built Debloater card click calls setView with 'prebuilt_debloater'", async () => {
