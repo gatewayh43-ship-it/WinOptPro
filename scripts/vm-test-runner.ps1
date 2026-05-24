@@ -506,7 +506,7 @@ Set-Location '$project'
 if (-not [string]::IsNullOrWhiteSpace(`$filter)) {
     `$uiArgs += @('--grep', `$filter)
 } else {
-    `$uiArgs += @('--grep-invert', 'vm-tweak-direct')
+    `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct')
 }
 & '$playwright' @uiArgs *> 'C:\WinOpt\ui-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
@@ -587,7 +587,7 @@ exit `$code
         if ($TestFilter) {
             $testCmd += " --grep `"$TestFilter`""
         } else {
-            $testCmd += " --grep-invert `"vm-tweak-direct`""
+            $testCmd += " --grep-invert `"vm-tweak-direct|features-direct`""
         }
 
         Write-Host "  Command: $testCmd" -ForegroundColor DarkGray

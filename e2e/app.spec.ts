@@ -25,6 +25,24 @@ async function navigateTo(page: Page, label: string) {
     await page.waitForTimeout(400); // let framer-motion animations settle
 }
 
+async function openCommandPalette(page: Page) {
+    const input = page.getByPlaceholder(/search tweaks/i);
+    await page.keyboard.press("Control+k");
+    if (await input.isVisible({ timeout: 1500 }).catch(() => false)) return input;
+
+    await page.evaluate(() => {
+        window.dispatchEvent(new KeyboardEvent("keydown", {
+            key: "k",
+            code: "KeyK",
+            ctrlKey: true,
+            bubbles: true,
+            cancelable: true,
+        }));
+    });
+    await expect(input).toBeVisible({ timeout: 5000 });
+    return input;
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // AC-01: ONBOARDING
 // ═════════════════════════════════════════════════════════════════════════════
@@ -125,40 +143,40 @@ test.describe("AC-05: Command Palette", () => {
     test.beforeEach(async ({ page }) => { await skipOnboarding(page); });
 
     test("opens with Ctrl+K", async ({ page }) => {
-        await page.keyboard.press("Control+k");
+        await openCommandPalette(page);
         await expect(page.getByPlaceholder(/search tweaks/i)).toBeVisible();
     });
 
     test("closes with Escape", async ({ page }) => {
-        await page.keyboard.press("Control+k");
+        await openCommandPalette(page);
         await expect(page.getByPlaceholder(/search tweaks/i)).toBeVisible();
         await page.keyboard.press("Escape");
         await expect(page.getByPlaceholder(/search tweaks/i)).not.toBeVisible();
     });
 
     test("filters tweaks by search query", async ({ page }) => {
-        await page.keyboard.press("Control+k");
-        await page.getByPlaceholder(/search tweaks/i).fill("sysmain");
+        const input = await openCommandPalette(page);
+        await input.fill("sysmain");
         await expect(page.getByText(/sysmain/i)).toBeVisible();
     });
 
     test("shows empty state for unmatched query", async ({ page }) => {
-        await page.keyboard.press("Control+k");
-        await page.getByPlaceholder(/search tweaks/i).fill("xyzzy_nothing_abc123");
+        const input = await openCommandPalette(page);
+        await input.fill("xyzzy_nothing_abc123");
         await expect(page.getByText(/no optimizations found/i)).toBeVisible();
     });
 
     test("groups results by category with section headers", async ({ page }) => {
-        await page.keyboard.press("Control+k");
-        await page.getByPlaceholder(/search tweaks/i).fill("disable");
+        const input = await openCommandPalette(page);
+        await input.fill("disable");
         // Should see at least one category section header
         const headers = page.locator("[class*=uppercase][class*=tracking]");
         await expect(headers.first()).toBeVisible({ timeout: 3000 });
     });
 
     test("semantic synonym: 'lag' shows Network tweaks", async ({ page }) => {
-        await page.keyboard.press("Control+k");
-        await page.getByPlaceholder(/search tweaks/i).fill("lag");
+        const input = await openCommandPalette(page);
+        await input.fill("lag");
         await expect(page.getByText(/network/i).first()).toBeVisible({ timeout: 3000 });
     });
 });

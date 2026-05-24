@@ -2,34 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import type { Tweak } from "./store/appStore";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { MainLayout } from "./components/layout/MainLayout";
-import { Dashboard } from "./pages/Dashboard";
-import { HomePage } from "./pages/HomePage";
-import { TweaksPage } from "./pages/TweaksPage";
-import { HistoryPage } from "./pages/HistoryPage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { ProfilesPage } from "./pages/ProfilesPage";
-import { StartupPage } from "./pages/StartupPage";
-import { StoragePage } from "./pages/StoragePage";
-import { ProcessPage } from "./pages/ProcessPage";
-import { NetworkAnalyzerPage } from "./pages/NetworkAnalyzerPage";
-import { NetworkOptimizerPage } from "./pages/NetworkOptimizerPage";
-import { AppsPage } from "./pages/AppsPage";
-import { SoftwareUpdatesPage } from "./pages/SoftwareUpdatesPage";
-import { BundlesPage } from "./pages/BundlesPage";
-import { PowerPage } from "./pages/PowerPage";
-import { DefenderPage } from "./pages/DefenderPage";
-import { PrivacyAuditPage } from "./pages/PrivacyAuditPage";
-import { DriverManagerPage } from "./pages/DriverManagerPage";
-import { SystemReportPage } from "./pages/SystemReportPage";
-import { GamingPage } from "./pages/GamingPage";
-import { GamingOverlayPage } from "./pages/GamingOverlayPage";
-import { LatencyPage } from "./pages/LatencyPage";
-import { GpuDriverPage } from "./pages/GpuDriverPage";
-import { WslPage } from "./pages/WslPage";
-import { HelpPage } from "./pages/HelpPage";
-import { PrebuiltDebloatPage } from "./pages/PrebuiltDebloatPage";
-import { BenchmarkPage } from "./pages/BenchmarkPage";
-import { AutomationPage } from "./pages/AutomationPage";
 import { OnboardingModal } from "./components/OnboardingModal";
 import { ConsentModal } from "./components/ConsentModal";
 import { ThemeProvider } from "./hooks/useTheme";
@@ -38,17 +10,61 @@ import { GlobalLoadingScreen } from "./components/GlobalLoadingScreen";
 import { CommandPalette } from "./components/CommandPalette";
 import { ToastProvider, useToast } from "./components/ToastSystem";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { AIAssistantChat } from "./components/AI/AIAssistantChat";
 import { STORAGE_KEYS, hasItem, setItem, getString } from "./lib/storage";
 
 // Detect if this webview is the gaming overlay window (hash set by Rust at window creation)
 const IS_GAMING_OVERLAY = window.location.hash === "#gaming-overlay";
 
+const lazyNamed = <T extends Record<string, unknown>, K extends keyof T>(
+  loader: () => Promise<T>,
+  exportName: K,
+) => React.lazy(async () => ({ default: (await loader())[exportName] as React.ComponentType<any> }));
+
+const Dashboard = lazyNamed(() => import("./pages/Dashboard"), "Dashboard");
+const HomePage = lazyNamed(() => import("./pages/HomePage"), "HomePage");
+const TweaksPage = lazyNamed(() => import("./pages/TweaksPage"), "TweaksPage");
+const HistoryPage = lazyNamed(() => import("./pages/HistoryPage"), "HistoryPage");
+const SettingsPage = lazyNamed(() => import("./pages/SettingsPage"), "SettingsPage");
+const ProfilesPage = lazyNamed(() => import("./pages/ProfilesPage"), "ProfilesPage");
+const StartupPage = lazyNamed(() => import("./pages/StartupPage"), "StartupPage");
+const StoragePage = lazyNamed(() => import("./pages/StoragePage"), "StoragePage");
+const ProcessPage = lazyNamed(() => import("./pages/ProcessPage"), "ProcessPage");
+const NetworkAnalyzerPage = lazyNamed(() => import("./pages/NetworkAnalyzerPage"), "NetworkAnalyzerPage");
+const NetworkOptimizerPage = lazyNamed(() => import("./pages/NetworkOptimizerPage"), "NetworkOptimizerPage");
+const AppsPage = lazyNamed(() => import("./pages/AppsPage"), "AppsPage");
+const SoftwareUpdatesPage = lazyNamed(() => import("./pages/SoftwareUpdatesPage"), "SoftwareUpdatesPage");
+const BundlesPage = lazyNamed(() => import("./pages/BundlesPage"), "BundlesPage");
+const PowerPage = lazyNamed(() => import("./pages/PowerPage"), "PowerPage");
+const DefenderPage = lazyNamed(() => import("./pages/DefenderPage"), "DefenderPage");
+const PrivacyAuditPage = lazyNamed(() => import("./pages/PrivacyAuditPage"), "PrivacyAuditPage");
+const DriverManagerPage = lazyNamed(() => import("./pages/DriverManagerPage"), "DriverManagerPage");
+const SystemReportPage = lazyNamed(() => import("./pages/SystemReportPage"), "SystemReportPage");
+const GamingPage = lazyNamed(() => import("./pages/GamingPage"), "GamingPage");
+const GamingOverlayPage = lazyNamed(() => import("./pages/GamingOverlayPage"), "GamingOverlayPage");
+const LatencyPage = lazyNamed(() => import("./pages/LatencyPage"), "LatencyPage");
+const GpuDriverPage = lazyNamed(() => import("./pages/GpuDriverPage"), "GpuDriverPage");
+const WslPage = lazyNamed(() => import("./pages/WslPage"), "WslPage");
+const HelpPage = lazyNamed(() => import("./pages/HelpPage"), "HelpPage");
+const PrebuiltDebloatPage = lazyNamed(() => import("./pages/PrebuiltDebloatPage"), "PrebuiltDebloatPage");
+const BenchmarkPage = lazyNamed(() => import("./pages/BenchmarkPage"), "BenchmarkPage");
+const AutomationPage = lazyNamed(() => import("./pages/AutomationPage"), "AutomationPage");
+const AIAssistantChat = lazyNamed(() => import("./components/AI/AIAssistantChat"), "AIAssistantChat");
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-[320px] items-center justify-center text-[13px] font-medium text-slate-500 dark:text-slate-300">
+      Loading module...
+    </div>
+  );
+}
+
 // Overlay shell — renders independently, no sidebar or chrome
 function OverlayApp() {
   return (
     <ThemeProvider defaultTheme="dark">
-      <GamingOverlayPage />
+      <React.Suspense fallback={<PageFallback />}>
+        <GamingOverlayPage />
+      </React.Suspense>
     </ThemeProvider>
   );
 }
@@ -199,13 +215,21 @@ function App() {
   // Global Command+K / Ctrl+K listener
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      const isCommandPaletteShortcut =
+        (e.ctrlKey || e.metaKey) &&
+        (e.key.toLowerCase() === 'k' || e.code === 'KeyK');
+
+      if (isCommandPaletteShortcut) {
         e.preventDefault();
         setShowCommandPalette(true);
       }
     };
+    document.addEventListener('keydown', handleGlobalKeyDown, true);
     window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown, true);
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
   }, []);
 
   const views: Record<string, React.ReactNode> = {
@@ -298,26 +322,30 @@ function App() {
         <ErrorBoundary>
           <OnboardingModal isOpen={showOnboarding} onClose={handleOnboardingClose} />
           <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onSelectTweak={handleSelectTweak} simpleOnly={true} />
-          <AIAssistantChat />
+          <React.Suspense fallback={null}>
+            <AIAssistantChat />
+          </React.Suspense>
           <MainLayout currentView={currentView} setView={setCurrentView} onOpenSearch={() => setShowCommandPalette(true)}>
             <ErrorBoundary>
-              {views[currentView] || (
-                <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-8 select-none">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
-                    <svg className="w-7 h-7 text-primary opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
-                    </svg>
+              <React.Suspense fallback={<PageFallback />}>
+                {views[currentView] || (
+                  <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-8 select-none">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
+                      <svg className="w-7 h-7 text-primary opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Module Under Development</h3>
+                    <p className="text-[14px] text-slate-500 dark:text-slate-300 max-w-xs leading-relaxed font-medium">
+                      This module is being engineered. Check back in the next release.
+                    </p>
+                    <div className="mt-6 flex items-center gap-2 text-[11px] text-slate-600 font-mono bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                      In progress
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2">Module Under Development</h3>
-                  <p className="text-[14px] text-slate-500 dark:text-slate-300 max-w-xs leading-relaxed font-medium">
-                    This module is being engineered. Check back in the next release.
-                  </p>
-                  <div className="mt-6 flex items-center gap-2 text-[11px] text-slate-600 font-mono bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    In progress
-                  </div>
-                </div>
-              )}
+                )}
+              </React.Suspense>
             </ErrorBoundary>
           </MainLayout>
         </ErrorBoundary>
