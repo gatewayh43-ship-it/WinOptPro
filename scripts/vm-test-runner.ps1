@@ -792,8 +792,8 @@ exit `$code
 
         while ($true) {
             $state = Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
-                param($Pid)
-                $proc     = Get-Process -Id $Pid -ErrorAction SilentlyContinue
+                param($ProcessId)
+                $proc     = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
                 $exitPath = "C:\WinOpt\features-exitcode.txt"
                 $logPath  = "C:\WinOpt\features-playwright.log"
                 [ordered]@{
@@ -817,7 +817,7 @@ exit `$code
 
             if ((Get-Date) -gt $featDeadline) {
                 Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
-                    param($p) Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
+                    param($ProcessId) Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
                 }
                 throw "Features verification did not finish within 1 hour."
             }
