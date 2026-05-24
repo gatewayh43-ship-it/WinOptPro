@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Trash2, CheckCircle2, XCircle, RotateCcw, Calendar, ChevronDown } from "lucide-react";
 import { useToast } from "../components/ToastSystem";
@@ -28,6 +28,11 @@ export function HistoryPage() {
 
     const fetchHistory = async () => {
         setLoading(true);
+        if (!isTauri()) {
+            setEntries([]);
+            setLoading(false);
+            return;
+        }
         try {
             const data = await invoke<TweakHistoryEntry[]>("get_tweak_history", { limit: 200 });
             setEntries(data);
@@ -41,6 +46,11 @@ export function HistoryPage() {
     useEffect(() => { fetchHistory(); }, []);
 
     const handleClear = async () => {
+        if (!isTauri()) {
+            setEntries([]);
+            addToast({ type: "success", title: "History cleared" });
+            return;
+        }
         try {
             await invoke("clear_tweak_history");
             setEntries([]);

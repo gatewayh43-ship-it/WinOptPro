@@ -35,4 +35,21 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  build: {
+    // The app shell is code-split below this budget; larger lazy chunks are
+    // intentional feature data/runtime payloads such as App Store metadata.
+    chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+      },
+    },
+  },
+  worker: {
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+      },
+    },
+  },
 }));

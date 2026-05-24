@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-playwright.ps1",
     "test:e2e:ui": "playwright test --ui",
     "test:vm": "powershell -ExecutionPolicy Bypass -File .\\scripts\\vm-test-runner.ps1",
     "test:vm:skip-restore": "powershell -ExecutionPolicy Bypass -File .\\scripts\\vm-test-runner.ps1 -SkipRestore"

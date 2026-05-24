@@ -406,6 +406,9 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                 <div className="space-y-4">
                     {/* Appearance */}
                     <SettingSection icon={Palette} title="Appearance" description="Theme, color scheme, and visual preferences.">
+                        <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Accent Color</p>
+                        </div>
                         {/* Classic Dark row */}
                         <div className="mb-4">
                             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Classic Dark</p>
