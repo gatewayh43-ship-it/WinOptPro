@@ -122,13 +122,14 @@ function Copy-WinOptDirectoryToVmArchive {
         Write-Host "  Packing $sourceLeaf for VM transfer..." -ForegroundColor DarkGray
 
         $tarArgs = @("-cf", $archivePath, "-C", $sourceParent, $sourceLeaf)
-        $proc = Start-Process -FilePath "tar.exe" -ArgumentList $tarArgs -WindowStyle Hidden -PassThru
-        if (-not $proc.WaitForExit(900000)) {
-            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-            throw "Timed out creating archive: $archivePath"
-        }
-        if ($proc.ExitCode -ne 0) {
-            throw "Failed to create archive: $archivePath"
+        $tarOutput = & tar.exe @tarArgs 2>&1
+        $tarExitCode = $LASTEXITCODE
+        if ($tarExitCode -ne 0) {
+            $detail = ($tarOutput | Out-String).Trim()
+            if ([string]::IsNullOrWhiteSpace($detail)) {
+                $detail = "tar.exe exited with code $tarExitCode"
+            }
+            throw "Failed to create archive: $archivePath. $detail"
         }
     } else {
         Write-Host "  Reusing cached archive $ArchiveName ($([Math]::Round($archive.Length / 1MB, 1)) MB)..." -ForegroundColor DarkGray
