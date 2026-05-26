@@ -13,14 +13,6 @@ export interface DriverInfo {
     is_signed: boolean;
 }
 
-const MOCK_DRIVERS: DriverInfo[] = [
-    { device_name: "NVIDIA GeForce RTX 3080", inf_name: "nvlddmkm.inf", provider: "NVIDIA", version: "31.0.15.3623", date: "2024-01-15", device_class: "Display", is_signed: true },
-    { device_name: "Intel(R) Wi-Fi 6 AX200", inf_name: "netwtw08.inf", provider: "Intel", version: "22.220.0.7", date: "2023-11-20", device_class: "Net", is_signed: true },
-    { device_name: "Realtek High Definition Audio", inf_name: "hdxrtxs.inf", provider: "Realtek", version: "6.0.9305.1", date: "2023-08-10", device_class: "Media", is_signed: true },
-    { device_name: "USB 3.0 eXtensible Host Controller", inf_name: "USBXHCI.INF", provider: "Microsoft", version: "10.0.22621.1", date: "2022-05-21", device_class: "USB", is_signed: true },
-    { device_name: "Test Unsigned Driver", inf_name: "test.inf", provider: "Unknown", version: "1.0.0.0", date: "2021-01-01", device_class: "Unknown", is_signed: false },
-];
-
 export function useDrivers() {
     // Check initial cache synchronously to immediately render
     const [drivers, setDrivers] = useState<DriverInfo[]>(() => useGlobalCache.getState().getCacheObject("drivers") || []);
@@ -44,9 +36,8 @@ export function useDrivers() {
         setError(null);
         try {
             if (!isTauri()) {
-                await new Promise(r => setTimeout(r, 1000));
-                setDrivers(MOCK_DRIVERS);
-                useGlobalCache.getState().setCacheObject("drivers", MOCK_DRIVERS);
+                setDrivers([]);
+                setError("Driver inventory requires the WinOpt Pro desktop runtime.");
                 return;
             }
             const result = await invoke<DriverInfo[]>("list_drivers");
@@ -64,7 +55,7 @@ export function useDrivers() {
     const exportList = useCallback(async (path: string) => {
         try {
             if (!isTauri()) {
-                addToast({ type: "info", title: "Export (Preview Mode)", message: "Export is only available in the desktop app." });
+                addToast({ type: "error", title: "Desktop runtime required", message: "Driver export is only available in the WinOpt Pro desktop app." });
                 return false;
             }
             await invoke("export_driver_list", { path });

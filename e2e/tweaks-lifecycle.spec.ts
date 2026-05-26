@@ -71,7 +71,7 @@ async function navigateToCategory(page: Page, category: string) {
         'Security': 'Security',
         'Debloat': 'Debloat',
         'Windows UI': 'Windows UI',
-        'Windows Update': 'Windows Update',
+        'Windows Update': 'Updates',
         'Tools': 'Tools',
     };
     const navTitle = categoryToNav[category] || category;

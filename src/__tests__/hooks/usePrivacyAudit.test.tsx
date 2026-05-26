@@ -47,9 +47,9 @@ describe("usePrivacyAudit", () => {
         vi.mocked(tauriCore.invoke).mockReset();
     });
 
-    // ── isTauri=false (mock data) ─────────────────────────────────────────────
+    // ── isTauri=false ─────────────────────────────────────────────────────────
 
-    describe("isTauri=false (mock data)", () => {
+    describe("isTauri=false (desktop runtime unavailable)", () => {
         beforeEach(() => {
             vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         });
@@ -60,103 +60,48 @@ describe("usePrivacyAudit", () => {
             expect(result.current.isScanning).toBe(false);
         });
 
-        it("runScan returns mock issues and sets auditResult", async () => {
-            vi.useFakeTimers();
+        it("runScan keeps auditResult empty and sets an error", async () => {
             const { result } = renderHook(() => usePrivacyAudit());
 
-            let scanPromise: Promise<void>;
-            act(() => {
-                scanPromise = result.current.runScan();
-            });
-
-            // Advance past the 1200ms delay
             await act(async () => {
-                vi.advanceTimersByTime(1300);
+                await result.current.runScan();
             });
-            await act(async () => { await scanPromise; });
 
-            expect(result.current.auditResult).not.toBeNull();
-            expect(result.current.auditResult!.issues.length).toBeGreaterThan(0);
+            expect(result.current.auditResult).toBeNull();
+            expect(result.current.error).toContain("desktop runtime");
             expect(tauriCore.invoke).not.toHaveBeenCalledWith("scan_privacy_issues");
-            vi.useRealTimers();
         });
 
         it("runScan sets isScanning=false after completion", async () => {
-            vi.useFakeTimers();
             const { result } = renderHook(() => usePrivacyAudit());
 
-            let scanPromise: Promise<void>;
-            act(() => {
-                scanPromise = result.current.runScan();
-            });
-
             await act(async () => {
-                vi.advanceTimersByTime(1300);
+                await result.current.runScan();
             });
-            await act(async () => { await scanPromise; });
 
             expect(result.current.isScanning).toBe(false);
-            vi.useRealTimers();
         });
 
-        it("mock score is computed from mock issues", async () => {
-            vi.useFakeTimers();
+        it("does not compute a score without a real desktop scan", async () => {
             const { result } = renderHook(() => usePrivacyAudit());
 
-            let scanPromise: Promise<void>;
-            act(() => {
-                scanPromise = result.current.runScan();
-            });
-
             await act(async () => {
-                vi.advanceTimersByTime(1300);
+                await result.current.runScan();
             });
-            await act(async () => { await scanPromise; });
 
-            // MOCK_ISSUES: some are is_fixed=true, some false — score is 0–100
-            expect(result.current.auditResult!.score).toBeGreaterThanOrEqual(0);
-            expect(result.current.auditResult!.score).toBeLessThanOrEqual(100);
-            vi.useRealTimers();
+            expect(result.current.auditResult).toBeNull();
         });
 
-        it("fixIssues marks selected issues as fixed and updates score", async () => {
-            vi.useFakeTimers();
+        it("fixIssues does not mutate audit state without desktop runtime", async () => {
             const { result } = renderHook(() => usePrivacyAudit());
 
-            let scanPromise: Promise<void>;
-            act(() => {
-                scanPromise = result.current.runScan();
-            });
-
             await act(async () => {
-                vi.advanceTimersByTime(1300);
-            });
-            await act(async () => { await scanPromise; });
-
-            const scoreBefore = result.current.auditResult!.score;
-
-            // Fix the first unfixed issue
-            const unfixedIds = result.current.auditResult!.issues
-                .filter((i) => !i.is_fixed)
-                .map((i) => i.id)
-                .slice(0, 1);
-
-            let fixPromise: Promise<void>;
-            act(() => {
-                fixPromise = result.current.fixIssues(unfixedIds);
+                await result.current.fixIssues(["diagtrack_svc"]);
             });
 
-            await act(async () => {
-                vi.advanceTimersByTime(900);
-            });
-            await act(async () => { await fixPromise; });
-
-            const fixedIssue = result.current.auditResult!.issues.find(
-                (i) => i.id === unfixedIds[0]
-            );
-            expect(fixedIssue?.is_fixed).toBe(true);
-            expect(result.current.auditResult!.score).toBeGreaterThanOrEqual(scoreBefore);
-            vi.useRealTimers();
+            expect(result.current.auditResult).toBeNull();
+            expect(result.current.isFixing).toBe(false);
+            expect(tauriCore.invoke).not.toHaveBeenCalledWith("fix_privacy_issues", expect.anything());
         });
 
         it("fixIssues with empty array does nothing", async () => {
@@ -169,27 +114,15 @@ describe("usePrivacyAudit", () => {
             expect(result.current.auditResult).toBeNull();
         });
 
-        it("fixAll fixes all unfixed issues", async () => {
-            vi.useFakeTimers();
+        it("fixAll is a no-op when no real audit result exists", async () => {
             const { result } = renderHook(() => usePrivacyAudit());
 
-            let scanPromise: Promise<void>;
-            act(() => {
-                scanPromise = result.current.runScan();
+            await act(async () => {
+                await result.current.fixAll();
             });
-            await act(async () => { vi.advanceTimersByTime(1300); });
-            await act(async () => { await scanPromise; });
 
-            let fixAllPromise: Promise<void>;
-            act(() => {
-                fixAllPromise = result.current.fixAll();
-            });
-            await act(async () => { vi.advanceTimersByTime(900); });
-            await act(async () => { await fixAllPromise; });
-
-            const stillUnfixed = result.current.auditResult!.issues.filter((i) => !i.is_fixed);
-            expect(stillUnfixed).toHaveLength(0);
-            vi.useRealTimers();
+            expect(result.current.auditResult).toBeNull();
+            expect(tauriCore.invoke).not.toHaveBeenCalledWith("fix_privacy_issues", expect.anything());
         });
     });
 

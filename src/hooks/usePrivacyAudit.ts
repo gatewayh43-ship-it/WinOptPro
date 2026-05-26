@@ -18,24 +18,6 @@ export interface PrivacyAuditResult {
 }
 
 
-const MOCK_ISSUES: PrivacyIssue[] = [
-    { id: "diagtrack_svc", category: "Telemetry", title: "Diagnostics Tracking Service running", severity: 3, description: "DiagTrack sends diagnostic data to Microsoft.", fix_cmd: "", is_fixed: false },
-    { id: "telemetry_level", category: "Telemetry", title: "Telemetry level above Security (0)", severity: 3, description: "Telemetry is set above minimum.", fix_cmd: "", is_fixed: false },
-    { id: "advertising_id", category: "Registry", title: "Advertising ID enabled", severity: 2, description: "Tracks app usage for personalized ads.", fix_cmd: "", is_fixed: true },
-    { id: "activity_history", category: "Registry", title: "Activity History / Timeline enabled", severity: 2, description: "Syncs activity to the cloud.", fix_cmd: "", is_fixed: false },
-    { id: "cortana_search", category: "Registry", title: "Bing web search in Start Menu", severity: 1, description: "Sends searches to Microsoft.", fix_cmd: "", is_fixed: true },
-    { id: "ceip_tasks", category: "Telemetry", title: "Customer Experience Improvement tasks active", severity: 2, description: "Background data collection tasks.", fix_cmd: "", is_fixed: false },
-    { id: "wer_service", category: "Services", title: "Windows Error Reporting service running", severity: 1, description: "Sends crash data to Microsoft.", fix_cmd: "", is_fixed: false },
-    { id: "feedback_prompts", category: "Registry", title: "Windows feedback prompts enabled", severity: 1, description: "Feedback popups and data collection.", fix_cmd: "", is_fixed: true },
-    { id: "app_launch_tracking", category: "Registry", title: "App launch tracking enabled", severity: 1, description: "Tracks launched apps for suggestions.", fix_cmd: "", is_fixed: false },
-];
-
-function computeMockScore(issues: PrivacyIssue[]): number {
-    const total = issues.reduce((s, i) => s + i.severity, 0);
-    const fixed = issues.filter(i => i.is_fixed).reduce((s, i) => s + i.severity, 0);
-    return total === 0 ? 100 : Math.round((fixed / total) * 100);
-}
-
 export function usePrivacyAudit() {
     const [auditResult, setAuditResult] = useState<PrivacyAuditResult | null>(null);
     const [isScanning, setIsScanning] = useState(false);
@@ -48,9 +30,10 @@ export function usePrivacyAudit() {
         setError(null);
         try {
             if (!isTauri()) {
-                await new Promise(r => setTimeout(r, 1200));
-                const issues = MOCK_ISSUES;
-                setAuditResult({ score: computeMockScore(issues), issues });
+                const msg = "Privacy auditing requires the WinOpt Pro desktop runtime.";
+                setAuditResult(null);
+                setError(msg);
+                addToast({ type: "error", title: "Desktop runtime required", message: msg });
                 return;
             }
             const result = await invoke<PrivacyAuditResult>("scan_privacy_issues");
@@ -69,20 +52,7 @@ export function usePrivacyAudit() {
         setIsFixing(true);
         try {
             if (!isTauri()) {
-                await new Promise(r => setTimeout(r, 800));
-                setAuditResult(prev => {
-                    if (!prev) return prev;
-                    const updated = prev.issues.map(i =>
-                        ids.includes(i.id) ? { ...i, is_fixed: true } : i
-                    );
-                    return { score: computeMockScore(updated), issues: updated };
-                });
-                if (ids.length === 1) {
-                    const issue = MOCK_ISSUES.find(i => i.id === ids[0]);
-                    addToast({ type: "success", title: "Issue fixed", message: issue?.title ?? ids[0] });
-                } else {
-                    addToast({ type: "success", title: "Privacy Issues Fixed", message: `${ids.length} issue(s) resolved.` });
-                }
+                addToast({ type: "error", title: "Desktop runtime required", message: "Privacy fixes require the WinOpt Pro desktop app running with Administrator privileges." });
                 return;
             }
             await invoke("fix_privacy_issues", { issueIds: ids });

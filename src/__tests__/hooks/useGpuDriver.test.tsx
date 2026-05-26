@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@/test/utils";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderHook, act, waitFor } from "@/test/utils";
 import { useGpuDriver } from "@/hooks/useGpuDriver";
 import * as tauriCore from "@tauri-apps/api/core";
 
@@ -12,26 +12,16 @@ describe("useGpuDriver", () => {
     beforeEach(() => {
         vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         vi.mocked(tauriCore.invoke).mockReset();
-        vi.useFakeTimers();
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it("loads mock drivers when not in Tauri", async () => {
+    it("leaves drivers empty and sets an error when desktop runtime is unavailable", async () => {
         const { result } = renderHook(() => useGpuDriver());
 
-        expect(result.current.isLoading).toBe(true);
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        await act(async () => {
-            vi.advanceTimersByTime(700);
-        });
-
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.drivers.length).toBe(2);
-        expect(result.current.drivers[0].vendor).toBe("NVIDIA");
-        expect(result.current.drivers[1].vendor).toBe("Intel");
+        expect(result.current.drivers).toEqual([]);
+        expect(result.current.error).toContain("desktop runtime");
+        expect(tauriCore.invoke).not.toHaveBeenCalled();
     });
 
     it("fetchDrivers calls get_gpu_drivers when in Tauri", async () => {
@@ -43,9 +33,7 @@ describe("useGpuDriver", () => {
 
         const { result } = renderHook(() => useGpuDriver());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(tauriCore.invoke).toHaveBeenCalledWith("get_gpu_drivers");
         expect(result.current.drivers).toEqual(mockDrivers);
@@ -57,9 +45,7 @@ describe("useGpuDriver", () => {
 
         const { result } = renderHook(() => useGpuDriver());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         vi.mocked(tauriCore.invoke).mockResolvedValue({
             success: true,
@@ -79,24 +65,18 @@ describe("useGpuDriver", () => {
         });
     });
 
-    it("uninstallDrivers shows mock result when not in Tauri", async () => {
+    it("uninstallDrivers leaves removalResult empty without desktop runtime", async () => {
         const { result } = renderHook(() => useGpuDriver());
 
-        await act(async () => {
-            vi.advanceTimersByTime(700);
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         await act(async () => {
-            result.current.uninstallDrivers("NVIDIA", true);
+            await result.current.uninstallDrivers("NVIDIA", true);
         });
 
-        await act(async () => {
-            vi.advanceTimersByTime(2000);
-        });
-
-        expect(result.current.removalResult).not.toBeNull();
-        expect(result.current.removalResult?.vendor).toBe("NVIDIA");
-        expect(result.current.removalResult?.requiresReboot).toBe(true);
+        expect(result.current.removalResult).toBeNull();
+        expect(result.current.error).toContain("desktop runtime");
+        expect(tauriCore.invoke).not.toHaveBeenCalledWith("uninstall_gpu_drivers", expect.anything());
     });
 
     it("sets error on fetch failure when in Tauri", async () => {
@@ -105,20 +85,9 @@ describe("useGpuDriver", () => {
 
         const { result } = renderHook(() => useGpuDriver());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(result.current.error).toBe("Access denied");
         expect(result.current.drivers).toHaveLength(0);
-    });
-
-    it("clears mock timeout on unmount", () => {
-        // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
-        const clearSpy = vi.spyOn(globalThis, "clearTimeout");
-        const { unmount } = renderHook(() => useGpuDriver());
-        unmount();
-        expect(clearSpy).toHaveBeenCalled();
-        clearSpy.mockRestore();
     });
 });

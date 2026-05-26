@@ -8,11 +8,7 @@ vi.mock("@/components/ToastSystem", () => {
     return { useToast: () => ({ addToast }) };
 });
 
-// useSystemReport uses a module-level `const isTauri = '__TAURI_INTERNALS__' in window`.
-// JSDOM never sets __TAURI_INTERNALS__, so isTauri=false in tests.
-// For the isTauri=true path, we use vi.resetModules() + dynamic import with the stub set.
-
-const MOCK_HTML = `<!DOCTYPE html><html><head><title>System Report</title></head><body><h1>Test</h1></body></html>`;
+const REPORT_HTML = `<!DOCTYPE html><html><head><title>System Report</title></head><body><h1>Test</h1></body></html>`;
 
 describe("useSystemReport", () => {
     beforeEach(() => {
@@ -20,9 +16,9 @@ describe("useSystemReport", () => {
         vi.mocked(tauriCore.invoke).mockReset();
     });
 
-    // ── isTauri=false (preview mode) ──────────────────────────────────────────
+    // ── isTauri=false ─────────────────────────────────────────────────────────
 
-    describe("isTauri=false (preview mode)", () => {
+    describe("isTauri=false (desktop runtime unavailable)", () => {
         it("initial state: reportHtml=null, isGenerating=false, error=null", () => {
             const { result } = renderHook(() => useSystemReport());
             expect(result.current.reportHtml).toBeNull();
@@ -30,77 +26,26 @@ describe("useSystemReport", () => {
             expect(result.current.error).toBeNull();
         });
 
-        it("generateReport sets reportHtml to preview HTML without invoking Tauri", async () => {
-            vi.useFakeTimers();
+        it("generateReport reports the missing desktop runtime without invoking Tauri", async () => {
             const { result } = renderHook(() => useSystemReport());
 
-            let genPromise: Promise<void>;
-            act(() => {
-                genPromise = result.current.generateReport();
-            });
-
-            // Advance past the 1500ms preview delay
             await act(async () => {
-                vi.advanceTimersByTime(1600);
+                await result.current.generateReport();
             });
-            await act(async () => { await genPromise; });
 
-            expect(result.current.reportHtml).not.toBeNull();
-            expect(result.current.reportHtml).toContain("<!DOCTYPE html>");
-            expect(result.current.reportHtml).toContain("Preview");
+            expect(result.current.reportHtml).toBeNull();
+            expect(result.current.error).toContain("desktop runtime");
             expect(tauriCore.invoke).not.toHaveBeenCalledWith("generate_system_report");
-            vi.useRealTimers();
         });
 
         it("generateReport sets isGenerating=false after completion", async () => {
-            vi.useFakeTimers();
             const { result } = renderHook(() => useSystemReport());
 
-            let genPromise: Promise<void>;
-            act(() => {
-                genPromise = result.current.generateReport();
-            });
-
             await act(async () => {
-                vi.advanceTimersByTime(1600);
+                await result.current.generateReport();
             });
-            await act(async () => { await genPromise; });
 
             expect(result.current.isGenerating).toBe(false);
-            vi.useRealTimers();
-        });
-
-        it("saveReport in browser mode triggers download and returns true", async () => {
-            vi.useFakeTimers();
-            const { result } = renderHook(() => useSystemReport());
-
-            // Generate report first
-            let genPromise: Promise<void>;
-            act(() => {
-                genPromise = result.current.generateReport();
-            });
-            await act(async () => { vi.advanceTimersByTime(1600); });
-            await act(async () => { await genPromise; });
-            vi.useRealTimers();
-
-            URL.createObjectURL = vi.fn(() => "blob:mock");
-            URL.revokeObjectURL = vi.fn();
-
-            const mockAnchor = { href: "", download: "", click: vi.fn() };
-            const realCreate = document.createElement.bind(document);
-            vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
-                if (tag === "a") return mockAnchor as any;
-                return realCreate(tag);
-            });
-
-            let returnValue: boolean | undefined;
-            await act(async () => {
-                returnValue = await result.current.saveReport("C:\\report.html");
-            });
-
-            expect(returnValue).toBe(true);
-            expect(mockAnchor.click).toHaveBeenCalled();
-            vi.restoreAllMocks();
         });
 
         it("saveReport returns false when reportHtml is null", async () => {
@@ -124,7 +69,7 @@ describe("useSystemReport", () => {
             (window as any).__TAURI_INTERNALS__ = {};
             vi.resetModules();
             vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
-                if (cmd === "generate_system_report") return MOCK_HTML;
+                if (cmd === "generate_system_report") return REPORT_HTML;
                 if (cmd === "save_system_report") return undefined;
                 return null;
             });
@@ -154,7 +99,7 @@ describe("useSystemReport", () => {
                 await result.current.generateReport();
             });
 
-            expect(result.current.reportHtml).toBe(MOCK_HTML);
+            expect(result.current.reportHtml).toBe(REPORT_HTML);
         });
 
         it("generateReport sets isGenerating=false after success", async () => {
@@ -173,7 +118,7 @@ describe("useSystemReport", () => {
             vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
                 if (cmd === "generate_system_report") {
                     wasGeneratingDuring = true;
-                    return MOCK_HTML;
+                    return REPORT_HTML;
                 }
                 return null;
             });
@@ -218,7 +163,7 @@ describe("useSystemReport", () => {
 
             expect(tauriCore.invoke).toHaveBeenCalledWith("save_system_report", {
                 path: "C:\\my-report.html",
-                html: MOCK_HTML,
+                html: REPORT_HTML,
             });
         });
 
@@ -240,7 +185,7 @@ describe("useSystemReport", () => {
 
         it("saveReport returns false when invoke throws", async () => {
             vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
-                if (cmd === "generate_system_report") return MOCK_HTML;
+                if (cmd === "generate_system_report") return REPORT_HTML;
                 if (cmd === "save_system_report") throw new Error("permission denied");
                 return null;
             });

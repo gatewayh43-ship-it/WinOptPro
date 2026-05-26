@@ -3,8 +3,6 @@ import { render, screen } from "@/test/utils";
 import { GamingOverlayPage } from "@/pages/GamingOverlayPage";
 import * as tauriCore from "@tauri-apps/api/core";
 
-// isTauri is mocked to return true in setup.ts, but we need it to return false
-// so the component uses the mock data path.
 describe("GamingOverlayPage", () => {
     beforeEach(() => {
         vi.mocked(tauriCore.isTauri).mockReturnValue(false);
@@ -24,29 +22,27 @@ describe("GamingOverlayPage", () => {
         expect(header).toBeTruthy();
     });
 
-    it("shows active game name from mock data", async () => {
+    it("shows no game detected without desktop runtime", async () => {
         render(<GamingOverlayPage />);
-        expect(await screen.findByText("Counter-Strike 2 (mock)")).toBeInTheDocument();
+        expect(await screen.findByText("No game detected")).toBeInTheDocument();
     });
 
-    it("shows CPU metric pill", async () => {
+    it("shows CPU metric pill with unavailable value", async () => {
         render(<GamingOverlayPage />);
         expect(await screen.findByText("CPU")).toBeInTheDocument();
-        // CPU load is 34 in mock
-        expect(screen.getByText("34%")).toBeInTheDocument();
+        expect(screen.getByText("—")).toBeInTheDocument();
     });
 
-    it("shows GPU metric pill for AMD GPU", async () => {
+    it("shows a GPU telemetry loading message instead of sample metrics", async () => {
         render(<GamingOverlayPage />);
-        expect(await screen.findByText("GPU")).toBeInTheDocument();
-        // GPU utilization is 94% in the mock
-        expect(screen.getByText("94%")).toBeInTheDocument();
+        expect(await screen.findByText(/Reading GPU/)).toBeInTheDocument();
+        expect(screen.queryByText("GPU")).not.toBeInTheDocument();
     });
 
-    it("shows TEMP metric pill", async () => {
+    it("does not show TEMP metric pill without real GPU telemetry", async () => {
         render(<GamingOverlayPage />);
-        expect(await screen.findByText("TEMP")).toBeInTheDocument();
-        expect(screen.getByText("72°C")).toBeInTheDocument();
+        await screen.findByText(/WinOpt Gaming/i);
+        expect(screen.queryByText("TEMP")).not.toBeInTheDocument();
     });
 
     it("does not show POWER metric pill for non-NVIDIA GPU", async () => {
@@ -55,10 +51,9 @@ describe("GamingOverlayPage", () => {
         expect(screen.queryByText("POWER")).not.toBeInTheDocument();
     });
 
-    it("shows VRAM metric pill", async () => {
+    it("does not show VRAM metric pill without real GPU telemetry", async () => {
         render(<GamingOverlayPage />);
-        expect(await screen.findByText("VRAM")).toBeInTheDocument();
-        // 15360 MB / 1024 = 15.0 GB
-        expect(screen.getByText(/15\.0/)).toBeInTheDocument();
+        await screen.findByText(/WinOpt Gaming/i);
+        expect(screen.queryByText("VRAM")).not.toBeInTheDocument();
     });
 });

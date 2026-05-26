@@ -50,6 +50,19 @@ const BenchmarkPage = lazyNamed(() => import("./pages/BenchmarkPage"), "Benchmar
 const AutomationPage = lazyNamed(() => import("./pages/AutomationPage"), "AutomationPage");
 const AIAssistantChat = lazyNamed(() => import("./components/AI/AIAssistantChat"), "AIAssistantChat");
 
+const TWEAK_CATEGORY_VIEW: Record<string, string> = {
+  Performance: "performance",
+  Privacy: "privacy",
+  Network: "network_tweaks",
+  Power: "power",
+  Gaming: "gaming",
+  Security: "security",
+  Debloat: "debloat",
+  Tools: "tools",
+  "Windows UI": "windowsui",
+  "Windows Update": "windowsupdate",
+};
+
 function PageFallback() {
   return (
     <div className="flex min-h-[320px] items-center justify-center text-[13px] font-medium text-slate-500 dark:text-slate-300">
@@ -141,7 +154,7 @@ function App() {
     async function bootSequence() {
       try {
         if (!isTauri()) {
-          setTimeout(() => setAppReady(true), 1500); // Mock boot
+          setTimeout(() => setAppReady(true), 1500);
           return;
         }
 
@@ -155,19 +168,19 @@ function App() {
         setCacheObject("storage_items", await safeInvoke("scan_junk_files", "storage scan", [] as unknown[]));
         setCacheObject("storage_health", await safeInvoke("get_disk_health", "disk health", [] as unknown[]));
 
-        updateLoadingProgress(60, "Reticulating splines...");
+        updateLoadingProgress(60, "Checking WSL configuration...");
         setCacheObject("wsl_status", await safeInvoke<unknown>("get_wsl_status", "WSL status", null));
         setCacheObject("wsl_config", await safeInvoke<unknown>("get_wsl_config", "WSL config", null));
         setCacheObject("wsl_setup", await safeInvoke<unknown>("get_wsl_setup_state", "WSL setup", null));
 
-        updateLoadingProgress(75, "Overclocking progress bar...");
+        updateLoadingProgress(75, "Reading power profiles...");
         setCacheObject("power_plans", await safeInvoke("get_power_plans", "power plans", [] as unknown[]));
         setCacheObject("battery_health", await safeInvoke<unknown>("get_battery_health", "battery health", null));
 
         updateLoadingProgress(85, "Analyzing processes...");
         setCacheObject("processes", await safeInvoke("get_processes", "processes", [] as unknown[]));
 
-        updateLoadingProgress(95, "Syncing RGB lighting...");
+        updateLoadingProgress(95, "Loading startup entries...");
         setCacheObject("startup_items", await safeInvoke("get_startup_items", "startup items", [] as unknown[]));
 
         updateLoadingProgress(100, "Optimization Complete.");
@@ -272,8 +285,7 @@ function App() {
   };
 
   const handleSelectTweak = (tweak: Tweak) => {
-    const categoryLower = tweak.category.toLowerCase();
-    setCurrentView(categoryLower);
+    setCurrentView(TWEAK_CATEGORY_VIEW[tweak.category] ?? "performance");
 
     // We optionally could dispatch a custom event to select the specific tweak
     setTimeout(() => {
@@ -335,13 +347,13 @@ function App() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">Module Under Development</h3>
+                    <h3 className="text-lg font-bold text-foreground mb-2">Module unavailable</h3>
                     <p className="text-[14px] text-slate-500 dark:text-slate-300 max-w-xs leading-relaxed font-medium">
-                      This module is being engineered. Check back in the next release.
+                      This view is not registered in the current build. Use the sidebar or command palette to open an available module.
                     </p>
                     <div className="mt-6 flex items-center gap-2 text-[11px] text-slate-600 font-mono bg-black/5 dark:bg-white/5 px-4 py-2 rounded-full border border-border">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                      In progress
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      route not found
                     </div>
                   </div>
                 )}

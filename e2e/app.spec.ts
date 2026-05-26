@@ -685,7 +685,7 @@ test.describe("Apps Page", () => {
 test.describe("AC-14: Empty States", () => {
     test.beforeEach(async ({ page }) => { await skipOnboarding(page); });
 
-    test("unknown route shows Module Under Development", async ({ page }) => {
+    test("unknown route has no unfinished module placeholder", async ({ page }) => {
         // Navigate to a view that doesn't exist
         await page.evaluate(() => {
             // Directly dispatch a custom event to trigger the view change isn't straightforward

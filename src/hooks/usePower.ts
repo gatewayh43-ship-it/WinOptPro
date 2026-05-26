@@ -70,14 +70,8 @@ export function usePower() {
         setIsLoading(true);
         try {
             if (!isTauri()) {
-                const mockObj = [
-                    { guid: "381b4222-f694-41f0-9685-ff5bb260df2e", name: "Balanced", is_active: false },
-                    { guid: "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", name: "High performance", is_active: true },
-                    { guid: "a1841308-3541-4fab-bc81-f71556f20b4a", name: "Power saver", is_active: false }
-                ];
-                await new Promise(r => setTimeout(r, 800));
-                setPlans(mockObj);
-                useGlobalCache.getState().setCacheObject("power_plans", mockObj);
+                setPlans([]);
+                addToast({ type: "error", title: "Desktop runtime required", message: "Power plans require the WinOpt Pro desktop runtime." });
                 return;
             }
             const result = await invoke<PowerPlan[]>("get_power_plans");
@@ -101,14 +95,13 @@ export function usePower() {
         }
         try {
             if (!isTauri()) {
-                const mockBat = {
+                const noBattery = {
                     has_battery: false,
                     charge_percent: 0,
                     is_charging: false,
                     status: "No battery detected"
                 };
-                setBatteryHealth(mockBat);
-                useGlobalCache.getState().setCacheObject("battery_health", mockBat);
+                setBatteryHealth(noBattery);
                 return;
             }
             const result = await invoke<BatteryHealth>("get_battery_health");
@@ -123,12 +116,8 @@ export function usePower() {
         setIsLoadingSettings(true);
         try {
             if (!isTauri()) {
-                setPowerSettings({
-                    cpu_min_ac: 5, cpu_max_ac: 100,
-                    display_timeout_ac: 600, sleep_timeout_ac: 1800,
-                    cpu_min_dc: 5, cpu_max_dc: 100,
-                    display_timeout_dc: 300, sleep_timeout_dc: 900,
-                });
+                setPowerSettings(null);
+                addToast({ type: "error", title: "Desktop runtime required", message: "Power settings require the WinOpt Pro desktop runtime." });
                 return;
             }
             const result = await invoke<PowerSettings>("get_power_settings", { guid });
@@ -148,9 +137,8 @@ export function usePower() {
         const { sub, setting, is_dc } = POWER_SETTING_KEYS[key];
         try {
             if (!isTauri()) {
-                setPowerSettings(prev => prev ? { ...prev, [key]: value } : prev);
-                addToast({ type: "success", title: "Setting updated", message: `${key.replace(/_/g, " ")} set to ${value}.` });
-                return true;
+                addToast({ type: "error", title: "Desktop runtime required", message: "Power setting changes require the WinOpt Pro desktop app." });
+                return false;
             }
             await invoke("set_power_setting", {
                 guid,
@@ -177,10 +165,8 @@ export function usePower() {
         setIsChanging(true);
         try {
             if (!isTauri()) {
-                await new Promise(r => setTimeout(r, 600));
-                setPlans(prev => prev.map(p => ({ ...p, is_active: p.guid === guid })));
-                addToast({ type: "success", title: "Power Profile Applied", message: "Your system's active power plan has been updated." });
-                return true;
+                addToast({ type: "error", title: "Desktop runtime required", message: "Power profile changes require the WinOpt Pro desktop app." });
+                return false;
             }
             await invoke("set_active_power_plan", { guid });
             await fetchPlans();

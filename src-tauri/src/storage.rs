@@ -96,13 +96,12 @@ pub async fn scan_junk_files() -> Result<Vec<CleanupItem>, String> {
     // 5. Recycle Bin
     #[cfg(target_os = "windows")]
     {
-        // Actually a simpler way on Windows: just query the directory size or use SHQueryRecycleBin. For simplicity, we'll just add it as an option.
-        // We'll set size to 1MB placeholder if we can't get it easily, or just 0 and let user click it anyway.
+        let size = query_recycle_bin_size().unwrap_or(0);
         items.push(CleanupItem {
             id: "recycle_bin".to_string(),
             category: "System".to_string(),
             path: "RecycleBin".to_string(),
-            size_bytes: 0, // Size calculation requires Win32 interop (SHQueryRecycleBin)
+            size_bytes: size,
             description: "Empty the Windows Recycle Bin.".to_string(),
         });
     }
@@ -187,6 +186,32 @@ fn calculate_dir_size_with_filter(path: &str, filter_prefix: &str) -> Result<u64
     Ok(total_size)
 }
 
+#[cfg(target_os = "windows")]
+fn query_recycle_bin_size() -> Result<u64, String> {
+    let script = r#"
+$shell = New-Object -ComObject Shell.Application
+$bin = $shell.NameSpace(10)
+if ($null -eq $bin) { '0'; exit 0 }
+$items = @($bin.Items())
+if ($items.Count -eq 0) { '0'; exit 0 }
+($items | Measure-Object -Property Size -Sum).Sum
+"#;
+    let output = std::process::Command::new("powershell")
+        .args(&["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output()
+        .map_err(|e| format!("Failed to query Recycle Bin: {}", e))?;
+    if !output.status.success() {
+        return Err(format!(
+            "Recycle Bin query failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let value = stdout.trim().parse::<f64>().unwrap_or(0.0);
+    Ok(value.max(0.0) as u64)
+}
+
 #[command]
 pub async fn execute_cleanup(item_ids: Vec<String>) -> Result<CleanupResult, String> {
     let mut bytes_freed = 0;
@@ -200,15 +225,16 @@ pub async fn execute_cleanup(item_ids: Vec<String>) -> Result<CleanupResult, Str
         if id == "recycle_bin" {
             #[cfg(target_os = "windows")]
             {
-                use std::os::windows::process::CommandExt;
+                let before = query_recycle_bin_size().unwrap_or(0);
                 let output = std::process::Command::new("powershell")
                     .args(&["-NoProfile", "-Command", "Clear-RecycleBin -Force"])
-                    .creation_flags(0x08000000)
+                    .creation_flags(CREATE_NO_WINDOW)
                     .output();
 
                 match output {
                     Ok(out) if out.status.success() => {
                         items_removed += 1;
+                        bytes_freed += before;
                     }
                     Ok(out) => {
                         errors.push(format!(

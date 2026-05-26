@@ -227,23 +227,10 @@ function useGamingOverlayState() {
 
   const refresh = useCallback(async () => {
     if (!isTauri()) {
-      setGame("Counter-Strike 2 (mock)");
-      setGpu({
-        name: "AMD Radeon RX 7900 XTX",
-        temperatureC: 72,
-        gpuUtilPct: 94,
-        memUtilPct: 61,
-        memUsedMb: 15360,
-        memTotalMb: 24576,
-        powerDrawW: 0,
-        powerLimitW: 0,
-        powerMaxLimitW: 0,
-        isNvidia: false,
-        vendor: "AMD",
-        isSupported: true,
-      });
-      setCpuLoad(34);
-      setFps(144);
+      setGame(null);
+      setGpu(null);
+      setCpuLoad(null);
+      setFps(null);
       return;
     }
     try {

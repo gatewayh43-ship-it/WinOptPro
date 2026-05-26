@@ -54,7 +54,7 @@ export function useScheduler() {
         setIsWorking(true);
         try {
             if (!isTauri()) {
-                addToast({ type: "info", title: "Preview Mode", message: "Task scheduling requires the desktop app." });
+                addToast({ type: "error", title: "Desktop runtime required", message: "Task scheduling requires the WinOpt Pro desktop app." });
                 return false;
             }
             await invoke("create_maintenance_task", { name, schedule, actionCmd });
@@ -88,7 +88,7 @@ export function useScheduler() {
     const runNow = useCallback(async (name: string) => {
         try {
             if (!isTauri()) {
-                addToast({ type: "info", title: "Preview Mode", message: "Running tasks requires the desktop app." });
+                addToast({ type: "error", title: "Desktop runtime required", message: "Running scheduled tasks requires the WinOpt Pro desktop app." });
                 return false;
             }
             await invoke("run_maintenance_task_now", { name });

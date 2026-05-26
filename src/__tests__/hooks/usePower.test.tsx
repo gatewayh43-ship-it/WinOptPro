@@ -1,147 +1,100 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@/test/utils";
-import { usePower } from "@/hooks/usePower";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderHook, act, waitFor } from "@/test/utils";
+import { usePower, type PowerPlan } from "@/hooks/usePower";
+import { useGlobalCache } from "@/hooks/useGlobalCache";
 import * as tauriCore from "@tauri-apps/api/core";
 
-// Stable useToast mock — addToast is in useCallback deps and must not change reference
 vi.mock("@/components/ToastSystem", () => {
     const addToast = vi.fn();
     return { useToast: () => ({ addToast }) };
 });
 
+const POWER_PLANS: PowerPlan[] = [
+    { guid: "balanced", name: "Balanced", is_active: true },
+    { guid: "ultimate", name: "Ultimate Performance", is_active: false },
+];
+
 describe("usePower", () => {
     beforeEach(() => {
+        vi.mocked(tauriCore.invoke).mockReset();
         vi.mocked(tauriCore.isTauri).mockReturnValue(false);
-        vi.useFakeTimers();
+        useGlobalCache.getState().clearCache();
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
+    describe("isTauri=false (desktop runtime unavailable)", () => {
+        it("leaves plans empty and finishes loading without invoking Tauri", async () => {
+            const { result } = renderHook(() => usePower());
+
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+            expect(result.current.plans).toEqual([]);
+            expect(tauriCore.invoke).not.toHaveBeenCalled();
+        });
+
+        it("setActivePlan returns false and does not invoke Tauri", async () => {
+            const { result } = renderHook(() => usePower());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+            let ret: boolean | undefined;
+            await act(async () => {
+                ret = await result.current.setActivePlan("ultimate");
+            });
+
+            expect(ret).toBe(false);
+            expect(result.current.isChanging).toBe(false);
+            expect(tauriCore.invoke).not.toHaveBeenCalled();
+        });
+
+        it("manual fetchPlans keeps plans empty when the desktop runtime is missing", async () => {
+            const { result } = renderHook(() => usePower());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+            await act(async () => {
+                await result.current.fetchPlans();
+            });
+
+            expect(result.current.plans).toEqual([]);
+            expect(result.current.isLoading).toBe(false);
+            expect(tauriCore.invoke).not.toHaveBeenCalled();
+        });
     });
 
-    it("starts in loading state before plans arrive", () => {
-        const { result } = renderHook(() => usePower());
-        expect(result.current.isLoading).toBe(true);
-    });
-
-    it("isChanging is false initially", () => {
-        const { result } = renderHook(() => usePower());
-        expect(result.current.isChanging).toBe(false);
-    });
-
-    it("plans are empty before fetch completes", () => {
-        const { result } = renderHook(() => usePower());
-        expect(result.current.plans).toEqual([]);
-    });
-
-    it("loads mock plans and sets isLoading false (non-Tauri env)", async () => {
-        const { result } = renderHook(() => usePower());
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
+    describe("isTauri=true", () => {
+        beforeEach(() => {
+            vi.mocked(tauriCore.isTauri).mockReturnValue(true);
+            vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+                if (cmd === "get_power_plans") return POWER_PLANS;
+                if (cmd === "get_battery_health") {
+                    return { has_battery: false, charge_percent: 0, is_charging: false, status: "No battery detected" };
+                }
+                if (cmd === "set_active_power_plan") return undefined;
+                return null;
+            });
         });
 
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.plans.length).toBeGreaterThan(0);
-    });
+        it("fetches real power plans through Tauri", async () => {
+            const { result } = renderHook(() => usePower());
 
-    it("exactly one plan is marked is_active after fetch", async () => {
-        const { result } = renderHook(() => usePower());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
+            expect(tauriCore.invoke).toHaveBeenCalledWith("get_power_plans");
+            expect(result.current.plans).toEqual(POWER_PLANS);
         });
 
-        const activePlans = result.current.plans.filter((p) => p.is_active);
-        expect(activePlans).toHaveLength(1);
-    });
+        it("setActivePlan invokes Tauri and refreshes plans", async () => {
+            const { result } = renderHook(() => usePower());
+            await waitFor(() => expect(result.current.isLoading).toBe(false));
+            vi.mocked(tauriCore.invoke).mockClear();
 
-    it("each plan has guid and name fields", async () => {
-        const { result } = renderHook(() => usePower());
+            let ret: boolean | undefined;
+            await act(async () => {
+                ret = await result.current.setActivePlan("ultimate");
+            });
 
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
+            expect(ret).toBe(true);
+            expect(tauriCore.invoke).toHaveBeenCalledWith("set_active_power_plan", { guid: "ultimate" });
+            expect(tauriCore.invoke).toHaveBeenCalledWith("get_power_plans");
+            expect(result.current.isChanging).toBe(false);
         });
-
-        for (const plan of result.current.plans) {
-            expect(plan.guid).toBeTruthy();
-            expect(plan.name).toBeTruthy();
-        }
-    });
-
-    it("setActivePlan changes the active plan", async () => {
-        const { result } = renderHook(() => usePower());
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
-        });
-
-        const targetPlan = result.current.plans.find((p) => !p.is_active)!;
-        expect(targetPlan).toBeDefined();
-
-        await act(async () => {
-            result.current.setActivePlan(targetPlan.guid);
-            await vi.advanceTimersByTimeAsync(700);
-        });
-
-        const newActive = result.current.plans.find((p) => p.is_active);
-        expect(newActive?.guid).toBe(targetPlan.guid);
-    });
-
-    it("isChanging is true during setActivePlan and false after", async () => {
-        const { result } = renderHook(() => usePower());
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
-        });
-
-        const targetPlan = result.current.plans.find((p) => !p.is_active)!;
-
-        act(() => { result.current.setActivePlan(targetPlan.guid); });
-        expect(result.current.isChanging).toBe(true);
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(700);
-        });
-
-        expect(result.current.isChanging).toBe(false);
-    });
-
-    it("setActivePlan returns true on success", async () => {
-        const { result } = renderHook(() => usePower());
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
-        });
-
-        const targetPlan = result.current.plans.find((p) => !p.is_active)!;
-        let ret: boolean | null = null;
-
-        await act(async () => {
-            const promise = result.current.setActivePlan(targetPlan.guid);
-            await vi.advanceTimersByTimeAsync(700);
-            ret = await promise;
-        });
-
-        expect(ret).toBe(true);
-    });
-
-    it("fetchPlans can be called manually and resets isLoading", async () => {
-        const { result } = renderHook(() => usePower());
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
-        });
-
-        expect(result.current.isLoading).toBe(false);
-
-        act(() => { result.current.fetchPlans(); });
-        expect(result.current.isLoading).toBe(true);
-
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(1000);
-        });
-
-        expect(result.current.isLoading).toBe(false);
     });
 });

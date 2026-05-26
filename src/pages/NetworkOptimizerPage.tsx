@@ -172,7 +172,7 @@ export function NetworkOptimizerPage() {
         actionId: recommendation.action.actionId,
         adapterName,
       });
-      addToast({ type: "success", title: result.title, message: result.message });
+      addToast({ type: result.success ? "success" : "error", title: result.title, message: result.message });
     } catch (err) {
       addToast({ type: "error", title: "Network action failed", message: err instanceof Error ? err.message : String(err) });
     }
@@ -186,9 +186,11 @@ export function NetworkOptimizerPage() {
         customPrimaryDns,
         customSecondaryDns,
       });
-      addToast({ type: "success", title: result.title, message });
-      setCustomPrimaryDns("");
-      setCustomSecondaryDns("");
+      addToast({ type: result.success ? "success" : "error", title: result.title, message: result.success ? message : result.message });
+      if (result.success) {
+        setCustomPrimaryDns("");
+        setCustomSecondaryDns("");
+      }
     } catch (err) {
       addToast({ type: "error", title: "Network action failed", message: err instanceof Error ? err.message : String(err) });
     }

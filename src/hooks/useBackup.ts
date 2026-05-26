@@ -70,7 +70,7 @@ export function useBackup() {
         setIsImporting(true);
         try {
             if (!isTauri()) {
-                addToast({ type: "info", title: "Import (Preview Mode)", message: "Backup import is only available in the desktop app." });
+                addToast({ type: "error", title: "Desktop runtime required", message: "Backup import is only available in the WinOpt Pro desktop app." });
                 return false;
             }
             const data = await invoke<{

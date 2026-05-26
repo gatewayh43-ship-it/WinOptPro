@@ -2,11 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useGlobalCache } from "./useGlobalCache";
 
-const MOCK_INTERFACES: NetworkInterface[] = [
-    { name: "Ethernet", macAddress: "AA:BB:CC:DD:EE:FF", receivedBytes: 1_234_567_890, transmittedBytes: 987_654_321, ipV4: "192.168.1.100" },
-    { name: "Wi-Fi", macAddress: "11:22:33:44:55:66", receivedBytes: 456_789_012, transmittedBytes: 123_456_789, ipV4: "192.168.1.101" },
-];
-
 export interface NetworkInterface {
     name: string;
     macAddress: string;
@@ -46,8 +41,8 @@ export function useNetwork() {
 
         try {
             if (!isTauri()) {
-                setInterfaces(MOCK_INTERFACES);
-                useGlobalCache.getState().setCacheObject("network", MOCK_INTERFACES);
+                setInterfaces([]);
+                setError("Network interface inventory requires the WinOpt Pro desktop runtime.");
                 return;
             }
             const data = await invoke<NetworkInterface[]>("get_network_interfaces");
@@ -75,8 +70,7 @@ export function useNetwork() {
         setPingError(null);
 
         if (!isTauri()) {
-            await new Promise(r => setTimeout(r, 800));
-            setPingResult({ host: host.trim(), latencyMs: 12, minMs: 10, maxMs: 18, jitterMs: 2, packetLossPct: 0, success: true });
+            setPingError("Latency tests require the WinOpt Pro desktop runtime.");
             setPinging(false);
             return;
         }

@@ -47,51 +47,35 @@ describe("useDrivers", () => {
 
     // ── isTauri=false ─────────────────────────────────────────────────────────
 
-    describe("isTauri=false (mock data)", () => {
+    describe("isTauri=false (desktop runtime unavailable)", () => {
         beforeEach(() => {
             vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         });
 
-        it("fetchDrivers loads mock drivers without invoking Tauri", async () => {
-            vi.useFakeTimers();
+        it("fetchDrivers leaves drivers empty and sets an error without invoking Tauri", async () => {
             const { result } = renderHook(() => useDrivers());
 
-            let fetchPromise: Promise<void>;
-            act(() => {
-                fetchPromise = result.current.fetchDrivers();
-            });
-
-            // Advance the 1000ms mock delay
             await act(async () => {
-                vi.advanceTimersByTime(1100);
+                await result.current.fetchDrivers();
             });
-            await act(async () => { await fetchPromise; });
 
             expect(result.current.isLoading).toBe(false);
-            expect(result.current.allDrivers).toHaveLength(5); // MOCK_DRIVERS has 5
+            expect(result.current.allDrivers).toEqual([]);
+            expect(result.current.error).toContain("desktop runtime");
             expect(tauriCore.invoke).not.toHaveBeenCalled();
-            vi.useRealTimers();
         });
 
-        it("mock drivers include one unsigned driver (unsignedCount=1)", async () => {
-            vi.useFakeTimers();
+        it("unsignedCount remains zero without a desktop driver inventory", async () => {
             const { result } = renderHook(() => useDrivers());
 
-            let fetchPromise: Promise<void>;
-            act(() => {
-                fetchPromise = result.current.fetchDrivers();
-            });
-
             await act(async () => {
-                vi.advanceTimersByTime(1100);
+                await result.current.fetchDrivers();
             });
-            await act(async () => { await fetchPromise; });
 
-            expect(result.current.unsignedCount).toBe(1);
-            vi.useRealTimers();
+            expect(result.current.unsignedCount).toBe(0);
         });
 
-        it("exportList returns false and does not invoke in mock mode", async () => {
+        it("exportList returns false and does not invoke without the desktop runtime", async () => {
             const { result } = renderHook(() => useDrivers());
             let returnValue: boolean | undefined;
 

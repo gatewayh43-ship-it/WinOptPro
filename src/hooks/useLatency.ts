@@ -11,15 +11,6 @@ export interface LatencyStatus {
   platformClockForced: boolean;
 }
 
-const MOCK_STATUS: LatencyStatus = {
-  timerResolution100ns: 156_250,
-  minResolution100ns: 156_250,
-  maxResolution100ns: 5_000,
-  standbyRamMb: 1024,
-  dynamicTickDisabled: false,
-  platformClockForced: false,
-};
-
 export function useLatency() {
   const [status, setStatus] = useState<LatencyStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +20,8 @@ export function useLatency() {
 
   const fetchStatus = useCallback(async () => {
     if (!isTauri()) {
-      setStatus(MOCK_STATUS);
+      setStatus(null);
+      setError("Latency diagnostics require the WinOpt Pro desktop runtime.");
       setIsLoading(false);
       return;
     }
@@ -50,7 +42,7 @@ export function useLatency() {
 
   const flushStandby = useCallback(async () => {
     if (!isTauri()) {
-      addToast({ type: "info", title: "Mock", message: "Standby flush simulated." });
+      addToast({ type: "error", title: "Desktop runtime required", message: "Standby memory flushing is only available in the WinOpt Pro desktop app." });
       return;
     }
     setIsFlushing(true);

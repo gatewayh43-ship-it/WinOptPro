@@ -9,15 +9,6 @@ vi.mock("@/components/ToastSystem", () => {
     return { useToast: () => ({ addToast }) };
 });
 
-const MOCK_STATUS: LatencyStatus = {
-    timerResolution100ns: 156_250,
-    minResolution100ns: 156_250,
-    maxResolution100ns: 5_000,
-    standbyRamMb: 1024,
-    dynamicTickDisabled: false,
-    platformClockForced: false,
-};
-
 const REAL_STATUS: LatencyStatus = {
     timerResolution100ns: 100_000,
     minResolution100ns: 156_250,
@@ -36,19 +27,20 @@ describe("useLatency", () => {
         vi.useRealTimers();
     });
 
-    // ── isTauri=false (mock data) ─────────────────────────────────────────────
+    // ── isTauri=false ─────────────────────────────────────────────────────────
 
-    describe("isTauri=false (mock data)", () => {
+    describe("isTauri=false (desktop runtime unavailable)", () => {
         beforeEach(() => {
             vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         });
 
-        it("loads mock status on mount without invoking Tauri", async () => {
+        it("leaves status empty and sets a desktop-runtime error without invoking Tauri", async () => {
             const { result } = renderHook(() => useLatency());
 
             await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-            expect(result.current.status).toEqual(MOCK_STATUS);
+            expect(result.current.status).toBeNull();
+            expect(result.current.error).toContain("desktop runtime");
             expect(tauriCore.invoke).not.toHaveBeenCalled();
         });
 
@@ -59,15 +51,15 @@ describe("useLatency", () => {
             await waitFor(() => expect(result.current.isLoading).toBe(false));
         });
 
-        it("error is null with mock data", async () => {
+        it("sets an error when latency diagnostics need the desktop runtime", async () => {
             const { result } = renderHook(() => useLatency());
 
             await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-            expect(result.current.error).toBeNull();
+            expect(result.current.error).toContain("desktop runtime");
         });
 
-        it("flushStandby does not invoke in mock mode", async () => {
+        it("flushStandby does not invoke without the desktop runtime", async () => {
             const { result } = renderHook(() => useLatency());
 
             await waitFor(() => expect(result.current.isLoading).toBe(false));

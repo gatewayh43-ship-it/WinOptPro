@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::process::Stdio;
+use regex::Regex;
 use tauri::command;
 use tokio::process::Command;
 use tokio::time::{timeout, Duration};
@@ -361,11 +362,58 @@ pub async fn get_winget_info(id: String) -> Result<WingetAppInfo, String> {
     }
 }
 
-pub async fn scrape_app_metadata_internal(
-    app_name: String,
-    _publisher: String,
-    homepage: String,
-) -> AppScrapeMetadata {
+fn clean_http_url(url: &str) -> Option<String> {
+    let clean = url.trim();
+    if clean.len() > 2048 || !(clean.starts_with("https://") || clean.starts_with("http://")) {
+        return None;
+    }
+    if clean
+        .chars()
+        .any(|ch| matches!(ch, '"' | '\'' | '`' | '<' | '>' | '|' | ';'))
+    {
+        return None;
+    }
+    Some(clean.to_string())
+}
+
+fn origin_for(url: &str) -> String {
+    let Some((scheme, rest)) = url.split_once("://") else {
+        return String::new();
+    };
+    let host = rest.split('/').next().unwrap_or_default();
+    format!("{}://{}", scheme, host)
+}
+
+fn absolute_url(value: &str, base_url: &str) -> Option<String> {
+    let value = value.trim();
+    if value.is_empty() {
+        return None;
+    }
+    if value.starts_with("https://") || value.starts_with("http://") {
+        return clean_http_url(value);
+    }
+    if value.starts_with("//") {
+        return clean_http_url(&format!("https:{}", value));
+    }
+    if value.starts_with('/') {
+        return clean_http_url(&format!("{}{}", origin_for(base_url), value));
+    }
+    None
+}
+
+fn read_attr(attrs: &str, wanted: &str) -> Option<String> {
+    let attr_re = Regex::new(r#"(?i)([a-z_:.-]+)\s*=\s*["']([^"']*)["']"#).ok()?;
+    let value = attr_re.captures_iter(attrs).find_map(|cap| {
+        if cap.get(1)?.as_str().eq_ignore_ascii_case(wanted) {
+            Some(cap.get(2)?.as_str().trim().to_string())
+        } else {
+            None
+        }
+    });
+    value
+}
+
+fn extract_metadata_from_html(html: &str, base_url: &str) -> AppScrapeMetadata {
     let mut meta = AppScrapeMetadata {
         screenshots: Vec::new(),
         github_url: None,
@@ -373,28 +421,103 @@ pub async fn scrape_app_metadata_internal(
         alternative_downloads: Vec::new(),
     };
 
-    // Fallback static images for well known apps for the demo
-    let search_lower = app_name.to_lowercase();
-    if search_lower.contains("vlc") {
-        meta.screenshots.push("https://images.sftcdn.net/images/t_app-cover-l,f_auto/p/1626db4c-96d0-11e6-b9dc-00163ed833e7/2785233116/vlc-media-player-2785233116.png".to_string());
-        meta.alternative_downloads
-            .push("https://www.videolan.org/vlc/".to_string());
-    } else if search_lower.contains("steam") {
-        meta.screenshots.push(
-            "https://cdn.akamai.steamstatic.com/store/about/home_hero_bg_english.jpg".to_string(),
-        );
-    } else if search_lower.contains("discord") {
-        meta.screenshots.push("https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg".to_string());
-        meta.social_links
-            .push("https://twitter.com/discord".to_string());
+    let tag_re = Regex::new(r#"(?is)<(meta|link|a)\s+([^>]+)>"#).ok();
+    if let Some(tag_re) = tag_re {
+        for cap in tag_re.captures_iter(html).take(250) {
+            let tag = cap.get(1).map(|m| m.as_str().to_ascii_lowercase()).unwrap_or_default();
+            let attrs = cap.get(2).map(|m| m.as_str()).unwrap_or_default();
+
+            if tag == "meta" {
+                let key = read_attr(attrs, "property")
+                    .or_else(|| read_attr(attrs, "name"))
+                    .unwrap_or_default()
+                    .to_ascii_lowercase();
+                if matches!(key.as_str(), "og:image" | "twitter:image" | "twitter:image:src") {
+                    if let Some(url) = read_attr(attrs, "content").and_then(|value| absolute_url(&value, base_url)) {
+                        if !meta.screenshots.contains(&url) {
+                            meta.screenshots.push(url);
+                        }
+                    }
+                }
+            }
+
+            if tag == "link" || tag == "a" {
+                if let Some(href) = read_attr(attrs, "href").and_then(|value| absolute_url(&value, base_url)) {
+                    let lower = href.to_ascii_lowercase();
+                    if lower.contains("github.com/") && meta.github_url.is_none() {
+                        meta.github_url = Some(href.clone());
+                    }
+                    if lower.contains("twitter.com/")
+                        || lower.contains("x.com/")
+                        || lower.contains("linkedin.com/")
+                        || lower.contains("youtube.com/")
+                    {
+                        if !meta.social_links.contains(&href) {
+                            meta.social_links.push(href.clone());
+                        }
+                    }
+                    if (lower.contains("/download") || lower.contains("download."))
+                        && !meta.alternative_downloads.contains(&href)
+                    {
+                        meta.alternative_downloads.push(href);
+                    }
+                }
+            }
+        }
     }
 
-    if homepage.contains("github.com") {
-        meta.github_url = Some(homepage.clone());
-    }
+    meta.screenshots.truncate(6);
+    meta.social_links.truncate(8);
+    meta.alternative_downloads.truncate(6);
+    meta
+}
 
-    // A real implementation would use reqwest and scraper here, parsing og:image tags etc.
-    // For this context, we will return the struct which is enough to satisfy the frontend UI requirements.
+async fn fetch_homepage_html(homepage: &str) -> Result<String, String> {
+    let clean = clean_http_url(homepage).ok_or_else(|| "Homepage URL is not a valid HTTP URL.".to_string())?;
+    let escaped = clean.replace('\'', "''");
+    let script = format!(
+        "$ProgressPreference='SilentlyContinue'; (Invoke-WebRequest -UseBasicParsing -Uri '{}' -MaximumRedirection 5 -TimeoutSec 8).Content",
+        escaped
+    );
+    let (stdout, stderr, code) = run_cmd(
+        "powershell",
+        &["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", &script],
+        CHECK_TIMEOUT,
+    )
+    .await?;
+    if code == 0 {
+        Ok(stdout)
+    } else if stderr.is_empty() {
+        Err(format!("Metadata request returned {}", code))
+    } else {
+        Err(stderr)
+    }
+}
+
+pub async fn scrape_app_metadata_internal(
+    _app_name: String,
+    _publisher: String,
+    homepage: String,
+) -> AppScrapeMetadata {
+    let mut meta = if let Ok(html) = fetch_homepage_html(&homepage).await {
+        extract_metadata_from_html(&html, &homepage)
+    } else {
+        AppScrapeMetadata {
+            screenshots: Vec::new(),
+            github_url: None,
+            social_links: Vec::new(),
+            alternative_downloads: Vec::new(),
+        }
+    };
+
+    if meta.github_url.is_none() && homepage.to_ascii_lowercase().contains("github.com/") {
+        meta.github_url = clean_http_url(&homepage);
+    }
+    if meta.alternative_downloads.is_empty() {
+        if let Some(url) = clean_http_url(&homepage) {
+            meta.alternative_downloads.push(url);
+        }
+    }
 
     meta
 }

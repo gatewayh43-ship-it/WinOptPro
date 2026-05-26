@@ -27,6 +27,31 @@ export interface AppScrapeMetadata {
     alternativeDownloads: string[];
 }
 
+function resolveSmartSearchQuery(query: string): string {
+    const normalized = query.toLowerCase();
+    const catalog = Object.values(AppMetadata.apps as Record<string, any>);
+    const scored = catalog
+        .map((app) => {
+            const text = [
+                app.name,
+                app.id,
+                app.publisher,
+                app.description,
+                ...(app.insights?.pros ?? []),
+            ].join(" ").toLowerCase();
+            const tokens = normalized
+                .split(/[^a-z0-9.+-]+/)
+                .filter((token) => token.length > 2);
+            const score = tokens.reduce((sum, token) => sum + (text.includes(token) ? 1 : 0), 0);
+            return { app, score };
+        })
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score);
+
+    const best = scored[0]?.app;
+    return best?.id ?? query;
+}
+
 export function useSmartStore() {
     const { userSettings } = useAppStore();
     const [isSearching, setIsSearching] = useState(false);
@@ -46,13 +71,9 @@ export function useSmartStore() {
         setIsSearching(true);
         setSearchError(null);
         try {
-            let actualQuery = query;
-
-            // TODO: Implement actual SMART search (call local AI to translate query)
-            if (smartSearch && userSettings.aiAssistantEnabled) {
-                // Here we would call Ollama to get the actual winget query
-                console.log("SMART Search enabled, parsing query with AI...", query);
-            }
+            const actualQuery = smartSearch && userSettings.aiAssistantEnabled
+                ? resolveSmartSearchQuery(query)
+                : query;
 
             const results = await invoke<WingetSearchResult[]>("search_winget", { query: actualQuery });
 

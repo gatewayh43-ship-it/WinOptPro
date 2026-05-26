@@ -38,21 +38,6 @@ const GAMING_TWEAK_IDS = [
   "DisableNetworkThrottling",
 ];
 
-const MOCK_GPU: GpuMetrics = {
-  name: "NVIDIA GeForce RTX 3080",
-  temperatureC: 65,
-  gpuUtilPct: 78,
-  memUtilPct: 44,
-  memUsedMb: 4506,
-  memTotalMb: 10240,
-  powerDrawW: 145.5,
-  powerLimitW: 250,
-  powerMaxLimitW: 320,
-  isNvidia: true,
-  vendor: "NVIDIA",
-  isSupported: true,
-};
-
 export function useGaming() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [gpuMetrics, setGpuMetrics] = useState<GpuMetrics | null>(null);
@@ -82,8 +67,8 @@ export function useGaming() {
 
   const fetchGpuMetrics = useCallback(async () => {
     if (!isTauri()) {
-      setGpuMetrics(MOCK_GPU);
-      setCpuLoad(34);
+      setGpuMetrics(null);
+      setCpuLoad(null);
       return;
     }
     try {
@@ -100,7 +85,7 @@ export function useGaming() {
 
   const detectGame = useCallback(async () => {
     if (!isTauri()) {
-      setActiveGame("Counter-Strike 2 (mock)");
+      setActiveGame(null);
       return;
     }
     try {
@@ -136,8 +121,7 @@ export function useGaming() {
 
   const downloadPresentMon = useCallback(async () => {
     if (!isTauri()) {
-      addToast({ type: "info", title: "Mock", message: "PresentMon downloaded." });
-      setPresentMonStatus({ installed: true, path: "mock" });
+      addToast({ type: "error", title: "Desktop runtime required", message: "PresentMon setup is only available in the WinOpt Pro desktop app." });
       return;
     }
     setIsDownloadingPm(true);
@@ -213,7 +197,7 @@ export function useGaming() {
   const setGpuPowerLimit = useCallback(
     async (watts: number) => {
       if (!isTauri()) {
-        addToast({ type: "info", title: "Mock", message: `Power limit: ${watts}W` });
+        addToast({ type: "error", title: "Desktop runtime required", message: `GPU power limit changes require the WinOpt Pro desktop app.` });
         return;
       }
       setIsSettingLimit(true);

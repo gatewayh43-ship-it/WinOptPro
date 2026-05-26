@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "@/components/ToastSystem";
 
@@ -19,25 +19,6 @@ export interface DriverRemovalResult {
     requiresReboot: boolean;
 }
 
-const MOCK_DRIVERS: GpuDriverInfo[] = [
-    {
-        vendor: "NVIDIA",
-        name: "NVIDIA GeForce RTX 4090",
-        version: "31.0.15.4633",
-        date: "2024-01-15",
-        pnpId: "PCI\\VEN_10DE&DEV_2684&SUBSYS_40963842&REV_A1",
-        infName: "oem42.inf",
-    },
-    {
-        vendor: "Intel",
-        name: "Intel(R) UHD Graphics 770",
-        version: "31.0.101.5186",
-        date: "2023-11-20",
-        pnpId: "PCI\\VEN_8086&DEV_4680&SUBSYS_88721043&REV_0C",
-        infName: "oem18.inf",
-    },
-];
-
 export function useGpuDriver() {
     const [drivers, setDrivers] = useState<GpuDriverInfo[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -45,17 +26,14 @@ export function useGpuDriver() {
     const [removalResult, setRemovalResult] = useState<DriverRemovalResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
-    const mockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchDrivers = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         if (!isTauri()) {
-            // Use mock data in browser/dev
-            mockTimeoutRef.current = setTimeout(() => {
-                setDrivers(MOCK_DRIVERS);
-                setIsLoading(false);
-            }, 600);
+            setDrivers([]);
+            setError("GPU driver inventory requires the WinOpt Pro desktop runtime.");
+            setIsLoading(false);
             return;
         }
         try {
@@ -74,26 +52,9 @@ export function useGpuDriver() {
         setIsRemoving(true);
         setRemovalResult(null);
         if (!isTauri()) {
-            mockTimeoutRef.current = setTimeout(() => {
-                const mockResult: DriverRemovalResult = {
-                    success: true,
-                    vendor,
-                    removedPackages: ["oem42.inf"],
-                    log: [
-                        `Starting ${vendor} driver removal...`,
-                        "Found 1 driver package(s): oem42.inf",
-                        "Removing driver package: oem42.inf",
-                        "  ✓ Removed oem42.inf",
-                        "Sweeping registry...",
-                        `  ✓ Deleted HKLM\\SOFTWARE\\${vendor} Corporation`,
-                        `${vendor} driver removal complete. Reboot required.`,
-                    ],
-                    requiresReboot: true,
-                };
-                setRemovalResult(mockResult);
-                setIsRemoving(false);
-                addToast({ type: "success", title: "GPU Drivers Removed", message: `${vendor} drivers removed. Reboot required.` });
-            }, 1500);
+            setError("GPU driver removal requires the WinOpt Pro desktop runtime.");
+            setIsRemoving(false);
+            addToast({ type: "error", title: "Desktop runtime required", message: `GPU driver removal for ${vendor} requires the WinOpt Pro desktop app.` });
             return;
         }
         try {
@@ -118,7 +79,7 @@ export function useGpuDriver() {
 
     const scheduleBootRemoval = useCallback(async (vendor: string) => {
         if (!isTauri()) {
-            addToast({ type: "success", title: "Safe Mode Scheduled", message: `Safe Mode removal scheduled for ${vendor}. Reboot when ready.` });
+            addToast({ type: "error", title: "Desktop runtime required", message: `Safe Mode removal scheduling for ${vendor} requires the WinOpt Pro desktop app.` });
             return;
         }
         try {
@@ -132,7 +93,7 @@ export function useGpuDriver() {
 
     const rebootSystem = useCallback(async () => {
         if (!isTauri()) {
-            addToast({ type: "info", title: "Dev Mode", message: "Reboot simulation (dev mode)." });
+            addToast({ type: "error", title: "Desktop runtime required", message: "System reboot requires the WinOpt Pro desktop app." });
             return;
         }
         try {
@@ -146,12 +107,6 @@ export function useGpuDriver() {
     useEffect(() => {
         fetchDrivers();
     }, [fetchDrivers]);
-
-    useEffect(() => {
-        return () => {
-            if (mockTimeoutRef.current !== null) clearTimeout(mockTimeoutRef.current);
-        };
-    }, []);
 
     return {
         drivers,

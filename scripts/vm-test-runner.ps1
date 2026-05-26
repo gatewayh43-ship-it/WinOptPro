@@ -23,11 +23,13 @@
     Playwright test filter (e.g., "tweaks-lifecycle" to run only lifecycle tests)
 
 .PARAMETER DirectVerify
-    After the UI test suite, also run vm-tweak-direct.spec.ts — applies and reverts
-    every tweak via PowerShell Direct and verifies actual system state changes.
+    After the UI test suite, also run vm-tweak-direct.spec.ts and the
+    production-readiness gate. Direct tweak tests apply and revert every tweak
+    via PowerShell Direct and verify actual system state changes.
 
 .PARAMETER DirectVerifyOnly
-    Skip the dev server and UI tests. Run only the direct tweak verification.
+    Skip the dev server and UI tests. Run only the direct tweak verification and
+    production-readiness gate.
     Useful after the VM is already in a known-good state.
 
 .PARAMETER NoOpenReport
@@ -42,11 +44,11 @@
     the WINOPT_VM_PASSWORD environment variable when present.
 
 .EXAMPLE
-    .\vm-test-runner.ps1                            # UI tests only
-    .\vm-test-runner.ps1 -DirectVerify              # UI tests + direct verification
-    .\vm-test-runner.ps1 -DirectVerifyOnly          # Direct verification only
-    .\vm-test-runner.ps1 -SkipRestore -DirectVerify # Re-run both without restoring
-    .\vm-test-runner.ps1 -DirectVerify -NoOpenReport # Fully unattended run
+    .\vm-test-runner.ps1 -DirectVerify -FeaturesVerify              # Full VM run
+    .\vm-test-runner.ps1                                            # UI tests only
+    .\vm-test-runner.ps1 -DirectVerifyOnly                          # Direct tweak verification only
+    .\vm-test-runner.ps1 -SkipRestore -DirectVerify -FeaturesVerify # Full re-run without restoring
+    .\vm-test-runner.ps1 -DirectVerify -FeaturesVerify -NoOpenReport # Fully unattended full run
 #>
 
 param(
@@ -506,7 +508,7 @@ Set-Location '$project'
 if (-not [string]::IsNullOrWhiteSpace(`$filter)) {
     `$uiArgs += @('--grep', `$filter)
 } else {
-    `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct')
+    `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct|production-readiness')
 }
 & '$playwright' @uiArgs *> 'C:\WinOpt\ui-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
@@ -582,12 +584,12 @@ exit `$code
         $env:WINOPT_VM_USER = $GuestUser
         if ($GuestPassword) { $env:WINOPT_VM_PASSWORD = $GuestPassword }
 
-        # Exclude the direct-verify spec from UI test run
+        # Exclude direct/static specs from the browser UI test run.
         $testCmd = "npx playwright test --config=playwright.vm.config.ts --ignore-snapshots"
         if ($TestFilter) {
             $testCmd += " --grep `"$TestFilter`""
         } else {
-            $testCmd += " --grep-invert `"vm-tweak-direct|features-direct`""
+            $testCmd += " --grep-invert `"vm-tweak-direct|features-direct|production-readiness`""
         }
 
         Write-Host "  Command: $testCmd" -ForegroundColor DarkGray
@@ -613,7 +615,7 @@ if ($DirectVerify -or $DirectVerifyOnly) {
     Write-Host ""
 
     Write-Host "  Mode: guest-local elevated Playwright run" -ForegroundColor DarkGray
-    Write-Host "  Command: playwright.cmd test vm-tweak-direct --config=playwright.direct.config.ts" -ForegroundColor DarkGray
+    Write-Host "  Command: playwright.cmd test vm-tweak-direct production-readiness --config=playwright.direct.config.ts" -ForegroundColor DarkGray
     Write-Host ""
 
     $session = New-WinOptVmSession
@@ -646,7 +648,7 @@ if (Test-Path '$nodeDir') {
 Remove-Item Env:VM_NAME -ErrorAction SilentlyContinue
 Remove-Item Env:WINOPT_VM_PASSWORD -ErrorAction SilentlyContinue
 Set-Location '$project'
-& '$playwright' test vm-tweak-direct --config=playwright.direct.config.ts *> 'C:\WinOpt\direct-playwright.log'
+& '$playwright' test vm-tweak-direct production-readiness --config=playwright.direct.config.ts *> 'C:\WinOpt\direct-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
 Set-Content -Path 'C:\WinOpt\direct-exitcode.txt' -Value `$code -Encoding ASCII
 exit `$code

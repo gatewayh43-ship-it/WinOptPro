@@ -39,42 +39,39 @@ describe("useGaming", () => {
         vi.useRealTimers();
     });
 
-    // ── isTauri=false (mock data) ─────────────────────────────────────────────
+    // ── isTauri=false ─────────────────────────────────────────────────────────
 
-    describe("isTauri=false (mock data)", () => {
+    describe("isTauri=false (desktop runtime unavailable)", () => {
         beforeEach(() => {
             vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         });
 
-        it("returns mock GPU metrics on mount", async () => {
+        it("does not invent GPU metrics on mount", async () => {
             const { result } = renderHook(() => useGaming());
 
             await waitFor(() => expect(result.current.isLoadingGpu).toBe(false));
 
-            expect(result.current.gpuMetrics).toMatchObject({
-                name: "NVIDIA GeForce RTX 3080",
-                temperatureC: 65,
-                gpuUtilPct: 78,
-            });
+            expect(result.current.gpuMetrics).toBeNull();
+            expect(tauriCore.invoke).not.toHaveBeenCalled();
         });
 
-        it("sets cpuLoad=34 from mock data", async () => {
+        it("does not invent CPU load without desktop telemetry", async () => {
             const { result } = renderHook(() => useGaming());
 
             await waitFor(() => expect(result.current.isLoadingGpu).toBe(false));
 
-            expect(result.current.cpuLoad).toBe(34);
+            expect(result.current.cpuLoad).toBeNull();
         });
 
-        it("sets mock activeGame on mount", async () => {
+        it("does not invent an active game on mount", async () => {
             const { result } = renderHook(() => useGaming());
 
-            await waitFor(() => expect(result.current.activeGame).not.toBeNull());
+            await waitFor(() => expect(result.current.isLoadingGpu).toBe(false));
 
-            expect(result.current.activeGame).toContain("mock");
+            expect(result.current.activeGame).toBeNull();
         });
 
-        it("setGpuPowerLimit does NOT call invoke in mock mode", async () => {
+        it("setGpuPowerLimit does not call invoke without desktop runtime", async () => {
             const { result } = renderHook(() => useGaming());
 
             await waitFor(() => expect(result.current.isLoadingGpu).toBe(false));
@@ -83,10 +80,7 @@ describe("useGaming", () => {
                 await result.current.setGpuPowerLimit(200);
             });
 
-            expect(tauriCore.invoke).not.toHaveBeenCalledWith(
-                "set_gpu_power_limit",
-                expect.anything()
-            );
+            expect(tauriCore.invoke).not.toHaveBeenCalledWith("set_gpu_power_limit", expect.anything());
         });
     });
 
@@ -139,26 +133,17 @@ describe("useGaming", () => {
             vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         });
 
-        it("captureBaseline saves snapshot to state and localStorage", async () => {
+        it("captureBaseline does not save a snapshot without real telemetry", async () => {
             const { result } = renderHook(() => useGaming());
 
-            // Wait for mock GPU/CPU data to populate
-            await waitFor(() => expect(result.current.gpuMetrics).not.toBeNull());
-            await waitFor(() => expect(result.current.cpuLoad).not.toBeNull());
+            await waitFor(() => expect(result.current.isLoadingGpu).toBe(false));
 
             act(() => {
                 result.current.captureBaseline();
             });
 
-            expect(result.current.baseline).not.toBeNull();
-            expect(result.current.baseline?.gpu).toMatchObject({ name: "NVIDIA GeForce RTX 3080" });
-            expect(result.current.baseline?.cpu).toBe(34);
-            expect(result.current.baseline?.timestamp).toBeGreaterThan(0);
-
-            const stored = localStorage.getItem("gaming-baseline");
-            expect(stored).not.toBeNull();
-            const parsed = JSON.parse(stored!);
-            expect(parsed.gpu.name).toBe("NVIDIA GeForce RTX 3080");
+            expect(result.current.baseline).toBeNull();
+            expect(localStorage.getItem("gaming-baseline")).toBeNull();
         });
 
         it("captureBaseline does nothing when gpuMetrics is null", () => {

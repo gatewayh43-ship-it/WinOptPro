@@ -36,12 +36,15 @@ const NAV_GROUPS: NavGroup[] = [
             { id: "dashboard", label: "System Dashboard", lucideIcon: Activity },
             { id: "performance", label: "Performance", lucideIcon: Gauge },
             { id: "privacy", label: "Privacy", lucideIcon: ShieldAlert },
+            { id: "security", label: "Security", lucideIcon: Shield },
             { id: "gaming", label: "Gaming", lucideIcon: Gamepad2 },
             { id: "network_tweaks", label: "Network", lucideIcon: Globe },
             { id: "power", label: "Power", lucideIcon: BatteryMedium },
+            { id: "debloat", label: "Debloat", lucideIcon: Zap },
             { id: "prebuilt_debloater", label: "Debloater Wizard", lucideIcon: Zap },
             { id: "windowsui", label: "Windows UI", lucideIcon: MonitorCog },
             { id: "windowsupdate", label: "Updates", lucideIcon: RefreshCcw },
+            { id: "tools", label: "Tools", lucideIcon: Settings },
         ]
     },
     {

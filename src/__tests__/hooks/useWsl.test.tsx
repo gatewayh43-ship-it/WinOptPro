@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@/test/utils";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderHook, act, waitFor } from "@/test/utils";
 import { useWsl } from "@/hooks/useWsl";
+import { useGlobalCache } from "@/hooks/useGlobalCache";
 import * as tauriCore from "@tauri-apps/api/core";
 
 vi.mock("@/components/ToastSystem", () => {
@@ -12,39 +13,26 @@ describe("useWsl", () => {
     beforeEach(() => {
         vi.mocked(tauriCore.isTauri).mockReturnValue(false);
         vi.mocked(tauriCore.invoke).mockReset();
-        vi.useFakeTimers();
+        useGlobalCache.getState().clearCache();
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it("loads mock status on mount when not in Tauri", async () => {
+    it("leaves status empty and sets an error when desktop runtime is unavailable", async () => {
         const { result } = renderHook(() => useWsl());
 
-        expect(result.current.isLoading).toBe(true);
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        await act(async () => {
-            vi.advanceTimersByTime(700);
-        });
-
-        expect(result.current.isLoading).toBe(false);
-        expect(result.current.status).not.toBeNull();
-        expect(result.current.status?.isEnabled).toBe(true);
-        expect(result.current.status?.distros).toHaveLength(2);
-        expect(result.current.status?.distros[0].name).toBe("Ubuntu");
+        expect(result.current.status).toBeNull();
+        expect(result.current.error).toContain("desktop runtime");
+        expect(tauriCore.invoke).not.toHaveBeenCalled();
     });
 
-    it("loads mock config on mount", async () => {
+    it("leaves config empty when desktop runtime is unavailable", async () => {
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            vi.advanceTimersByTime(700);
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        expect(result.current.config).not.toBeNull();
-        expect(result.current.config?.memoryGb).toBe(8);
-        expect(result.current.config?.processors).toBe(4);
+        expect(result.current.config).toBeNull();
+        expect(result.current.setupState).toBeNull();
     });
 
     it("installDistro invokes install_wsl_distro when in Tauri", async () => {
@@ -53,9 +41,7 @@ describe("useWsl", () => {
 
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         vi.mocked(tauriCore.invoke).mockResolvedValue(true);
 
@@ -72,9 +58,7 @@ describe("useWsl", () => {
 
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         vi.mocked(tauriCore.invoke).mockResolvedValue(true);
 
@@ -91,9 +75,7 @@ describe("useWsl", () => {
 
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         vi.mocked(tauriCore.invoke).mockResolvedValue(true);
 
@@ -122,9 +104,7 @@ describe("useWsl", () => {
 
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            await vi.runAllTimersAsync();
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         vi.mocked(tauriCore.invoke).mockResolvedValue(true);
 
@@ -135,28 +115,18 @@ describe("useWsl", () => {
         expect(tauriCore.invoke).toHaveBeenCalledWith("enable_wsl");
     });
 
-    it("setDefaultDistro updates state optimistically in mock mode", async () => {
+    it("setDefaultDistro does not mutate status without desktop runtime", async () => {
         const { result } = renderHook(() => useWsl());
 
-        await act(async () => {
-            vi.advanceTimersByTime(700);
-        });
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         await act(async () => {
             await result.current.setDefaultDistro("Debian");
         });
 
-        const debian = result.current.status?.distros.find(d => d.name === "Debian");
-        expect(debian?.isDefault).toBe(true);
-    });
-
-    it("clears all mock timeouts on unmount", () => {
-        // beforeEach already called vi.useFakeTimers(); spy AFTER so it wraps the active fake
-        const clearSpy = vi.spyOn(globalThis, "clearTimeout");
-        const { unmount } = renderHook(() => useWsl());
-        unmount();
-        expect(clearSpy).toHaveBeenCalled();
-        clearSpy.mockRestore();
+        expect(result.current.status).toBeNull();
+        expect(result.current.error).toContain("desktop runtime");
+        expect(tauriCore.invoke).not.toHaveBeenCalledWith("set_default_distro", expect.anything());
     });
 
     it("installDistro sets isActionLoading=true during install (Tauri mode)", async () => {
@@ -174,19 +144,19 @@ describe("useWsl", () => {
         });
 
         const { result } = renderHook(() => useWsl());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        // Settle mount effects under fake timers
-        await act(async () => { vi.advanceTimersByTime(100); });
+        let installPromise!: Promise<void>;
+        act(() => {
+            installPromise = result.current.installDistro("Debian");
+        });
 
-        // Start the install — setIsActionLoading(true) fires synchronously before the first await
-        act(() => { result.current.installDistro("Debian"); });
-
-        // isActionLoading should be true now (synchronous state update flushed by act)
         expect(result.current.isActionLoading).toBe(true);
 
-        // Resolve and confirm flag resets
         resolveInstall(true);
-        await act(async () => { vi.advanceTimersByTime(100); });
+        await act(async () => {
+            await installPromise;
+        });
 
         expect(result.current.isActionLoading).toBe(false);
     });

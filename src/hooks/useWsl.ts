@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { useToast } from "@/components/ToastSystem";
 import { useGlobalCache } from "./useGlobalCache";
@@ -55,41 +55,6 @@ export const AVAILABLE_DISTROS = [
     { id: "OracleLinux_9_1", name: "Oracle Linux 9.1", emoji: "🔴" },
 ] as const;
 
-// ── Mock data ────────────────────────────────────────────────────────────────
-
-const MOCK_STATUS: WslStatus = {
-    isEnabled: true,
-    defaultVersion: 2,
-    wslVersion: "2.0.14.0",
-    kernelVersion: "5.15.146.1",
-    distros: [
-        { name: "Ubuntu", state: "Running", version: 2, isDefault: true },
-        { name: "Debian", state: "Stopped", version: 2, isDefault: false },
-    ],
-};
-
-const MOCK_CONFIG: WslConfig = {
-    memoryGb: 8,
-    processors: 4,
-    swapGb: 2,
-    localhostForwarding: true,
-    networkingMode: "nat",
-    dnsTunneling: true,
-    firewall: true,
-    autoProxy: false,
-    guiApplications: true,
-};
-
-const MOCK_SETUP_STATE: WslSetupState = {
-    wslEnabled: true,
-    wsl2Available: true,
-    hasDistro: true,
-    defaultDistro: "Ubuntu",
-    hasDesktopEnv: false,
-    installedDes: [],
-    wslgSupported: true,
-};
-
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useWsl() {
@@ -107,13 +72,11 @@ export function useWsl() {
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
 
-    const mockTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-    const safeTimeout = useCallback((fn: () => void, ms: number) => {
-        const id = setTimeout(fn, ms);
-        mockTimeoutsRef.current.push(id);
-        return id;
-    }, []);
+    const desktopRequired = useCallback((action: string) => {
+        const msg = `${action} requires the WinOpt Pro desktop runtime.`;
+        setError(msg);
+        addToast({ type: "error", title: "Desktop runtime required", message: msg });
+    }, [addToast]);
 
     const fetchStatus = useCallback(async (force = false) => {
         if (!force) {
@@ -127,11 +90,9 @@ export function useWsl() {
         setIsLoading(true);
         setError(null);
         if (!isTauri()) {
-            safeTimeout(() => {
-                setStatus(MOCK_STATUS);
-                useGlobalCache.getState().setCacheObject("wsl_status", MOCK_STATUS);
-                setIsLoading(false);
-            }, 500);
+            setStatus(null);
+            setIsLoading(false);
+            desktopRequired("WSL status");
             return;
         }
         try {
@@ -144,7 +105,7 @@ export function useWsl() {
         } finally {
             setIsLoading(false);
         }
-    }, [safeTimeout]);
+    }, [desktopRequired]);
 
     const fetchConfig = useCallback(async (force = false) => {
         if (!force) {
@@ -155,8 +116,8 @@ export function useWsl() {
             }
         }
         if (!isTauri()) {
-            setConfig(MOCK_CONFIG);
-            useGlobalCache.getState().setCacheObject("wsl_config", MOCK_CONFIG);
+            setConfig(null);
+            desktopRequired("WSL configuration");
             return;
         }
         try {
@@ -167,7 +128,7 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "WSL Error", message: `Failed to load WSL config: ${msg}` });
         }
-    }, [addToast]);
+    }, [addToast, desktopRequired]);
 
     const fetchSetupState = useCallback(async (force = false) => {
         if (!force) {
@@ -178,28 +139,25 @@ export function useWsl() {
             }
         }
         if (!isTauri()) {
-            setSetupState(MOCK_SETUP_STATE);
-            useGlobalCache.getState().setCacheObject("wsl_setup", MOCK_SETUP_STATE);
+            setSetupState(null);
+            desktopRequired("WSL setup state");
             return;
         }
         try {
             const data = await invoke<WslSetupState>("get_wsl_setup_state");
             setSetupState(data);
             useGlobalCache.getState().setCacheObject("wsl_setup", data);
-        } catch {
-            setSetupState(MOCK_SETUP_STATE);
-            useGlobalCache.getState().setCacheObject("wsl_setup", MOCK_SETUP_STATE);
+        } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : String(e);
+            setError(msg);
         }
-    }, []);
+    }, [desktopRequired]);
 
     const enableWsl = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            safeTimeout(() => {
-                setStatus(s => s ? { ...s, isEnabled: true } : MOCK_STATUS);
-                setIsActionLoading(false);
-                addToast({ type: "success", title: "WSL Enabled", message: "WSL enabled. Reboot may be required." });
-            }, 1000);
+            desktopRequired("Enabling WSL");
+            setIsActionLoading(false);
             return;
         }
         try {
@@ -212,16 +170,13 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus, safeTimeout]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const disableWsl = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            safeTimeout(() => {
-                setStatus(s => s ? { ...s, isEnabled: false, distros: [] } : null);
-                setIsActionLoading(false);
-                addToast({ type: "success", title: "WSL Disabled", message: "WSL disabled." });
-            }, 1000);
+            desktopRequired("Disabling WSL");
+            setIsActionLoading(false);
             return;
         }
         try {
@@ -234,23 +189,15 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus, safeTimeout]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const installDistro = useCallback(async (distroId: string) => {
         setInstallingDistro(distroId);
         setIsActionLoading(true);
         if (!isTauri()) {
-            safeTimeout(() => {
-                const distroInfo = AVAILABLE_DISTROS.find(d => d.id === distroId);
-                const name = distroInfo?.name.split(" ")[0] ?? distroId;
-                setStatus(s => s ? {
-                    ...s,
-                    distros: [...s.distros, { name, state: "Stopped", version: 2, isDefault: s.distros.length === 0 }],
-                } : MOCK_STATUS);
-                setInstallingDistro(null);
-                setIsActionLoading(false);
-                addToast({ type: "success", title: "Install Success", message: `${distroId} installed successfully.` });
-            }, 2000);
+            desktopRequired(`Installing ${distroId}`);
+            setInstallingDistro(null);
+            setIsActionLoading(false);
             return;
         }
         try {
@@ -264,16 +211,13 @@ export function useWsl() {
             setInstallingDistro(null);
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus, safeTimeout]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const uninstallDistro = useCallback(async (name: string) => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            safeTimeout(() => {
-                setStatus(s => s ? { ...s, distros: s.distros.filter(d => d.name !== name) } : null);
-                setIsActionLoading(false);
-                addToast({ type: "success", title: "Remove Success", message: `${name} removed.` });
-            }, 800);
+            desktopRequired(`Removing ${name}`);
+            setIsActionLoading(false);
             return;
         }
         try {
@@ -286,15 +230,11 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, fetchStatus, safeTimeout]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const setDefaultDistro = useCallback(async (name: string) => {
         if (!isTauri()) {
-            setStatus(s => s ? {
-                ...s,
-                distros: s.distros.map(d => ({ ...d, isDefault: d.name === name })),
-            } : null);
-            addToast({ type: "success", title: "Default Set", message: `${name} set as default.` });
+            desktopRequired(`Setting ${name} as the default WSL distro`);
             return;
         }
         try {
@@ -305,12 +245,11 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "Set Default Failed", message: `Set default failed: ${msg}` });
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const setDefaultVersion = useCallback(async (version: number) => {
         if (!isTauri()) {
-            setStatus(s => s ? { ...s, defaultVersion: version } : null);
-            addToast({ type: "success", title: "Version Set", message: `Default WSL version set to ${version}.` });
+            desktopRequired(`Setting WSL ${version} as the default version`);
             return;
         }
         try {
@@ -321,16 +260,13 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "Version Set Failed", message: `Set version failed: ${msg}` });
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const cleanUninstall = useCallback(async () => {
         setIsActionLoading(true);
         if (!isTauri()) {
-            safeTimeout(() => {
-                setStatus(null);
-                setIsActionLoading(false);
-                addToast({ type: "success", title: "Uninstall Success", message: "WSL completely removed. Reboot required." });
-            }, 1500);
+            desktopRequired("Clean uninstalling WSL");
+            setIsActionLoading(false);
             return;
         }
         try {
@@ -343,12 +279,11 @@ export function useWsl() {
         } finally {
             setIsActionLoading(false);
         }
-    }, [addToast, safeTimeout]);
+    }, [addToast, desktopRequired]);
 
     const saveConfig = useCallback(async (cfg: WslConfig) => {
         if (!isTauri()) {
-            setConfig(cfg);
-            addToast({ type: "success", title: "Config Saved", message: "WSL config saved. Run 'wsl --shutdown' to apply." });
+            desktopRequired("Saving WSL configuration");
             return;
         }
         try {
@@ -359,11 +294,11 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "Config Save Failed", message: `Save config failed: ${msg}` });
         }
-    }, [addToast]);
+    }, [addToast, desktopRequired]);
 
     const shutdownWsl = useCallback(async () => {
         if (!isTauri()) {
-            addToast({ type: "success", title: "Shutdown", message: "WSL shutdown (simulation)." });
+            desktopRequired("Shutting down WSL");
             return;
         }
         try {
@@ -374,7 +309,7 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "Shutdown Failed", message: `Shutdown failed: ${msg}` });
         }
-    }, [addToast, fetchStatus]);
+    }, [addToast, fetchStatus, desktopRequired]);
 
     const checkDesktopEnvs = useCallback(async (distro: string): Promise<string[]> => {
         if (!isTauri()) return [];
@@ -387,7 +322,7 @@ export function useWsl() {
 
     const installDesktopEnv = useCallback(async (distro: string, de: string): Promise<string> => {
         if (!isTauri()) {
-            return "Installation simulation complete. XFCE4 ready.";
+            throw new Error(`Installing ${de} for ${distro} requires the WinOpt Pro desktop runtime.`);
         }
         try {
             return await invoke<string>("install_desktop_env", { distro, de });
@@ -399,7 +334,7 @@ export function useWsl() {
 
     const launchLinuxMode = useCallback(async (distro: string, de: string) => {
         if (!isTauri()) {
-            addToast({ type: "info", title: "Dev Mode", message: `Launching Linux desktop (${de}) in WSLg... (simulation)` });
+            desktopRequired(`Launching ${de} in WSLg`);
             return;
         }
         try {
@@ -409,20 +344,13 @@ export function useWsl() {
             const msg = e instanceof Error ? e.message : String(e);
             addToast({ type: "error", title: "Launch Failed", message: `Launch failed: ${msg}` });
         }
-    }, [addToast]);
+    }, [addToast, desktopRequired]);
 
     useEffect(() => {
         fetchStatus();
         fetchConfig();
         fetchSetupState();
     }, [fetchStatus, fetchConfig, fetchSetupState]);
-
-    useEffect(() => {
-        return () => {
-            mockTimeoutsRef.current.forEach(clearTimeout);
-            mockTimeoutsRef.current = [];
-        };
-    }, []);
 
     return {
         status,
