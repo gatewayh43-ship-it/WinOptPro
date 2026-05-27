@@ -483,9 +483,9 @@ if (-not $DirectVerifyOnly) {
             param($Filter)
             $project = "C:\WinOpt\WinOptimizerRevamp"
             $nodeDir = "C:\WinOpt\tools\nodejs"
-            $playwright = Join-Path $project "node_modules\.bin\playwright.cmd"
-            if (-not (Test-Path $playwright)) {
-                throw "Playwright CLI not found in guest node_modules: $playwright"
+            $playwrightCli = Join-Path $project "node_modules\playwright\cli.js"
+            if (-not (Test-Path $playwrightCli)) {
+                throw "Playwright CLI not found in guest node_modules: $playwrightCli"
             }
 
             Remove-Item -Path "C:\WinOpt\ui-playwright.log" -Force -ErrorAction SilentlyContinue
@@ -497,6 +497,7 @@ if (-not $DirectVerifyOnly) {
 if (Test-Path '$nodeDir') {
     `$env:Path = '$nodeDir;' + `$env:Path
 }
+`$nodeExe = if (Test-Path '$nodeDir\node.exe') { '$nodeDir\node.exe' } else { (Get-Command node.exe -ErrorAction Stop).Source }
 `$filter = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$filterEncoded'))
 `$env:PLAYWRIGHT_BROWSERS_PATH = 'C:\WinOpt\ms-playwright'
 `$env:VM_URL = 'http://localhost:1420'
@@ -511,7 +512,7 @@ if (-not [string]::IsNullOrWhiteSpace(`$filter)) {
 } else {
     `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct|production-readiness')
 }
-& '$playwright' @uiArgs *> 'C:\WinOpt\ui-playwright.log'
+& `$nodeExe '$playwrightCli' @uiArgs *> 'C:\WinOpt\ui-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
 Set-Content -Path 'C:\WinOpt\ui-exitcode.txt' -Value `$code -Encoding ASCII
 exit `$code
@@ -616,7 +617,7 @@ if ($DirectVerify -or $DirectVerifyOnly) {
     Write-Host ""
 
     Write-Host "  Mode: guest-local elevated Playwright run" -ForegroundColor DarkGray
-    Write-Host "  Command: playwright.cmd test vm-tweak-direct production-readiness --config=playwright.direct.config.ts" -ForegroundColor DarkGray
+    Write-Host "  Command: node node_modules\playwright\cli.js test vm-tweak-direct production-readiness --config=playwright.direct.config.ts" -ForegroundColor DarkGray
     Write-Host ""
 
     $session = New-WinOptVmSession
@@ -625,10 +626,10 @@ if ($DirectVerify -or $DirectVerifyOnly) {
             $project = "C:\WinOpt\WinOptimizerRevamp"
             $resultDir = Join-Path $project "test-results\vm-direct"
             $nodeDir = "C:\WinOpt\tools\nodejs"
-            $playwright = Join-Path $project "node_modules\.bin\playwright.cmd"
+            $playwrightCli = Join-Path $project "node_modules\playwright\cli.js"
 
-            if (-not (Test-Path $playwright)) {
-                throw "Playwright CLI not found in guest node_modules: $playwright"
+            if (-not (Test-Path $playwrightCli)) {
+                throw "Playwright CLI not found in guest node_modules: $playwrightCli"
             }
 
             New-Item -Path $resultDir -ItemType Directory -Force | Out-Null
@@ -642,6 +643,7 @@ if ($DirectVerify -or $DirectVerifyOnly) {
 if (Test-Path '$nodeDir') {
     `$env:Path = '$nodeDir;' + `$env:Path
 }
+`$nodeExe = if (Test-Path '$nodeDir\node.exe') { '$nodeDir\node.exe' } else { (Get-Command node.exe -ErrorAction Stop).Source }
 `$env:PLAYWRIGHT_BROWSERS_PATH = 'C:\WinOpt\ms-playwright'
 `$env:VM_URL = 'http://localhost:1420'
 `$env:VM_BRIDGE = 'false'
@@ -649,7 +651,7 @@ if (Test-Path '$nodeDir') {
 Remove-Item Env:VM_NAME -ErrorAction SilentlyContinue
 Remove-Item Env:WINOPT_VM_PASSWORD -ErrorAction SilentlyContinue
 Set-Location '$project'
-& '$playwright' test vm-tweak-direct production-readiness --config=playwright.direct.config.ts *> 'C:\WinOpt\direct-playwright.log'
+& `$nodeExe '$playwrightCli' test vm-tweak-direct production-readiness --config=playwright.direct.config.ts *> 'C:\WinOpt\direct-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
 Set-Content -Path 'C:\WinOpt\direct-exitcode.txt' -Value `$code -Encoding ASCII
 exit `$code
@@ -760,10 +762,10 @@ if ($FeaturesVerify) {
         $featuresProcessId = Invoke-Command -Session $session -ScriptBlock {
             $project   = "C:\WinOpt\WinOptimizerRevamp"
             $nodeDir   = "C:\WinOpt\tools\nodejs"
-            $playwright = Join-Path $project "node_modules\.bin\playwright.cmd"
+            $playwrightCli = Join-Path $project "node_modules\playwright\cli.js"
 
-            if (-not (Test-Path $playwright)) {
-                throw "Playwright CLI not found: $playwright"
+            if (-not (Test-Path $playwrightCli)) {
+                throw "Playwright CLI not found: $playwrightCli"
             }
 
             Remove-Item -Path "C:\WinOpt\features-playwright.log" -Force -ErrorAction SilentlyContinue
@@ -772,13 +774,14 @@ if ($FeaturesVerify) {
             $script = @"
 `$ErrorActionPreference = 'Continue'
 if (Test-Path '$nodeDir') { `$env:Path = '$nodeDir;' + `$env:Path }
+`$nodeExe = if (Test-Path '$nodeDir\node.exe') { '$nodeDir\node.exe' } else { (Get-Command node.exe -ErrorAction Stop).Source }
 `$env:PLAYWRIGHT_BROWSERS_PATH = 'C:\WinOpt\ms-playwright'
 `$env:VM_URL    = 'http://localhost:1420'
 `$env:VM_BRIDGE = 'false'
 Remove-Item Env:VM_NAME -ErrorAction SilentlyContinue
 Remove-Item Env:WINOPT_VM_PASSWORD -ErrorAction SilentlyContinue
 Set-Location '$project'
-& '$playwright' test features-direct --config=playwright.vm.config.ts *> 'C:\WinOpt\features-playwright.log'
+& `$nodeExe '$playwrightCli' test features-direct --config=playwright.vm.config.ts *> 'C:\WinOpt\features-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
 Set-Content -Path 'C:\WinOpt\features-exitcode.txt' -Value `$code -Encoding ASCII
 exit `$code
