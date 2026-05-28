@@ -677,9 +677,8 @@ test.describe('Storage Manager', () => {
         }
 
         // Wait for scan to complete
-        await expect(
-            page.getByText(/Categories Found|system is clean/i)
-        ).toBeVisible({ timeout: 60000 });
+        const cleanupScanComplete = page.getByText(/Categories Found|system is clean/i).first();
+        await expect(cleanupScanComplete).toBeVisible({ timeout: 60000 });
 
         const categoriesText = await page.getByText(/\d+ Categories Found/i).textContent().catch(() => '');
         const categoryCount = parseInt(categoriesText?.match(/(\d+)/)?.[1] ?? '0', 10);
