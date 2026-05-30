@@ -46,6 +46,7 @@ export function DriverManagerPage() {
                     <button
                         onClick={() => exportList(savePath)}
                         disabled={isLoading || allDrivers.length === 0}
+                        data-testid="export-drivers-json"
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:bg-white/5 font-bold text-sm transition-colors disabled:opacity-50"
                         title={`Export to: ${savePath}`}
                     >

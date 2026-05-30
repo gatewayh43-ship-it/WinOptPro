@@ -69,7 +69,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-slate-500 dark:text-slate-300">Current</span>
-                  <span className="text-[15px] font-bold text-primary font-mono">{to_ms(status.timerResolution100ns)} ms</span>
+                  <span className="text-[15px] font-bold text-primary font-mono" data-testid="timer-resolution-ms">{to_ms(status.timerResolution100ns)} ms</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-slate-500 dark:text-slate-300">Best (min)</span>
@@ -121,7 +121,7 @@ export function LatencyPage({ setView }: { setView?: (id: string) => void }) {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[12px] text-slate-500 dark:text-slate-300">Standby RAM</span>
-                  <span className="text-[15px] font-bold text-amber-400 font-mono">
+                  <span className="text-[15px] font-bold text-amber-400 font-mono" data-testid="standby-ram-gb">
                     {(status.standbyRamMb / 1024).toFixed(1)} GB
                   </span>
                 </div>

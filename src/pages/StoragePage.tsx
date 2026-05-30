@@ -354,7 +354,7 @@ export function StoragePage() {
                         >
                             {selectedIds.size === items.length && items.length > 0 && <span className="w-2.5 h-2.5 bg-white rounded-sm" />}
                         </button>
-                        <span className="text-sm font-bold text-slate-300">
+                        <span className="text-sm font-bold text-slate-300" data-testid="storage-category-count">
                             {items.length} Categories Found
                         </span>
                     </div>
@@ -362,6 +362,7 @@ export function StoragePage() {
                     <button
                         onClick={() => executeCleanup(Array.from(selectedIds))}
                         disabled={selectedIds.size === 0 || isCleaning || isScanning}
+                        data-testid="clean-selected"
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]"
                     >
                         {isCleaning ? (

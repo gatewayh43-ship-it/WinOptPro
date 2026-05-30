@@ -510,7 +510,7 @@ Set-Location '$project'
 if (-not [string]::IsNullOrWhiteSpace(`$filter)) {
     `$uiArgs += @('--grep', `$filter)
 } else {
-    `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct|production-readiness')
+    `$uiArgs += @('--grep-invert', 'vm-tweak-direct|features-direct|production-readiness|tweaks-lifecycle')
 }
 & `$nodeExe '$playwrightCli' @uiArgs *> 'C:\WinOpt\ui-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
@@ -591,7 +591,7 @@ exit `$code
         if ($TestFilter) {
             $testCmd += " --grep `"$TestFilter`""
         } else {
-            $testCmd += " --grep-invert `"vm-tweak-direct|features-direct|production-readiness`""
+            $testCmd += " --grep-invert `"vm-tweak-direct|features-direct|production-readiness|tweaks-lifecycle`""
         }
 
         Write-Host "  Command: $testCmd" -ForegroundColor DarkGray
@@ -877,8 +877,10 @@ Write-Host "==============================================================" -For
 Write-Host "|  Duration:     $($duration.ToString('hh\:mm\:ss'))" -ForegroundColor White
 Write-Host "|  UI exit code: $testExitCode" -ForegroundColor $(if ($testExitCode -eq 0) { "Green" } else { "Red" })
 Write-Host "|  DV exit code: $directExitCode" -ForegroundColor $(if ($directExitCode -eq 0) { "Green" } else { "Red" })
+Write-Host "|  FV exit code: $featuresExitCode" -ForegroundColor $(if ($featuresExitCode -eq 0) { "Green" } else { "Red" })
 Write-Host "|  UI Report:    $ProjectDir\playwright-report\index.html" -ForegroundColor White
 Write-Host "|  DV Results:   $ProjectDir\test-results\vm-direct\direct-summary.json" -ForegroundColor White
+Write-Host "|  FV Results:   $ProjectDir\test-results\features-direct\features-summary.json" -ForegroundColor White
 Write-Host "|  Run logs:     $runLogDir" -ForegroundColor White
 Write-Host "==============================================================" -ForegroundColor $color
 Write-Host ""

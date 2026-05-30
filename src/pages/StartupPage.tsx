@@ -99,6 +99,7 @@ export function StartupPage() {
                                 <div className="flex-shrink-0">
                                     <button
                                         onClick={() => toggleItem(item.id, item.enabled, item.name)}
+                                        data-testid={`startup-toggle-${item.id}`}
                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${item.enabled ? 'bg-primary' : 'bg-slate-700'}`}
                                     >
                                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${item.enabled ? 'translate-x-6' : 'translate-x-1'}`} />

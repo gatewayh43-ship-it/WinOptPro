@@ -161,13 +161,13 @@ const DIRECT_EXPECTATIONS: Record<string, DirectExpectation> = {
     CleanComponentStore: { noValidationChangeOk: true, skipRevert: true },
     ClearTempFiles: { skipRevert: true },
     DisableAdapterPowerSaving: { unsupportedApply: ['unsupported', ''], skipRevert: true },
-    DisableAdaptiveBrightness: { unsupportedApply: [''], skipRevert: true },
+    DisableAdaptiveBrightness: { desiredApply: ['contains:current ac power setting index: 0x00000000', 'contains:current dc power setting index: 0x00000000'], unsupportedApply: [''], skipRevert: true },
     DisableCoreParking: { unsupportedApply: [''], skipRevert: true },
     DisableDynamicTick: { desiredApply: ['yes'], unsupportedApply: [''] },
     DisableFaxService: { desiredApply: ['disabled', 'stopped', ''], skipRevert: true },
     DisableFSO: { desiredApply: ['2'], skipRevertWhenAlreadyDesired: true },
     DisableHibernation: { desiredApply: ['disabled'], skipRevertWhenAlreadyDesired: true },
-    DisableLocationCapabilityAccess: { desiredApply: ['deny'], unsupportedApply: [''] },
+    DisableLocationCapabilityAccess: { desiredApply: ['deny'], unsupportedApply: [''], skipRevertWhenAlreadyDesired: true },
     DisableNagle: { desiredApply: ['1'], unsupportedApply: [''], skipRevert: true },
     DisablePCIeLinkStatePM: { unsupportedApply: [''], skipRevert: true },
     DisablePhoneLink: { desiredApply: ['removed'], skipRevert: true },
@@ -177,10 +177,10 @@ const DIRECT_EXPECTATIONS: Record<string, DirectExpectation> = {
     DisableVBS: { desiredApply: ['off'], unsupportedApply: [''] },
     DisableXboxFeatures: { desiredApply: ['stopped'], skipRevertWhenAlreadyDesired: true },
     DisableXboxGameMonitoring: { desiredApply: ['disabled', ''], skipRevertWhenAlreadyDesired: true },
-    EnableAggressiveCPUBoost: { unsupportedApply: [''], skipRevert: true },
+    EnableAggressiveCPUBoost: { desiredApply: ['contains:current ac power setting index: 0x00000002', 'contains:current dc power setting index: 0x00000002'], unsupportedApply: ['', 'contains:power scheme guid:'], skipRevert: true },
     EnableFirewall: { desiredApply: ['true'], skipRevertWhenAlreadyDesired: true },
     EnableGPUMSIMode: { unsupportedApply: ['nogpu', ''], skipRevert: true },
-    EnableRSS: { unsupportedApply: [''], skipRevert: true },
+    EnableRSS: { desiredApply: ['contains:enabled'], unsupportedApply: [''], skipRevert: true },
     EnableStorageSense: { desiredApply: ['1'], skipRevertWhenAlreadyDesired: true },
     EnableWriteBackCache: { unsupportedApply: ['false', ''], skipRevert: true },
     FlushDNS: { desiredApply: ['0'], skipRevert: true },
@@ -192,12 +192,19 @@ const DIRECT_EXPECTATIONS: Record<string, DirectExpectation> = {
     RepairSystemFiles: { noValidationChangeOk: true, skipRevert: true },
     ResetDNSDefault: { desiredApply: [''], skipRevert: true },
     ResetNetworkStack: { noValidationChangeOk: true, skipRevert: true },
+    ResetWinsock: { noValidationChangeOk: true, skipRevert: true },
     SetDiagnosticDataMinimum: { desiredApply: ['0'], desiredRevert: ['3', '1', '2', ''] },
     SetMinCPUState100: { unsupportedApply: [''], skipRevert: true },
 };
 
 function matchesExpected(value: string, expected?: string[]) {
-    return !!expected?.some(item => normaliseVal(item) === value);
+    return !!expected?.some(item => {
+        const expectedValue = normaliseVal(item);
+        if (expectedValue.startsWith('contains:')) {
+            return value.includes(expectedValue.slice('contains:'.length));
+        }
+        return expectedValue === value;
+    });
 }
 
 // ─── Test suite ───────────────────────────────────────────────────────────────

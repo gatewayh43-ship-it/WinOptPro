@@ -31,7 +31,7 @@ function ScoreGauge({ score }: { score: number }) {
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-black" style={{ color }}>{score}</span>
+                <span className="text-3xl font-black" style={{ color }} data-testid="privacy-score">{score}</span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-0.5">Score</span>
             </div>
         </div>
@@ -158,11 +158,11 @@ export function PrivacyAuditPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-4 flex-1 w-full">
                         <div className="bento-card p-4 text-center">
-                            <p className="text-2xl font-black text-foreground">{auditResult.issues.length}</p>
+                            <p className="text-2xl font-black text-foreground" data-testid="privacy-total-issues">{auditResult.issues.length}</p>
                             <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Total Issues</p>
                         </div>
                         <div className="bento-card p-4 text-center">
-                            <p className="text-2xl font-black text-red-400">{unfixedCount}</p>
+                            <p className="text-2xl font-black text-red-400" data-testid="privacy-unfixed-issues">{unfixedCount}</p>
                             <p className="text-[11px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest mt-1">Unfixed</p>
                         </div>
                         <div className="bento-card p-4 text-center">

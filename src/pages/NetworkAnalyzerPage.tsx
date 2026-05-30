@@ -96,7 +96,7 @@ export function NetworkAnalyzerPage() {
                                     {pingResult.success && pingResult.latencyMs !== null ? (
                                         <>
                                             <div className="flex items-baseline justify-center gap-1 mb-2">
-                                                <span className={`text-4xl font-black tracking-tighter ${pingResult.latencyMs !== null && pingResult.latencyMs < 50 ? 'text-green-400' : pingResult.latencyMs !== null && pingResult.latencyMs < 120 ? 'text-yellow-400' : 'text-red-400'}`}>
+                                                <span data-testid="ping-latency-ms" className={`text-4xl font-black tracking-tighter ${pingResult.latencyMs !== null && pingResult.latencyMs < 50 ? 'text-green-400' : pingResult.latencyMs !== null && pingResult.latencyMs < 120 ? 'text-yellow-400' : 'text-red-400'}`}>
                                                     {pingResult.latencyMs !== null ? pingResult.latencyMs.toFixed(0) : "N/A"}
                                                 </span>
                                                 <span className="text-sm font-bold text-slate-500 dark:text-slate-300">ms avg</span>

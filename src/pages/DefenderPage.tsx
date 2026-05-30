@@ -61,6 +61,7 @@ export function DefenderPage() {
                                                 checked={status?.realtimeProtectionEnabled || false}
                                                 onChange={(e) => setRealtime(e.target.checked)}
                                                 disabled={actionLoading}
+                                                data-testid="defender-realtime-toggle"
                                             />
                                             <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary opacity-80 peer-disabled:opacity-50"></div>
                                         </label>

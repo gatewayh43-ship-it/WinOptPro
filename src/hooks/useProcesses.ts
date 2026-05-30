@@ -23,7 +23,7 @@ export function useProcesses() {
     const fetchProcesses = useCallback(async (force = false) => {
         if (!force) {
             const cached = useGlobalCache.getState().getCacheObject("processes");
-            if (cached) {
+            if (Array.isArray(cached) && cached.length > 0) {
                 setProcesses(cached);
                 setIsLoading(false);
                 return;

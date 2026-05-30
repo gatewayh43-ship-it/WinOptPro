@@ -32,7 +32,7 @@ export function useNetwork() {
     const fetchInterfaces = useCallback(async (force = false) => {
         if (!force) {
             const cached = useGlobalCache.getState().getCacheObject("network");
-            if (cached) {
+            if (Array.isArray(cached) && cached.length > 0) {
                 setInterfaces(cached);
                 setIsLoading(false);
                 return;

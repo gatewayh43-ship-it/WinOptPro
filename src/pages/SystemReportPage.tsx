@@ -31,6 +31,7 @@ export function SystemReportPage() {
                         <>
                             <button
                                 onClick={() => saveReport(savePath)}
+                                data-testid="save-system-report-html"
                                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-white/5 font-bold text-sm transition-colors"
                             >
                                 <Download className="w-4 h-4" />
@@ -61,6 +62,7 @@ export function SystemReportPage() {
                     <button
                         onClick={generateReport}
                         disabled={isGenerating}
+                        data-testid="generate-system-report"
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                     >
                         {isGenerating

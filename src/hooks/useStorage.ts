@@ -41,7 +41,7 @@ export function useStorage() {
         if (!force) {
             const cachedItems = useGlobalCache.getState().getCacheObject("storage_items");
             const cachedHealth = useGlobalCache.getState().getCacheObject("storage_health");
-            if (cachedItems && cachedHealth) {
+            if (Array.isArray(cachedItems) && cachedItems.length > 0 && Array.isArray(cachedHealth)) {
                 setItems(cachedItems);
                 setDiskHealth(cachedHealth);
                 setIsScanning(false);

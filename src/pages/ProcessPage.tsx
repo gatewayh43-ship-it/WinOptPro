@@ -217,7 +217,7 @@ export function ProcessPage() {
                                 const highMem = process.memory_bytes > 500 * 1024 * 1024; // 500MB
 
                                 return (
-                                    <div key={process.pid} className="grid grid-cols-[3fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-3 items-center hover:bg-white/[0.02] transition-colors group">
+                                    <div key={process.pid} data-testid={`process-row-${process.pid}`} className="grid grid-cols-[3fr_1fr_1fr_1.5fr_1fr] gap-4 px-6 py-3 items-center hover:bg-white/[0.02] transition-colors group">
                                         <div className="font-medium text-[14px] text-foreground truncate pl-1 border-l-2 border-transparent group-hover:border-primary/50 transition-colors flex items-center pr-2">
                                             <span className="truncate">{process.name}</span>
                                             {critical && (
@@ -229,7 +229,7 @@ export function ProcessPage() {
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="text-[13px] text-slate-400 dark:text-slate-200 font-mono">{process.pid}</div>
+                                        <div className="text-[13px] text-slate-400 dark:text-slate-200 font-mono" data-testid={`process-pid-${process.pid}`}>{process.pid}</div>
                                         <div className={`text-[13px] font-mono text-right ${highCpu ? 'text-amber-400 font-bold' : 'text-slate-300'}`}>
                                             {formatCpu(process.cpu_usage)}
                                         </div>

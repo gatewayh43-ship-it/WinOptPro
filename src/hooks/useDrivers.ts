@@ -25,7 +25,7 @@ export function useDrivers() {
         // Return instantly if cache exists and not forced
         if (!force) {
             const cached = useGlobalCache.getState().getCacheObject("drivers");
-            if (cached) {
+            if (Array.isArray(cached) && cached.length > 0) {
                 setDrivers(cached);
                 setIsLoading(false);
                 return;
