@@ -870,11 +870,12 @@ test.describe('Network Analyzer', () => {
         const start = Date.now();
         await skipOnboarding(page, 'network');
 
-        // The page renders interface cards and a ping widget
-        await expect(page.getByText(/Network.*Analyzer|Latency Test/i).first()).toBeVisible({ timeout: 10000 });
-        await expect(page.getByText(/Internet Speed Test/i)).toBeVisible({ timeout: 10000 });
-        await expect(page.getByText(/Quick Optimizations/i)).toBeVisible({ timeout: 10000 });
-        await expect(page.getByText(/Active Adapters/i)).toBeVisible({ timeout: 10000 });
+        // Prove we are on the Network Analyzer content, not merely seeing its sidebar entry.
+        await expect(page.getByTestId('network-analyzer-page')).toBeVisible({ timeout: 20000 });
+        await expect(page.getByRole('heading', { name: /Network\s+Analyzer/i })).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('speed-test-panel')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('network-optimizations-panel')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByTestId('active-adapters-panel')).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(2000); // let interfaces load
 
         const adapterInventoryVisible = await page.getByText(/\d+ Found/i).first().isVisible({ timeout: 5000 }).catch(() => false);

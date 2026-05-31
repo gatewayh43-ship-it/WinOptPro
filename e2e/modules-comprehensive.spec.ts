@@ -176,28 +176,28 @@ test.describe('Performance Page — Complete Functional Test', () => {
     test('Green filter shows only Green tweaks', async ({ page }) => {
         const greenBtn = page.locator('button').filter({ hasText: /Green/i }).first();
         await greenBtn.click();
-        await page.waitForTimeout(300);
-
         const visibleCards = page.locator('[data-tweak-category="Performance"]:visible');
-        const count = await visibleCards.count();
-        for (let i = 0; i < count; i++) {
-            const risk = await visibleCards.nth(i).getAttribute('data-tweak-risk');
-            expect(risk).toBe('Green');
-        }
+        await expect.poll(async () => visibleCards.count(), { timeout: 15000 }).toBeGreaterThan(0);
+
+        const risks = await visibleCards.evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
+        );
+        expect(risks.length).toBeGreaterThan(0);
+        expect(risks.every((risk) => risk === 'Green')).toBe(true);
     });
 
     test('Yellow filter shows only Yellow tweaks', async ({ page }) => {
         const yellowBtn = page.locator('button').filter({ hasText: /Yellow/i }).first();
         if (await yellowBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
             await yellowBtn.click();
-            await page.waitForTimeout(300);
-
             const visibleCards = page.locator('[data-tweak-category="Performance"]:visible');
-            const count = await visibleCards.count();
-            for (let i = 0; i < count; i++) {
-                const risk = await visibleCards.nth(i).getAttribute('data-tweak-risk');
-                expect(risk).toBe('Yellow');
-            }
+            await expect.poll(async () => visibleCards.count(), { timeout: 15000 }).toBeGreaterThan(0);
+
+            const risks = await visibleCards.evaluateAll((cards) =>
+                cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
+            );
+            expect(risks.length).toBeGreaterThan(0);
+            expect(risks.every((risk) => risk === 'Yellow')).toBe(true);
         }
     });
 

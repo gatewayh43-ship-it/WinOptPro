@@ -396,6 +396,10 @@ try {
         Set-Location "C:\WinOpt\WinOptimizerRevamp"
         Remove-Item -Path ".\node_modules\.vite",".\node_modules\.vite-temp",".\.vite",".\dist" -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -Path ".\test-results\features-direct",".\test-results\features-direct-*" -Recurse -Force -ErrorAction SilentlyContinue
+        $networkAnalyzerSource = Get-Content ".\src\pages\NetworkAnalyzerPage.tsx" -Raw
+        if ($networkAnalyzerSource -notmatch 'speed-test-panel') {
+            throw "Guest NetworkAnalyzerPage.tsx is stale; speed test panel marker was not found after code sync."
+        }
     }
     Write-Host "  OK Cleared guest Vite/test caches" -ForegroundColor Green
     
@@ -855,8 +859,14 @@ exit `$code
             Start-Sleep -Seconds 10
         }
 
+        $hostFeaturesArtifacts = Join-Path $ProjectDir "test-results\features-direct-*"
+        Remove-Item -Path $hostFeaturesArtifacts -Recurse -Force -ErrorAction SilentlyContinue
         Copy-Item -FromSession $session `
             -Path "C:\WinOpt\WinOptimizerRevamp\test-results\features-direct" `
+            -Destination (Join-Path $ProjectDir "test-results") `
+            -Recurse -Force -ErrorAction SilentlyContinue
+        Copy-Item -FromSession $session `
+            -Path "C:\WinOpt\WinOptimizerRevamp\test-results\features-direct-*" `
             -Destination (Join-Path $ProjectDir "test-results") `
             -Recurse -Force -ErrorAction SilentlyContinue
         Copy-Item -FromSession $session `

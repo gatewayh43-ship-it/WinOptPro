@@ -157,7 +157,7 @@ export function NetworkAnalyzerPage() {
     };
 
     return (
-        <div className="space-y-6 pb-12">
+        <div data-testid="network-analyzer-page" className="space-y-6 pb-12">
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h2 className="flex items-center gap-3 text-3xl font-black tracking-tight text-foreground">
@@ -290,7 +290,7 @@ export function NetworkAnalyzerPage() {
                     </div>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bento-card overflow-hidden">
+                <motion.div data-testid="speed-test-panel" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bento-card overflow-hidden">
                     <div className="border-b border-border/50 p-4">
                         <h3 className="flex items-center gap-2 font-bold text-foreground">
                             <Gauge className="h-4 w-4 text-primary" />
@@ -355,7 +355,7 @@ export function NetworkAnalyzerPage() {
                     </div>
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bento-card overflow-hidden">
+                <motion.div data-testid="network-optimizations-panel" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bento-card overflow-hidden">
                     <div className="border-b border-border/50 p-4">
                         <h3 className="flex items-center gap-2 font-bold text-foreground">
                             <SlidersHorizontal className="h-4 w-4 text-primary" />
@@ -424,7 +424,7 @@ export function NetworkAnalyzerPage() {
                 </motion.div>
             </div>
 
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card overflow-hidden flex flex-col min-h-[400px]">
+            <motion.div data-testid="active-adapters-panel" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: "easeOut" }} className="bento-card overflow-hidden flex flex-col min-h-[400px]">
                 <div className="p-4 border-b border-border/50 bg-white/[0.01] flex items-center justify-between">
                     <h3 className="font-bold text-foreground">Active Adapters</h3>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-300 bg-white/5 px-2 py-1 rounded max-w-xs truncate">
