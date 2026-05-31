@@ -187,6 +187,7 @@ export function SoftwareUpdatesPage() {
             .map((item) => ({
                 packageId: item.packageId,
                 betaPackageId: item.betaPackageId ?? null,
+                source: item.source,
             }));
     };
 

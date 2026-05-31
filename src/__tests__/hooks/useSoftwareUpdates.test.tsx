@@ -71,6 +71,7 @@ describe("useSoftwareUpdates", () => {
             packageId: "Microsoft.VisualStudioCode",
             channel: "stable",
             betaPackageId: "Microsoft.VisualStudioCode.Insiders",
+            source: "winget",
         });
         expect(result.current.updateResults["Microsoft.VisualStudioCode"]).toEqual(mockResult);
     });

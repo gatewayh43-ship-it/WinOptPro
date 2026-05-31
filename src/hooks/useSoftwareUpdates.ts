@@ -28,6 +28,7 @@ export type UpdateAutomationScope = "all" | "selected";
 export interface SoftwareUpdateAutomationPackage {
     packageId: string;
     betaPackageId?: string | null;
+    source?: string | null;
 }
 
 export interface SoftwareUpdateAutomationSettings {
@@ -108,6 +109,7 @@ export function useSoftwareUpdates() {
                     packageId: item.packageId,
                     channel,
                     betaPackageId: item.betaPackageId ?? null,
+                    source: item.source,
                 });
                 setUpdateResults((prev) => ({ ...prev, [item.packageId]: result }));
                 if (result.success) {

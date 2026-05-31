@@ -201,10 +201,62 @@ fn known_beta_package_id(package_id: &str) -> Option<String> {
 }
 
 fn slice_table_cell(line: &str, start: usize, end: Option<usize>) -> String {
-    line.get(start..end.unwrap_or(line.len()))
-        .unwrap_or("")
+    line.chars()
+        .skip(start)
+        .take(end.unwrap_or_else(|| line.chars().count()).saturating_sub(start))
+        .collect::<String>()
         .trim()
         .to_string()
+}
+
+fn looks_like_update_source(value: &str) -> bool {
+    matches!(value.to_ascii_lowercase().as_str(), "winget" | "msstore")
+}
+
+fn parse_winget_update_row(line: &str) -> Option<SoftwareUpdateItem> {
+    let trimmed = line.trim();
+    if trimmed.is_empty()
+        || trimmed.chars().all(|ch| ch == '-' || ch.is_whitespace())
+        || trimmed.contains("upgrades available")
+        || trimmed.contains("package(s) have version numbers")
+        || trimmed.starts_with("Name ")
+    {
+        return None;
+    }
+
+    let tokens: Vec<&str> = trimmed.split_whitespace().collect();
+    if tokens.len() < 5 {
+        return None;
+    }
+
+    let source = tokens.last()?.trim();
+    if !looks_like_update_source(source) {
+        return None;
+    }
+
+    let available_version = tokens.get(tokens.len().checked_sub(2)?)?.trim();
+    let current_version = tokens.get(tokens.len().checked_sub(3)?)?.trim();
+    let package_id = tokens.get(tokens.len().checked_sub(4)?)?.trim();
+    let name_tokens = &tokens[..tokens.len().saturating_sub(4)];
+    let name = name_tokens.join(" ").trim().to_string();
+
+    if name.is_empty() || current_version.is_empty() || available_version.is_empty() {
+        return None;
+    }
+
+    let clean_id = package_id.to_string();
+    if !clean_id.contains('…') && validate_package_id(&clean_id).is_err() {
+        return None;
+    }
+
+    Some(SoftwareUpdateItem {
+        name,
+        current_version: current_version.to_string(),
+        available_version: available_version.to_string(),
+        beta_package_id: known_beta_package_id(&clean_id),
+        package_id: clean_id,
+        source: source.to_string(),
+    })
 }
 
 fn parse_winget_upgrade_table(stdout: &str) -> Vec<SoftwareUpdateItem> {
@@ -219,28 +271,34 @@ fn parse_winget_upgrade_table(stdout: &str) -> Vec<SoftwareUpdateItem> {
     };
 
     let header = lines[header_index];
-    let Some(id_start) = header.find("Id") else {
+    let Some(id_start) = header.chars().collect::<String>().find("Id") else {
         return Vec::new();
     };
-    let Some(version_start) = header.find("Version") else {
+    let Some(version_start) = header.chars().collect::<String>().find("Version") else {
         return Vec::new();
     };
-    let Some(available_start) = header.find("Available") else {
+    let Some(available_start) = header.chars().collect::<String>().find("Available") else {
         return Vec::new();
     };
-    let source_start = header.find("Source");
+    let source_start = header.chars().collect::<String>().find("Source");
 
     lines
         .iter()
         .skip(header_index + 1)
         .filter_map(|line| {
+            if let Some(row) = parse_winget_update_row(line) {
+                return Some(row);
+            }
+
             let trimmed = line.trim();
             if trimmed.is_empty() || trimmed.chars().all(|ch| ch == '-' || ch.is_whitespace()) {
                 return None;
             }
 
             let package_id = slice_table_cell(line, id_start, Some(version_start));
-            if package_id.is_empty() || validate_package_id(&package_id).is_err() {
+            if package_id.is_empty()
+                || (!package_id.contains('…') && validate_package_id(&package_id).is_err())
+            {
                 return None;
             }
 
@@ -259,6 +317,96 @@ fn parse_winget_upgrade_table(stdout: &str) -> Vec<SoftwareUpdateItem> {
             })
         })
         .collect()
+}
+
+fn parse_choco_outdated_table(stdout: &str) -> Vec<SoftwareUpdateItem> {
+    stdout
+        .lines()
+        .filter_map(|line| {
+            let trimmed = line.trim();
+            if trimmed.is_empty() || trimmed.starts_with("Chocolatey ") {
+                return None;
+            }
+
+            let parts: Vec<&str> = trimmed.split('|').map(str::trim).collect();
+            if parts.len() < 3 {
+                return None;
+            }
+
+            let package_id = parts[0].to_string();
+            if validate_package_id(&package_id).is_err() {
+                return None;
+            }
+
+            Some(SoftwareUpdateItem {
+                name: package_id.clone(),
+                package_id,
+                current_version: parts[1].to_string(),
+                available_version: parts[2].to_string(),
+                source: "chocolatey".to_string(),
+                beta_package_id: None,
+            })
+        })
+        .collect()
+}
+
+fn dedupe_software_updates(items: Vec<SoftwareUpdateItem>) -> Vec<SoftwareUpdateItem> {
+    let mut seen = std::collections::HashSet::new();
+    let mut result = Vec::new();
+
+    for item in items {
+        let key = format!("{}:{}", item.source.to_ascii_lowercase(), item.package_id.to_ascii_lowercase());
+        if seen.insert(key) {
+            result.push(item);
+        }
+    }
+
+    result
+}
+
+async fn resolve_truncated_winget_ids(items: Vec<SoftwareUpdateItem>) -> Vec<SoftwareUpdateItem> {
+    let mut resolved = Vec::with_capacity(items.len());
+
+    for item in items {
+        if !item.package_id.contains('…') {
+            resolved.push(item);
+            continue;
+        }
+
+        let prefix = item.package_id.replace('…', "").trim().to_string();
+        if prefix.len() < 4 {
+            resolved.push(item);
+            continue;
+        }
+
+        let lookup = run_cmd(
+            "winget",
+            &[
+                "list",
+                "--id",
+                &prefix,
+                "--upgrade-available",
+                "--accept-source-agreements",
+                "--disable-interactivity",
+            ],
+            CHECK_TIMEOUT,
+        )
+        .await;
+
+        if let Ok((stdout, _, 0)) = lookup {
+            if let Some(full) = parse_winget_upgrade_table(&stdout)
+                .into_iter()
+                .find(|candidate| !candidate.package_id.contains('…'))
+            {
+                resolved.push(full);
+                continue;
+            }
+        }
+
+        resolved.push(item);
+    }
+
+    resolved
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -587,11 +735,15 @@ pub async fn check_choco_available() -> Result<bool, String> {
 /// Scan installed software that WinGet can upgrade.
 #[command]
 pub async fn scan_software_updates() -> Result<Vec<SoftwareUpdateItem>, String> {
+    let mut updates = Vec::new();
+    let mut errors = Vec::new();
+
     match run_cmd(
         "winget",
         &[
-            "list",
-            "--upgrade-available",
+            "upgrade",
+            "--include-unknown",
+            "--include-pinned",
             "--accept-source-agreements",
             "--disable-interactivity",
         ],
@@ -601,15 +753,44 @@ pub async fn scan_software_updates() -> Result<Vec<SoftwareUpdateItem>, String> 
     {
         Ok((stdout, stderr, code)) => {
             if code != 0 {
-                return Err(if stderr.is_empty() {
-                    format!("winget list returned {}", code)
+                errors.push(if stderr.is_empty() {
+                    format!("winget upgrade returned {}", code)
                 } else {
                     stderr
                 });
+            } else {
+                updates.extend(resolve_truncated_winget_ids(parse_winget_upgrade_table(&stdout)).await);
             }
-            Ok(parse_winget_upgrade_table(&stdout))
         }
-        Err(e) => Err(e),
+        Err(e) => errors.push(e),
+    }
+
+    match run_cmd(
+        "choco",
+        &["outdated", "--limit-output", "--no-color"],
+        UPDATE_TIMEOUT,
+    )
+    .await
+    {
+        Ok((stdout, stderr, code)) => {
+            if code == 0 {
+                updates.extend(parse_choco_outdated_table(&stdout));
+            } else if updates.is_empty() && !stderr.is_empty() {
+                errors.push(stderr);
+            }
+        }
+        Err(e) => {
+            if updates.is_empty() {
+                errors.push(e);
+            }
+        }
+    }
+
+    let updates = dedupe_software_updates(updates);
+    if updates.is_empty() && !errors.is_empty() {
+        Err(errors.join(" | "))
+    } else {
+        Ok(updates)
     }
 }
 
@@ -657,12 +838,17 @@ pub async fn update_software_package(
     package_id: String,
     channel: String,
     beta_package_id: Option<String>,
+    source: Option<String>,
 ) -> Result<SoftwareUpdateResult, String> {
     let clean_id = validate_package_id(&package_id)?;
     let clean_channel = channel.trim().to_ascii_lowercase();
     if clean_channel != "stable" && clean_channel != "beta" {
         return Err("Channel must be stable or beta.".to_string());
     }
+    let clean_source = source
+        .unwrap_or_else(|| "winget".to_string())
+        .trim()
+        .to_ascii_lowercase();
 
     let target_id = if clean_channel == "beta" {
         let candidate = beta_package_id.or_else(|| known_beta_package_id(&clean_id));
@@ -674,6 +860,48 @@ pub async fn update_software_package(
     } else {
         clean_id.clone()
     };
+
+    if clean_source == "chocolatey" || clean_source == "choco" {
+        if clean_channel == "beta" {
+            return Ok(SoftwareUpdateResult {
+                success: false,
+                method: "chocolatey-upgrade".to_string(),
+                package_id: clean_id,
+                target_package_id: target_id,
+                channel: clean_channel,
+                output: String::new(),
+                error: "Chocolatey packages do not expose beta channels in WinOpt Pro.".to_string(),
+            });
+        }
+
+        let args = vec!["upgrade", target_id.as_str(), "-y", "--no-progress"];
+        return match run_cmd("choco", &args, UPDATE_TIMEOUT).await {
+            Ok((stdout, stderr, code)) => Ok(SoftwareUpdateResult {
+                success: code == 0,
+                method: "chocolatey-upgrade".to_string(),
+                package_id: clean_id,
+                target_package_id: target_id,
+                channel: clean_channel,
+                output: stdout,
+                error: if code == 0 {
+                    String::new()
+                } else if stderr.is_empty() {
+                    format!("choco returned {}", code)
+                } else {
+                    stderr
+                },
+            }),
+            Err(e) => Ok(SoftwareUpdateResult {
+                success: false,
+                method: "chocolatey-upgrade".to_string(),
+                package_id: clean_id,
+                target_package_id: target_id,
+                channel: clean_channel,
+                output: String::new(),
+                error: e,
+            }),
+        };
+    }
 
     let args = if clean_channel == "beta" {
         vec![
@@ -830,5 +1058,56 @@ pub async fn install_app(winget_id: String, choco_id: String) -> Result<AppInsta
             output: String::new(),
             error: e,
         }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_winget_upgrade_rows_without_fixed_width_columns() {
+        let stdout = r#"
+Name                        Id                          Version   Available Source
+-------------------------------------------------------------------------------
+7-Zip 25.01 (x64)           7zip.7zip                   25.01     26.01     winget
+PowerToys (Preview) x64     XP89DCGQ3K6VLD              0.97.2    0.99.1    msstore
+54 upgrades available.
+"#;
+
+        let items = parse_winget_upgrade_table(stdout);
+
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].name, "7-Zip 25.01 (x64)");
+        assert_eq!(items[0].package_id, "7zip.7zip");
+        assert_eq!(items[1].package_id, "XP89DCGQ3K6VLD");
+        assert_eq!(items[1].source, "msstore");
+    }
+
+    #[test]
+    fn preserves_truncated_winget_ids_for_later_resolution() {
+        let stdout = r#"
+Name                        Id                          Version Available Source
+-----------------------------------------------------------------------------
+CrystalDiskInfo             CrystalDewWorld.CrystalDis… 9.7.2.0 9.9.1     winget
+"#;
+
+        let items = parse_winget_upgrade_table(stdout);
+
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].package_id, "CrystalDewWorld.CrystalDis…");
+    }
+
+    #[test]
+    fn parses_chocolatey_outdated_limit_output() {
+        let stdout = "chocolatey|2.6.0|2.7.2|false\n";
+
+        let items = parse_choco_outdated_table(stdout);
+
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].name, "chocolatey");
+        assert_eq!(items[0].package_id, "chocolatey");
+        assert_eq!(items[0].source, "chocolatey");
+        assert_eq!(items[0].available_version, "2.7.2");
     }
 }

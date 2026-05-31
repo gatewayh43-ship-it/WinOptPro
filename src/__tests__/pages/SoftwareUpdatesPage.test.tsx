@@ -77,6 +77,7 @@ describe("SoftwareUpdatesPage", () => {
                 packageId: "Microsoft.VisualStudioCode",
                 channel: "stable",
                 betaPackageId: "Microsoft.VisualStudioCode.Insiders",
+                source: "winget",
             });
         });
     });
@@ -95,6 +96,7 @@ describe("SoftwareUpdatesPage", () => {
                 packageId: "Microsoft.VisualStudioCode",
                 channel: "beta",
                 betaPackageId: "Microsoft.VisualStudioCode.Insiders",
+                source: "winget",
             });
         });
     });

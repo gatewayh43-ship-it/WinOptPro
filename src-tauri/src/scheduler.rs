@@ -29,6 +29,7 @@ pub struct MaintenanceTask {
 pub struct SoftwareUpdateAutomationPackage {
     pub package_id: String,
     pub beta_package_id: Option<String>,
+    pub source: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -202,6 +203,10 @@ fn normalize_automation_settings(
                     .beta_package_id
                     .map(|id| validate_package_id(&id))
                     .transpose()?,
+                source: pkg
+                    .source
+                    .map(|source| source.trim().to_ascii_lowercase())
+                    .filter(|source| source == "winget" || source == "msstore" || source == "chocolatey"),
             })
         })
         .collect::<Result<_, String>>()?;
@@ -247,9 +252,11 @@ $common = @('--silent', '--accept-package-agreements', '--accept-source-agreemen
 
     script.push_str("Write-WinOptLog 'Starting software update automation.'\n");
     script.push_str("& winget source update --disable-interactivity 2>&1 | Tee-Object -FilePath $log -Append\n");
+    script.push_str("$hasChoco = [bool](Get-Command choco -ErrorAction SilentlyContinue)\n");
 
     if settings.scope == "all" && settings.channel == "stable" {
         script.push_str("& winget upgrade --all @common 2>&1 | Tee-Object -FilePath $log -Append\n");
+        script.push_str("if ($hasChoco) { & choco upgrade all -y --no-progress 2>&1 | Tee-Object -FilePath $log -Append }\n");
     } else {
         for package in &settings.packages {
             let target = if settings.channel == "beta" {
@@ -258,7 +265,12 @@ $common = @('--silent', '--accept-package-agreements', '--accept-source-agreemen
                 &package.package_id
             };
             let target = escape_ps_single(target);
-            if settings.channel == "beta" {
+            let source = package.source.as_deref().unwrap_or("winget");
+            if source == "chocolatey" && settings.channel == "stable" {
+                script.push_str(&format!(
+                    "Write-WinOptLog 'Upgrading Chocolatey package {target}.'\nif ($hasChoco) {{ & choco upgrade '{target}' -y --no-progress 2>&1 | Tee-Object -FilePath $log -Append }} else {{ Write-WinOptLog 'Chocolatey is not installed; skipped {target}.' }}\n"
+                ));
+            } else if settings.channel == "beta" {
                 script.push_str(&format!(
                     "Write-WinOptLog 'Installing beta channel {target}.'\n& winget install --id '{target}' -e @common 2>&1 | Tee-Object -FilePath $log -Append\n"
                 ));
