@@ -22,6 +22,14 @@
 .PARAMETER TestFilter
     Playwright test filter (e.g., "tweaks-lifecycle" to run only lifecycle tests)
 
+.PARAMETER FeaturesFilter
+    Playwright grep filter for features-direct.spec.ts when -FeaturesVerify is used.
+    Useful for re-running only one failing feature verifier, e.g. "Network Analyzer".
+
+.PARAMETER SkipUiTests
+    Skip the main Playwright UI suite while still starting the dev server. Use with
+    -FeaturesVerify and -FeaturesFilter for fast feature verifier debugging.
+
 .PARAMETER DirectVerify
     After the UI test suite, also run vm-tweak-direct.spec.ts and the
     production-readiness gate. Direct tweak tests apply and revert every tweak
@@ -48,6 +56,7 @@
     .\vm-test-runner.ps1                                            # UI tests only
     .\vm-test-runner.ps1 -DirectVerifyOnly                          # Direct tweak verification only
     .\vm-test-runner.ps1 -SkipRestore -DirectVerify -FeaturesVerify # Full re-run without restoring
+    .\vm-test-runner.ps1 -SkipRestore -SkipUiTests -FeaturesVerify -FeaturesFilter "Network Analyzer" -NoOpenReport
     .\vm-test-runner.ps1 -DirectVerify -FeaturesVerify -NoOpenReport # Fully unattended full run
 #>
 
@@ -56,7 +65,10 @@ param(
     [string]$Checkpoint = "01-TestReady",
     [switch]$SkipRestore,
     [string]$TestFilter = "",
+    [string]$FeaturesFilter = "",
     [string]$ProjectDir = "F:\WinOpt\WinOptimizerRevamp",
+    # Skip the main UI suite but keep the dev server available for feature verifier runs
+    [switch]$SkipUiTests,
     # Run the direct PowerShell tweak verification (applies/reverts every tweak, checks actual system state)
     [switch]$DirectVerify,
     # Run ONLY the direct verification, skipping UI tests and dev server
@@ -500,7 +512,7 @@ Remove-PSSession $session
 
 $testExitCode = 0
 
-if (-not $DirectVerifyOnly) {
+if (-not $DirectVerifyOnly -and -not $SkipUiTests) {
     Write-Host ""
     Write-Host "[5/7] Running Playwright UI tests..." -ForegroundColor Yellow
     Write-Host "  Target: http://${vmIP}:1420" -ForegroundColor DarkGray
@@ -630,7 +642,8 @@ exit `$code
     }
 } else {
     Write-Host ""
-    Write-Host "[5/7] Skipping UI tests (DirectVerifyOnly mode)" -ForegroundColor DarkGray
+    $skipReason = if ($DirectVerifyOnly) { "DirectVerifyOnly mode" } else { "SkipUiTests mode" }
+    Write-Host "[5/7] Skipping UI tests ($skipReason)" -ForegroundColor DarkGray
 }
 
 # --- Step 6: Direct Tweak Verification ----------------------------------------
@@ -782,12 +795,16 @@ $featuresExitCode = 0
 if ($FeaturesVerify) {
     Write-Host ""
     Write-Host "[6.5/7] Running features direct verification (UI + bridge for Group A features)..." -ForegroundColor Yellow
+    if (-not [string]::IsNullOrWhiteSpace($FeaturesFilter)) {
+        Write-Host "  Filter: $FeaturesFilter" -ForegroundColor DarkGray
+    }
     Write-Host "  Results: $ProjectDir\test-results\features-direct\features-summary.json" -ForegroundColor DarkGray
     Write-Host ""
 
     $session = New-WinOptVmSession
     try {
-        $featuresProcessId = Invoke-Command -Session $session -ScriptBlock {
+        $featuresProcessId = Invoke-Command -Session $session -ArgumentList $FeaturesFilter -ScriptBlock {
+            param($Filter)
             $project   = "C:\WinOpt\WinOptimizerRevamp"
             $nodeDir   = "C:\WinOpt\tools\nodejs"
             $playwrightCli = Join-Path $project "node_modules\playwright\cli.js"
@@ -799,6 +816,7 @@ if ($FeaturesVerify) {
             Remove-Item -Path "C:\WinOpt\features-playwright.log" -Force -ErrorAction SilentlyContinue
             Remove-Item -Path "C:\WinOpt\features-exitcode.txt"   -Force -ErrorAction SilentlyContinue
 
+            $filterEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Filter))
             $script = @"
 `$ErrorActionPreference = 'Continue'
 if (Test-Path '$nodeDir') { `$env:Path = '$nodeDir;' + `$env:Path }
@@ -809,7 +827,12 @@ if (Test-Path '$nodeDir') { `$env:Path = '$nodeDir;' + `$env:Path }
 Remove-Item Env:VM_NAME -ErrorAction SilentlyContinue
 Remove-Item Env:WINOPT_VM_PASSWORD -ErrorAction SilentlyContinue
 Set-Location '$project'
-& `$nodeExe '$playwrightCli' test features-direct --config=playwright.vm.config.ts *> 'C:\WinOpt\features-playwright.log'
+`$featuresArgs = @('test', 'features-direct', '--config=playwright.vm.config.ts')
+`$filter = [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$filterEncoded'))
+if (-not [string]::IsNullOrWhiteSpace(`$filter)) {
+    `$featuresArgs += @('--grep', `$filter)
+}
+& `$nodeExe '$playwrightCli' @featuresArgs *> 'C:\WinOpt\features-playwright.log'
 `$code = if (`$null -eq `$LASTEXITCODE) { 1 } else { `$LASTEXITCODE }
 Set-Content -Path 'C:\WinOpt\features-exitcode.txt' -Value `$code -Encoding ASCII
 exit `$code
