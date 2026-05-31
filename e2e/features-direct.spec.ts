@@ -264,6 +264,62 @@ $lat = if ($r) { [double](($r | Measure-Object -Property ResponseTime -Average).
 `, { host: String(args.host || '127.0.0.1'), latencyMs: 0, minMs: 0, maxMs: 0, jitterMs: 0, packetLossPct: 0, success: true });
         }
 
+        case 'run_speed_test':
+            return runJson(`
+$start = Get-Date
+$bytes = 1000000
+try {
+  $r = Invoke-WebRequest -Uri 'https://speed.cloudflare.com/__down?bytes=1000000' -UseBasicParsing -TimeoutSec 20
+  if ($r.RawContentLength -gt 0) { $bytes = [int64]$r.RawContentLength }
+} catch {}
+$elapsed = [Math]::Max(((Get-Date) - $start).TotalSeconds, 0.1)
+$download = [Math]::Round(($bytes * 8) / ($elapsed * 1000000), 1)
+[pscustomobject]@{
+  downloadMbps=$download; pingMs=1; jitterMs=0.2; packetLossPct=0;
+  serverName='Cloudflare'; bytesDownloaded=$bytes
+} | ConvertTo-Json -Depth 4
+`, { downloadMbps: 10, pingMs: 1, jitterMs: 0.2, packetLossPct: 0, serverName: 'Cloudflare', bytesDownloaded: 1000000 });
+
+        case 'scan_network_optimizer':
+            return runJson(`
+$adapters = Get-NetAdapter -ErrorAction SilentlyContinue | Select-Object -First 5 | ForEach-Object {
+  $ip = (Get-NetIPAddress -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue | Select-Object -First 1).IPAddress
+  [pscustomobject]@{
+    name=$_.Name; description=$_.InterfaceDescription; status=$_.Status; linkSpeed=$_.LinkSpeed;
+    macAddress=$_.MacAddress; ifIndex=$_.ifIndex; mediaType=''; physicalMediaType='';
+    ipv4=$(if ($ip) { $ip } else { 'Not Connected' }); mtu=$null; metric=$null; dhcp='';
+    dnsServers=@(); rssEnabled=$null; receivedBytes=0; transmittedBytes=0; advancedProperties=@()
+  }
+}
+if (@($adapters).Count -eq 0) {
+  $adapters = @([pscustomobject]@{ name='Ethernet'; description='VM Adapter'; status='Up'; linkSpeed='1 Gbps'; macAddress=''; ifIndex=1; mediaType=''; physicalMediaType=''; ipv4='127.0.0.1'; mtu=$null; metric=10; dhcp=''; dnsServers=@(); rssEnabled=$null; receivedBytes=0; transmittedBytes=0; advancedProperties=@() })
+}
+[pscustomobject]@{
+  generatedAt=(Get-Date).ToString('o');
+  adapters=@($adapters);
+  wifi=$null;
+  tcp=[pscustomobject]@{ activeSetting='Internet'; autoTuningLevel='Normal'; congestionProvider=''; ecnCapability='Disabled'; scalingHeuristics='Disabled' };
+  offload=[pscustomobject]@{ receiveSegmentCoalescing=''; receiveSideScaling=''; chimney=''; taskOffload='' };
+  routes=@();
+  probes=@([pscustomobject]@{ host='127.0.0.1'; latencyMs=1; maxMs=1; minMs=1; jitterMs=0; packetLossPct=0; success=$true });
+  dnsBenchmarks=@();
+  activeTalkers=@();
+  recommendations=@(
+    [pscustomobject]@{
+      id='dns_explicit_resolver'; title='Use an explicit fast DNS resolver where appropriate';
+      summary='DNS changes improve lookup time and reliability.'; evidence='Cloudflare is available.';
+      risk='SAFE'; category='DNS'; impact='Improves browsing and app lookup reliability.';
+      action=[pscustomobject]@{ actionId='set_dns_cloudflare'; label='Set Cloudflare DNS'; requiresAdmin=$true; reversible=$true };
+      appliesToProfiles=@('privacy_dns')
+    }
+  );
+  profiles=@()
+} | ConvertTo-Json -Depth 8
+`, null);
+
+        case 'apply_network_optimizer_action':
+            return { success: true, title: 'Network action applied', message: 'Updated adapter settings.', stdout: '', revertActionId: null };
+
         case 'get_latency_status':
             return { timerResolution100ns: 10000, minResolution100ns: 156250, maxResolution100ns: 5000, standbyRamMb: 512, dynamicTickDisabled: false, platformClockForced: false };
 
@@ -816,20 +872,22 @@ test.describe('Network Analyzer', () => {
 
         // The page renders interface cards and a ping widget
         await expect(page.getByText(/Network.*Analyzer|Latency Test/i).first()).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText(/Internet Speed Test/i)).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText(/Quick Optimizations/i)).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText(/Active Adapters/i)).toBeVisible({ timeout: 10000 });
         await page.waitForTimeout(2000); // let interfaces load
 
-        // At least one interface name should appear; check for any non-empty text
-        // in interface card section (lg:col-span-2 grid)
-        const interfaceSection = page.locator('.lg\\:col-span-2, .col-span-2').first();
-        const hasInterfaces = await interfaceSection.isVisible().catch(() => false);
+        const adapterInventoryVisible = await page.getByText(/\d+ Found/i).first().isVisible({ timeout: 5000 }).catch(() => false);
 
         record({
             feature: 'NetworkAnalyzer',
-            test: 'interface cards render',
-            status: hasInterfaces ? 'PASS' : 'WARN',
+            test: 'interface cards render with speed test and optimizer controls',
+            status: adapterInventoryVisible ? 'PASS' : 'FAIL',
             durationMs: Date.now() - start,
-            note: !hasInterfaces ? 'Interface section not found — may be empty or hidden' : undefined,
+            error: !adapterInventoryVisible ? 'Active adapter inventory count was not visible' : undefined,
         });
+
+        expect(adapterInventoryVisible).toBe(true);
     });
 
     test('ping 127.0.0.1 returns latency ≥ 0 ms', async ({ page }) => {
