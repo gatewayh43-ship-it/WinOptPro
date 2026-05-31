@@ -178,6 +178,12 @@ test.describe('Performance Page — Complete Functional Test', () => {
         await greenBtn.click();
         const visibleCards = page.locator('[data-tweak-category="Performance"]:visible');
         await expect.poll(async () => visibleCards.count(), { timeout: 15000 }).toBeGreaterThan(0);
+        await expect.poll(async () => {
+            const risks = await visibleCards.evaluateAll((cards) =>
+                cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
+            );
+            return risks.filter((risk) => risk !== 'Green').length;
+        }, { timeout: 15000 }).toBe(0);
 
         const risks = await visibleCards.evaluateAll((cards) =>
             cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
@@ -192,6 +198,12 @@ test.describe('Performance Page — Complete Functional Test', () => {
             await yellowBtn.click();
             const visibleCards = page.locator('[data-tweak-category="Performance"]:visible');
             await expect.poll(async () => visibleCards.count(), { timeout: 15000 }).toBeGreaterThan(0);
+            await expect.poll(async () => {
+                const risks = await visibleCards.evaluateAll((cards) =>
+                    cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
+                );
+                return risks.filter((risk) => risk !== 'Yellow').length;
+            }, { timeout: 15000 }).toBe(0);
 
             const risks = await visibleCards.evaluateAll((cards) =>
                 cards.map((card) => card.getAttribute('data-tweak-risk')).filter(Boolean)
