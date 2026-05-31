@@ -27,9 +27,14 @@ const __dirname = path.dirname(__filename);
 const USE_VM_BRIDGE = process.env.VM_BRIDGE === 'true';
 const VM_NAME = process.env.VM_NAME || 'WinOpt-TestVM';
 const LOG_DIR = path.resolve(__dirname, '../test-results/features-direct');
+const SUMMARY_PATH = path.join(LOG_DIR, 'features-summary.json');
 
 if (!fs.existsSync(LOG_DIR)) {
     fs.mkdirSync(LOG_DIR, { recursive: true });
+}
+
+if ((process.env.TEST_WORKER_INDEX ?? '0') === '0') {
+    fs.rmSync(SUMMARY_PATH, { force: true });
 }
 
 const bridge = USE_VM_BRIDGE
@@ -401,33 +406,18 @@ async function installBrowserTauriBridge(page: Page) {
 
 // ─── UI helpers ───────────────────────────────────────────────────────────────
 
-async function skipOnboarding(page: Page) {
+async function skipOnboarding(page: Page, initialView?: string) {
     await installBrowserTauriBridge(page);
     await page.addInitScript(() => {
         window.localStorage.setItem('consent-accepted', 'true');
         window.localStorage.setItem('onboardingComplete', 'true');
     });
-    await page.goto('/');
+    await page.goto(initialView ? `/?view=${encodeURIComponent(initialView)}` : '/');
 }
 
 async function navigateTo(page: Page, label: string) {
     await page.getByTitle(label, { exact: true }).click();
     await page.waitForTimeout(400);
-}
-
-async function navigateToReady(page: Page, label: string, ready: Locator) {
-    const navItem = page.getByTitle(label, { exact: true }).first();
-    await expect(navItem).toBeVisible({ timeout: 10000 });
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-        await navItem.click({ force: true });
-        await page.waitForTimeout(700);
-        if (await ready.first().isVisible({ timeout: 1000 }).catch(() => false)) {
-            return;
-        }
-    }
-
-    await expect(ready.first()).toBeVisible({ timeout: 10000 });
 }
 
 async function visible(locator: Locator, timeout = 5000): Promise<boolean> {
@@ -456,25 +446,29 @@ test.afterEach(({}, testInfo: TestInfo) => {
 });
 
 test.afterAll(() => {
-    const passed  = allResults.filter(r => r.status === 'PASS').length;
-    const failed  = allResults.filter(r => r.status === 'FAIL').length;
-    const skipped = allResults.filter(r => r.status === 'SKIP').length;
-    const warned  = allResults.filter(r => r.status === 'WARN').length;
+    const existing = fs.existsSync(SUMMARY_PATH)
+        ? parseJson<{ results?: FeatureResult[] }>(fs.readFileSync(SUMMARY_PATH, 'utf8'), {})
+        : {};
+    const mergedResults = [...(existing.results ?? []), ...allResults];
+    const passed  = mergedResults.filter(r => r.status === 'PASS').length;
+    const failed  = mergedResults.filter(r => r.status === 'FAIL').length;
+    const skipped = mergedResults.filter(r => r.status === 'SKIP').length;
+    const warned  = mergedResults.filter(r => r.status === 'WARN').length;
 
     const summary = {
         mode: 'vm-ui',
         vm: USE_VM_BRIDGE ? VM_NAME : 'localhost',
-        total: allResults.length,
+        total: mergedResults.length,
         passed,
         failed,
         skipped,
         warned,
         timestamp: new Date().toISOString(),
-        results: allResults,
+        results: mergedResults,
     };
 
     fs.writeFileSync(
-        path.join(LOG_DIR, 'features-summary.json'),
+        SUMMARY_PATH,
         JSON.stringify(summary, null, 2)
     );
 
@@ -818,8 +812,7 @@ test.describe('Network Analyzer', () => {
 
     test('interface cards render with name and status', async ({ page }) => {
         const start = Date.now();
-        await skipOnboarding(page);
-        await navigateToReady(page, 'Network Analyzer', page.getByText(/Latency Test/i));
+        await skipOnboarding(page, 'network');
 
         // The page renders interface cards and a ping widget
         await expect(page.getByText(/Network.*Analyzer|Latency Test/i).first()).toBeVisible({ timeout: 10000 });
@@ -841,8 +834,7 @@ test.describe('Network Analyzer', () => {
 
     test('ping 127.0.0.1 returns latency ≥ 0 ms', async ({ page }) => {
         const start = Date.now();
-        await skipOnboarding(page);
-        await navigateToReady(page, 'Network Analyzer', page.getByText(/Latency Test/i));
+        await skipOnboarding(page, 'network');
 
         await expect(page.getByText(/Network.*Analyzer|Latency Test/i).first()).toBeVisible({ timeout: 10000 });
         await expect(page.getByRole('heading', { name: 'Latency Test', exact: true })).toBeVisible({ timeout: 10000 });

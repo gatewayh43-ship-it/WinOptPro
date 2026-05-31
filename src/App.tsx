@@ -129,7 +129,10 @@ function BootErrorReporter() {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState("home");
+  const [currentView, setCurrentView] = useState(() => {
+    const view = new URLSearchParams(window.location.search).get("view");
+    return view?.trim() || "home";
+  });
   const [showConsent, setShowConsent] = useState(() => !hasItem(STORAGE_KEYS.CONSENT));
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
