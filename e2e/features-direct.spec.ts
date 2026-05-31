@@ -251,7 +251,7 @@ $items = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object Status -eq 
   [pscustomobject]@{ name=$_.Name; macAddress=$_.MacAddress; receivedBytes=0; transmittedBytes=0; ipV4=$ip }
 }
 if (@($items).Count -eq 0) { $items = @([pscustomobject]@{ name='Loopback'; macAddress='00-00-00-00-00-00'; receivedBytes=0; transmittedBytes=0; ipV4='127.0.0.1' }) }
-@($items) | ConvertTo-Json -Depth 5
+ConvertTo-Json -InputObject @($items) -Depth 5
 `, []);
 
         case 'ping_host': {

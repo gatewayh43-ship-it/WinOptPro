@@ -20,9 +20,52 @@ export interface PingResult {
     success: boolean;
 }
 
+function toNumber(value: unknown): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function toNetworkInterface(value: unknown, fallbackName = ""): NetworkInterface | null {
+    if (!value || typeof value !== "object") return null;
+    const item = value as Record<string, unknown>;
+    const name = String(item.name ?? fallbackName).trim();
+    if (!name) return null;
+
+    return {
+        name,
+        macAddress: String(item.macAddress ?? item.mac_address ?? ""),
+        receivedBytes: toNumber(item.receivedBytes ?? item.received_bytes),
+        transmittedBytes: toNumber(item.transmittedBytes ?? item.transmitted_bytes),
+        ipV4: String(item.ipV4 ?? item.ip_v4 ?? item.ipv4 ?? ""),
+    };
+}
+
+export function normalizeNetworkInterfaces(value: unknown): NetworkInterface[] {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => toNetworkInterface(item))
+            .filter((item): item is NetworkInterface => item !== null);
+    }
+
+    if (value && typeof value === "object") {
+        const item = toNetworkInterface(value);
+        if (item) return [item];
+
+        return Object.entries(value as Record<string, unknown>)
+            .map(([name, entry]) => toNetworkInterface(entry, name))
+            .filter((entry): entry is NetworkInterface => entry !== null);
+    }
+
+    return [];
+}
+
 export function useNetwork() {
-    const [interfaces, setInterfaces] = useState<NetworkInterface[]>(() => useGlobalCache.getState().getCacheObject("network") || []);
-    const [isLoading, setIsLoading] = useState(() => !useGlobalCache.getState().getCacheObject("network"));
+    const [interfaces, setInterfaces] = useState<NetworkInterface[]>(() =>
+        normalizeNetworkInterfaces(useGlobalCache.getState().getCacheObject("network"))
+    );
+    const [isLoading, setIsLoading] = useState(() =>
+        normalizeNetworkInterfaces(useGlobalCache.getState().getCacheObject("network")).length === 0
+    );
     const [error, setError] = useState<string | null>(null);
 
     const [pinging, setPinging] = useState(false);
@@ -32,8 +75,9 @@ export function useNetwork() {
     const fetchInterfaces = useCallback(async (force = false) => {
         if (!force) {
             const cached = useGlobalCache.getState().getCacheObject("network");
-            if (Array.isArray(cached) && cached.length > 0) {
-                setInterfaces(cached);
+            const cachedInterfaces = normalizeNetworkInterfaces(cached);
+            if (cachedInterfaces.length > 0) {
+                setInterfaces(cachedInterfaces);
                 setIsLoading(false);
                 return;
             }
@@ -45,7 +89,7 @@ export function useNetwork() {
                 setError("Network interface inventory requires the WinOpt Pro desktop runtime.");
                 return;
             }
-            const data = await invoke<NetworkInterface[]>("get_network_interfaces");
+            const data = normalizeNetworkInterfaces(await invoke<unknown>("get_network_interfaces"));
             setInterfaces(data);
             useGlobalCache.getState().setCacheObject("network", data);
             setError(null);

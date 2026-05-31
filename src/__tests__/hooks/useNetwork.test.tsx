@@ -35,6 +35,19 @@ describe("useNetwork", () => {
         expect(tauriCore.invoke).toHaveBeenCalledWith("get_network_interfaces");
     });
 
+    it("normalizes a single interface object from PowerShell JSON", async () => {
+        vi.mocked(tauriCore.invoke).mockImplementation(async (cmd) => {
+            if (cmd === "get_network_interfaces") return mockInterfaces[0];
+            if (cmd === "ping_host") return mockPingResult;
+            return null;
+        });
+
+        const { result } = renderHook(() => useNetwork());
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        expect(result.current.interfaces).toEqual([mockInterfaces[0]]);
+    });
+
     it("sets isLoading false after fetch", async () => {
         const { result } = renderHook(() => useNetwork());
         await waitFor(() => expect(result.current.isLoading).toBe(false));
