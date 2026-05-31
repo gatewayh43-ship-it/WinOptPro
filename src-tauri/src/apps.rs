@@ -5,9 +5,10 @@ use tauri::command;
 use tokio::process::Command;
 use tokio::time::{timeout, Duration};
 
-const INSTALL_TIMEOUT: Duration = Duration::from_secs(120);
+const INSTALL_TIMEOUT: Duration = Duration::from_secs(20 * 60);
 const CHECK_TIMEOUT: Duration = Duration::from_secs(15);
-const UPDATE_TIMEOUT: Duration = Duration::from_secs(180);
+const UPDATE_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 // ── Return types ────────────────────────────────────────────────────────────
 
@@ -88,14 +89,15 @@ async fn run_cmd(
     args: &[&str],
     time_limit: Duration,
 ) -> Result<(String, String, i32), String> {
-    let child = Command::new(program)
+    let executable = resolve_windows_tool(program).unwrap_or_else(|| program.to_string());
+    let child = Command::new(&executable)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .kill_on_drop(true)
-        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .creation_flags(CREATE_NO_WINDOW)
         .spawn()
-        .map_err(|e| format!("Failed to spawn {}: {}", program, e))?;
+        .map_err(|e| format!("Failed to start {}. Make sure it is installed and available for this Windows user. Details: {}", program, e))?;
 
     let output = timeout(time_limit, child.wait_with_output())
         .await
@@ -107,6 +109,48 @@ async fn run_cmd(
     let exit_code = output.status.code().unwrap_or(-1);
 
     Ok((stdout, stderr, exit_code))
+}
+
+#[cfg(target_os = "windows")]
+fn resolve_windows_tool(program: &str) -> Option<String> {
+    if program.eq_ignore_ascii_case("winget") {
+        return resolve_winget();
+    }
+    if program.eq_ignore_ascii_case("choco") {
+        return resolve_choco();
+    }
+    None
+}
+
+#[cfg(target_os = "windows")]
+fn resolve_winget() -> Option<String> {
+    let mut candidates = Vec::new();
+    if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+        candidates.push(format!(r"{}\Microsoft\WindowsApps\winget.exe", local_app_data));
+    }
+    if let Ok(user_profile) = std::env::var("USERPROFILE") {
+        candidates.push(format!(r"{}\AppData\Local\Microsoft\WindowsApps\winget.exe", user_profile));
+    }
+    if let Ok(program_files) = std::env::var("ProgramFiles") {
+        if let Ok(entries) = std::fs::read_dir(format!(r"{}\WindowsApps", program_files)) {
+            for entry in entries.flatten() {
+                let name = entry.file_name().to_string_lossy().to_string();
+                if name.starts_with("Microsoft.DesktopAppInstaller_") && name.ends_with("__8wekyb3d8bbwe") {
+                    candidates.push(entry.path().join("winget.exe").to_string_lossy().to_string());
+                }
+            }
+        }
+    }
+    candidates.into_iter().find(|path| std::path::Path::new(path).exists())
+}
+
+#[cfg(target_os = "windows")]
+fn resolve_choco() -> Option<String> {
+    let mut candidates = Vec::new();
+    if let Ok(program_data) = std::env::var("ProgramData") {
+        candidates.push(format!(r"{}\chocolatey\bin\choco.exe", program_data));
+    }
+    candidates.into_iter().find(|path| std::path::Path::new(path).exists())
 }
 
 fn validate_winget_search_query(query: &str) -> Result<String, String> {
@@ -237,7 +281,7 @@ pub async fn search_winget(query: String) -> Result<Vec<WingetSearchResult>, Str
 
     match run_cmd(
         "winget",
-        &["search", &clean_query, "--accept-source-agreements"],
+        &["search", &clean_query, "--accept-source-agreements", "--disable-interactivity"],
         CHECK_TIMEOUT,
     )
     .await
@@ -294,7 +338,7 @@ pub async fn get_winget_info(id: String) -> Result<WingetAppInfo, String> {
 
     match run_cmd(
         "winget",
-        &["show", "--id", &clean_id, "--accept-source-agreements"],
+        &["show", "--id", &clean_id, "-e", "--accept-source-agreements", "--disable-interactivity"],
         CHECK_TIMEOUT,
     )
     .await
@@ -585,7 +629,7 @@ pub async fn check_app_installed(winget_id: String) -> Result<AppCheckResult, St
     // Try winget first
     match run_cmd(
         "winget",
-        &["list", "--id", &winget_id, "--accept-source-agreements"],
+        &["list", "--id", &winget_id, "-e", "--accept-source-agreements", "--disable-interactivity"],
         CHECK_TIMEOUT,
     )
     .await
@@ -709,8 +753,10 @@ pub async fn install_app(winget_id: String, choco_id: String) -> Result<AppInsta
             "install",
             "--id",
             &winget_id,
+            "-e",
             "--accept-package-agreements",
             "--accept-source-agreements",
+            "--disable-interactivity",
             "--silent",
         ],
         INSTALL_TIMEOUT,

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, Lock, Trash2 } from "lucide-react";
-import { invoke } from "@tauri-apps/api/core";
+import { Palette, Shield, RotateCcw, Gauge, AlertTriangle, X, Sparkles, Loader2, Archive, Upload, Download, Info, Settings, Lock, Trash2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Channel, invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../store/appStore";
 import { useTheme, ThemeName } from "../hooks/useTheme";
 import { useToast } from "../components/ToastSystem";
@@ -33,7 +33,23 @@ const THEMES = [
     { id: "light-amber",   label: "Amber",    group: "classic-light" as const, color: "#f59e0b" },
     { id: "light-emerald", label: "Emerald",  group: "classic-light" as const, color: "#10b981" },
     { id: "light-violet",  label: "Violet",   group: "classic-light" as const, color: "#8b5cf6" },
+    // Signature
+    { id: "claude",        label: "Claude",    group: "signature"     as const, color: "#c96a2a" },
+    { id: "fluent",        label: "Fluent",    group: "signature"     as const, color: "#0078d4" },
+    { id: "cyberpunk",     label: "Cyber",     group: "signature"     as const, color: "#22d3ee" },
 ] as const;
+
+type UpdateInfo = {
+    version: string;
+    date?: string | null;
+    body?: string | null;
+    download_url?: string | null;
+};
+
+type DownloadProgress =
+    | { event: "Started"; data?: { content_length?: number | null } }
+    | { event: "Progress"; data?: { downloaded?: number; total?: number | null } }
+    | { event: "Finished"; data?: null };
 
 function ThemeSwatch({ entry, active, onClick }: {
     entry: { id: string; label: string; color: string };
@@ -300,6 +316,136 @@ function DataPrivacySection() {
     );
 }
 
+function AppUpdatesSection() {
+    const { addToast } = useToast();
+    const [isChecking, setIsChecking] = useState(false);
+    const [isInstalling, setIsInstalling] = useState(false);
+    const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+    const [statusText, setStatusText] = useState("Ready to check GitHub Releases for signed WinOpt Pro updates.");
+    const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+
+    const handleCheckForUpdates = async () => {
+        setIsChecking(true);
+        setDownloadProgress(null);
+        setStatusText("Checking GitHub Releases...");
+        try {
+            const update = await invoke<UpdateInfo | null>("check_for_update");
+            setUpdateInfo(update);
+            if (update) {
+                setStatusText(`Version ${update.version} is available.`);
+                addToast({ type: "success", title: "Update available", message: `WinOpt Pro ${update.version} is ready to install.` });
+            } else {
+                setStatusText("WinOpt Pro is up to date.");
+                addToast({ type: "success", title: "Up to date", message: "You are running the latest available version." });
+            }
+        } catch (e) {
+            const message = String(e);
+            setStatusText(message);
+            addToast({ type: "error", title: "Update check failed", message });
+        } finally {
+            setIsChecking(false);
+        }
+    };
+
+    const handleInstallUpdate = async () => {
+        setIsInstalling(true);
+        setDownloadProgress(0);
+        setStatusText("Downloading update...");
+        try {
+            const onProgress = new Channel<DownloadProgress>();
+            onProgress.onmessage = (event) => {
+                if (event.event === "Started") {
+                    setStatusText("Downloading update...");
+                    setDownloadProgress(0);
+                    return;
+                }
+
+                if (event.event === "Progress") {
+                    const downloaded = event.data?.downloaded ?? 0;
+                    const total = event.data?.total ?? null;
+                    if (total && total > 0) {
+                        const percent = Math.min(100, Math.round((downloaded / total) * 100));
+                        setDownloadProgress(percent);
+                        setStatusText(`Downloading update (${percent}%)...`);
+                    } else {
+                        setStatusText("Downloading update...");
+                    }
+                    return;
+                }
+
+                setDownloadProgress(100);
+                setStatusText("Installing update and restarting WinOpt Pro...");
+            };
+
+            await invoke("download_and_install_update", { onProgress });
+        } catch (e) {
+            const message = String(e);
+            setStatusText(message);
+            addToast({ type: "error", title: "Update install failed", message });
+            setIsInstalling(false);
+        }
+    };
+
+    return (
+        <SettingSection icon={RefreshCw} title="App Updates" description="Check GitHub Releases and install signed WinOpt Pro updates.">
+            <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
+                            GitHub Release Updates
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+                            {statusText}
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleCheckForUpdates}
+                        disabled={isChecking || isInstalling}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-[12px] font-bold transition-colors disabled:opacity-50 shrink-0"
+                    >
+                        {isChecking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        Check
+                    </button>
+                </div>
+
+                {updateInfo && (
+                    <div className="border-t border-border/50 pt-4 space-y-3">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <p className="text-[13px] font-semibold text-emerald-400 flex items-center gap-2">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    WinOpt Pro {updateInfo.version}
+                                </p>
+                                {updateInfo.body && (
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-300 mt-1 line-clamp-3">
+                                        {updateInfo.body}
+                                    </p>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleInstallUpdate}
+                                disabled={isInstalling}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[12px] font-bold transition-colors disabled:opacity-50 shrink-0"
+                            >
+                                {isInstalling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                                Install
+                            </button>
+                        </div>
+                        {downloadProgress !== null && (
+                            <div className="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                                <div
+                                    className="h-full bg-emerald-400 transition-all"
+                                    style={{ width: `${downloadProgress}%` }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </SettingSection>
+    );
+}
+
 export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }) {
     const { userSettings, updateSettings } = useAppStore();
     const { theme, setTheme } = useTheme();
@@ -439,6 +585,21 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             </div>
                         </div>
 
+                        {/* Signature themes */}
+                        <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Signature Themes</p>
+                            <div className="flex flex-wrap gap-3">
+                                {THEMES.filter(t => t.group === "signature").map(t => (
+                                    <ThemeSwatch
+                                        key={t.id}
+                                        entry={t}
+                                        active={theme === t.id}
+                                        onClick={() => setTheme(t.id as ThemeName)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
                     </SettingSection>
 
                     {/* System Monitoring */}
@@ -543,6 +704,9 @@ export function SettingsPage({ onTriggerGuide }: { onTriggerGuide?: () => void }
                             </div>
                         )}
                     </SettingSection>
+
+                    {/* App Updates */}
+                    <AppUpdatesSection />
 
                     {/* Backup & Restore */}
                     <BackupSection />

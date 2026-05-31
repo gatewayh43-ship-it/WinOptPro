@@ -5,6 +5,7 @@ use tokio::process::Command;
 use tokio::time::{timeout, Duration};
 
 const ELEVATION_TIMEOUT: Duration = Duration::from_secs(60);
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -69,6 +70,8 @@ try {{
             .args([
                 "-NoProfile",
                 "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
                 "-ExecutionPolicy",
                 "Bypass",
                 "-Command",
@@ -80,6 +83,7 @@ try {{
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true)
+            .creation_flags(CREATE_NO_WINDOW)
             .spawn()
             .map_err(|e| format!("Failed to spawn elevated process: {}", e))?;
 
@@ -140,6 +144,8 @@ pub async fn defender_get_status() -> Result<DefenderStatus, String> {
             .args([
                 "-NoProfile",
                 "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
                 "-Command",
                 r#"
                 $status = Get-MpComputerStatus
@@ -152,6 +158,7 @@ pub async fn defender_get_status() -> Result<DefenderStatus, String> {
                 } | ConvertTo-Json
                 "#,
             ])
+            .creation_flags(CREATE_NO_WINDOW)
             .output()
             .await
             .map_err(|e| format!("Failed to execute powershell: {}", e))?;

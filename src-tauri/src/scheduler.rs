@@ -89,7 +89,7 @@ fn run_cmd(args: &[&str]) -> std::io::Result<std::process::Output> {
 
 fn run_ps(cmd: &str) -> String {
     Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-Command", cmd])
+        .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", cmd])
         .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
@@ -143,8 +143,22 @@ fn validate_schedule_time(time: &str) -> Result<String, String> {
 fn program_data_path(file_name: &str) -> Result<PathBuf, String> {
     let root = std::env::var("PROGRAMDATA").unwrap_or_else(|_| "C:\\ProgramData".to_string());
     let dir = PathBuf::from(root).join(SOFTWARE_UPDATE_DIR);
-    fs::create_dir_all(&dir).map_err(|e| format!("Failed to create WinOpt data directory: {}", e))?;
-    Ok(dir.join(file_name))
+    match fs::create_dir_all(&dir) {
+        Ok(_) => Ok(dir.join(file_name)),
+        Err(program_data_error) => {
+            let local_root = std::env::var("LOCALAPPDATA")
+                .or_else(|_| std::env::var("TEMP"))
+                .map_err(|_| format!("Failed to create WinOpt data directory: {}", program_data_error))?;
+            let local_dir = PathBuf::from(local_root).join(SOFTWARE_UPDATE_DIR);
+            fs::create_dir_all(&local_dir).map_err(|local_error| {
+                format!(
+                    "Failed to create WinOpt data directory in ProgramData ({}) or user profile ({})",
+                    program_data_error, local_error
+                )
+            })?;
+            Ok(local_dir.join(file_name))
+        }
+    }
 }
 
 fn automation_data_path(file_name: &str) -> Result<PathBuf, String> {
@@ -220,7 +234,7 @@ $log = Join-Path $logDir 'software-updates.log'
 function Write-WinOptLog([string]$message) {
   Add-Content -Path $log -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') $message"
 }
-$common = @('--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity')
+$common = @('--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity', '--force')
 "#,
     );
 

@@ -239,7 +239,10 @@ export function AppsPage({ setView }: { setView?: (view: string) => void }) {
                                         <div className="mt-auto border-t border-border/50 pt-4 flex items-center justify-between">
                                             <div className="flex-1">
                                                 {installResult ? (
-                                                    <span className={`text-[11px] font-bold flex items-center gap-1.5 ${installResult.success ? "text-emerald-500" : "text-red-500"}`}>
+                                                    <span
+                                                        title={installResult.success ? installResult.output : installResult.error}
+                                                        className={`text-[11px] font-bold flex items-center gap-1.5 ${installResult.success ? "text-emerald-500" : "text-red-500"}`}
+                                                    >
                                                         {installResult.success ? "✅ Installed" : "❌ Failed"}
                                                     </span>
                                                 ) : isInstalledLocally ? (
@@ -336,7 +339,10 @@ export function AppsPage({ setView }: { setView?: (view: string) => void }) {
                                                     <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-4">
                                                         <div className="flex-1">
                                                             {installResult ? (
-                                                                <span className={`text-[10px] font-bold flex items-center gap-1 ${installResult.success ? "text-emerald-500" : "text-red-500"}`}>
+                                                                <span
+                                                                    title={installResult.success ? installResult.output : installResult.error}
+                                                                    className={`text-[10px] font-bold flex items-center gap-1 ${installResult.success ? "text-emerald-500" : "text-red-500"}`}
+                                                                >
                                                                     {installResult.success ? "✅ Installed" : "❌ Failed"}
                                                                 </span>
                                                             ) : isInstalledLocally ? (
@@ -360,7 +366,7 @@ export function AppsPage({ setView }: { setView?: (view: string) => void }) {
                                         <div className="w-[1px] shrink-0" />
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 px-6">
+                                    <div className="flex flex-col gap-3 px-6">
                                         {category.apps.map((app) => {
                                             const isInstalling = installingId === app.id;
                                             const installResult = installResults[app.id];
@@ -369,37 +375,43 @@ export function AppsPage({ setView }: { setView?: (view: string) => void }) {
                                             return (
                                                 <div
                                                     key={app.id}
-                                                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-surface border border-border hover:border-primary/40 hover:shadow-md cursor-pointer transition-all"
+                                                    className="group flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 transition-all hover:border-primary/40 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
                                                     onClick={(e) => {
                                                         if ((e.target as HTMLElement).closest("button")) return;
                                                         setSelectedAppId({ id: app.id, name: app.name });
                                                     }}
                                                 >
-                                                    <div className="flex items-center gap-3 min-w-0 pr-2">
-                                                        <div className="w-9 h-9 rounded-lg bg-black/5 dark:bg-white/5 border border-border/50 flex items-center justify-center shrink-0 p-1.5">
+                                                    <div className="flex min-w-0 flex-1 items-start gap-4">
+                                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-black/5 p-2 dark:bg-white/5">
                                                             <AppIcon logoUrl={app.logo} appName={app.name} className="w-full h-full object-contain" />
                                                         </div>
-                                                        <div className="min-w-0">
-                                                            <div className="flex items-center gap-1.5">
-                                                                <h3 className="font-bold text-[13px] text-foreground truncate group-hover:text-primary transition-colors">{app.name}</h3>
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex min-w-0 items-center gap-1.5">
+                                                                <h3 className="truncate text-[15px] font-bold text-foreground transition-colors group-hover:text-primary">{app.name}</h3>
                                                                 {app.is_verified && <BadgeCheck className="w-3 h-3 text-blue-500 shrink-0" />}
                                                             </div>
-                                                            <div className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 max-w-[200px] hidden sm:block">
-                                                                by {app.publisher}
-                                                            </div>
+                                                            <p className="mt-0.5 truncate text-[12px] font-medium text-slate-500 dark:text-slate-300">
+                                                                {app.publisher}
+                                                            </p>
+                                                            <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-slate-500 dark:text-slate-200">
+                                                                {app.description}
+                                                            </p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-3 shrink-0 justify-between sm:justify-end border-t sm:border-t-0 border-border/50 pt-2 sm:pt-0">
-                                                        <div className="w-24 text-right pr-2">
+                                                    <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border/50 pt-3 sm:w-[240px] sm:justify-end sm:border-t-0 sm:pt-0">
+                                                        <div className="min-w-0 flex-1 text-left sm:text-right">
                                                             {installResult ? (
-                                                                <span className={`text-[11px] font-bold ${installResult.success ? "text-emerald-500" : "text-red-500"}`}>
+                                                                <span
+                                                                    title={installResult.success ? installResult.output : installResult.error}
+                                                                    className={`text-[11px] font-bold ${installResult.success ? "text-emerald-500" : "text-red-500"}`}
+                                                                >
                                                                     {installResult.success ? "Installed" : "Failed"}
                                                                 </span>
                                                             ) : isInstalledLocally ? (
                                                                 <span className="text-[11px] font-bold text-emerald-500">Installed</span>
                                                             ) : (
-                                                                <span className="text-[11px] text-slate-600 font-medium truncate inline-block w-full">v{app.version}</span>
+                                                                <span className="block truncate text-[11px] font-medium text-slate-500 dark:text-slate-300">Version {app.version}</span>
                                                             )}
                                                         </div>
 

@@ -18,6 +18,9 @@ export function useDrivers() {
     const [drivers, setDrivers] = useState<DriverInfo[]>(() => useGlobalCache.getState().getCacheObject("drivers") || []);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [driverUpdateStatus, setDriverUpdateStatus] = useState<string | null>(null);
+    const [isScanningUpdates, setIsScanningUpdates] = useState(false);
+    const [isOpeningUpdates, setIsOpeningUpdates] = useState(false);
     const [filter, setFilter] = useState<"all" | "signed" | "unsigned">("all");
     const { addToast } = useToast();
 
@@ -67,6 +70,54 @@ export function useDrivers() {
         }
     }, [addToast]);
 
+    const scanDriverUpdates = useCallback(async () => {
+        if (!isTauri()) {
+            const message = "Driver update scanning is only available in the WinOpt Pro desktop app.";
+            setDriverUpdateStatus(message);
+            addToast({ type: "error", title: "Desktop runtime required", message });
+            return false;
+        }
+
+        setIsScanningUpdates(true);
+        setDriverUpdateStatus(null);
+        try {
+            const message = await invoke<string>("scan_driver_updates");
+            setDriverUpdateStatus(message);
+            addToast({ type: "success", title: "Driver scan started", message });
+            return true;
+        } catch (err) {
+            const message = String(err);
+            setDriverUpdateStatus(message);
+            addToast({ type: "error", title: "Driver scan failed", message });
+            return false;
+        } finally {
+            setIsScanningUpdates(false);
+        }
+    }, [addToast]);
+
+    const openDriverUpdates = useCallback(async () => {
+        if (!isTauri()) {
+            const message = "Driver updates are only available in the WinOpt Pro desktop app.";
+            setDriverUpdateStatus(message);
+            addToast({ type: "error", title: "Desktop runtime required", message });
+            return false;
+        }
+
+        setIsOpeningUpdates(true);
+        try {
+            await invoke("open_driver_updates_settings");
+            setDriverUpdateStatus("Opened Windows Optional Updates. Install available driver updates from that Windows page.");
+            return true;
+        } catch (err) {
+            const message = String(err);
+            setDriverUpdateStatus(message);
+            addToast({ type: "error", title: "Could not open Driver Updates", message });
+            return false;
+        } finally {
+            setIsOpeningUpdates(false);
+        }
+    }, [addToast]);
+
     const filteredDrivers = drivers.filter(d => {
         if (filter === "signed") return d.is_signed;
         if (filter === "unsigned") return !d.is_signed;
@@ -75,5 +126,20 @@ export function useDrivers() {
 
     const unsignedCount = drivers.filter(d => !d.is_signed).length;
 
-    return { drivers: filteredDrivers, allDrivers: drivers, isLoading, error, filter, setFilter, fetchDrivers, exportList, unsignedCount };
+    return {
+        drivers: filteredDrivers,
+        allDrivers: drivers,
+        isLoading,
+        error,
+        filter,
+        setFilter,
+        fetchDrivers,
+        exportList,
+        unsignedCount,
+        driverUpdateStatus,
+        isScanningUpdates,
+        isOpeningUpdates,
+        scanDriverUpdates,
+        openDriverUpdates,
+    };
 }

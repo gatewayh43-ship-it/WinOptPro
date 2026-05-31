@@ -25,6 +25,8 @@ vi.mock("framer-motion", async () => {
 const mockSetFilter = vi.fn();
 const mockFetchDrivers = vi.fn();
 const mockExportList = vi.fn();
+const mockScanDriverUpdates = vi.fn();
+const mockOpenDriverUpdates = vi.fn();
 
 const mockDrivers = [
     {
@@ -67,6 +69,11 @@ vi.mock("@/hooks/useDrivers", () => ({
         fetchDrivers: mockFetchDrivers,
         exportList: mockExportList,
         unsignedCount: 1,
+        driverUpdateStatus: null,
+        isScanningUpdates: false,
+        isOpeningUpdates: false,
+        scanDriverUpdates: mockScanDriverUpdates,
+        openDriverUpdates: mockOpenDriverUpdates,
     })),
 }));
 
@@ -80,6 +87,8 @@ describe("DriverManagerPage", () => {
         mockSetFilter.mockReset();
         mockFetchDrivers.mockReset();
         mockExportList.mockReset();
+        mockScanDriverUpdates.mockReset();
+        mockOpenDriverUpdates.mockReset();
     });
 
     it("renders the Driver Manager heading", () => {
@@ -146,6 +155,15 @@ describe("DriverManagerPage", () => {
         expect(mockExportList).toHaveBeenCalledTimes(1);
     });
 
+    it("driver update buttons call Windows Update actions", async () => {
+        const user = setupUser();
+        render(<DriverManagerPage />);
+        await user.click(screen.getByRole("button", { name: /Scan Driver Updates/i }));
+        await user.click(screen.getByRole("button", { name: /Open Driver Updates/i }));
+        expect(mockScanDriverUpdates).toHaveBeenCalledTimes(1);
+        expect(mockOpenDriverUpdates).toHaveBeenCalledTimes(1);
+    });
+
     it("shows loading state when isLoading is true", () => {
         vi.mocked(useDrivers).mockReturnValueOnce({
             drivers: [],
@@ -157,6 +175,11 @@ describe("DriverManagerPage", () => {
             fetchDrivers: mockFetchDrivers,
             exportList: mockExportList,
             unsignedCount: 0,
+            driverUpdateStatus: null,
+            isScanningUpdates: false,
+            isOpeningUpdates: false,
+            scanDriverUpdates: mockScanDriverUpdates,
+            openDriverUpdates: mockOpenDriverUpdates,
         });
         render(<DriverManagerPage />);
         expect(screen.getByText(/Loading drivers/i)).toBeInTheDocument();

@@ -28,12 +28,9 @@ const CLASS_MAP: Record<ThemeName, string[]> = {
     "cyberpunk":      ["dark",  "theme-cyberpunk"],
 };
 
-const DEPRECATED_DESIGN_THEMES = new Set<ThemeName>(["claude", "fluent", "cyberpunk"]);
-
 function normalizeTheme(theme: string | null, fallback: ThemeName): ThemeName {
     if (!theme || !(theme in CLASS_MAP)) return fallback;
-    const nextTheme = theme as ThemeName;
-    return DEPRECATED_DESIGN_THEMES.has(nextTheme) ? fallback : nextTheme;
+    return theme as ThemeName;
 }
 
 type ThemeProviderProps = {

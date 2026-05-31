@@ -9,6 +9,7 @@ use crate::db::{self, DbState, TweakHistoryEntry};
 
 const DEFAULT_TWEAK_TIMEOUT: Duration = Duration::from_secs(30);
 const LONG_RUNNING_TWEAK_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -49,6 +50,8 @@ async fn run_powershell(
         .args([
             "-NoProfile",
             "-NonInteractive",
+            "-WindowStyle",
+            "Hidden",
             "-ExecutionPolicy",
             "Bypass",
             "-Command",
@@ -57,6 +60,7 @@ async fn run_powershell(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .kill_on_drop(true)
+        .creation_flags(CREATE_NO_WINDOW)
         .spawn()
         .map_err(|e| format!("Failed to spawn PowerShell: {}", e))?;
 

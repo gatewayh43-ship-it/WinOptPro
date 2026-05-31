@@ -10,9 +10,9 @@
 ; ── Application info ─────────────────────────────────────────────────────────
 !define APPNAME "WinOpt Pro"
 !define APPVERSION "1.0.0"
-!define PUBLISHER "[YOUR COMPANY NAME]"
-!define WEBSITE "[YOUR WEBSITE URL]"
-!define SUPPORT_EMAIL "[SUPPORT EMAIL]"
+!define PUBLISHER "WinOpt Pro Team"
+!define WEBSITE "https://github.com/gatewayh43-ship-it/WinOptPro"
+!define SUPPORT_EMAIL "support@winoptpro.app"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
 !define INSTALL_REG_KEY "Software\WinOpt Pro"
 

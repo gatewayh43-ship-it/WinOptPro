@@ -7,6 +7,9 @@ import { useGlobalCache } from "../hooks/useGlobalCache";
 vi.mock("@tauri-apps/api/core", () => ({
     invoke: vi.fn(() => Promise.resolve(null)),
     isTauri: vi.fn(() => true),
+    Channel: class MockChannel<T = unknown> {
+        onmessage: ((message: T) => void) | null = null;
+    },
 }));
 
 vi.mock("@tauri-apps/plugin-opener", () => ({

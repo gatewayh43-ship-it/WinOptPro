@@ -4,6 +4,7 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { useAppStore } from "@/store/appStore";
 import { ThemeProvider } from "@/hooks/useTheme";
 import type { ReactNode, ReactElement } from "react";
+import * as tauriCore from "@tauri-apps/api/core";
 
 vi.mock("@/hooks/useSystemVitals", () => ({
     useSystemVitals: vi.fn(() => ({
@@ -54,6 +55,7 @@ describe("SettingsPage", () => {
     beforeEach(() => {
         resetStore();
         localStorage.clear();
+        vi.mocked(tauriCore.invoke).mockClear();
     });
 
     it("renders Appearance, System Monitoring, and Safety sections", () => {
@@ -146,6 +148,17 @@ describe("SettingsPage", () => {
         expect(useAppStore.getState().userSettings.showDeployConfirmation).toBe(false);
     });
 
+    it("checks GitHub Releases for app updates", async () => {
+        vi.mocked(tauriCore.invoke).mockResolvedValueOnce(null);
+        const user = setupUser();
+        renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+
+        await user.click(screen.getByRole("button", { name: /^check$/i }));
+
+        expect(tauriCore.invoke).toHaveBeenCalledWith("check_for_update");
+        expect(await screen.findByText("WinOpt Pro is up to date.")).toBeInTheDocument();
+    });
+
     describe("Appearance section", () => {
         it("renders classic dark swatches", () => {
             renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
@@ -160,11 +173,11 @@ describe("SettingsPage", () => {
             expect(screen.getByTestId("theme-swatch-light-rose")).toBeInTheDocument();
         });
 
-        it("does not render deprecated design theme cards", () => {
+        it("renders signature design theme swatches", () => {
             renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
-            expect(screen.queryByTestId("theme-card-claude")).not.toBeInTheDocument();
-            expect(screen.queryByTestId("theme-card-fluent")).not.toBeInTheDocument();
-            expect(screen.queryByTestId("theme-card-cyberpunk")).not.toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-claude")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-fluent")).toBeInTheDocument();
+            expect(screen.getByTestId("theme-swatch-cyberpunk")).toBeInTheDocument();
         });
 
         it("clicking a theme swatch updates localStorage", async () => {
@@ -177,6 +190,12 @@ describe("SettingsPage", () => {
             renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
             fireEvent.click(screen.getByTestId("theme-swatch-light-violet"));
             expect(localStorage.getItem("vite-ui-theme")).toBe("light-violet");
+        });
+
+        it("clicking a signature theme swatch updates localStorage", async () => {
+            renderWithTheme(<SettingsPage onTriggerGuide={vi.fn()} />);
+            fireEvent.click(screen.getByTestId("theme-swatch-cyberpunk"));
+            expect(localStorage.getItem("vite-ui-theme")).toBe("cyberpunk");
         });
     });
 });

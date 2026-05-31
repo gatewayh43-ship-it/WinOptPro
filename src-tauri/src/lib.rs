@@ -133,6 +133,8 @@ pub fn run() {
             drivers::list_drivers,
             drivers::get_unsigned_drivers,
             drivers::export_driver_list,
+            drivers::scan_driver_updates,
+            drivers::open_driver_updates_settings,
             // Backup
             backup::export_backup,
             backup::import_backup,

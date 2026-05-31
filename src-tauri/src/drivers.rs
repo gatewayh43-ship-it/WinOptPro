@@ -87,3 +87,52 @@ pub fn export_driver_list(path: String) -> Result<bool, String> {
     std::fs::write(&path, json).map_err(|e| format!("Failed to write file: {}", e))?;
     Ok(true)
 }
+
+#[tauri::command]
+pub fn scan_driver_updates() -> Result<String, String> {
+    let scan = Command::new("usoclient.exe")
+        .arg("StartScan")
+        .creation_flags(CREATE_NO_WINDOW)
+        .output();
+
+    match scan {
+        Ok(_) => Ok("Windows Update driver scan started. Open Driver Updates to review available optional driver updates.".to_string()),
+        Err(scan_error) => {
+            let fallback = Command::new("cmd")
+                .args(["/C", "start", "", "ms-settings:windowsupdate-action"])
+                .creation_flags(CREATE_NO_WINDOW)
+                .output()
+                .map_err(|open_error| {
+                    format!(
+                        "Failed to start Windows Update scan ({}) and failed to open Windows Update ({})",
+                        scan_error, open_error
+                    )
+                })?;
+            if fallback.status.success() {
+                Ok("Opened Windows Update. Use Check for updates to scan for driver updates.".to_string())
+            } else {
+                Err("Failed to open Windows Update.".to_string())
+            }
+        }
+    }
+}
+
+#[tauri::command]
+pub fn open_driver_updates_settings() -> Result<bool, String> {
+    let output = Command::new("cmd")
+        .args(["/C", "start", "", "ms-settings:windowsupdate-optionalupdates"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output()
+        .map_err(|e| format!("Failed to open Windows optional driver updates: {}", e))?;
+
+    if output.status.success() {
+        Ok(true)
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        Err(if stderr.is_empty() {
+            "Failed to open Windows optional driver updates.".to_string()
+        } else {
+            stderr
+        })
+    }
+}

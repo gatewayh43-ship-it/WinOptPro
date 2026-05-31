@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BackupData {
     pub version: String,
@@ -299,11 +301,14 @@ pub async fn create_restore_point(description: String) -> Result<bool, String> {
             .args([
                 "-NoProfile",
                 "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
                 "-ExecutionPolicy",
                 "Bypass",
                 "-Command",
                 &script,
             ])
+            .creation_flags(CREATE_NO_WINDOW)
             .output();
 
         let output = timeout(Duration::from_secs(60), cmd)

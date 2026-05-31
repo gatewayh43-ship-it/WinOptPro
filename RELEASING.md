@@ -23,6 +23,16 @@ cd ..
 npx tauri build --no-bundle
 ```
 
+## Local Installer Build
+
+Use this when you need a Windows installer for manual QA or internal distribution without generating signed updater artifacts locally.
+
+```powershell
+npm run build:installer
+```
+
+The generated `.exe` and `.msi` installers are copied to `release\windows`. Public paid-user builds should still be produced from the release workflow with updater and Authenticode signing configured.
+
 ## Release
 
 1. Update versions in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json`.
