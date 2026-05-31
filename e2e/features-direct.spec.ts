@@ -878,16 +878,25 @@ test.describe('Network Analyzer', () => {
         await page.waitForTimeout(2000); // let interfaces load
 
         const adapterInventoryVisible = await page.getByText(/\d+ Found/i).first().isVisible({ timeout: 5000 }).catch(() => false);
+        await page.getByTestId('run-speed-test').click();
+        await expect(page.getByTestId('speed-download-mbps')).toBeVisible({ timeout: 30000 });
+        const speedText = await page.getByTestId('speed-download-mbps').textContent();
+        const downloadMbps = parseFloat(speedText?.trim() ?? 'NaN');
+
+        await page.getByRole('button', { name: /Cloudflare DNS/i }).first().click();
+        await expect(page.getByText(/Network action applied|Cloudflare DNS applied/i).first()).toBeVisible({ timeout: 15000 });
 
         record({
             feature: 'NetworkAnalyzer',
             test: 'interface cards render with speed test and optimizer controls',
-            status: adapterInventoryVisible ? 'PASS' : 'FAIL',
+            status: adapterInventoryVisible && Number.isFinite(downloadMbps) && downloadMbps >= 0 ? 'PASS' : 'FAIL',
             durationMs: Date.now() - start,
-            error: !adapterInventoryVisible ? 'Active adapter inventory count was not visible' : undefined,
+            bridgeOutput: `Speed=${speedText} Mbps; optimizer action applied`,
+            error: !adapterInventoryVisible ? 'Active adapter inventory count was not visible' : !Number.isFinite(downloadMbps) ? 'Speed test did not produce a numeric download Mbps value' : undefined,
         });
 
         expect(adapterInventoryVisible).toBe(true);
+        expect(Number.isFinite(downloadMbps)).toBe(true);
     });
 
     test('ping 127.0.0.1 returns latency ≥ 0 ms', async ({ page }) => {

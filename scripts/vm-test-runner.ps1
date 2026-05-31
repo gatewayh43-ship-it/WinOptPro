@@ -374,6 +374,13 @@ try {
         npm.cmd --version | Out-Null
     }
     Write-Host "  OK Dependencies available" -ForegroundColor Green
+
+    Invoke-Command -Session $session -ScriptBlock {
+        Set-Location "C:\WinOpt\WinOptimizerRevamp"
+        Remove-Item -Path ".\node_modules\.vite",".\node_modules\.vite-temp",".\.vite",".\dist" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path ".\test-results\features-direct",".\test-results\features-direct-*" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host "  OK Cleared guest Vite/test caches" -ForegroundColor Green
     
     Remove-PSSession $session
 } catch {
@@ -405,7 +412,7 @@ Invoke-Command -Session $session -ScriptBlock {
 
     # Start dev server in background
     Start-Process -FilePath $npm `
-        -ArgumentList "run","dev","--","--host","0.0.0.0" `
+        -ArgumentList "run","dev","--","--host","0.0.0.0","--force" `
         -WorkingDirectory "C:\WinOpt\WinOptimizerRevamp" `
         -RedirectStandardOutput "C:\WinOpt\vite.stdout.log" `
         -RedirectStandardError "C:\WinOpt\vite.stderr.log" `
