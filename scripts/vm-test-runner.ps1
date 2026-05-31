@@ -96,6 +96,23 @@ function New-WinOptVmSession {
     return New-PSSession -VMName $VMName -ErrorAction Stop
 }
 
+function Invoke-WinOptVmCommand {
+    param(
+        [Parameter(Mandatory = $true)][ref]$SessionRef,
+        [Parameter(Mandatory = $true)][scriptblock]$ScriptBlock,
+        [object[]]$ArgumentList = @()
+    )
+
+    try {
+        return Invoke-Command -Session $SessionRef.Value -ArgumentList $ArgumentList -ScriptBlock $ScriptBlock -ErrorAction Stop
+    } catch {
+        Write-Host "  WARN VM session dropped; reopening PowerShell session and continuing..." -ForegroundColor Yellow
+        Remove-PSSession $SessionRef.Value -ErrorAction SilentlyContinue
+        $SessionRef.Value = New-WinOptVmSession
+        return Invoke-Command -Session $SessionRef.Value -ArgumentList $ArgumentList -ScriptBlock $ScriptBlock -ErrorAction Stop
+    }
+}
+
 function Copy-WinOptDirectoryToVmArchive {
     param(
         [Parameter(Mandatory = $true)]$Session,
@@ -538,7 +555,7 @@ exit `$code
         $uiDeadline = (Get-Date).AddHours(4)
 
         while ($true) {
-            $state = Invoke-Command -Session $session -ArgumentList $guestUiProcessId -ScriptBlock {
+            $state = Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($guestUiProcessId) -ScriptBlock {
                 param($PidToCheck)
                 $proc = Get-Process -Id $PidToCheck -ErrorAction SilentlyContinue
                 $logPath = "C:\WinOpt\ui-playwright.log"
@@ -568,7 +585,7 @@ exit `$code
             }
 
             if ((Get-Date) -gt $uiDeadline) {
-                Invoke-Command -Session $session -ArgumentList $guestUiProcessId -ScriptBlock {
+                Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($guestUiProcessId) -ScriptBlock {
                     param($PidToStop)
                     Stop-Process -Id $PidToStop -Force -ErrorAction SilentlyContinue
                 }
@@ -677,7 +694,7 @@ exit `$code
         $deadline = (Get-Date).AddHours(3)
 
         while ($true) {
-            $state = Invoke-Command -Session $session -ArgumentList $directProcessId -ScriptBlock {
+            $state = Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($directProcessId) -ScriptBlock {
                 param($PidToCheck)
                 $project = "C:\WinOpt\WinOptimizerRevamp"
                 $resultDir = Join-Path $project "test-results\vm-direct"
@@ -718,7 +735,7 @@ exit `$code
             }
 
             if ((Get-Date) -gt $deadline) {
-                Invoke-Command -Session $session -ArgumentList $directProcessId -ScriptBlock {
+                Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($directProcessId) -ScriptBlock {
                     param($PidToStop)
                     Stop-Process -Id $PidToStop -Force -ErrorAction SilentlyContinue
                 }
@@ -804,7 +821,7 @@ exit `$code
         $featDeadline = (Get-Date).AddHours(1)
 
         while ($true) {
-            $state = Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
+            $state = Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($featuresProcessId) -ScriptBlock {
                 param($ProcessId)
                 $proc     = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
                 $exitPath = "C:\WinOpt\features-exitcode.txt"
@@ -829,7 +846,7 @@ exit `$code
             }
 
             if ((Get-Date) -gt $featDeadline) {
-                Invoke-Command -Session $session -ArgumentList $featuresProcessId -ScriptBlock {
+                Invoke-WinOptVmCommand -SessionRef ([ref]$session) -ArgumentList @($featuresProcessId) -ScriptBlock {
                     param($ProcessId) Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
                 }
                 throw "Features verification did not finish within 1 hour."
