@@ -44,7 +44,7 @@ export function DriverManagerPage() {
                         Driver <span className="text-gradient">Manager</span>
                     </h2>
                     <p className="text-slate-500 dark:text-slate-300 mt-2 text-[15px] font-medium leading-relaxed max-w-lg">
-                        View installed device drivers, identify unsigned drivers, open Windows optional driver updates, and export the full driver inventory.
+                        View installed device drivers, compare current and latest Windows Update versions, identify unsigned drivers, and export the full driver inventory.
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -160,7 +160,8 @@ export function DriverManagerPage() {
                                 <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px]">Device</th>
                                 <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden md:table-cell">Class</th>
                                 <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Provider</th>
-                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Version</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden lg:table-cell">Current</th>
+                                <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden xl:table-cell">Latest</th>
                                 <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] hidden xl:table-cell">Date</th>
                                 <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px]">Signed</th>
                             </tr>
@@ -183,6 +184,16 @@ export function DriverManagerPage() {
                                     </td>
                                     <td className="px-4 py-3 text-slate-400 dark:text-slate-200 hidden lg:table-cell">{d.provider || "—"}</td>
                                     <td className="px-4 py-3 text-slate-400 dark:text-slate-200 font-mono hidden lg:table-cell">{d.version || "—"}</td>
+                                    <td className="px-4 py-3 hidden xl:table-cell">
+                                        <span className={`font-mono ${d.update_available ? "text-amber-400 font-bold" : "text-slate-400 dark:text-slate-200"}`}>
+                                            {d.latest_version || d.version || "—"}
+                                        </span>
+                                        {d.update_available && (
+                                            <span className="ml-2 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-400">
+                                                Update
+                                            </span>
+                                        )}
+                                    </td>
                                     <td className="px-4 py-3 text-slate-500 dark:text-slate-300 hidden xl:table-cell">{d.date || "—"}</td>
                                     <td className="px-4 py-3">
                                         {d.is_signed ? (

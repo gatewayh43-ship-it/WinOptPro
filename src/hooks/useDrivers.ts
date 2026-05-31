@@ -8,6 +8,8 @@ export interface DriverInfo {
     inf_name: string;
     provider: string;
     version: string;
+    latest_version: string;
+    update_available: boolean;
     date: string;
     device_class: string;
     is_signed: boolean;

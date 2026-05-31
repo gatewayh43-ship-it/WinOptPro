@@ -34,6 +34,8 @@ const mockDrivers = [
         inf_name: "nvlddmkm.inf",
         provider: "NVIDIA",
         version: "31.0.15.3623",
+        latest_version: "32.0.15.9999",
+        update_available: true,
         date: "2024-01-15",
         device_class: "Display",
         is_signed: true,
@@ -43,6 +45,8 @@ const mockDrivers = [
         inf_name: "netwtw08.inf",
         provider: "Intel",
         version: "22.220.0.7",
+        latest_version: "22.220.0.7",
+        update_available: false,
         date: "2023-11-20",
         device_class: "Net",
         is_signed: true,
@@ -52,6 +56,8 @@ const mockDrivers = [
         inf_name: "test.inf",
         provider: "Unknown",
         version: "1.0.0.0",
+        latest_version: "1.0.0.0",
+        update_available: false,
         date: "2021-01-01",
         device_class: "Unknown",
         is_signed: false,
@@ -117,6 +123,15 @@ describe("DriverManagerPage", () => {
         expect(screen.getByText("NVIDIA GeForce RTX 3080")).toBeInTheDocument();
         expect(screen.getByText("Intel(R) Wi-Fi 6 AX200")).toBeInTheDocument();
         expect(screen.getByText("Test Unsigned Driver")).toBeInTheDocument();
+    });
+
+    it("shows current and latest driver versions", () => {
+        render(<DriverManagerPage />);
+        expect(screen.getByText("Current")).toBeInTheDocument();
+        expect(screen.getByText("Latest")).toBeInTheDocument();
+        expect(screen.getByText("31.0.15.3623")).toBeInTheDocument();
+        expect(screen.getByText("32.0.15.9999")).toBeInTheDocument();
+        expect(screen.getByText("Update")).toBeInTheDocument();
     });
 
     it("shows filter buttons All, Signed, Unsigned", () => {
